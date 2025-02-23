@@ -86,6 +86,6 @@ jobs:
         allowUpdates: true
         prerelease: true
         tag: TazUO-AutoBuild
-        token: ${{ secrets.TAZUOPAT }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         
         
