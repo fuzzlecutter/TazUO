@@ -67,7 +67,7 @@ jobs:
       
     - name: Create manifest
       run: |
-        dotnet run --project tools/ManifestCreator/ManifestCreator.csproj "${{ env.CUO_OUTPUT_PATH }}" "unix-auto" "${{ runner.os }}${{ env.CUO_ZIP_NAME }}"
+        dotnet run --project tools/ManifestCreator/ManifestCreator.csproj "${{ env.CUO_OUTPUT_PATH }}" "unix-auto" "${{ env.CUO_ZIP_NAME }}"
         mkdir upload
         mv manifest.xml upload
       
@@ -76,18 +76,18 @@ jobs:
       with:
         type: 'zip'
         directory: ${{ env.CUO_OUTPUT_PATH }}
-        filename: ${{ runner.os }}${{ env.CUO_ZIP_NAME }}
+        filename: ${{ env.CUO_ZIP_NAME }}
         exclusions: '*.zip manifest.xml'
             
     - name: Move output
-      run: mv "${{ env.CUO_OUTPUT_PATH }}/${{ runner.os }}${{ env.CUO_ZIP_NAME }}" upload
+      run: mv "${{ env.CUO_OUTPUT_PATH }}/${{ env.CUO_ZIP_NAME }}" upload
               
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "upload/${{ runner.os }}${{ env.CUO_ZIP_NAME }}"
+        artifacts: "upload/${{ env.CUO_ZIP_NAME }}"
         name: 'Latest Build'
-        body: 'These are built automatically on the Main branch. It is recomended to use the [latest release](https://github.com/bittiez/TazUO/releases/latest) if you are not sure what this is.'
+        body: 'These are built automatically on the Main branch.'
         makeLatest: false
         allowUpdates: true
         prerelease: true
