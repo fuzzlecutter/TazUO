@@ -79,6 +79,8 @@ namespace ClassicUO.Game.GameObjects
         }
     }
 
+
+
     internal class OverheadDamage
     {
         private const int DAMAGE_Y_MOVING_TIME = 25;
@@ -97,6 +99,7 @@ namespace ClassicUO.Game.GameObjects
         public bool IsDestroyed { get; private set; }
         public bool IsEmpty => _messages.Count == 0;
 
+
         public void SetParent(GameObject parent)
         {
             Parent = parent;
@@ -104,6 +107,8 @@ namespace ClassicUO.Game.GameObjects
 
         public void Add(int damage)
         {
+            Parent.AddDamage(damage);
+
             TextObject text_obj = TextObject.Create();
 
             ushort hue = ProfileManager.CurrentProfile == null ? (ushort)0x0021 : ProfileManager.CurrentProfile.DamageHueOther;
@@ -121,8 +126,8 @@ namespace ClassicUO.Game.GameObjects
                 if (_parent.Serial == TargetManager.LastAttack)
                     hue = ProfileManager.CurrentProfile == null ? (ushort)0x1F : ProfileManager.CurrentProfile.DamageHueLastAttck;
             }
-
-            text_obj.TextBox = new UI.Controls.TextBox(damage.ToString(), ProfileManager.CurrentProfile.OverheadChatFont, ProfileManager.CurrentProfile.OverheadChatFontSize, ProfileManager.CurrentProfile.OverheadChatWidth, hue, align: FontStashSharp.RichText.TextHorizontalAlignment.Center) { AcceptMouseInput = !ProfileManager.CurrentProfile.DisableMouseInteractionOverheadText };
+            string dps = ProfileManager.CurrentProfile.ShowDPS ? $" (DPS: {Parent.GetCurrentDPS()})" : string.Empty;
+            text_obj.TextBox = new UI.Controls.TextBox(damage.ToString() + dps, ProfileManager.CurrentProfile.OverheadChatFont, ProfileManager.CurrentProfile.OverheadChatFontSize, ProfileManager.CurrentProfile.OverheadChatWidth, hue, align: FontStashSharp.RichText.TextHorizontalAlignment.Center) { AcceptMouseInput = !ProfileManager.CurrentProfile.DisableMouseInteractionOverheadText };
 
             text_obj.Time = Time.Ticks + 1500;
 
