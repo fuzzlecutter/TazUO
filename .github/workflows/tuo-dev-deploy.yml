@@ -65,7 +65,7 @@ jobs:
       
     - name: Create manifest
       run: |
-        dotnet run --project tools/ManifestCreator/ManifestCreator.csproj "${{ env.CUO_OUTPUT_PATH }}" "unix-auto" "${{ runner.os }}${{ env.CUO_ZIP_NAME }}"
+        dotnet run --project tools/ManifestCreator/ManifestCreator.csproj "${{ env.CUO_OUTPUT_PATH }}" "unix-auto" "${{ env.CUO_ZIP_NAME }}"
         mkdir upload
         mv manifest.xml upload
       
@@ -74,7 +74,7 @@ jobs:
       with:
         type: 'zip'
         directory: ${{ env.CUO_OUTPUT_PATH }}
-        filename: ${{ runner.os }}${{ env.CUO_ZIP_NAME }}
+        filename: ${{ env.CUO_ZIP_NAME }}
         exclusions: '*.zip manifest.xml'
             
     - name: Move output
