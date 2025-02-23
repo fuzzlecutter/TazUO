@@ -65,19 +65,13 @@ jobs:
     - name: Build
       run: dotnet publish ${{ env.CUO_PROJECT_PATH }} -c Release -o ${{ env.CUO_OUTPUT_PATH }} -p:IS_DEV_BUILD=true
       
-    - name: Create manifest
-      run: |
-        dotnet run --project tools/ManifestCreator/ManifestCreator.csproj "${{ env.CUO_OUTPUT_PATH }}" "unix-auto" "${{ env.CUO_ZIP_NAME }}"
-        mkdir upload
-        mv manifest.xml upload
-      
     - name: Create package
       uses: thedoctor0/zip-release@master
       with:
         type: 'zip'
         directory: ${{ env.CUO_OUTPUT_PATH }}
         filename: ${{ env.CUO_ZIP_NAME }}
-        exclusions: '*.zip manifest.xml'
+        exclusions: '*.zip'
             
     - name: Move output
       run: mv "${{ env.CUO_OUTPUT_PATH }}/${{ env.CUO_ZIP_NAME }}" upload
