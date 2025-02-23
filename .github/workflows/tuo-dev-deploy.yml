@@ -43,7 +43,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-       os: [  windows-latest, ubuntu-latest, macos-latest]
+       os: [  windows-latest ]
 
     steps:
     - uses: actions/checkout@v4
@@ -59,31 +59,23 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+        cache: true
             
     - name: Build
       run: dotnet publish ${{ env.CUO_PROJECT_PATH }} -c Release -o ${{ env.CUO_OUTPUT_PATH }} -p:IS_DEV_BUILD=true
-      
-    - name: Create manifest
-      run: |
-        dotnet run --project tools/ManifestCreator/ManifestCreator.csproj "${{ env.CUO_OUTPUT_PATH }}" "unix-auto" "${{ runner.os }}${{ env.CUO_ZIP_NAME }}"
-        mkdir upload
-        mv manifest.xml upload
       
     - name: Create package
       uses: thedoctor0/zip-release@master
       with:
         type: 'zip'
         directory: ${{ env.CUO_OUTPUT_PATH }}
-        filename: ${{ runner.os }}${{ env.CUO_ZIP_NAME }}
-        exclusions: '*.zip manifest.xml'
-            
-    - name: Move output
-      run: mv "${{ env.CUO_OUTPUT_PATH }}/${{ runner.os }}${{ env.CUO_ZIP_NAME }}" upload
+        filename: ${{ env.CUO_ZIP_NAME }}
+        exclusions: '*.zip'
               
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "upload/${{ runner.os }}${{ env.CUO_ZIP_NAME }}"
+        artifacts: "${{ env.CUO_OUTPUT_PATH }}/${{ env.CUO_ZIP_NAME }}"
         name: 'TazUO Bleeding Edge'
         body: 'These are built automatically on the dev branch. These may include features that are still being worked on/not complete.'
         makeLatest: false

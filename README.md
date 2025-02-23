@@ -1,10 +1,8 @@
-<p align="center"><img src="https://github.com/bittiez/TazUO/assets/3859393/832c4cf3-8525-419b-ad16-3c5f7de1b80c" width="300" height="300"></p>
+<p align="center"><a href="https://github.com/bittiez/TazUO/discussions">Join our discussions page</a></p>
 
-<p align="center">
-    <a href="https://discord.gg/SqwtB5g95H">
-    <img src="https://img.shields.io/discord/1087124353155608617.svg?logo=discord"
-    alt="chat on Discord"></a>
-</p>
+! Due to a bad actor deleting the original TazUO Repo we have lost the Wiki and Discord server !
+
+We may or may not start another discord server, you can use the discussions [here](https://github.com/bittiez/TazUO/discussions) instead.
 
 ***
 

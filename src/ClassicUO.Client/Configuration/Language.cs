@@ -320,6 +320,7 @@ namespace ClassicUO.Configuration
             public string SingleClickForSpellIcons { get; set; } = "Single click for spell icons";
             public string ShowBuffDurationOnOldStyleBuffBar { get; set; } = "Show buff duration on old style buff bar";
             public string EnableFastSpellHotkeyAssigning { get; set; } = "Enable fast spell hotkey assigning";
+            public string EnableDPSCounter { get; set; } = "Enable damage-taken DPS counter with damage numbers";
             public string TooltipFastSpellAssign { get; set; } = "Ctrl + Alt + Click a spell icon the open a gump to set a hotkey";
             public string InnocentColor { get; set; } = "Innocent color";
             public string BeneficialSpell { get; set; } = "Beneficial spell";
@@ -521,6 +522,8 @@ namespace ClassicUO.Configuration
             public string PlayerOffsetY { get; set; } = "Player Offset Y";
             public string UseLandTexturesWhereAvailable { get; set; } = "Use land textures where available(Experimental)";
             public string SOSGumpID { get; set; } = "SOS Gump ID";
+            public string NearbyItemGump { get; set; } = "Enable nearby item gump";
+            public string UseWASDMovement { get; set; } = "Use WASD movement instead of arrow keys";
             #endregion
 
             #region Tooltips
@@ -559,6 +562,9 @@ namespace ClassicUO.Configuration
             public string OverrideAll { get; set; } = "Override {0} other profiles with this one.";
             public string OverrideSuccess { get; set; } = "{0} profiles overriden.";
             public string OverrideSame { get; set; } = "Override {0} other profiles on this same server with this one.";
+            public string SetAsDefault { get; set; } = "Set this profile as the default for new characters.";
+            public string SetAsDefaultSuccess { get; set; } = "This profile is now the default for new characters.";
+
             #endregion
 
             #region GumpScaling

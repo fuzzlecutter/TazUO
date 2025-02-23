@@ -1262,6 +1262,16 @@ namespace ClassicUO.Game.UI.Gumps
 
             PositionHelper.BlankLine();
 
+            options.Add(s = new SettingsOption(
+                "",
+                new CheckboxWithLabel(lang.GetCombatSpells.EnableDPSCounter, 0, profile.ShowDPS, (b) => { profile.ShowDPS = b; }),
+                mainContent.RightWidth,
+                PAGE.CombatSpells
+            ));
+            PositionHelper.PositionControl(s.FullControl);
+
+            PositionHelper.BlankLine();
+
             SettingsOption ss;
             options.Add(s = new SettingsOption(
                 "",
@@ -2432,6 +2442,11 @@ namespace ClassicUO.Game.UI.Gumps
             }), true, page);
             content.BlankLine();
             content.AddToRight(new InputFieldWithLabel(lang.GetTazUO.SOSGumpID, Theme.INPUT_WIDTH, profile.SOSGumpID.ToString(), true, (s, e) => { if (uint.TryParse(((InputField.StbTextBox)s).Text, out uint id)) { profile.SOSGumpID = id; } }), true, page);
+            content.BlankLine();
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.NearbyItemGump, isChecked: profile.EnableNearbyItemGump, valueChanged: (e) => { profile.EnableNearbyItemGump = e; }), true, page);
+            content.BlankLine();
+            content.AddToRight(c = new CheckboxWithLabel(lang.GetTazUO.UseWASDMovement, isChecked: profile.UseWASDInsteadArrowKeys, valueChanged: (e) => { profile.UseWASDInsteadArrowKeys = e; }), true, page);
+            c.SetTooltip("This only works if you have enable chat by pressing enter, and chat disabled. Otherwise you will still be typing into your chatbar.");
             #endregion
 
             #region Tooltips
@@ -2616,6 +2631,16 @@ namespace ClassicUO.Game.UI.Gumps
                 {
                     OverrideAllProfiles(sameServerLocations);
                     GameActions.Print(string.Format(lang.GetTazUO.OverrideSuccess, sameServerLocations.Count - 1), 32, Data.MessageType.System);
+                }
+            };
+
+            content.AddToRight(c = new ModernButton(0, 0, content.RightWidth - 20, 40, ButtonAction.Activate, lang.GetTazUO.SetAsDefault, Theme.BUTTON_FONT_COLOR) { IsSelectable = true, IsSelected = true }, true, page);
+            c.MouseUp += (s, e) =>
+            {
+                if (e.Button == MouseButtonType.Left)
+                {
+                    ProfileManager.SetProfileAsDefault(ProfileManager.CurrentProfile);
+                    GameActions.Print(lang.GetTazUO.SetAsDefaultSuccess, 32, Data.MessageType.System);
                 }
             };
             #endregion
@@ -3750,9 +3775,11 @@ namespace ClassicUO.Game.UI.Gumps
             }
         }
 
-        private class InputField : Control
+        public class InputField : Control
         {
             private readonly StbTextBox _textbox;
+
+            private AlphaBlendControl _background;
 
             public event EventHandler TextChanged { add { _textbox.TextChanged += value; } remove { _textbox.TextChanged -= value; } }
 
@@ -3785,7 +3812,7 @@ namespace ClassicUO.Game.UI.Gumps
                 _textbox.Text = text;
                 _textbox.NumbersOnly = numbersOnly;
 
-                Add(new AlphaBlendControl() { Width = Width, Height = Height });
+                Add(_background = new AlphaBlendControl() { Width = Width, Height = Height });
                 Add(_textbox);
                 if (onTextChanges != null)
                 {
@@ -3805,6 +3832,12 @@ namespace ClassicUO.Game.UI.Gumps
                 return true;
             }
 
+
+            public void UpdateBackground()
+            {
+                _background.Width = Width;
+                _background.Height = Height;
+            }
 
             public string Text => _textbox.Text;
 

@@ -143,7 +143,7 @@ namespace ClassicUO.Configuration
         public bool HighlightMobilesByInvul { get; set; } = true;
         public bool ShowMobilesHP { get; set; }
         public bool ShowTargetIndicator { get; set; }
-        public bool AutoAvoidObstacules { get; set; }
+        public bool AutoAvoidObstacules { get; set; } = true;
         public int MobileHPType { get; set; }     // 0 = %, 1 = line, 2 = both
         public int MobileHPShowWhen { get; set; } // 0 = Always, 1 - <100%
         public bool DrawRoofs { get; set; } = true;
@@ -176,11 +176,11 @@ namespace ClassicUO.Configuration
         public byte TooltipFont { get; set; } = 1;
 
         // movements
-        public bool EnablePathfind { get; set; }
+        public bool EnablePathfind { get; set; } = true;
         public bool UseShiftToPathfind { get; set; }
         public bool PathfindSingleClick { get; set; }
-        public bool AlwaysRun { get; set; }
-        public bool AlwaysRunUnlessHidden { get; set; }
+        public bool AlwaysRun { get; set; } = true;
+        public bool AlwaysRunUnlessHidden { get; set; } = true;
         public bool SmoothMovements { get; set; } = true;
         public bool HoldDownKeyTab { get; set; } = true;
         public bool HoldShiftForContext { get; set; } = false;
@@ -221,9 +221,9 @@ namespace ClassicUO.Configuration
         public bool CastSpellsByOneClick { get; set; }
         public bool BuffBarTime { get; set; }
         public bool FastSpellsAssign { get; set; }
-        public bool AutoOpenDoors { get; set; }
-        public bool SmoothDoors { get; set; }
-        public bool AutoOpenCorpses { get; set; }
+        public bool AutoOpenDoors { get; set; } = true;
+        public bool SmoothDoors { get; set; } = true;
+        public bool AutoOpenCorpses { get; set; } = true;
         public int AutoOpenCorpseRange { get; set; } = 2;
         public int CorpseOpenOptions { get; set; } = 3;
         public bool SkipEmptyCorpse { get; set; }
@@ -420,6 +420,8 @@ namespace ClassicUO.Configuration
         public ushort DamageHueAlly { get; set; } = 0x0030;
         public ushort DamageHueLastAttck { get; set; } = 0x1F;
         public ushort DamageHueOther { get; set; } = 0x0021;
+
+        public bool ShowDPS { get; set; } = true;
         #endregion
 
         #region GridHighlightingProps
@@ -601,6 +603,9 @@ namespace ClassicUO.Configuration
         public bool EnableGumpCloseAnimation { get; set; } = true;
 
         public bool EnableAutoLootProgressBar { get; set; } = true;
+        public bool EnableNearbyItemGump {  get; set; } = true;
+
+        public bool UseWASDInsteadArrowKeys { get; set; } = false;
 
 
         public void Save(string path, bool saveGumps = true)
@@ -615,6 +620,11 @@ namespace ClassicUO.Configuration
                 SaveGumps(path);
 
             Log.Trace("Saving done!");
+        }
+
+        public void SaveAsFile(string path, string filename)
+        {
+            ConfigurationResolver.Save(this, Path.Combine(path, filename), ProfileJsonContext.DefaultToUse);
         }
 
         private void SaveGumps(string path)
@@ -946,6 +956,9 @@ namespace ClassicUO.Configuration
                                     break;
                                 case GumpType.DurabilityGump:
                                     gump = new DurabilitysGump();
+                                    break;
+                                case GumpType.ScriptManager:
+                                    gump = new LegionScripting.ScriptManagerGump();
                                     break;
                             }
 
