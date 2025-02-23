@@ -112,12 +112,13 @@ namespace ClassicUO.Game.GameObjects
             TextObject text_obj = TextObject.Create();
 
             ushort hue = ProfileManager.CurrentProfile == null ? (ushort)0x0021 : ProfileManager.CurrentProfile.DamageHueOther;
-
+            string name = string.Empty;
             if (ReferenceEquals(Parent, World.Player))
                 hue = ProfileManager.CurrentProfile == null ? (ushort)0x0034 : ProfileManager.CurrentProfile.DamageHueSelf;
             else if (Parent is Mobile)
             {
                 Mobile _parent = (Mobile)Parent;
+                name = _parent.Name;
                 if (_parent.IsRenamable && _parent.NotorietyFlag != NotorietyFlag.Invulnerable && _parent.NotorietyFlag != NotorietyFlag.Enemy)
                     hue = ProfileManager.CurrentProfile == null ? (ushort)0x0033 : ProfileManager.CurrentProfile.DamageHuePet;
                 else if (_parent.NotorietyFlag == NotorietyFlag.Ally)
@@ -128,6 +129,8 @@ namespace ClassicUO.Game.GameObjects
             }
             string dps = ProfileManager.CurrentProfile.ShowDPS ? $" (DPS: {Parent.GetCurrentDPS()})" : string.Empty;
             text_obj.TextBox = new UI.Controls.TextBox(damage.ToString() + dps, ProfileManager.CurrentProfile.OverheadChatFont, ProfileManager.CurrentProfile.OverheadChatFontSize, ProfileManager.CurrentProfile.OverheadChatWidth, hue, align: FontStashSharp.RichText.TextHorizontalAlignment.Center) { AcceptMouseInput = !ProfileManager.CurrentProfile.DisableMouseInteractionOverheadText };
+
+            World.Journal.Add(damage.ToString() + dps, hue, name, TextType.CLIENT, messageType: MessageType.Damage);
 
             text_obj.Time = Time.Ticks + 1500;
 
