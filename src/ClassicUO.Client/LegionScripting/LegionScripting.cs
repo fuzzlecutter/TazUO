@@ -317,8 +317,11 @@ namespace ClassicUO.LegionScripting
                 if (runningScripts.Contains(script))
                     runningScripts.Remove(script);
 
-                script.GetScript.Reset();
-                script.GetScript.IsPlaying = false;
+                if (script.GetScript != null)
+                {
+                    script.GetScript.Reset();
+                    script.GetScript.IsPlaying = false;
+                }
 
                 ScriptStoppedEvent?.Invoke(null, new ScriptInfoEvent(script));
             }
@@ -557,8 +560,16 @@ namespace ClassicUO.LegionScripting
             GetScript = new Script(Lexer.Lex(FileContents));
         }
 
+        public void ReloadFromFile()
+        {
+            FileContents = File.ReadAllLines(FullPath);
+            GenerateScript();
+        }
+
         public void GenerateScript()
         {
+            LegionScripting.StopScript(this);
+
             try
             {
                 if (GetScript == null)
