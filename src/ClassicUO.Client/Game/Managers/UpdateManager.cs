@@ -14,6 +14,8 @@ namespace ClassicUO.Game.Managers
 
         public static void CheckForUpdates()
         {
+            return; // Disable update checks for now
+
             if (!SkipUpdateCheck)
             {
                 Task.Factory.StartNew(() =>
