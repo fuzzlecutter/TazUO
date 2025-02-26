@@ -8,14 +8,22 @@ namespace ClassicUO.Game.UI.Gumps
     internal class VersionHistory : Gump
     {
         private static string[] updateTexts = {
+            "/c[white][3.25.0]/cd\n" +
+                "- Added the Legion scripting engine, see wiki for details\n" +
+                "- Updated some common default settings that are usually used\n" +
+                "- More controller QOL improvements\n" +
+                "- Added tooltips for counterbar items\n" +
+                "- Added a nearby items feature(See wiki for details)\n" +
+                "- Various bug fixes\n" +
+
             "/c[white][3.24.2]/cd\n" +
-                "- Fix Invisible itens in Osi New Legacy Server\n" +
-                "- Fix added more slots for show itens layer in paperdoll \n" +
+                "- Fix Invisible items in Osi New Legacy Server\n" +
+                "- Fix added more slots for show items layer in paperdoll \n" +
                 "- Add scrollbar to cooldowns in options  \n" +
                 "- Created progress bar for auto loot \n" +
                 "- Fix skill progress bars \n" +
                 "- Fix scroll area in autoloot options \n" +
-                "- Create toogle and controller gumps for play in steam deck \n" +
+                "- Create gump toggle mcros gumps for controller gameplay \n" +
                 "- Save position of durability gump while in game \n" +
 
             "/c[white][3.24.2]/cd\n" +
@@ -25,20 +33,20 @@ namespace ClassicUO.Game.UI.Gumps
                 "- Fix Pathfinding algorithm using Z more efficiently from ghzatomic \n" +
 
              "/c[white][3.24.1]/cd\n" +
-                "- Fix for not load Modern  Paperdoll\n" +
+                "- Fix for Modern Paperdoll not loading\n" +
                 "- Fix Using Weapons Abilitys\n" +
 
             "/c[white][3.24.0]/cd\n" +
                 "- Updated the algorithm for reading mul encryption\n" +
-                "- Fix creation of the scroll in the list infobar manager\n" +
-                "- Fix ignoring player also in chat too\n" +
-                "- Add Auto Avoid Obstacules",
+                "- Fix scrolling in the infobar manager\n" +
+                "- Fix ignoring player in chat too\n" +
+                "- Add auto avoid obstacles",
 
             "/c[white][3.23.2]/cd\n" +
-                "- Fixed Disarm and Stun Hability AOS",
+                "- Fixed Disarm and Stun ability AOS",
 
             "/c[white][3.23.1]/cd\n" +
-                "- Fixed Weird lines if show Nameplate",
+                "- Fixed Weird lines with nameplate",
 
             "/c[white][3.23.0]/cd\n" +
                 "- Nameplate healthbar poison and invul/paralyzed colors from Elderwyn\n" +
