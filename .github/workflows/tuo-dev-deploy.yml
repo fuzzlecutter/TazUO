@@ -49,15 +49,6 @@ jobs:
     - uses: actions/checkout@v4
       with:
         ref: 'dev'
-
-    - name: Get version
-      id: package_version
-      uses: KageKirin/get-csproj-version@v0
-      with:
-        file: src/ClassicUO.Client/ClassicUO.Client.csproj
-
-    - name: Version Output
-      run: echo v${{ steps.package_version.version }}
       
     - name: Get submodules
       run: |
