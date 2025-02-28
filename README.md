@@ -1,10 +1,10 @@
 <p align="center"><a href="https://github.com/bittiez/TazUO/discussions">Join our discussions page</a></p>
 
-! Due to a bad actor deleting the original TazUO Repo we have lost the Wiki and Discord server !
+<p align="center"><a href="https://discord.gg/QvqzkB95G4">Join our Discord</a></p>
 
-The wiki has been restored!
+! Due to a bad actor deleting the original TazUO Repo we have lost the original Wiki and Discord server !
 
-We may or may not start another discord server, you can use the discussions [here](https://github.com/bittiez/TazUO/discussions) instead.
+The wiki has been restored! And we have set up a new [Discord](https://discord.gg/QvqzkB95G4)
 
 ***
 
