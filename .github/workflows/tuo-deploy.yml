@@ -90,7 +90,7 @@ jobs:
           This is version v${{ env.VERSION }} 
         makeLatest: true
         allowUpdates: true
-        prerelease: true
+        prerelease: false
         tag: TazUO-AutoBuild
         token: ${{ secrets.GITHUB_TOKEN }}
         
