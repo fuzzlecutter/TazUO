@@ -9,8 +9,9 @@ namespace ClassicUO.Game.UI.Gumps
     {
         private static string[] updateTexts = {
             "/c[white][3.26.0]/cd\n" +
-                "- Added optional regex to tooltip overrides" +
+                "- Added optional regex to tooltip overrides\n" +
                 "- Minor improvements in tooltip overrides\n" +
+                "- Fix whitespace error during character creation\n" +
 
             "/c[white][3.25.2]/cd\n" +
                 "- Nearby item gump moved to macros\n" +
