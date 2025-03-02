@@ -26,6 +26,8 @@ env:
 jobs:
   removeoldrelease:
     runs-on: ubuntu-latest
+    outputs:
+      release_notes: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
     
     steps:
     - uses: actions/checkout@v1
