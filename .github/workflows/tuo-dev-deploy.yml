@@ -32,29 +32,34 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Get last release tag
+    - name: Get last release commit
       id: last_release
       run: |
-        LAST_TAG=$(git tag --list "${{ env.TAG_NAME }}" | sort -V | tail -n1 || echo "")
-        echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
-        echo "Last release tag: $LAST_TAG"
+        if git rev-parse --verify "${{ env.TAG_NAME }}" >/dev/null 2>&1; then
+          LAST_COMMIT=$(git rev-parse "${{ env.TAG_NAME }}")
+          echo "LAST_COMMIT=$LAST_COMMIT" >> $GITHUB_ENV
+          echo "Last release commit: $LAST_COMMIT"
+        else
+          echo "No previous release found."
+          echo "LAST_COMMIT=" >> $GITHUB_ENV
+        fi
 
     - name: Generate release notes
       id: release_notes
       run: |
-        if [ -z "$LAST_TAG" ]; then
+        if [ -z "$LAST_COMMIT" ]; then
           echo "No previous release found. Listing 10 latest commits."
           RELEASE_NOTES=$(git log -10 --pretty=format:"- %s")
         else
-          echo "Generating release notes from $LAST_TAG to latest commit."
-          RELEASE_NOTES=$(git log $LAST_TAG..HEAD --pretty=format:"- %s")
+          echo "Generating release notes from commit $LAST_COMMIT to HEAD."
+          RELEASE_NOTES=$(git log ${LAST_COMMIT}..HEAD --pretty=format:"- %s")
         fi
-
+    
         {
           echo 'RELEASE_NOTES<<EOF'
           echo "$RELEASE_NOTES"
           echo 'EOF'
-        } >> $GITHUB_OUTPUT  
+        } >> $GITHUB_OUTPUT
 
     
     - name: Remove old Release
