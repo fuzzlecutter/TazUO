@@ -8,6 +8,17 @@ namespace ClassicUO.Game.UI.Gumps
     internal class VersionHistory : Gump
     {
         private static string[] updateTexts = {
+            "/c[white][3.26.0]/cd\n" +
+                "- Added optional regex to tooltip overrides" +
+                "- Minor improvements in tooltip overrides\n" +
+
+            "/c[white][3.25.2]/cd\n" +
+                "- Nearby item gump moved to macros\n" +
+
+            "/c[white][3.25.1]/cd\n" +
+                "- Added DPS meter\n" +
+                "- Legion Scripting bug fix\n" +
+
             "/c[white][3.25.0]/cd\n" +
                 "- Added the Legion scripting engine, see wiki for details\n" +
                 "- Updated some common default settings that are usually used\n" +
@@ -226,35 +237,6 @@ namespace ClassicUO.Game.UI.Gumps
                 "- Added an error message when importing tooltip override fails\n" +
                 "- Fixed tooltip background hue offset",
 
-            "/c[white][3.5.0]/cd\n" +
-                "- Bug fix for EA egg event\n" +
-                "- Added tooltip header formatting(change item name color)\n" +
-                "- Damage hues fixed\n" +
-                "- Added fix for <h2> and <Bodytextcolor> tags\n" +
-                "- Tooltip crash fix\n" +
-                "- Added tooltip export and import buttons\n" +
-                "- Updated to the main CUO repo",
-
-            "/c[white][3.4.0]/cd\n" +
-                "- Added this version history gump\n" +
-                "- Added /c[green]-version/cd command to open this gump\n" +
-                "- Made advanced skill gump more compact, height resizable and can grab skill buttons by dragging skills\n" +
-                "- Added tooltip override feature (See wiki for more details)\n" +
-                "- Better rain\n" +
-                "- Fixed tooltips in vendor search\n" +
-                "- Fixed modern shop gump displaying wrong items at animal trainers\n" +
-                "- Added hide border and timestamps to journal options\n" +
-                "- Added hide border option for grid containers",
-
-            "/c[white][3.3.0]/cd\n" +
-                "-Last attack automatic healthbar gump will remember its position\n" +
-                "-Nameplate gump now has a search option (Ctrl + Shift)\n"+
-                "-Fix number(gold) entry for trading gump\n"+
-                "-Fixed red warmode outline for custom health gumps\n"+
-                "-Graphics in info bar -> See wiki\n"+
-                "-Tooltip background colors adjustable\n"+
-                "-Tmap and SOS right click menu moved to menu icon on gump\n"+
-                "- \"/c[green]-skill /c[white]skillname/cd\" command added to use skills\n",
             "\n\n/c[white]For further history please visit our discord."
         };
 
