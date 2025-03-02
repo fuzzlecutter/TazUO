@@ -33,23 +33,27 @@ jobs:
     - name: Get last release tag
       id: last_release
       run: |
-        LAST_TAG=$(git tag --list "${{ env.TAG_NAME }}" | grep -v "${{ github.event.inputs.tag }}" | sort -V | tail -n1 || echo "")
-        echo "last_tag=$LAST_TAG" >> $GITHUB_ENV
-        echo "Last matching tag: $LAST_TAG"
+        LAST_TAG=$(git tag --list "${{ env.TAG_NAME }}" | sort -V | tail -n1 || echo "")
+        echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
+        echo "Last release tag: $LAST_TAG"
 
     - name: Generate release notes
       id: release_notes
       run: |
-        if [ -z "$last_tag" ]; then
-          echo "No previous release found matching pattern. Listing last 10 commits."
-          git log -10 --pretty=format:"- %s" > release-notes.md
+        if [ -z "$LAST_TAG" ]; then
+          echo "No previous release found. Listing 10 latest commits."
+          RELEASE_NOTES=$(git log -10 --pretty=format:"- %s")
         else
-          echo "Generating release notes from $last_tag to ${{ github.event.inputs.tag }}"
-          git log $last_tag..${{ github.event.inputs.tag }} --pretty=format:"- %s" > release-notes.md
+          echo "Generating release notes from $LAST_TAG to latest commit."
+          RELEASE_NOTES=$(git log $LAST_TAG..HEAD --pretty=format:"- %s")
         fi
 
-    - name: Read release notes into environment variable
-      run: echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV && cat release-notes.md >> $GITHUB_ENV && echo "EOF" >> $GITHUB_ENV
+        {
+          echo 'RELEASE_NOTES<<EOF'
+          echo "$RELEASE_NOTES"
+          echo 'EOF'
+        } >> $GITHUB_ENV  
+
     
     - name: Remove old Release
       uses: dev-drprasad/delete-tag-and-release@v0.2.1
@@ -107,9 +111,9 @@ jobs:
         body: |
           These are built automatically on the dev branch. 
           These may include features that are still being worked on/not complete.
+          This is version `v${{ env.VERSION }}`.
           
-          This is version v${{ env.VERSION }}        
-
+          # Release notes
           ${{ env.RELEASE_NOTES }}
         makeLatest: false
         allowUpdates: true
