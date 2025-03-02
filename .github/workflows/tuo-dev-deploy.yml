@@ -24,53 +24,11 @@ env:
   NUGET_XMLDOC_MODE: skip
 
 jobs:
-  removeoldrelease:
-    runs-on: ubuntu-latest
-    outputs:
-      release_notes: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
-    
-    steps:
-    - uses: actions/checkout@v1
-
-    - name: Get last release commit
-      id: last_release
-      run: |
-        if git rev-parse --verify "${{ env.TAG_NAME }}" >/dev/null 2>&1; then
-          LAST_COMMIT=$(git rev-parse "${{ env.TAG_NAME }}")
-          echo "LAST_COMMIT=$LAST_COMMIT" >> $GITHUB_ENV
-          echo "Last release commit: $LAST_COMMIT"
-        else
-          echo "No previous release found."
-          echo "LAST_COMMIT=" >> $GITHUB_ENV
-        fi
-
-    - name: Generate release notes
-      id: release_notes
-      run: |
-        if [ -z "$LAST_COMMIT" ]; then
-          echo "No previous release found. Listing 10 latest commits."
-          RELEASE_NOTES=$(git log -10 --pretty=format:"- %s")
-        else
-          echo "Generating release notes from commit $LAST_COMMIT to HEAD."
-          RELEASE_NOTES=$(git log ${LAST_COMMIT}..HEAD --pretty=format:"- %s")
-        fi
-    
-        printf "RELEASE_NOTES<<EOF\n%s\nEOF\n" "$RELEASE_NOTES" >> $GITHUB_OUTPUT
-
-    - name: Echo release notes
-      run: echo "${{ steps.release_notes.outputs.RELEASE_NOTES }}"
-
-    - name: Remove old Release
-      uses: dev-drprasad/delete-tag-and-release@v0.2.1
-      with:
-        delete_release: true
-        tag_name: ${{ env.TAG_NAME }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
   build:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ${{ matrix.os }}
+    outputs:
+      release_notes: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
     strategy:
       max-parallel: 1
       matrix:
@@ -107,7 +65,43 @@ jobs:
         directory: ${{ env.CUO_OUTPUT_PATH }}
         filename: ${{ env.CUO_ZIP_NAME }}
         exclusions: '*.zip'
-          
+
+    - name: Get last release commit
+      id: last_release
+      run: |
+        if git rev-parse --verify "${{ env.TAG_NAME }}" >/dev/null 2>&1; then
+          LAST_COMMIT=$(git rev-parse "${{ env.TAG_NAME }}")
+          echo "LAST_COMMIT=$LAST_COMMIT" >> $GITHUB_ENV
+          echo "Last release commit: $LAST_COMMIT"
+        else
+          echo "No previous release found."
+          echo "LAST_COMMIT=" >> $GITHUB_ENV
+        fi
+
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        if [ -z "$LAST_COMMIT" ]; then
+          echo "No previous release found. Listing 10 latest commits."
+          RELEASE_NOTES=$(git log -10 --pretty=format:"- %s")
+        else
+          echo "Generating release notes from commit $LAST_COMMIT to HEAD."
+          RELEASE_NOTES=$(git log ${LAST_COMMIT}..HEAD --pretty=format:"- %s")
+        fi
+    
+        printf "RELEASE_NOTES<<EOF\n%s\nEOF\n" "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+
+    - name: Echo release notes
+      run: echo "${{ steps.release_notes.outputs.RELEASE_NOTES }}"
+
+    - name: Remove old Release
+      uses: dev-drprasad/delete-tag-and-release@v0.2.1
+      with:
+        delete_release: true
+        tag_name: ${{ env.TAG_NAME }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
@@ -119,7 +113,7 @@ jobs:
           This is version `v${{ env.VERSION }}`.
           
           # Release notes
-          ${{ needs.removeoldrelease.outputs.release_notes }}
+          ${{ steps.release_notes.outputs.RELEASE_NOTES }}
         makeLatest: false
         allowUpdates: true
         prerelease: true
