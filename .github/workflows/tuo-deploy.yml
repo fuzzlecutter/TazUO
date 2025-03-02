@@ -116,9 +116,9 @@ jobs:
           
           # Release notes
           ${{ steps.release_notes.outputs.RELEASE_NOTES }}
-        makeLatest: false
+        makeLatest: true
         allowUpdates: true
-        prerelease: true
+        prerelease: false
         tag: ${{ env.TAG_NAME }}
         token: ${{ secrets.GITHUB_TOKEN }}
         
