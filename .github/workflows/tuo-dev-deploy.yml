@@ -55,13 +55,11 @@ jobs:
           RELEASE_NOTES=$(git log ${LAST_COMMIT}..HEAD --pretty=format:"- %s")
         fi
     
-        {
-          echo 'RELEASE_NOTES<<EOF'
-          echo "$RELEASE_NOTES"
-          echo 'EOF'
-        } >> $GITHUB_OUTPUT
+        printf "RELEASE_NOTES<<EOF\n%s\nEOF\n" "$RELEASE_NOTES" >> $GITHUB_OUTPUT
 
-    
+    - name: Echo release notes
+      run: echo "${{ steps.release_notes.outputs.RELEASE_NOTES }}"
+
     - name: Remove old Release
       uses: dev-drprasad/delete-tag-and-release@v0.2.1
       with:
@@ -114,7 +112,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "${{ env.CUO_OUTPUT_PATH }}/${{ env.CUO_ZIP_NAME }}"
-        name: 'TazUO Bleeding Edge v${{ env.VERSION }}'
+        name: 'TazUO Develpoment Build v${{ env.VERSION }}'
         body: |
           These are built automatically on the dev branch. 
           These may include features that are still being worked on/not complete.
