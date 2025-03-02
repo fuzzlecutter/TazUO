@@ -16,6 +16,7 @@ env:
   CUO_OUTPUT_PATH: '../../bin/dist'
   CUO_PROJECT_PATH: "src/ClassicUO.Client/ClassicUO.Client.csproj"
   CUO_ZIP_NAME: "TazUO.zip"
+  TAG_NAME: "TazUO-BleedingEdge"
 
   DOTNET_NOLOGO: false
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -28,12 +29,30 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+
+    - name: Get last release tag
+      id: last_release
+      run: |
+        LAST_TAG=$(git tag --list "${{ env.TAG_NAME }}" | grep -v "${{ github.event.inputs.tag }}" | sort -V | tail -n1 || echo "")
+        echo "last_tag=$LAST_TAG" >> $GITHUB_ENV
+        echo "Last matching tag: $LAST_TAG"
+
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        if [ -z "$last_tag" ]; then
+          echo "No previous release found matching pattern. Listing all commits."
+          git log --pretty=format:"- %s" > release-notes.md
+        else
+          echo "Generating release notes from $last_tag to ${{ github.event.inputs.tag }}"
+          git log $last_tag..${{ github.event.inputs.tag }} --pretty=format:"- %s" > release-notes.md
+        fi
     
     - name: Remove old Release
       uses: dev-drprasad/delete-tag-and-release@v0.2.1
       with:
         delete_release: true
-        tag_name: TazUO-BleedingEdge
+        tag_name: ${{ env.TAG_NAME }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
@@ -76,7 +95,10 @@ jobs:
         directory: ${{ env.CUO_OUTPUT_PATH }}
         filename: ${{ env.CUO_ZIP_NAME }}
         exclusions: '*.zip'
-              
+        
+    - name: Read release notes into environment variable
+      run: echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV && cat release-notes.md >> $GITHUB_ENV && echo "EOF" >> $GITHUB_ENV
+          
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
@@ -87,10 +109,12 @@ jobs:
           These may include features that are still being worked on/not complete.
           
           This is version v${{ env.VERSION }}        
+
+          ${{ env.RELEASE_NOTES }}
         makeLatest: false
         allowUpdates: true
         prerelease: true
-        tag: TazUO-BleedingEdge
+        tag: ${{ env.TAG_NAME }}
         token: ${{ secrets.GITHUB_TOKEN }}
         
         
