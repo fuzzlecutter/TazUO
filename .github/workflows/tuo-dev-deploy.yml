@@ -52,7 +52,7 @@ jobs:
           echo 'RELEASE_NOTES<<EOF'
           echo "$RELEASE_NOTES"
           echo 'EOF'
-        } >> $GITHUB_ENV  
+        } >> $GITHUB_OUTPUT  
 
     
     - name: Remove old Release
@@ -114,7 +114,7 @@ jobs:
           This is version `v${{ env.VERSION }}`.
           
           # Release notes
-          ${{ env.RELEASE_NOTES }}
+          ${{ needs.removeoldrelease.outputs.release_notes }}
         makeLatest: false
         allowUpdates: true
         prerelease: true
