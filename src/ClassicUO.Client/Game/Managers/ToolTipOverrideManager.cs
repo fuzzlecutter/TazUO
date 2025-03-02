@@ -7,6 +7,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace ClassicUO.Game.Managers
@@ -18,8 +19,8 @@ namespace ClassicUO.Game.Managers
         public ToolTipOverrideData(int index, string searchText, string formattedText, int min1, int max1, int min2, int max2, byte layer)
         {
             Index = index;
-            SearchText = searchText;
-            FormattedText = formattedText;
+            SearchText = DecodeUnicodeEscapes(searchText).Trim();
+            FormattedText = DecodeUnicodeEscapes(formattedText).Trim();
             Min1 = min1;
             Max1 = max1;
             Min2 = min2;
@@ -27,11 +28,9 @@ namespace ClassicUO.Game.Managers
             ItemLayer = (TooltipLayers)layer;
         }
 
-        private string searchText, formattedText;
-
         public int Index { get; }
-        public string SearchText { get { return searchText.Replace(@"\u002B", @"+"); } set { searchText = value; } }
-        public string FormattedText { get { return formattedText.Replace(@"\u002B", @"+"); } set { formattedText = value; } }
+        public string SearchText { get; set; }
+        public string FormattedText { get; set; }
         public int Min1 { get; set; }
         public int Max1 { get; set; }
         public int Min2 { get; set; }
@@ -209,7 +208,7 @@ namespace ClassicUO.Game.Managers
 
                                     foreach (ToolTipOverrideData importedData in imported)
                                         //GameActions.Print(importedData.searchText);
-                                        new ToolTipOverrideData(ProfileManager.CurrentProfile.ToolTipOverride_SearchText.Count, importedData.searchText, importedData.FormattedText, importedData.Min1, importedData.Max1, importedData.Min2, importedData.Max2, (byte)importedData.ItemLayer).Save();
+                                        new ToolTipOverrideData(ProfileManager.CurrentProfile.ToolTipOverride_SearchText.Count, importedData.SearchText, importedData.FormattedText, importedData.Min1, importedData.Max1, importedData.Min2, importedData.Max2, (byte)importedData.ItemLayer).Save();
 
                                     ToolTipOverideMenu.Reopen = true;
 
@@ -230,6 +229,21 @@ namespace ClassicUO.Game.Managers
             {
                 GameActions.Print("This feature is not currently supported on Unix.", 32);
             }
+        }
+
+        private static string DecodeUnicodeEscapes(string input)
+        {
+            int index = 0;
+            while ((index = input.IndexOf(@"\u", index)) != -1)
+            {
+                string hex = input.Substring(index + 2, 4);  // Extract the 4 hex digits after "\u"
+                int unicodeValue = int.Parse(hex, System.Globalization.NumberStyles.HexNumber);  // Parse the hex value
+                string unicodeChar = char.ConvertFromUtf32(unicodeValue);  // Convert to character
+                input = input.Remove(index, 6);  // Remove the "\u" and the 4 hex digits
+                input = input.Insert(index, unicodeChar);  // Insert the decoded character
+                index += unicodeChar.Length;  // Move the index forward
+            }
+            return input;
         }
 
         public static string ProcessTooltipText(uint serial, uint compareTo = uint.MinValue)
@@ -257,59 +271,60 @@ namespace ClassicUO.Game.Managers
 
                 tooltip += ProfileManager.CurrentProfile == null ? $"/c[yellow]{itemPropertiesData.Name}\n" : string.Format(ProfileManager.CurrentProfile.TooltipHeaderFormat + "\n", itemPropertiesData.Name);
 
-                //Loop through each property
+                //Loop through each item property
                 foreach (ItemPropertiesData.SinglePropertyData property in itemPropertiesData.singlePropertyData)
                 {
                     bool handled = false;
                     //Loop though each override setting player created
                     foreach (ToolTipOverrideData overrideData in result)
                     {
-                        if (overrideData != null)
-                            if (overrideData.ItemLayer == TooltipLayers.Any || checkLayers(overrideData.ItemLayer, itemPropertiesData.item.ItemData.Layer))
+                        if (overrideData == null)
+                            continue;
+
+                        if (!CheckLayers(overrideData.ItemLayer, itemPropertiesData.item.ItemData.Layer))
+                            continue;
+
+                        if (!MatchPropertyName(property.OriginalString, overrideData.SearchText))
+                            continue;
+
+                        if (property.FirstValue == double.MinValue || (property.FirstValue >= overrideData.Min1 && property.FirstValue <= overrideData.Max1))
+                            if (property.SecondValue == double.MinValue || (property.SecondValue >= overrideData.Min2 && property.SecondValue <= overrideData.Max2))
                             {
-                                if (property.OriginalString.ToLower().Contains(overrideData.SearchText.ToLower()))
-                                    if (property.FirstValue == -1 || (property.FirstValue >= overrideData.Min1 && property.FirstValue <= overrideData.Max1))
-                                        if (property.SecondValue == -1 || (property.SecondValue >= overrideData.Min2 && property.SecondValue <= overrideData.Max2))
-                                        {
-                                            try
-                                            {
-                                                if (compareTo != uint.MinValue)
-                                                {
-                                                    tooltip += string.Format(
-                                                        overrideData.FormattedText,
-                                                        property.Name,
-                                                        property.FirstValue.ToString(),
-                                                        property.SecondValue.ToString(),
-                                                        property.OriginalString,
-                                                        property.FirstDiff != 0 ? "(" + property.FirstDiff.ToString() + ")" : "",
-                                                        property.SecondDiff != 0 ? "(" + property.SecondDiff.ToString() + ")" : ""
-                                                        ) + "\n";
-                                                }
-                                                else
-                                                {
-                                                    tooltip += string.Format(
-                                                        overrideData.FormattedText,
-                                                        property.Name,
-                                                        property.FirstValue.ToString(),
-                                                        property.SecondValue.ToString(),
-                                                        property.OriginalString, "", ""
-                                                        ) + "\n";
-                                                }
-                                                handled = true;
-                                                break;
-                                            }
-                                            catch (System.FormatException e) { Console.WriteLine(e.ToString()); }
-                                        }
+                                try
+                                {
+                                    if (compareTo != uint.MinValue)
+                                    {
+                                        tooltip += string.Format(
+                                            overrideData.FormattedText,
+                                            property.Name,
+                                            property.FirstValue.ToString(),
+                                            property.SecondValue.ToString(),
+                                            property.OriginalString,
+                                            property.FirstDiff != 0 ? "(" + property.FirstDiff.ToString() + ")" : "",
+                                            property.SecondDiff != 0 ? "(" + property.SecondDiff.ToString() + ")" : ""
+                                            ) + "\n";
+                                    }
+                                    else
+                                    {
+                                        tooltip += string.Format(
+                                            overrideData.FormattedText,
+                                            property.Name,
+                                            property.FirstValue.ToString(),
+                                            property.SecondValue.ToString(),
+                                            property.OriginalString, "", ""
+                                            ) + "\n";
+                                    }
+                                    handled = true;
+                                    break;
+                                }
+                                catch (FormatException e) { Console.WriteLine(e.ToString()); }
                             }
                     }
                     if (!handled) //Did not find a matching override, need to add the plain tooltip line still
                         tooltip += $"{property.OriginalString}\n";
                 }
 
-                if (EventSink.PostProcessTooltip != null)
-                {
-                    EventSink.PostProcessTooltip(ref tooltip);
-                }
+                EventSink.PostProcessTooltip?.Invoke(ref tooltip);
 
                 return tooltip;
             }
@@ -339,8 +354,8 @@ namespace ClassicUO.Game.Managers
                             if (overrideData.ItemLayer == TooltipLayers.Any)
                             {
                                 if (property.OriginalString.ToLower().Contains(overrideData.SearchText.ToLower()))
-                                    if (property.FirstValue == -1 || (property.FirstValue >= overrideData.Min1 && property.FirstValue <= overrideData.Max1))
-                                        if (property.SecondValue == -1 || (property.SecondValue >= overrideData.Min2 && property.SecondValue <= overrideData.Max2))
+                                    if (property.FirstValue == double.MinValue || (property.FirstValue >= overrideData.Min1 && property.FirstValue <= overrideData.Max1))
+                                        if (property.SecondValue == double.MinValue || (property.SecondValue >= overrideData.Min2 && property.SecondValue <= overrideData.Max2))
                                         {
                                             try
                                             {
@@ -362,8 +377,11 @@ namespace ClassicUO.Game.Managers
             return null;
         }
 
-        private static bool checkLayers(TooltipLayers overrideLayer, byte itemLayer)
+        private static bool CheckLayers(TooltipLayers overrideLayer, byte itemLayer)
         {
+            if (overrideLayer == TooltipLayers.Any)
+                return true;
+
             if ((byte)overrideLayer == itemLayer)
                 return true;
 
@@ -384,6 +402,33 @@ namespace ClassicUO.Game.Managers
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Check if the property name matches the search text
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="match">If prepended with $, regex will be applied</param>
+        /// <returns></returns>
+        private static bool MatchPropertyName(string property, string match)
+        {
+            if (string.IsNullOrEmpty(match))
+                return false;
+
+            if (match.StartsWith("$") && match.Length > 1)
+            {
+                try
+                {
+                    return Regex.IsMatch(property, match.Substring(1));
+                }
+                catch
+                {
+                    GameActions.Print($"Invalid regex pattern: {match.Substring(1)}");
+                    return false;
+                }
+            }
+
+            return property.IndexOf(match, StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }
 }
