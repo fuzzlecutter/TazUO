@@ -5,8 +5,9 @@
     <ApplicationIcon>cuoicon.ico</ApplicationIcon>
     <AssemblyName>ClassicUO</AssemblyName>
     <RootNamespace>ClassicUO</RootNamespace>
-    <AssemblyVersion>3.25.1</AssemblyVersion>
-    <FileVersion>3.25.1</FileVersion>
+    <AssemblyVersion>3.25.2</AssemblyVersion>
+    <FileVersion>3.25.2</FileVersion>
+    <PackageProjectUrl>https://github.com/bittiez/TazUO</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
