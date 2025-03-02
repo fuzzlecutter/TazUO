@@ -41,6 +41,8 @@ namespace ClassicUO.Game.UI.Gumps
 
                 if (i.IsLocked && !i.ItemData.IsContainer) continue;
 
+                if(!i.IsLootable) continue;
+
                 items.Add(new NearbyItemDisplay(i));
             }
 
