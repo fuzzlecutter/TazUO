@@ -2022,8 +2022,11 @@ namespace ClassicUO.Game.Managers
                     NetClient.Socket.Send_StunRequest();
 
                     break;
-            }
 
+                case MacroType.ShowNearbyItems:
+                    UIManager.Add(new NearbyItems());
+                    break;
+            }
 
             return result;
         }
@@ -2638,7 +2641,8 @@ namespace ClassicUO.Game.Managers
         StunAbility,
         DisarmAbility,
         ToggleGump,
-        ToggleDurabilityGump
+        ToggleDurabilityGump,
+        ShowNearbyItems
     }
 
     public enum MacroSubType
