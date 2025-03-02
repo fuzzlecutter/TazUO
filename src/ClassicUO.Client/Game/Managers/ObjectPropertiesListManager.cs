@@ -232,12 +232,12 @@ namespace ClassicUO.Game.Managers
                     {
                         if (String.Equals(thisItem.Name, secondItem.Name, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            if (thisItem.FirstValue != -1 && secondItem.FirstValue != -1)
+                            if (thisItem.FirstValue != double.MinValue && secondItem.FirstValue != double.MinValue)
                             {
                                 thisItem.FirstDiff = thisItem.FirstValue - secondItem.FirstValue;
                             }
 
-                            if (thisItem.SecondValue > -1 && secondItem.SecondValue > -1)
+                            if (thisItem.SecondValue > double.MinValue && secondItem.SecondValue > double.MinValue)
                             {
                                 thisItem.SecondDiff = thisItem.SecondValue - secondItem.SecondValue;
                             }
@@ -268,7 +268,7 @@ namespace ClassicUO.Game.Managers
                         foundMatch = true;
                         finalTooltip += thisItem.Name;
 
-                        if (thisItem.FirstValue != -1 && secondItem.FirstValue != -1)
+                        if (thisItem.FirstValue != double.MinValue && secondItem.FirstValue != double.MinValue)
                         {
                             double diff = thisItem.FirstValue - secondItem.FirstValue;
                             finalTooltip += $" {thisItem.FirstValue}";
@@ -278,7 +278,7 @@ namespace ClassicUO.Game.Managers
                             }
                         }
 
-                        if (thisItem.SecondValue > -1 && secondItem.SecondValue > -1)
+                        if (thisItem.SecondValue > double.MinValue && secondItem.SecondValue > double.MinValue)
                         {
                             double diff = thisItem.SecondValue - secondItem.SecondValue;
                             finalTooltip += $" {thisItem.SecondValue}";
@@ -315,8 +315,8 @@ namespace ClassicUO.Game.Managers
         {
             public string OriginalString;
             public string Name = "";
-            public double FirstValue = -1;
-            public double SecondValue = -1;
+            public double FirstValue = double.MinValue;
+            public double SecondValue = double.MinValue;
             public double FirstDiff = 0;
             public double SecondDiff = 0;
 
@@ -355,10 +355,10 @@ namespace ClassicUO.Game.Managers
                 if (Name != null)
                     output += Name;
 
-                if (FirstValue != -1)
+                if (FirstValue != double.MinValue)
                     output += $" {FirstValue}";
 
-                if (SecondValue != -1)
+                if (SecondValue != double.MinValue)
                     output += $" {SecondValue}";
 
                 return output;
