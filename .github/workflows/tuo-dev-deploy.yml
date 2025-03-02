@@ -67,6 +67,7 @@ jobs:
         exclusions: '*.zip'
 
     - name: Get last release commit
+      shell: bash
       id: last_release
       run: |
         if git rev-parse --verify "${{ env.TAG_NAME }}" >/dev/null 2>&1; then
@@ -79,6 +80,7 @@ jobs:
         fi
 
     - name: Generate release notes
+      shell: bash
       id: release_notes
       run: |
         if [ -z "$LAST_COMMIT" ]; then
@@ -92,6 +94,7 @@ jobs:
         printf "RELEASE_NOTES<<EOF\n%s\nEOF\n" "$RELEASE_NOTES" >> $GITHUB_OUTPUT
 
     - name: Echo release notes
+      shell: bash
       run: echo "${{ steps.release_notes.outputs.RELEASE_NOTES }}"
 
     - name: Remove old Release
