@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ClassicUO.Assets;
 using ClassicUO.Configuration;
 using ClassicUO.Game.GameObjects;
+using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Input;
 using ClassicUO.Renderer;
@@ -16,10 +17,11 @@ namespace ClassicUO.Game.UI.Gumps
         public static NearbyItems NearbyItemGump;
         public NearbyItems() : base(0, 0)
         {
-            if (NearbyItemGump != null)
-                NearbyItemGump.Dispose();
+            NearbyItemGump?.Dispose();
 
             NearbyItemGump = this;
+
+            CanCloseWithRightClick = true;
 
             CanMove = false;
 
@@ -75,13 +77,6 @@ namespace ClassicUO.Game.UI.Gumps
 
             Width = gridSize * SIZE;
             Height = gridSize * SIZE;
-        }
-
-        public override void Update()
-        {
-            base.Update();
-            if (!Keyboard.Ctrl)
-                Dispose();
         }
 
         public override void Dispose()
