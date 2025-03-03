@@ -95,7 +95,7 @@ namespace ClassicUO.Game.UI.Gumps
             (
                 22,
                 45 + _diffY + _bottomLine.Height - 10,
-                _scrollArea.Width - 14,
+                _scrollArea.Width - 14 - 44,
                 _scrollArea.Height - (83 + _diffY),
                 false
             ) { AcceptMouseInput = true, CanMove = true };
@@ -325,7 +325,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             _bottomLine.Y = Height - 98;
             _bottomComment.Y = Height - 85;
-            _area.Height = _container.Height = Height - (150 + _diffY);
+            _area.Height = Height - (150 + _diffY);
             _newGroupButton.Y = Height - 52;
             _skillsLabelSum.Y = _bottomComment.Y + 2;
             _checkReal.Y = _newGroupButton.Y - 6;
@@ -341,7 +341,7 @@ namespace ClassicUO.Game.UI.Gumps
             if (wantUpdateSize)
             {
                 _container.ReArrangeChildren();
-                _container.WantUpdateSize = false; //ReArrangeChildren sets this to true, creating and endless loop
+                _container.ForceSizeUpdate(false);
                 RepositionElements();
             }
         }
