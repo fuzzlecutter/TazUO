@@ -12,6 +12,7 @@ namespace ClassicUO.Game.UI.Gumps
                 "- Added optional regex to tooltip overrides\n" +
                 "- Minor improvements in tooltip overrides\n" +
                 "- Fix whitespace error during character creation\n" +
+                "- Nearby item gump will close if moved, or 30 seconds has passed\n" +
 
             "/c[white][3.25.2]/cd\n" +
                 "- Nearby item gump moved to macros\n" +
