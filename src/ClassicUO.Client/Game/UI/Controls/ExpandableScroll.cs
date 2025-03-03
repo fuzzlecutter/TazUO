@@ -30,11 +30,9 @@
 
 #endregion
 
-using ClassicUO.Game.Managers;
 using ClassicUO.Input;
-using ClassicUO.Assets;
-using ClassicUO.Renderer;
 using Microsoft.Xna.Framework;
+using System;
 
 namespace ClassicUO.Game.UI.Controls
 {
@@ -55,6 +53,8 @@ namespace ClassicUO.Game.UI.Controls
         private bool _isExpanding;
         private readonly bool _isResizable = true;
         private Point _lastExpanderPosition;
+
+        public event EventHandler SizeChanged;
 
         public ExpandableScroll(int x, int y, int height, ushort graphic, bool isResizable = true)
         {
@@ -132,7 +132,9 @@ namespace ClassicUO.Game.UI.Controls
             _gumpRight.WantUpdateSize = _gumpMiddle.WantUpdateSize = true;
             _gumpBottom.X = (off / 2) + (off / 4);
 
-            Width = _gumpMiddle.Width;
+            Width = width;
+
+            RepositionElements();
 
             WantUpdateSize = true;
         }
@@ -231,8 +233,27 @@ namespace ClassicUO.Game.UI.Controls
             {
                 SpecialHeight += Mouse.Position.Y - _lastExpanderPosition.Y;
                 _lastExpanderPosition = Mouse.Position;
+
+                RepositionElements();
+                WantUpdateSize = true;
+                Parent?.OnPageChanged();
+                SizeChanged?.Invoke(this, null);
             }
 
+            if (_gumplingTitleGumpIDDelta)
+            {
+                _gumplingTitleGumpIDDelta = false;
+
+                _gumplingTitle?.Dispose();
+                Add(_gumplingTitle = new GumpPic(0, 0, (ushort)_gumplingTitleGumpID, 0));
+                RepositionElements();
+            }
+
+            base.Update();
+        }
+
+        private void RepositionElements()
+        {
             if (SpecialHeight < c_ExpandableScrollHeight_Min)
             {
                 _lastExpanderPosition.Y += c_ExpandableScrollHeight_Min - SpecialHeight;
@@ -245,16 +266,6 @@ namespace ClassicUO.Game.UI.Controls
                 SpecialHeight = c_ExpandableScrollHeight_Max;
             }
 
-            if (_gumplingTitleGumpIDDelta)
-            {
-                _gumplingTitleGumpIDDelta = false;
-
-                _gumplingTitle?.Dispose();
-                Add(_gumplingTitle = new GumpPic(0, 0, (ushort)_gumplingTitleGumpID, 0));
-            }
-
-            //if (!IsVisible)
-            //    IsVisible = true;
             //TOP
             _gumpTop.X = 0;
             _gumpTop.Y = 0;
@@ -280,11 +291,6 @@ namespace ClassicUO.Game.UI.Controls
                 _gumplingTitle.Y = (_gumpTop.Height - _gumplingTitle.Height) >> 1;
                 _gumplingTitle.WantUpdateSize = true;
             }
-
-            WantUpdateSize = true;
-            Parent?.OnPageChanged();
-
-            base.Update();
         }
 
         private void expander_OnMouseDown(object sender, MouseEventArgs args)
@@ -299,6 +305,8 @@ namespace ClassicUO.Game.UI.Controls
         private void expander_OnMouseUp(object sender, MouseEventArgs args)
         {
             _isExpanding = false;
+            RepositionElements();
+            SizeChanged?.Invoke(this, null);
         }
     }
 }
