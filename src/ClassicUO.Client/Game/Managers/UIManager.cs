@@ -36,7 +36,9 @@ using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
 using ClassicUO.Renderer;
 using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ClassicUO.Game.Managers
 {
@@ -108,6 +110,25 @@ namespace ClassicUO.Game.Managers
         public static bool IsDragging => _isDraggingControl && DraggingControl != null;
 
         public static ContextMenuShowMenu ContextMenu { get; private set; }
+
+        public static bool UpdateTimerEnabled
+        {
+            get => updateTimerEnabled; set
+            {
+                updateTimerEnabled = value;
+                if (value)
+                {
+                    UpdateTimerTotalTime = new Dictionary<Type,double>();
+                    UpdateTimerCount = new Dictionary<Type, int>();
+                    updateTimer = Stopwatch.StartNew();
+                }
+            }
+        }
+
+        public static Dictionary<Type, double> UpdateTimerTotalTime;
+        public static Dictionary<Type, int> UpdateTimerCount;
+        private static bool updateTimerEnabled;
+        private static Stopwatch updateTimer;
 
         public static void ShowGamePopup(PopupMenuGump popup)
         {
@@ -384,9 +405,25 @@ namespace ClassicUO.Game.Managers
                 LinkedListNode<Gump> next = first.Next;
 
                 Control g = first.Value;
+                if (updateTimerEnabled)
+                {
+                    updateTimer.Restart();
+                    g.Update();
+                    updateTimer.Stop();
 
-                g.Update();
+                    if(!UpdateTimerTotalTime.ContainsKey(g.GetType()))
+                    {
+                        UpdateTimerTotalTime[g.GetType()] = 0;
+                        UpdateTimerCount[g.GetType()] = 0;
+                    }
 
+                    UpdateTimerTotalTime[g.GetType()] += updateTimer.Elapsed.TotalMilliseconds;
+                    UpdateTimerCount[g.GetType()]++;
+                }
+                else
+                {
+                    g.Update();
+                }
                 if (g.IsDisposed)
                 {
                     Gumps.Remove(first);

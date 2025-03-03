@@ -278,6 +278,11 @@ namespace ClassicUO.Game.Managers
                     }
                 }
             });
+
+            Register("updatedebug", (s) =>
+            {
+                UIManager.Add(new UI.Gumps.UpdateTimerViewer());
+            });
         }
 
 
