@@ -244,8 +244,6 @@ namespace ClassicUO.Game.UI.Gumps
 
         public VersionHistory() : base(0, 0)
         {
-            X = 300;
-            Y = 200;
             Width = 400;
             Height = 500;
             CanCloseWithRightClick = true;
@@ -266,8 +264,8 @@ namespace ClassicUO.Game.UI.Gumps
             Add(bc);
 
             TextBox _;
-            Add(_ = new TextBox(Language.Instance.TazuoVersionHistory, TrueTypeLoader.EMBEDDED_FONT, 30, Width, Color.White, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { Y = 10 });
-            Add(_ = new TextBox(Language.Instance.CurrentVersion + CUOEnviroment.Version.ToString(), TrueTypeLoader.EMBEDDED_FONT, 20, Width, Color.Orange, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { Y = _.Y + _.Height + 5 });
+            Add(_ = new TextBox(Language.Instance.TazuoVersionHistory, TrueTypeLoader.EMBEDDED_FONT, 30, Width, Color.White, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { Y = 10, AcceptMouseInput = false });
+            Add(_ = new TextBox(Language.Instance.CurrentVersion + CUOEnviroment.Version.ToString(), TrueTypeLoader.EMBEDDED_FONT, 20, Width, Color.Orange, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { Y = _.Y + _.Height + 5, AcceptMouseInput = false });
 
             ScrollArea scroll = new ScrollArea(10, _.Y + _.Height, Width - 20, Height - (_.Y + _.Height) - 20, true) { ScrollbarBehaviour = ScrollbarBehaviour.ShowAlways };
 
@@ -276,7 +274,7 @@ namespace ClassicUO.Game.UI.Gumps
             int y = 0;
             foreach (string s in updateTexts)
             {
-                scroll.Add(_ = new TextBox(s, TrueTypeLoader.EMBEDDED_FONT, 15, scroll.Width - scroll.ScrollBarWidth(), Color.Orange, FontStashSharp.RichText.TextHorizontalAlignment.Left, false) { Y = y });
+                scroll.Add(_ = new TextBox(s, TrueTypeLoader.EMBEDDED_FONT, 15, scroll.Width - scroll.ScrollBarWidth(), Color.Orange, FontStashSharp.RichText.TextHorizontalAlignment.Left, false) { Y = y, AcceptMouseInput = false });
                 y += _.Height + 10;
             }
 
@@ -288,15 +286,18 @@ namespace ClassicUO.Game.UI.Gumps
             Add(_hit = new HitBox(_.X, _.Y, _.MeasuredSize.X, _.MeasuredSize.Y));
             _hit.MouseUp += (s, e) =>
             {
-                Utility.Platforms.PlatformHelper.LaunchBrowser("https://github.com/bittiez/ClassicUO/wiki");
+                Utility.Platforms.PlatformHelper.LaunchBrowser("https://github.com/bittiez/TazUO/wiki");
             };
 
-            Add(_ = new TextBox(Language.Instance.TazUOWiki, TrueTypeLoader.EMBEDDED_FONT, 15, 200, Color.Orange, strokeEffect: false) { X = 280, Y = Height - 20 });
+            Add(_ = new TextBox(Language.Instance.TazUODiscord, TrueTypeLoader.EMBEDDED_FONT, 15, 200, Color.Orange, strokeEffect: false) { X = 280, Y = Height - 20 });
             Add(_hit = new HitBox(_.X, _.Y, _.MeasuredSize.X, _.MeasuredSize.Y));
             _hit.MouseUp += (s, e) =>
             {
-                Utility.Platforms.PlatformHelper.LaunchBrowser("https://discord.gg/SqwtB5g95H");
+                Utility.Platforms.PlatformHelper.LaunchBrowser("https://discord.gg/QvqzkB95G4");
             };
+
+            CenterXInScreen();
+            CenterYInScreen();
         }
     }
 }
