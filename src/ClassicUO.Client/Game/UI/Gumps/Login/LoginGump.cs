@@ -436,7 +436,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
                     false,
                     false,
                     false,
-                    "<body link=\"#FF00FF00\" vlink=\"#FF00FF00\" ><a href=\"https://www.classicuo.eu\">Website",
+                    "<body link=\"#FF00FF00\" vlink=\"#FF00FF00\" ><a href=\"https://www.classicuo.eu\">CUO Website",
                     0x32,
                     true,
                     isunicode: true,
@@ -455,7 +455,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
                     false,
                     false,
                     false,
-                    "<body link=\"#FF00FF00\" vlink=\"#FF00FF00\" ><a href=\"https://discord.gg/VdyCpjQ\">Join Discord",
+                    "<body link=\"#FF00FF00\" vlink=\"#FF00FF00\" ><a href=\"https://discord.gg/VdyCpjQ\">CUO Discord",
                     0x32,
                     true,
                     isunicode: true,
@@ -469,14 +469,14 @@ namespace ClassicUO.Game.UI.Gumps.Login
             Add(_hit = new HitBox(_.X, _.Y, _.MeasuredSize.X, _.MeasuredSize.Y));
             _hit.MouseUp += (s, e) =>
             {
-                Utility.Platforms.PlatformHelper.LaunchBrowser("https://github.com/bittiez/ClassicUO/wiki");
+                Utility.Platforms.PlatformHelper.LaunchBrowser("https://github.com/bittiez/TazUO/wiki");
             };
 
             Add(_ = new TextBox("TazUO Discord", TrueTypeLoader.EMBEDDED_FONT, 15, 200, Color.Orange, strokeEffect: false) { X = 30, Y = 440, AcceptMouseInput = true });
             Add(_hit = new HitBox(_.X, _.Y, _.MeasuredSize.X, _.MeasuredSize.Y));
             _hit.MouseUp += (s, e) =>
             {
-                Utility.Platforms.PlatformHelper.LaunchBrowser("https://discord.gg/SqwtB5g95H");
+                Utility.Platforms.PlatformHelper.LaunchBrowser("https://discord.gg/QvqzkB95G4");
             };
 
             Checkbox loginmusic_checkbox = new Checkbox
