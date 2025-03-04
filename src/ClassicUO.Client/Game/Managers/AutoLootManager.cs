@@ -18,6 +18,7 @@ namespace ClassicUO.Game.Managers
         public List<AutoLootItem> AutoLootList { get => autoLootItems; set => autoLootItems = value; }
 
         private static ConcurrentQueue<uint> lootItems = new ConcurrentQueue<uint>();
+        public static ConcurrentQueue<uint> LootItems { get => lootItems; set => lootItems = value; }
 
         private List<AutoLootItem> autoLootItems = new List<AutoLootItem>();
         private bool loaded = false;
