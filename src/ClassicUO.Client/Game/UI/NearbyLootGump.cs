@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ClassicUO.Configuration;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
@@ -7,6 +6,7 @@ using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Media;
 using SDL2;
 
 namespace ClassicUO.Game.UI
@@ -51,7 +51,7 @@ namespace ClassicUO.Game.UI
             Control c;
             Add(c = new TextBox("Nearby corpse loot", Assets.TrueTypeLoader.EMBEDDED_FONT, 24, WIDTH, Color.OrangeRed, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { AcceptMouseInput = false });
 
-            Add(lootButton = new NiceButton(0, c.Height, WIDTH, 20, ButtonAction.Default, "Loot All"));
+            Add(lootButton = new NiceButton(0, c.Height, WIDTH >> 1, 20, ButtonAction.Default, "Loot All"));
             lootButton.MouseUp += (sender, e) =>
             {
                 if (e.Button == MouseButtonType.Left)
@@ -60,10 +60,19 @@ namespace ClassicUO.Game.UI
                     {
                         if (control is NearbyItemDisplay display)
                         {
-                            AutoLootManager.LootItems.Enqueue(display.LocalSerial);
+                            AutoLootManager.Instance.LootItem(display.LocalSerial);
                         }
                     }
                 }
+            };
+
+            Add(c = new NiceButton(WIDTH >> 1, c.Height, WIDTH >> 1, 20, ButtonAction.Default, "Set Loot Bag"));
+            c.MouseUp += (sender, e) =>
+            {
+                if (e.Button != MouseButtonType.Left) return;
+
+                GameActions.Print(Resources.ResGumps.TargetContainerToGrabItemsInto);
+                TargetManager.SetTargeting(CursorTarget.SetGrabBag, 0, TargetType.Neutral);
             };
 
             Add(scrollArea = new ScrollArea(0, lootButton.Y + lootButton.Height, Width, Height - lootButton.Y - lootButton.Height, true) { ScrollbarBehaviour = ScrollbarBehaviour.ShowAlways });
@@ -72,40 +81,11 @@ namespace ClassicUO.Game.UI
 
             UpdateNearbyLoot();
         }
-        public override void Update()
-        {
-            base.Update();
-
-            if(selectedIndex == -1)
-                lootButton.IsSelected = true;
-            else
-                lootButton.IsSelected = false;
-        }
-        public override void SlowUpdate()
-        {
-            base.SlowUpdate();
-            UpdateNearbyLoot();
-        }
         private void UpdateNearbyLoot()
         {
-            dataBox.Clear();
             itemCount = 0;
 
-            List<Control> removeAfter = new List<Control>();
-
-            foreach (Control c in dataBox.Children)
-            {
-                if (c is NearbyItemDisplay cd)
-                {
-                    cd.ReturnToPool();
-                    removeAfter.Add(c);
-                }
-                else
-                    c.Dispose();
-            }
-
-            foreach (Control c in removeAfter)
-                dataBox.Remove(c);
+            ClearDataBox();
 
             foreach (Item item in World.Items.Values)
             {
@@ -153,6 +133,35 @@ namespace ClassicUO.Game.UI
                 _corpsesRequested.Add(corpse.Serial);
             }
         }
+        private void LootSelectedIndex()
+        {
+            if (SelectedIndex == -1)
+                lootButton.InvokeMouseUp(lootButton.Location, MouseButtonType.Left);
+            else if (dataBox.Children.Count > SelectedIndex)
+            {
+                AutoLootManager.Instance.LootItem(dataBox.Children[SelectedIndex].LocalSerial);
+            }
+        }
+
+        private void ClearDataBox()
+        {
+            List<Control> removeAfter = new List<Control>();
+
+            foreach (Control c in dataBox.Children)
+            {
+                if (c is NearbyItemDisplay cd)
+                {
+                    cd.ReturnToPool();
+                    removeAfter.Add(c);
+                }
+                else
+                    c.Dispose();
+            }
+
+            foreach (Control c in removeAfter)
+                dataBox.Remove(c);
+        }
+
         public static bool IsCorpseRequested(uint serial, bool remove = true)
         {
             if (_corpsesRequested.Contains(serial) && !World.Player.AutoOpenedCorpses.Contains(serial))
@@ -162,6 +171,7 @@ namespace ClassicUO.Game.UI
             }
             return false;
         }
+
         public override void Dispose()
         {
             base.Dispose();
@@ -171,7 +181,8 @@ namespace ClassicUO.Game.UI
         {
             base.OnKeyDown(key, mod);
 
-            switch (key) {
+            switch (key)
+            {
                 case SDL.SDL_Keycode.SDLK_UP:
                     SelectedIndex--;
                     break;
@@ -200,16 +211,21 @@ namespace ClassicUO.Game.UI
                     break;
             }
         }
-
-        private void LootSelectedIndex()
+        public override void Update()
         {
-            if (SelectedIndex == -1)
-                lootButton.InvokeMouseUp(lootButton.Location, MouseButtonType.Left);
-            else                if(dataBox.Children.Count > SelectedIndex)
-            {
-                AutoLootManager.LootItems.Enqueue(dataBox.Children[SelectedIndex].LocalSerial);
-            }
+            base.Update();
+
+            if (selectedIndex == -1)
+                lootButton.IsSelected = true;
+            else
+                lootButton.IsSelected = false;
         }
+        public override void SlowUpdate()
+        {
+            base.SlowUpdate();
+            UpdateNearbyLoot();
+        }
+
     }
 
     internal class NearbyItemDisplay : Control
@@ -224,10 +240,11 @@ namespace ClassicUO.Game.UI
         {
             get
             {
+                if (AutoLootManager.Instance.IsBeingLooted(LocalSerial))
+                    return 32;
+
                 if (NearbyLootGump.SelectedIndex == index)
-                {
                     return 53;
-                }
 
                 return 0;
             }
@@ -256,6 +273,8 @@ namespace ClassicUO.Game.UI
             Width = NearbyLootGump.WIDTH;
             this.index = index;
 
+            LocalSerial = item.Serial;
+
             Add(alphaBG = new AlphaBlendControl() { Width = Width, Height = Height, Hue = bgHue });
 
             SetItem(item, index);
@@ -267,6 +286,8 @@ namespace ClassicUO.Game.UI
             if (item == null) return;
 
             LocalSerial = item.Serial;
+
+            alphaBG.Hue = bgHue; //Prevent weird flashing
 
             if (itemGump == null)
             {
@@ -317,13 +338,15 @@ namespace ClassicUO.Game.UI
         {
             base.OnMouseDown(x, y, button);
 
+            if (button != MouseButtonType.Left) return;
+
             if (Keyboard.Shift && currentItem != null && ProfileManager.CurrentProfile.EnableAutoLoot && !ProfileManager.CurrentProfile.HoldShiftForContext && !ProfileManager.CurrentProfile.HoldShiftToSplitStack)
             {
                 AutoLootManager.Instance.AddAutoLootEntry(currentItem.Graphic, currentItem.Hue, currentItem.Name);
                 GameActions.Print($"Added this item to auto loot.");
             }
 
-            AutoLootManager.LootItems.Enqueue(LocalSerial);
+            AutoLootManager.Instance.LootItem(LocalSerial);
         }
     }
 }

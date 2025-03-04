@@ -16,10 +16,8 @@ namespace ClassicUO.Game.Managers
         public static AutoLootManager Instance { get; private set; } = new AutoLootManager();
         public bool IsLoaded { get { return loaded; } }
         public List<AutoLootItem> AutoLootList { get => autoLootItems; set => autoLootItems = value; }
-        public static ConcurrentQueue<uint> LootItems { get => lootItems; set => lootItems = value; }
 
-
-
+        private HashSet<uint> quickContainsLookup = new HashSet<uint>();
         private static ConcurrentQueue<uint> lootItems = new ConcurrentQueue<uint>();
         private List<AutoLootItem> autoLootItems = new List<AutoLootItem>();
         private bool loaded = false;
@@ -30,6 +28,22 @@ namespace ClassicUO.Game.Managers
 
         private AutoLootManager() { }
 
+
+        public bool IsBeingLooted(uint serial)
+        {
+            return quickContainsLookup.Contains(serial);
+        }
+        public void LootItem(uint serial)
+        {
+            LootItem(World.Items.Get(serial));
+        }
+        public void LootItem(Item i)
+        {
+            if (i == null || quickContainsLookup.Contains(i.Serial)) return;
+
+            lootItems.Enqueue(i);
+            quickContainsLookup.Add(i.Serial);
+        }
         /// <summary>
         /// Check an item against the loot list, if it needs to be auto looted it will be.
         /// I reccomend running this method in a seperate thread if it's a lot of items.
@@ -42,10 +56,9 @@ namespace ClassicUO.Game.Managers
             {
                 currentLootTotalCount++;
                 GameActions.Print($"SAL Looting: {i.Name} {i.Graphic} x {i.Amount}");
-                lootItems.Enqueue(i);
+                LootItem(i);
             }
         }
-
         /// <summary>
         /// Check if an item is on the auto loot list.
         /// </summary>
@@ -64,7 +77,6 @@ namespace ClassicUO.Game.Managers
             }
             return false;
         }
-
         /// <summary>
         /// Add an entry for auto looting to match against when opening corpses.
         /// </summary>
@@ -142,6 +154,7 @@ namespace ClassicUO.Game.Managers
             if(lootItems.TryDequeue(out uint moveItem))
             {
                 if (lootItems.IsEmpty) currentLootTotalCount = 0;
+                quickContainsLookup.Remove(moveItem);
 
                 CreateProgressBar();
 
