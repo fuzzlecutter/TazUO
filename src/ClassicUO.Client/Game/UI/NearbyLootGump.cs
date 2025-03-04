@@ -6,13 +6,14 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
+using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.UI
 {
     internal class NearbyLootGump : Gump
     {
-        public const int WIDTH = 300;
-        public const int HEIGHT = 700;
+        public const int WIDTH = 250;
+        public const int HEIGHT = 550;
 
         public static int SelectedIndex
         {
@@ -45,9 +46,28 @@ namespace ClassicUO.Game.UI
 
             Add(new AlphaBlendControl() { Width = Width, Height = Height });
 
-            Add(scrollArea = new ScrollArea(0, 0, Width, Height, true) { ScrollbarBehaviour = ScrollbarBehaviour.ShowAlways });
+            Control c;
+            Add(c = new TextBox("Nearby corpse loot", Assets.TrueTypeLoader.EMBEDDED_FONT, 24, WIDTH, Color.OrangeRed, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { AcceptMouseInput = false });
 
-            scrollArea.Add(dataBox = new DataBox(0, 0, Width, Height));
+            NiceButton b;
+            Add(b = new NiceButton(0, c.Height, WIDTH, 20, ButtonAction.Activate, "Loot All"));
+            b.MouseUp += (sender, e) =>
+            {
+                if (e.Button == MouseButtonType.Left)
+                {
+                    foreach (Control control in dataBox.Children)
+                    {
+                        if (control is NearbyItemDisplay display)
+                        {
+                            AutoLootManager.LootItems.Enqueue(display.LocalSerial);
+                        }
+                    }
+                }
+            };
+
+            Add(scrollArea = new ScrollArea(0, b.Y + b.Height, Width, Height - b.Y - b.Height, true) { ScrollbarBehaviour = ScrollbarBehaviour.ShowAlways });
+
+            scrollArea.Add(dataBox = new DataBox(0, 0, Width, scrollArea.Height));
 
             UpdateNearbyLoot();
         }
@@ -149,6 +169,7 @@ namespace ClassicUO.Game.UI
         private ItemGump itemGump;
         private Label itemLabel;
         private AlphaBlendControl alphaBG;
+        private Item currentItem;
         private int index;
         private ushort bgHue
         {
@@ -193,6 +214,11 @@ namespace ClassicUO.Game.UI
 
         public void SetItem(Item item, int index)
         {
+            this.currentItem = item;
+            if (item == null) return;
+
+            LocalSerial = item.Serial;
+
             if (itemGump == null)
             {
                 Add(itemGump = new ItemGump(item.Serial, item.DisplayedGraphic, item.Hue, 0, 0));
@@ -238,10 +264,17 @@ namespace ClassicUO.Game.UI
             NearbyLootGump.SelectedIndex = index;
         }
 
-        protected override bool OnMouseDoubleClick(int x, int y, MouseButtonType button)
+        protected override void OnMouseDown(int x, int y, MouseButtonType button)
         {
-            AutoLootManager.LootItems.Enqueue(itemGump.LocalSerial);
-            return base.OnMouseDoubleClick(x, y, button);
+            base.OnMouseDown(x, y, button);
+
+            if (Keyboard.Shift && currentItem != null && ProfileManager.CurrentProfile.EnableAutoLoot && !ProfileManager.CurrentProfile.HoldShiftForContext && !ProfileManager.CurrentProfile.HoldShiftToSplitStack)
+            {
+                AutoLootManager.Instance.AddLootItem(currentItem.Graphic, currentItem.Hue, currentItem.Name);
+                GameActions.Print($"Added this item to auto loot.");
+            }
+
+            AutoLootManager.LootItems.Enqueue(LocalSerial);
         }
     }
 }
