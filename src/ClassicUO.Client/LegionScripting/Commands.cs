@@ -184,7 +184,7 @@ namespace ClassicUO.LegionScripting
             if (args.Length > 2)
                 amt = args[2].AsUShort();
 
-            if (GameActions.PickUp(item, 0, 0))
+            if (GameActions.PickUp(item, 0, 0, amt))
                 GameActions.DropItem(item, 0xFFFF, 0xFFFF, 0, bag);
             return true;
         }
