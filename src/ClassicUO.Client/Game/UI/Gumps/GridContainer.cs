@@ -973,7 +973,7 @@ namespace ClassicUO.Game.UI.Gumps
                     }
                     else if (Keyboard.Shift && _item != null && ProfileManager.CurrentProfile.EnableAutoLoot && !ProfileManager.CurrentProfile.HoldShiftForContext && !ProfileManager.CurrentProfile.HoldShiftToSplitStack)
                     {
-                        AutoLootManager.Instance.AddLootItem(_item.Graphic, _item.Hue, _item.Name);
+                        AutoLootManager.Instance.AddAutoLootEntry(_item.Graphic, _item.Hue, _item.Name);
                         GameActions.Print($"Added this item to auto loot.");
                     }
                     else if (_item != null)

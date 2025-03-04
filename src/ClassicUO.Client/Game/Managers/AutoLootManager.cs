@@ -16,18 +16,19 @@ namespace ClassicUO.Game.Managers
         public static AutoLootManager Instance { get; private set; } = new AutoLootManager();
         public bool IsLoaded { get { return loaded; } }
         public List<AutoLootItem> AutoLootList { get => autoLootItems; set => autoLootItems = value; }
-
-        private static ConcurrentQueue<uint> lootItems = new ConcurrentQueue<uint>();
         public static ConcurrentQueue<uint> LootItems { get => lootItems; set => lootItems = value; }
 
+
+
+        private static ConcurrentQueue<uint> lootItems = new ConcurrentQueue<uint>();
         private List<AutoLootItem> autoLootItems = new List<AutoLootItem>();
         private bool loaded = false;
-        private string savePath = Path.Combine(CUOEnviroment.ExecutablePath, "Data", "Profiles", "AutoLoot.json");
+        private readonly string savePath = Path.Combine(CUOEnviroment.ExecutablePath, "Data", "Profiles", "AutoLoot.json");
         private long nextLootTime = Time.Ticks;
         private ProgressBarGump progressBarGump;
         private int currentLootTotalCount = 0;
 
-        private AutoLootManager() { Load(); }
+        private AutoLootManager() { }
 
         /// <summary>
         /// Check an item against the loot list, if it needs to be auto looted it will be.
@@ -50,7 +51,7 @@ namespace ClassicUO.Game.Managers
         /// </summary>
         /// <param name="i">The item to check the loot list against</param>
         /// <returns></returns>
-        public bool IsOnLootList(Item i)
+        private bool IsOnLootList(Item i)
         {
             if (!loaded) return false;
 
@@ -64,39 +65,37 @@ namespace ClassicUO.Game.Managers
             return false;
         }
 
-        public AutoLootItem GetLootItem(string ID)
+        /// <summary>
+        /// Add an entry for auto looting to match against when opening corpses.
+        /// </summary>
+        /// <param name="graphic"></param>
+        /// <param name="hue"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public AutoLootItem AddAutoLootEntry(ushort graphic = 0, ushort hue = ushort.MaxValue, string name = "")
         {
-            foreach (var item in autoLootItems)
-            {
-                if (item.UID == ID)
-                {
-                    return item;
-                }
-            }
+            AutoLootItem item = new AutoLootItem() { Graphic = graphic, Hue = hue, Name = name };
 
-            return null;
-        }
-
-        public AutoLootItem AddLootItem(ushort graphic = 0, ushort hue = ushort.MaxValue, string name = "")
-        {
-            foreach(AutoLootItem entry in autoLootItems)
+            foreach (AutoLootItem entry in autoLootItems)
             {
-                if(entry.Graphic == graphic && entry.Hue == hue)
+                if(entry.Equals(item))
                 {
                     return entry;
                 }
             }
-
-            AutoLootItem item = new AutoLootItem() { Graphic = graphic, Hue = hue, Name = name };
 
             autoLootItems.Add(item);
 
             return item;
         }
 
+        /// <summary>
+        /// Search through a corpse and check items that need to be looted.
+        /// </summary>
+        /// <param name="corpse"></param>
         public void HandleCorpse(Item corpse)
         {
-            if (corpse != null && ProfileManager.CurrentProfile.EnableAutoLoot && corpse.IsCorpse)
+            if (corpse != null && ProfileManager.CurrentProfile.EnableAutoLoot)
             {
                 for (LinkedObject i = corpse.Items; i != null; i = i.Next)
                 {
@@ -105,7 +104,7 @@ namespace ClassicUO.Game.Managers
             }
         }
 
-        public void TryRemoveLootItem(string UID)
+        public void TryRemoveAutoLootEntry(string UID)
         {
             int removeAt = -1;
 
@@ -125,6 +124,7 @@ namespace ClassicUO.Game.Managers
 
         public void OnSceneLoad()
         {
+            Load();
         }
 
         public void Update()
@@ -174,6 +174,8 @@ namespace ClassicUO.Game.Managers
 
         private void Load()
         {
+            if (loaded) return;
+
             Task.Factory.StartNew(() =>
             {
                 if (!File.Exists(savePath))
@@ -248,6 +250,11 @@ namespace ClassicUO.Game.Managers
                 {
                     return false;
                 }
+            }
+
+            public bool Equals(AutoLootItem other)
+            {
+                return other.Graphic == Graphic && other.Hue == Hue;
             }
         }
     }

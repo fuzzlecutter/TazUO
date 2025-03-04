@@ -52,7 +52,7 @@ namespace ClassicUO.Game.UI.Gumps
             topSecion.Add(addEntry = new NiceButton(0, 0, 100, 25, ButtonAction.Activate, "Add entry") { IsSelectable = false });
             addEntry.MouseUp += (e, v) =>
             {
-                AutoLootManager.Instance.AddLootItem();
+                AutoLootManager.Instance.AddAutoLootEntry();
                 AddToUI();
             };
 
@@ -121,7 +121,7 @@ namespace ClassicUO.Game.UI.Gumps
                 {
                     if (e.Button == Input.MouseButtonType.Left)
                     {
-                        AutoLootManager.Instance.TryRemoveLootItem(autoLootItem.UID);
+                        AutoLootManager.Instance.TryRemoveAutoLootEntry(autoLootItem.UID);
                         AddToUI();
                     }
                 };

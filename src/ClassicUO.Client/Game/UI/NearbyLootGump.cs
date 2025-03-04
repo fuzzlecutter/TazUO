@@ -7,6 +7,7 @@ using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
 using Microsoft.Xna.Framework;
+using SDL2;
 
 namespace ClassicUO.Game.UI
 {
@@ -19,8 +20,8 @@ namespace ClassicUO.Game.UI
         {
             get => selectedIndex; set
             {
-                if (value < 0)
-                    selectedIndex = 0;
+                if (value < -1)
+                    selectedIndex = -1;
                 else
                     selectedIndex = value;
             }
@@ -28,6 +29,7 @@ namespace ClassicUO.Game.UI
 
         private ScrollArea scrollArea;
         private DataBox dataBox;
+        private NiceButton lootButton;
         private int itemCount = 0;
 
         private static HashSet<uint> _corpsesRequested = new HashSet<uint>();
@@ -49,9 +51,8 @@ namespace ClassicUO.Game.UI
             Control c;
             Add(c = new TextBox("Nearby corpse loot", Assets.TrueTypeLoader.EMBEDDED_FONT, 24, WIDTH, Color.OrangeRed, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { AcceptMouseInput = false });
 
-            NiceButton b;
-            Add(b = new NiceButton(0, c.Height, WIDTH, 20, ButtonAction.Activate, "Loot All"));
-            b.MouseUp += (sender, e) =>
+            Add(lootButton = new NiceButton(0, c.Height, WIDTH, 20, ButtonAction.Default, "Loot All"));
+            lootButton.MouseUp += (sender, e) =>
             {
                 if (e.Button == MouseButtonType.Left)
                 {
@@ -65,13 +66,21 @@ namespace ClassicUO.Game.UI
                 }
             };
 
-            Add(scrollArea = new ScrollArea(0, b.Y + b.Height, Width, Height - b.Y - b.Height, true) { ScrollbarBehaviour = ScrollbarBehaviour.ShowAlways });
+            Add(scrollArea = new ScrollArea(0, lootButton.Y + lootButton.Height, Width, Height - lootButton.Y - lootButton.Height, true) { ScrollbarBehaviour = ScrollbarBehaviour.ShowAlways });
 
             scrollArea.Add(dataBox = new DataBox(0, 0, Width, scrollArea.Height));
 
             UpdateNearbyLoot();
         }
+        public override void Update()
+        {
+            base.Update();
 
+            if(selectedIndex == -1)
+                lootButton.IsSelected = true;
+            else
+                lootButton.IsSelected = false;
+        }
         public override void SlowUpdate()
         {
             base.SlowUpdate();
@@ -112,7 +121,6 @@ namespace ClassicUO.Game.UI
             if (SelectedIndex >= itemCount)
                 SelectedIndex = itemCount - 1;
         }
-
         private void ProcessCorpse(Item corpse)
         {
             if (corpse == null)
@@ -145,7 +153,6 @@ namespace ClassicUO.Game.UI
                 _corpsesRequested.Add(corpse.Serial);
             }
         }
-
         public static bool IsCorpseRequested(uint serial, bool remove = true)
         {
             if (_corpsesRequested.Contains(serial) && !World.Player.AutoOpenedCorpses.Contains(serial))
@@ -155,11 +162,53 @@ namespace ClassicUO.Game.UI
             }
             return false;
         }
-
         public override void Dispose()
         {
             base.Dispose();
             _corpsesRequested.Clear();
+        }
+        protected override void OnKeyDown(SDL.SDL_Keycode key, SDL.SDL_Keymod mod)
+        {
+            base.OnKeyDown(key, mod);
+
+            switch (key) {
+                case SDL.SDL_Keycode.SDLK_UP:
+                    SelectedIndex--;
+                    break;
+                case SDL.SDL_Keycode.SDLK_DOWN:
+                    SelectedIndex++;
+                    break;
+                case SDL.SDL_Keycode.SDLK_RETURN:
+                    LootSelectedIndex();
+                    break;
+
+            }
+        }
+        protected override void OnControllerButtonDown(SDL.SDL_GameControllerButton button)
+        {
+            base.OnControllerButtonDown(button);
+            switch (button)
+            {
+                case SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_UP:
+                    SelectedIndex--;
+                    break;
+                case SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+                    SelectedIndex++;
+                    break;
+                case SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A:
+                    LootSelectedIndex();
+                    break;
+            }
+        }
+
+        private void LootSelectedIndex()
+        {
+            if (SelectedIndex == -1)
+                lootButton.InvokeMouseUp(lootButton.Location, MouseButtonType.Left);
+            else                if(dataBox.Children.Count > SelectedIndex)
+            {
+                AutoLootManager.LootItems.Enqueue(dataBox.Children[SelectedIndex].LocalSerial);
+            }
         }
     }
 
@@ -270,7 +319,7 @@ namespace ClassicUO.Game.UI
 
             if (Keyboard.Shift && currentItem != null && ProfileManager.CurrentProfile.EnableAutoLoot && !ProfileManager.CurrentProfile.HoldShiftForContext && !ProfileManager.CurrentProfile.HoldShiftToSplitStack)
             {
-                AutoLootManager.Instance.AddLootItem(currentItem.Graphic, currentItem.Hue, currentItem.Name);
+                AutoLootManager.Instance.AddAutoLootEntry(currentItem.Graphic, currentItem.Hue, currentItem.Name);
                 GameActions.Print($"Added this item to auto loot.");
             }
 
