@@ -23,66 +23,11 @@ namespace ClassicUO.Game.Managers
         private List<AutoLootItem> autoLootItems = new List<AutoLootItem>();
         private bool loaded = false;
         private string savePath = Path.Combine(CUOEnviroment.ExecutablePath, "Data", "Profiles", "AutoLoot.json");
-        private bool lootTaskRunning = false;
+        private long nextLootTime = Time.Ticks;
         private ProgressBarGump progressBarGump;
         private int currentLootTotalCount = 0;
 
         private AutoLootManager() { Load(); }
-
-        /// <summary>
-        /// This method will, in another thread, start looting the items on the loot list.
-        /// This is called after adding items via CheckAndLoot method.
-        /// </summary>
-        public void StartLooting()
-        {
-            if (loaded && !lootTaskRunning)
-            {
-                int delay = ProfileManager.CurrentProfile == null ? 1000 : ProfileManager.CurrentProfile.MoveMultiObjectDelay;
-                Task.Factory.StartNew(() =>
-                {
-                    Task.Delay(delay).Wait();
-                    try
-                    {
-                        lootTaskRunning = true;
-                        if (lootItems != null && !lootItems.IsEmpty)
-                        {
-                            if(ProfileManager.CurrentProfile.EnableAutoLootProgressBar && (progressBarGump == null || progressBarGump.IsDisposed))
-                            {
-                                progressBarGump = new ProgressBarGump("Auto looting...", 0) { 
-                                    Y = (ProfileManager.CurrentProfile.GameWindowPosition.Y + ProfileManager.CurrentProfile.GameWindowSize.Y) - 150
-                                };
-                                progressBarGump.CenterXInViewPort();
-                                UIManager.Add(progressBarGump);
-                            }
-
-                            while (lootItems.TryDequeue(out uint moveItem))
-                            {
-                                if (progressBarGump != null && !progressBarGump.IsDisposed)
-                                {
-                                    progressBarGump.CurrentPercentage = 1 - ((double)lootItems.Count / (double)currentLootTotalCount);
-                                }
-
-                                Item m = World.Items.Get(moveItem);
-                                if (m != null)
-                                {
-                                    GameActions.GrabItem(m, m.Amount);
-                                    Task.Delay(delay).Wait();
-                                }
-                            }
-                        }
-                        lootTaskRunning = false;
-                        progressBarGump?.Dispose();
-                        currentLootTotalCount = lootItems.Count;
-                    }
-                    catch
-                    {
-                        lootTaskRunning = false;
-                        progressBarGump?.Dispose();
-                        currentLootTotalCount = lootItems.Count;
-                    }
-                });
-            }
-        }
 
         /// <summary>
         /// Check an item against the loot list, if it needs to be auto looted it will be.
@@ -157,7 +102,6 @@ namespace ClassicUO.Game.Managers
                 {
                     CheckAndLoot((Item)i);
                 }
-                StartLooting();
             }
         }
 
@@ -181,7 +125,51 @@ namespace ClassicUO.Game.Managers
 
         public void OnSceneLoad()
         {
+        }
 
+        public void Update()
+        {
+            if (!loaded) return;
+
+            if (lootItems.IsEmpty)
+            {
+                progressBarGump?.Dispose();
+                return;
+            }
+
+            if (nextLootTime > Time.Ticks) return;
+
+            if(lootItems.TryDequeue(out uint moveItem))
+            {
+                if (lootItems.IsEmpty) currentLootTotalCount = 0;
+
+                CreateProgressBar();
+
+                if (progressBarGump != null && !progressBarGump.IsDisposed)
+                {
+                    progressBarGump.CurrentPercentage = 1 - ((double)lootItems.Count / (double)currentLootTotalCount);
+                }
+
+                Item m = World.Items.Get(moveItem);
+                if (m != null)
+                {
+                    GameActions.GrabItem(m, m.Amount);
+                    nextLootTime = Time.Ticks + ProfileManager.CurrentProfile.MoveMultiObjectDelay;
+                }
+            }
+        }
+
+        private void CreateProgressBar()
+        {
+            if (ProfileManager.CurrentProfile.EnableAutoLootProgressBar && (progressBarGump == null || progressBarGump.IsDisposed))
+            {
+                progressBarGump = new ProgressBarGump("Auto looting...", 0)
+                {
+                    Y = (ProfileManager.CurrentProfile.GameWindowPosition.Y + ProfileManager.CurrentProfile.GameWindowSize.Y) - 150
+                };
+                progressBarGump.CenterXInViewPort();
+                UIManager.Add(progressBarGump);
+            }
         }
 
         private void Load()

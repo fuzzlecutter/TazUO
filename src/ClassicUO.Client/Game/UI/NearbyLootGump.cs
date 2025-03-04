@@ -241,7 +241,6 @@ namespace ClassicUO.Game.UI
         protected override bool OnMouseDoubleClick(int x, int y, MouseButtonType button)
         {
             AutoLootManager.LootItems.Enqueue(itemGump.LocalSerial);
-            AutoLootManager.Instance.StartLooting();
             return base.OnMouseDoubleClick(x, y, button);
         }
     }

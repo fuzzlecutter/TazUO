@@ -508,10 +508,6 @@ namespace ClassicUO.Game.UI.Gumps
             if (!firstItemsLoaded)
             {
                 firstItemsLoaded = true;
-                if (isCorpse)
-                {
-                    AutoLootManager.Instance.HandleCorpse(container);
-                }
             }
         }
 

@@ -1453,9 +1453,10 @@ namespace ClassicUO.Network
 
                 if (item != null)
                 {
+                    if (item.IsCorpse) AutoLootManager.Instance.HandleCorpse(item);
+
                     if (!NearbyLootGump.IsCorpseRequested(serial))
                     {
-
                         if (
                             item.IsCorpse
                             && (
