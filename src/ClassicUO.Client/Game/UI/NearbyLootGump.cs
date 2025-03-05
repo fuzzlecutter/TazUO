@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ClassicUO.Configuration;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
@@ -87,12 +88,26 @@ namespace ClassicUO.Game.UI
 
             ClearDataBox();
 
+            List<Item> finalItemList = new List<Item>();
+
             foreach (Item item in World.Items.Values)
             {
                 if (!item.IsDestroyed && item.IsCorpse && item.Distance <= ProfileManager.CurrentProfile.AutoOpenCorpseRange)
                 {
-                    ProcessCorpse(item);
+                    ProcessCorpse(item, ref finalItemList);
                 }
+            }
+
+            finalItemList = finalItemList
+                .OrderBy(item => item.Graphic != 0x0EED) // Items with Graphic 0x0EED(Gold) come first
+                .ThenBy(item => item.Graphic)           // Sort by Graphic
+                .ThenBy(item => item.Hue)               // Sort by Hue
+                .ToList();
+
+            foreach (Item lootItem in finalItemList)
+            {
+                dataBox.Add(NearbyItemDisplay.GetOne(lootItem, itemCount));
+                itemCount++;
             }
 
             dataBox.ReArrangeChildren(1);
@@ -101,7 +116,7 @@ namespace ClassicUO.Game.UI
             if (SelectedIndex >= itemCount)
                 SelectedIndex = itemCount - 1;
         }
-        private void ProcessCorpse(Item corpse)
+        private void ProcessCorpse(Item corpse, ref List<Item> itemList)
         {
             if (corpse == null)
                 return;
@@ -115,8 +130,7 @@ namespace ClassicUO.Game.UI
                     if (item == null)
                         continue;
 
-                    dataBox.Add(NearbyItemDisplay.GetOne(item, itemCount));
-                    itemCount++;
+                    itemList.Add(item);
                 }
 
             }
@@ -225,7 +239,6 @@ namespace ClassicUO.Game.UI
             base.SlowUpdate();
             UpdateNearbyLoot();
         }
-
     }
 
     internal class NearbyItemDisplay : Control
@@ -243,7 +256,7 @@ namespace ClassicUO.Game.UI
                 if (AutoLootManager.Instance.IsBeingLooted(LocalSerial))
                     return 32;
 
-                if (NearbyLootGump.SelectedIndex == index)
+                if (NearbyLootGump.SelectedIndex == index || MouseIsOver)
                     return 53;
 
                 return 0;
@@ -283,6 +296,7 @@ namespace ClassicUO.Game.UI
         public void SetItem(Item item, int index)
         {
             this.currentItem = item;
+            this.index = index;
             if (item == null) return;
 
             LocalSerial = item.Serial;
@@ -313,7 +327,6 @@ namespace ClassicUO.Game.UI
             Height = alphaBG.Height = itemGump.Height;
 
             SetTooltip(item);
-            this.index = index;
         }
 
         public void ReturnToPool()
@@ -326,12 +339,6 @@ namespace ClassicUO.Game.UI
             base.Update();
             if (alphaBG.Hue != bgHue)
                 alphaBG.Hue = bgHue;
-        }
-
-        protected override void OnMouseOver(int x, int y)
-        {
-            base.OnMouseOver(x, y);
-            NearbyLootGump.SelectedIndex = index;
         }
 
         protected override void OnMouseDown(int x, int y, MouseButtonType button)

@@ -43,6 +43,7 @@ namespace ClassicUO.Game.Managers
 
             lootItems.Enqueue(i);
             quickContainsLookup.Add(i.Serial);
+            currentLootTotalCount++;
         }
         /// <summary>
         /// Check an item against the loot list, if it needs to be auto looted it will be.
@@ -50,12 +51,10 @@ namespace ClassicUO.Game.Managers
         /// </summary>
         public void CheckAndLoot(Item i)
         {
-            if (!loaded) return;
+            if (!loaded || i == null || quickContainsLookup.Contains(i.Serial)) return;
 
             if (IsOnLootList(i))
             {
-                currentLootTotalCount++;
-                GameActions.Print($"SAL Looting: {i.Name} {i.Graphic} x {i.Amount}");
                 LootItem(i);
             }
         }
@@ -90,7 +89,7 @@ namespace ClassicUO.Game.Managers
 
             foreach (AutoLootItem entry in autoLootItems)
             {
-                if(entry.Equals(item))
+                if (entry.Equals(item))
                 {
                     return entry;
                 }
@@ -107,7 +106,7 @@ namespace ClassicUO.Game.Managers
         /// <param name="corpse"></param>
         public void HandleCorpse(Item corpse)
         {
-            if (corpse != null && ProfileManager.CurrentProfile.EnableAutoLoot)
+            if (corpse != null && corpse.IsCorpse && ProfileManager.CurrentProfile.EnableAutoLoot)
             {
                 for (LinkedObject i = corpse.Items; i != null; i = i.Next)
                 {
@@ -151,9 +150,13 @@ namespace ClassicUO.Game.Managers
 
             if (nextLootTime > Time.Ticks) return;
 
-            if(lootItems.TryDequeue(out uint moveItem))
+            if (lootItems.TryDequeue(out uint moveItem))
             {
-                if (lootItems.IsEmpty) currentLootTotalCount = 0;
+                if (lootItems.IsEmpty) //Que emptied out
+                {
+                    currentLootTotalCount = 0;
+                }
+
                 quickContainsLookup.Remove(moveItem);
 
                 CreateProgressBar();

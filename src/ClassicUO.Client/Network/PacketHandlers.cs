@@ -1453,8 +1453,8 @@ namespace ClassicUO.Network
 
                 if (item != null)
                 {
-                    if (item.IsCorpse) AutoLootManager.Instance.HandleCorpse(item);
-
+                    AutoLootManager.Instance.HandleCorpse(item);
+                    
                     if (!NearbyLootGump.IsCorpseRequested(serial))
                     {
                         if (
@@ -5906,7 +5906,7 @@ namespace ClassicUO.Network
                     unk2
                 );
 
-                if (graphic == 0x2006 && ProfileManager.CurrentProfile.AutoOpenCorpses)
+                if (graphic == 0x2006 && ProfileManager.CurrentProfile.AutoOpenCorpses) 
                 {
                     World.Player.TryOpenCorpses();
                 }
@@ -6258,6 +6258,8 @@ namespace ClassicUO.Network
             }
             else if (SerialHelper.IsItem(containerSerial))
             {
+                AutoLootManager.Instance.HandleCorpse(World.Items.Get(containerSerial));
+
                 Gump gump = UIManager.GetGump<BulletinBoardGump>(containerSerial);
 
                 if (gump != null)
@@ -6561,7 +6563,7 @@ namespace ClassicUO.Network
                     item.SetInWorldTile(item.X, item.Y, item.Z);
 
                     if (graphic == 0x2006 && ProfileManager.CurrentProfile.AutoOpenCorpses)
-                    {
+                    { 
                         World.Player.TryOpenCorpses();
                     }
                 }
