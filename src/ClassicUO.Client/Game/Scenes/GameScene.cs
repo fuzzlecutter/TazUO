@@ -849,6 +849,7 @@ namespace ClassicUO.Game.Scenes
             BoatMovingManager.Update();
             Pathfinder.ProcessAutoWalk();
             DelayedObjectClickManager.Update();
+            AutoLootManager.Instance.Update();
 
             if (!MoveCharacterByMouseInput() && !currentProfile.DisableArrowBtn && !MoveCharByController())
             {

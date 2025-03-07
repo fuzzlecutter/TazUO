@@ -7,6 +7,18 @@ namespace ClassicUO.Game.Managers
     public class EventSink
     {
         /// <summary>
+        /// Invoked when an item is added to the client, sender is the Item
+        /// </summary>
+        public static event EventHandler<EventArgs> OnItemCreated;
+        public static void InvokeOnItemCreated(object sender) => OnItemCreated?.Invoke(sender, EventArgs.Empty);
+
+        /// <summary>
+        /// Invoked when a corpse is added to the client, sender is the corpse Item
+        /// </summary>
+        public static event EventHandler<EventArgs> OnCorpseCreated;
+        public static void InvokeOnCorpseCreated(object sender) => OnCorpseCreated?.Invoke(sender, EventArgs.Empty);
+
+        /// <summary>
         /// Invoked when the player is connected to a server
         /// </summary>
         public static event EventHandler<EventArgs> OnConnected;

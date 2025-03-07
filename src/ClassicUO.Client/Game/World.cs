@@ -45,6 +45,7 @@ using ClassicUO.Configuration;
 using ClassicUO.Game.Scenes;
 using ClassicUO.Utility.Logging;
 using ClassicUO.Assets;
+using ClassicUO.Game.UI;
 
 namespace ClassicUO.Game
 {
@@ -265,6 +266,7 @@ namespace ClassicUO.Game
                                 if (container.Graphic == 0x2006)
                                 {
                                     UIManager.GetGump<GridLootGump>(container)?.RequestUpdateContents();
+                                    UIManager.GetGump<NearbyLootGump>(container)?.RequestUpdateContents();
                                 }
                             }
                         }
@@ -428,6 +430,7 @@ namespace ClassicUO.Game
             {
                 item = Item.Create(serial);
                 Items.Add(item);
+                EventSink.InvokeOnItemCreated(item);
             }
 
             return item;
@@ -481,6 +484,8 @@ namespace ClassicUO.Game
                     #region GridContainer
                     UIManager.GetGump<GridContainer>(containerSerial)?.RequestUpdateContents();
                     #endregion
+
+                    UIManager.GetGump<NearbyLootGump>(containerSerial)?.RequestUpdateContents();
                 }
 
                 Entity container = Get(containerSerial);

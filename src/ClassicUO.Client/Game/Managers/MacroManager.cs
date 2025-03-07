@@ -1101,6 +1101,12 @@ namespace ClassicUO.Game.Managers
 
                     break;
 
+                case MacroType.ToggleNearbyLootGump:
+                    if (!GameActions.CloseNearbyLootGump())
+                        GameActions.OpenNearbyLootGump();
+
+                    break;
+
                 case MacroType.OpenDoor:
                     GameActions.OpenDoor();
 
@@ -2642,7 +2648,8 @@ namespace ClassicUO.Game.Managers
         DisarmAbility,
         ToggleGump,
         ToggleDurabilityGump,
-        ShowNearbyItems
+        ShowNearbyItems,
+        ToggleNearbyLootGump
     }
 
     public enum MacroSubType

@@ -35,6 +35,7 @@ using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.Scenes;
+using ClassicUO.Game.UI;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
 using ClassicUO.Network;
@@ -94,6 +95,28 @@ namespace ClassicUO.Game
         public static void OpenDurabilityGump()
         {
             UIManager.Add(new DurabilitysGump());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>False if no nearby loot gump was open</returns>
+        public static bool CloseNearbyLootGump()
+        {
+            Gump g = UIManager.GetGump<NearbyLootGump>();
+
+            if (g != null)
+            {
+                g.Dispose();
+                return true;
+            }
+
+            return false;
+        }
+
+        public static void OpenNearbyLootGump()
+        {
+            UIManager.Add(new NearbyLootGump());
         }
 
         public static void OpenMacroGump(string name)
