@@ -38,7 +38,7 @@ namespace ClassicUO.LegionScripting
 
             int width = Width - scrollArea.ScrollBarWidth() - 4;
 
-            scrollArea.Add(textArea = new TTFTextInputField(width, Height - 50, text: string.Join("\n", scriptFile.FileContents), multiline: true, convertHtmlColors: false) { X = BorderControl.BorderSize, Y = BorderControl.BorderSize });
+            scrollArea.Add(textArea = new TTFTextInputField(width, Height - 50, text: string.Join("\n", scriptFile.ReadFromFile()), multiline: true, convertHtmlColors: false) { X = BorderControl.BorderSize, Y = BorderControl.BorderSize });
             textArea.TextChanged += (s, e) =>
             {
                 int h = textArea.TextBox.TotalHeight > scrollArea.Height ? textArea.TextBox.TotalHeight : scrollArea.Height;
