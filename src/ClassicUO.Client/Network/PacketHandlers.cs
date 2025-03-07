@@ -37,6 +37,7 @@ using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.Scenes;
+using ClassicUO.Game.UI;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.IO;
@@ -1099,16 +1100,13 @@ namespace ClassicUO.Network
                     UIManager.GetGump<GridContainer>(cont)?.RequestUpdateContents();
                     #endregion
 
-                    if (
-                        top != null
-                        && top.Graphic == 0x2006
-                        && (
-                            ProfileManager.CurrentProfile.GridLootType == 1
-                            || ProfileManager.CurrentProfile.GridLootType == 2
-                        )
-                    )
+                    if (top != null && top.Graphic == 0x2006)
                     {
-                        UIManager.GetGump<GridLootGump>(cont)?.RequestUpdateContents();
+                        UIManager.GetGump<NearbyLootGump>()?.RequestUpdateContents();
+                        if (ProfileManager.CurrentProfile.GridLootType == 1 || ProfileManager.CurrentProfile.GridLootType == 2)
+                        {
+                            UIManager.GetGump<GridLootGump>(cont)?.RequestUpdateContents();
+                        }
                     }
 
                     if (it.Graphic == 0x0EB0)
@@ -1452,155 +1450,160 @@ namespace ClassicUO.Network
 
                 if (item != null)
                 {
-                    if (
-                        item.IsCorpse
-                        && (
-                            ProfileManager.CurrentProfile.GridLootType == 1
-                            || ProfileManager.CurrentProfile.GridLootType == 2
+                    AutoLootManager.Instance.HandleCorpse(item);
+
+                    if (!NearbyLootGump.IsCorpseRequested(serial))
+                    {
+                        if (
+                            item.IsCorpse
+                            && (
+                                ProfileManager.CurrentProfile.GridLootType == 1
+                                || ProfileManager.CurrentProfile.GridLootType == 2
+                            )
                         )
-                    )
-                    {
-                        UIManager.GetGump<GridLootGump>(serial)?.Dispose();
-                        UIManager.Add(new GridLootGump(serial));
-                        _requestedGridLoot = serial;
-
-                        if (ProfileManager.CurrentProfile.GridLootType == 1)
                         {
-                            return;
-                        }
-                    }
+                            UIManager.GetGump<GridLootGump>(serial)?.Dispose();
+                            UIManager.Add(new GridLootGump(serial));
+                            _requestedGridLoot = serial;
 
-                    // TODO: check client version ?
-                    if (
-                        Client.Version >= Utility.ClientVersion.CV_706000
-                        && ProfileManager.CurrentProfile != null
-                        && ProfileManager.CurrentProfile.UseLargeContainerGumps
-                    )
-                    {
-                        var gumps = Client.Game.Gumps;
-
-                        switch (graphic)
-                        {
-                            case 0x0048:
-                                if (gumps.GetGump(0x06E8).Texture != null)
-                                {
-                                    graphic = 0x06E8;
-                                }
-
-                                break;
-
-                            case 0x0049:
-                                if (gumps.GetGump(0x9CDF).Texture != null)
-                                {
-                                    graphic = 0x9CDF;
-                                }
-
-                                break;
-
-                            case 0x0051:
-                                if (gumps.GetGump(0x06E7).Texture != null)
-                                {
-                                    graphic = 0x06E7;
-                                }
-
-                                break;
-
-                            case 0x003E:
-                                if (gumps.GetGump(0x06E9).Texture != null)
-                                {
-                                    graphic = 0x06E9;
-                                }
-
-                                break;
-
-                            case 0x004D:
-                                if (gumps.GetGump(0x06EA).Texture != null)
-                                {
-                                    graphic = 0x06EA;
-                                }
-
-                                break;
-
-                            case 0x004E:
-                                if (gumps.GetGump(0x06E6).Texture != null)
-                                {
-                                    graphic = 0x06E6;
-                                }
-
-                                break;
-
-                            case 0x004F:
-                                if (gumps.GetGump(0x06E5).Texture != null)
-                                {
-                                    graphic = 0x06E5;
-                                }
-
-                                break;
-
-                            case 0x004A:
-                                if (gumps.GetGump(0x9CDD).Texture != null)
-                                {
-                                    graphic = 0x9CDD;
-                                }
-
-                                break;
-
-                            case 0x0044:
-                                if (gumps.GetGump(0x9CE3).Texture != null)
-                                {
-                                    graphic = 0x9CE3;
-                                }
-
-                                break;
-                        }
-                    }
-
-
-                    if (ProfileManager.CurrentProfile.UseGridLayoutContainerGumps)
-                    {
-                        GridContainer gridContainer = UIManager.GetGump<GridContainer>(serial);
-                        if (gridContainer != null)
-                        {
-                            gridContainer.RequestUpdateContents();
-                        }
-                        else
-                        {
-                            UIManager.Add(new GridContainer(serial, graphic));
-                        }
-                    }
-                    else
-                    {
-
-                        ContainerGump container = UIManager.GetGump<ContainerGump>(serial);
-                        bool playsound = false;
-                        int x, y;
-
-
-
-                        if (container != null)
-                        {
-                            x = container.ScreenCoordinateX;
-                            y = container.ScreenCoordinateY;
-                            container.Dispose();
-                        }
-                        else
-                        {
-                            ContainerManager.CalculateContainerPosition(serial, graphic);
-                            x = ContainerManager.X;
-                            y = ContainerManager.Y;
-                            playsound = true;
-                        }
-
-
-                        UIManager.Add
-                        (
-                            new ContainerGump(item, graphic, playsound)
+                            if (ProfileManager.CurrentProfile.GridLootType == 1)
                             {
-                                X = x,
-                                Y = y,
-                                InvalidateContents = true
+                                return;
                             }
-                        );
+                        }
+
+                        // TODO: check client version ?
+                        if (
+                            Client.Version >= Utility.ClientVersion.CV_706000
+                            && ProfileManager.CurrentProfile != null
+                            && ProfileManager.CurrentProfile.UseLargeContainerGumps
+                        )
+                        {
+                            var gumps = Client.Game.Gumps;
+
+                            switch (graphic)
+                            {
+                                case 0x0048:
+                                    if (gumps.GetGump(0x06E8).Texture != null)
+                                    {
+                                        graphic = 0x06E8;
+                                    }
+
+                                    break;
+
+                                case 0x0049:
+                                    if (gumps.GetGump(0x9CDF).Texture != null)
+                                    {
+                                        graphic = 0x9CDF;
+                                    }
+
+                                    break;
+
+                                case 0x0051:
+                                    if (gumps.GetGump(0x06E7).Texture != null)
+                                    {
+                                        graphic = 0x06E7;
+                                    }
+
+                                    break;
+
+                                case 0x003E:
+                                    if (gumps.GetGump(0x06E9).Texture != null)
+                                    {
+                                        graphic = 0x06E9;
+                                    }
+
+                                    break;
+
+                                case 0x004D:
+                                    if (gumps.GetGump(0x06EA).Texture != null)
+                                    {
+                                        graphic = 0x06EA;
+                                    }
+
+                                    break;
+
+                                case 0x004E:
+                                    if (gumps.GetGump(0x06E6).Texture != null)
+                                    {
+                                        graphic = 0x06E6;
+                                    }
+
+                                    break;
+
+                                case 0x004F:
+                                    if (gumps.GetGump(0x06E5).Texture != null)
+                                    {
+                                        graphic = 0x06E5;
+                                    }
+
+                                    break;
+
+                                case 0x004A:
+                                    if (gumps.GetGump(0x9CDD).Texture != null)
+                                    {
+                                        graphic = 0x9CDD;
+                                    }
+
+                                    break;
+
+                                case 0x0044:
+                                    if (gumps.GetGump(0x9CE3).Texture != null)
+                                    {
+                                        graphic = 0x9CE3;
+                                    }
+
+                                    break;
+                            }
+                        }
+
+
+                        if (ProfileManager.CurrentProfile.UseGridLayoutContainerGumps)
+                        {
+                            GridContainer gridContainer = UIManager.GetGump<GridContainer>(serial);
+                            if (gridContainer != null)
+                            {
+                                gridContainer.RequestUpdateContents();
+                            }
+                            else
+                            {
+                                UIManager.Add(new GridContainer(serial, graphic));
+                            }
+                        }
+                        else
+                        {
+
+                            ContainerGump container = UIManager.GetGump<ContainerGump>(serial);
+                            bool playsound = false;
+                            int x, y;
+
+
+
+                            if (container != null)
+                            {
+                                x = container.ScreenCoordinateX;
+                                y = container.ScreenCoordinateY;
+                                container.Dispose();
+                            }
+                            else
+                            {
+                                ContainerManager.CalculateContainerPosition(serial, graphic);
+                                x = ContainerManager.X;
+                                y = ContainerManager.Y;
+                                playsound = true;
+                            }
+
+
+                            UIManager.Add
+                            (
+                                new ContainerGump(item, graphic, playsound)
+                                {
+                                    X = x,
+                                    Y = y,
+                                    InvalidateContents = true
+                                }
+                            );
+                        }
                     }
 
                     EventSink.InvokeOnOpenContainer(item, serial);
@@ -6252,6 +6255,8 @@ namespace ClassicUO.Network
             }
             else if (SerialHelper.IsItem(containerSerial))
             {
+                AutoLootManager.Instance.HandleCorpse(World.Items.Get(containerSerial));
+
                 Gump gump = UIManager.GetGump<BulletinBoardGump>(containerSerial);
 
                 if (gump != null)
@@ -6301,6 +6306,8 @@ namespace ClassicUO.Network
 
                             grid_gump?.RequestUpdateContents();
                         }
+
+                        UIManager.GetGump<NearbyLootGump>()?.RequestUpdateContents();
                     }
 
                     if (gump != null)
@@ -6554,9 +6561,13 @@ namespace ClassicUO.Network
                 {
                     item.SetInWorldTile(item.X, item.Y, item.Z);
 
-                    if (graphic == 0x2006 && ProfileManager.CurrentProfile.AutoOpenCorpses)
+                    if (graphic == 0x2006)
                     {
-                        World.Player.TryOpenCorpses();
+                        if (created)
+                            EventSink.InvokeOnCorpseCreated(item);
+
+                        if (ProfileManager.CurrentProfile.AutoOpenCorpses)
+                            World.Player.TryOpenCorpses();
                     }
                 }
             }
