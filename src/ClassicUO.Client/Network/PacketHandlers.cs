@@ -1100,16 +1100,13 @@ namespace ClassicUO.Network
                     UIManager.GetGump<GridContainer>(cont)?.RequestUpdateContents();
                     #endregion
 
-                    if (
-                        top != null
-                        && top.Graphic == 0x2006
-                        && (
-                            ProfileManager.CurrentProfile.GridLootType == 1
-                            || ProfileManager.CurrentProfile.GridLootType == 2
-                        )
-                    )
+                    if (top != null && top.Graphic == 0x2006)
                     {
-                        UIManager.GetGump<GridLootGump>(cont)?.RequestUpdateContents();
+                        UIManager.GetGump<NearbyLootGump>()?.RequestUpdateContents();
+                        if (ProfileManager.CurrentProfile.GridLootType == 1 || ProfileManager.CurrentProfile.GridLootType == 2)
+                        {
+                            UIManager.GetGump<GridLootGump>(cont)?.RequestUpdateContents();
+                        }
                     }
 
                     if (it.Graphic == 0x0EB0)
@@ -1454,7 +1451,7 @@ namespace ClassicUO.Network
                 if (item != null)
                 {
                     AutoLootManager.Instance.HandleCorpse(item);
-                    
+
                     if (!NearbyLootGump.IsCorpseRequested(serial))
                     {
                         if (
@@ -5906,7 +5903,7 @@ namespace ClassicUO.Network
                     unk2
                 );
 
-                if (graphic == 0x2006 && ProfileManager.CurrentProfile.AutoOpenCorpses) 
+                if (graphic == 0x2006 && ProfileManager.CurrentProfile.AutoOpenCorpses)
                 {
                     World.Player.TryOpenCorpses();
                 }
@@ -6309,6 +6306,8 @@ namespace ClassicUO.Network
 
                             grid_gump?.RequestUpdateContents();
                         }
+
+                        UIManager.GetGump<NearbyLootGump>()?.RequestUpdateContents();
                     }
 
                     if (gump != null)
@@ -6562,9 +6561,13 @@ namespace ClassicUO.Network
                 {
                     item.SetInWorldTile(item.X, item.Y, item.Z);
 
-                    if (graphic == 0x2006 && ProfileManager.CurrentProfile.AutoOpenCorpses)
-                    { 
-                        World.Player.TryOpenCorpses();
+                    if (graphic == 0x2006)
+                    {
+                        if (created)
+                            EventSink.InvokeOnCorpseCreated(item);
+
+                        if (ProfileManager.CurrentProfile.AutoOpenCorpses)
+                            World.Player.TryOpenCorpses();
                     }
                 }
             }

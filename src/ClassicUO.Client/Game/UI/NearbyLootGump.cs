@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ClassicUO.Configuration;
 using ClassicUO.Game.GameObjects;
@@ -6,16 +7,19 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
+using ClassicUO.Renderer;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using SDL2;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
+using static ClassicUO.Game.UI.Gumps.GridHightlightMenu;
 
 namespace ClassicUO.Game.UI
 {
     internal class NearbyLootGump : Gump
     {
         public const int WIDTH = 250;
-        public const int HEIGHT = 550;
 
         public static int SelectedIndex
         {
@@ -31,9 +35,15 @@ namespace ClassicUO.Game.UI
         private ScrollArea scrollArea;
         private DataBox dataBox;
         private NiceButton lootButton;
+        private AlphaBlendControl alphaBG;
         private int itemCount = 0;
 
+        private HitBox resizeDrag;
+        private bool dragging = false;
+        private int dragStartH = 0;
+
         private static HashSet<uint> _corpsesRequested = new HashSet<uint>();
+        private static HashSet<uint> _openedCorpses = new HashSet<uint>();
         private static int selectedIndex;
 
         public NearbyLootGump() : base(0, 0)
@@ -45,9 +55,9 @@ namespace ClassicUO.Game.UI
             AcceptKeyboardInput = true;
             CanCloseWithRightClick = true;
             Width = WIDTH;
-            Height = HEIGHT;
+            Height = ProfileManager.CurrentProfile.NearbyLootGumpHeight;
 
-            Add(new AlphaBlendControl() { Width = Width, Height = Height });
+            Add(alphaBG = new AlphaBlendControl() { Width = Width, Height = Height });
 
             Control c;
             Add(c = new TextBox("Nearby corpse loot", Assets.TrueTypeLoader.EMBEDDED_FONT, 24, WIDTH, Color.OrangeRed, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { AcceptMouseInput = false });
@@ -80,13 +90,56 @@ namespace ClassicUO.Game.UI
 
             scrollArea.Add(dataBox = new DataBox(0, 0, Width, scrollArea.Height));
 
-            UpdateNearbyLoot();
+            Add(resizeDrag = new HitBox(Width / 2 - 10, Height - 10, 20, 10, "Drag to resize", 0.50f));
+            resizeDrag.Add(new AlphaBlendControl(0.25f) { Width = 20, Height = 10, BaseColor = Color.OrangeRed });
+            resizeDrag.MouseDown += ResizeDrag_MouseDown;
+            resizeDrag.MouseUp += ResizeDrag_MouseUp;
+
+            EventSink.OnCorpseCreated += EventSink_OnCorpseCreated;
+            EventSink.OnPositionChanged += EventSink_OnPositionChanged;
+            EventSink.OPLOnReceive += EventSink_OPLOnReceive;
+            RequestUpdateContents();
         }
+
+        private void EventSink_OPLOnReceive(object sender, OPLEventArgs e)
+        {
+            Item i = World.Items.Get(e.Serial);
+
+            if (i != null && _openedCorpses.Contains(i.RootContainer))
+                RequestUpdateContents();
+        }
+
+        private void EventSink_OnPositionChanged(object sender, PositionChangedArgs e)
+        {
+            RequestUpdateContents();
+        }
+
+        private void ResizeDrag_MouseUp(object sender, MouseEventArgs e)
+        {
+            dragging = false;
+        }
+
+        private void ResizeDrag_MouseDown(object sender, MouseEventArgs e)
+        {
+            dragStartH = Height;
+            dragging = true;
+        }
+
+        private void EventSink_OnCorpseCreated(object sender, System.EventArgs e)
+        {
+            Item item = (Item)sender;
+            if (!item.IsDestroyed && item.IsCorpse && item.Distance <= ProfileManager.CurrentProfile.AutoOpenCorpseRange)
+            {
+                TryRequestOpenCorpse(item);
+            }
+        }
+
         private void UpdateNearbyLoot()
         {
             itemCount = 0;
 
             ClearDataBox();
+            _openedCorpses.Clear();
 
             List<Item> finalItemList = new List<Item>();
 
@@ -123,6 +176,7 @@ namespace ClassicUO.Game.UI
 
             if (corpse.Items != null)
             {
+                _openedCorpses.Add(corpse);
                 for (LinkedObject i = corpse.Items; i != null; i = i.Next)
                 {
 
@@ -136,16 +190,20 @@ namespace ClassicUO.Game.UI
             }
             else
             {
-                if (_corpsesRequested.Contains(corpse))
-                    return;
-
-                GameActions.DoubleClickQueued(corpse.Serial);
-
-                if (World.Player.AutoOpenedCorpses.Contains(corpse.Serial))
-                    return;
-
-                _corpsesRequested.Add(corpse.Serial);
+                TryRequestOpenCorpse(corpse);
             }
+        }
+        private void TryRequestOpenCorpse(Item corpse)
+        {
+            if (_corpsesRequested.Contains(corpse))
+                return;
+
+            if (World.Player.AutoOpenedCorpses.Contains(corpse.Serial))
+                return;
+
+            _corpsesRequested.Add(corpse.Serial);
+
+            GameActions.DoubleClickQueued(corpse.Serial);
         }
         private void LootSelectedIndex()
         {
@@ -156,7 +214,6 @@ namespace ClassicUO.Game.UI
                 AutoLootManager.Instance.LootItem(dataBox.Children[SelectedIndex].LocalSerial);
             }
         }
-
         private void ClearDataBox()
         {
             List<Control> removeAfter = new List<Control>();
@@ -178,11 +235,12 @@ namespace ClassicUO.Game.UI
 
         public static bool IsCorpseRequested(uint serial, bool remove = true)
         {
-            if (_corpsesRequested.Contains(serial) && !World.Player.AutoOpenedCorpses.Contains(serial))
+            if (_corpsesRequested.Contains(serial))
             {
-                if (remove) _corpsesRequested.Remove(serial);
+                if(remove) _corpsesRequested.Remove(serial);
                 return true;
             }
+
             return false;
         }
 
@@ -190,6 +248,10 @@ namespace ClassicUO.Game.UI
         {
             base.Dispose();
             _corpsesRequested.Clear();
+            EventSink.OnCorpseCreated -= EventSink_OnCorpseCreated;
+            resizeDrag.MouseUp -= ResizeDrag_MouseUp;
+            resizeDrag.MouseDown -= ResizeDrag_MouseDown;
+            EventSink.OPLOnReceive -= EventSink_OPLOnReceive;
         }
         protected override void OnKeyDown(SDL.SDL_Keycode key, SDL.SDL_Keymod mod)
         {
@@ -233,22 +295,41 @@ namespace ClassicUO.Game.UI
                 lootButton.IsSelected = true;
             else
                 lootButton.IsSelected = false;
+
+            int steps = Mouse.LDragOffset.Y;
+
+            if (dragging && steps != 0)
+            {
+                Height = dragStartH + steps;
+                if (Height < 200)
+                    Height = 200;
+                ProfileManager.CurrentProfile.NearbyLootGumpHeight = Height;
+
+
+                scrollArea.Height = Height - lootButton.Y - lootButton.Height;
+                alphaBG.Height = Height;
+                resizeDrag.Y = Height - 10;
+            }
         }
-        public override void SlowUpdate()
+        protected override void UpdateContents()
         {
-            base.SlowUpdate();
+            base.UpdateContents();
             UpdateNearbyLoot();
         }
     }
 
     internal class NearbyItemDisplay : Control
     {
+        private const int ITEM_SIZE = 40;
         private static Queue<NearbyItemDisplay> pool = new Queue<NearbyItemDisplay>();
-        private ItemGump itemGump;
         private Label itemLabel;
         private AlphaBlendControl alphaBG;
         private Item currentItem;
         private int index;
+        private bool highlight = false;
+        private ushort borderHighlightHue = 0;
+        private readonly Texture2D borderTexture;
+
         private ushort bgHue
         {
             get
@@ -280,13 +361,12 @@ namespace ClassicUO.Game.UI
                 Dispose();
                 return;
             }
-
+            borderTexture = SolidColorTextureCache.GetTexture(Color.White);
             CanMove = false;
             AcceptMouseInput = true;
             Width = NearbyLootGump.WIDTH;
+            Height = ITEM_SIZE;
             this.index = index;
-
-            LocalSerial = item.Serial;
 
             Add(alphaBG = new AlphaBlendControl() { Width = Width, Height = Height, Hue = bgHue });
 
@@ -295,7 +375,8 @@ namespace ClassicUO.Game.UI
 
         public void SetItem(Item item, int index)
         {
-            this.currentItem = item;
+            highlight = false;
+            currentItem = item;
             this.index = index;
             if (item == null) return;
 
@@ -303,28 +384,29 @@ namespace ClassicUO.Game.UI
 
             alphaBG.Hue = bgHue; //Prevent weird flashing
 
-            if (itemGump == null)
-            {
-                Add(itemGump = new ItemGump(item.Serial, item.DisplayedGraphic, item.Hue, 0, 0));
-            }
-            else
-            {
-                itemGump.LocalSerial = item.Serial;
-                itemGump.Graphic = item.DisplayedGraphic;
-                itemGump.Hue = item.Hue;
-                itemGump.SetTooltip(item);
-            }
+            string name = item.Name;
+            if (string.IsNullOrEmpty(name))
+                name = item.ItemData.Name;
 
             if (itemLabel == null)
             {
-                Add(itemLabel = new Label(item.Name, true, 43) { X = 50 });
+                Add(itemLabel = new Label(name, true, 43, ishtml: true) { X = ITEM_SIZE });
+                itemLabel.Y = (ITEM_SIZE - itemLabel.Height) >> 1;
             }
             else
             {
-                itemLabel.Text = item.Name;
+                itemLabel.Text = name;
             }
 
-            Height = alphaBG.Height = itemGump.Height;
+            ItemPropertiesData data = new ItemPropertiesData(item);
+            foreach (GridHighlightData config in GridHighlightData.AllConfigs)
+            {
+                if (config.IsMatch(data))
+                {
+                    highlight = true;
+                    borderHighlightHue = config.Hue;
+                }
+            }
 
             SetTooltip(item);
         }
@@ -354,6 +436,101 @@ namespace ClassicUO.Game.UI
             }
 
             AutoLootManager.Instance.LootItem(LocalSerial);
+        }
+
+        public override bool Draw(UltimaBatcher2D batcher, int x, int y)
+        {
+            base.Draw(batcher, x, y);
+
+            Vector3 hueVector = ShaderHueTranslator.GetHueVector(currentItem.Hue, currentItem.ItemData.IsPartialHue, 1, true);
+
+            ref readonly var texture = ref Client.Game.Arts.GetArt((uint)currentItem.DisplayedGraphic);
+            Rectangle _rect = Client.Game.Arts.GetRealArtBounds((uint)currentItem.DisplayedGraphic);
+
+
+            Point _originalSize = new Point(ITEM_SIZE, ITEM_SIZE);
+            Point _point = new Point((ITEM_SIZE >> 1) - (_originalSize.X >> 1), (ITEM_SIZE >> 1) - (_originalSize.Y >> 1));
+
+            if (texture.Texture != null)
+            {
+                if (_rect.Width < ITEM_SIZE)
+                {
+                    _originalSize.X = _rect.Width;
+                    _point.X = (ITEM_SIZE >> 1) - (_originalSize.X >> 1);
+                }
+
+                if (_rect.Height < ITEM_SIZE)
+                {
+                    _originalSize.Y = _rect.Height;
+                    _point.Y = (ITEM_SIZE >> 1) - (_originalSize.Y >> 1);
+                }
+
+                if (_rect.Width > ITEM_SIZE)
+                {
+                    _originalSize.X = ITEM_SIZE;
+                    _point.X = 0;
+                }
+
+                if (_rect.Height > ITEM_SIZE)
+                {
+                    _originalSize.Y = ITEM_SIZE;
+                    _point.Y = 0;
+                }
+
+                batcher.Draw
+                (
+                    texture.Texture,
+                    new Rectangle
+                    (
+                        x + _point.X,
+                        y + _point.Y,
+                        _originalSize.X,
+                        _originalSize.Y
+                    ),
+                    new Rectangle
+                    (
+                        texture.UV.X + _rect.X,
+                        texture.UV.Y + _rect.Y,
+                        _rect.Width,
+                        _rect.Height
+                    ),
+                    hueVector
+                );
+            }
+
+            if (highlight)
+            {
+                int bx = x + 6;
+                int by = y + 6;
+
+                Vector3 borderHueVec = ShaderHueTranslator.GetHueVector(borderHighlightHue, false, 0.8f);
+
+                batcher.Draw( //Top bar
+                    borderTexture,
+                    new Rectangle(bx, by, ITEM_SIZE - 12, 1),
+                    borderHueVec
+                    );
+
+                batcher.Draw( //Left Bar
+                    borderTexture,
+                    new Rectangle(bx, by + 1, 1, ITEM_SIZE - 10),
+                    borderHueVec
+                    );
+
+                batcher.Draw( //Right Bar
+                    borderTexture,
+                    new Rectangle(bx + ITEM_SIZE - 12 - 1, by + 1, 1, ITEM_SIZE - 10),
+                    borderHueVec
+                    );
+
+                batcher.Draw( //Bottom bar
+                    borderTexture,
+                    new Rectangle(bx, by + ITEM_SIZE - 11, ITEM_SIZE - 12, 1),
+                    borderHueVec
+                    );
+            }
+
+            return true;
         }
     }
 }

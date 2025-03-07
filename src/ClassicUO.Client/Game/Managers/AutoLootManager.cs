@@ -33,6 +33,7 @@ namespace ClassicUO.Game.Managers
         {
             return quickContainsLookup.Contains(serial);
         }
+
         public void LootItem(uint serial)
         {
             LootItem(World.Items.Get(serial));
@@ -45,11 +46,12 @@ namespace ClassicUO.Game.Managers
             quickContainsLookup.Add(i.Serial);
             currentLootTotalCount++;
         }
+
         /// <summary>
         /// Check an item against the loot list, if it needs to be auto looted it will be.
         /// I reccomend running this method in a seperate thread if it's a lot of items.
         /// </summary>
-        public void CheckAndLoot(Item i)
+        private void CheckAndLoot(Item i)
         {
             if (!loaded || i == null || quickContainsLookup.Contains(i.Serial)) return;
 
@@ -58,6 +60,7 @@ namespace ClassicUO.Game.Managers
                 LootItem(i);
             }
         }
+
         /// <summary>
         /// Check if an item is on the auto loot list.
         /// </summary>

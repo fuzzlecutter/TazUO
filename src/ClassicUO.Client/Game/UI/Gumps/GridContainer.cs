@@ -1510,11 +1510,7 @@ namespace ClassicUO.Game.UI.Gumps
                     System.Threading.Thread.Sleep(1000);
 
                     if (tcount != hcount) { return; } //Another call has already been made
-                    List<GridHighlightData> highlightConfigs = new List<GridHighlightData>();
-                    for (int propIndex = 0; propIndex < ProfileManager.CurrentProfile.GridHighlight_PropNames.Count; propIndex++)
-                    {
-                        highlightConfigs.Add(GridHighlightData.GetGridHighlightData(propIndex));
-                    }
+                    GridHighlightData[] highlightConfigs = GridHighlightData.AllConfigs;
 
                     foreach (var item in gridSlots) //For each grid slot
                     {
@@ -1526,27 +1522,7 @@ namespace ClassicUO.Game.UI.Gumps
                             if (itemData.HasData)
                                 foreach (GridHighlightData configData in highlightConfigs) //For each highlight configuration
                                 {
-                                    bool fullMatch = true;
-                                    for (int i = 0; i < configData.Properties.Count; i++) //For each property in a single grid highlight config
-                                    {
-                                        if (!fullMatch) break;
-                                        bool hasProp = false;
-                                        foreach (var singleProperty in itemData.singlePropertyData) //For each property on the item
-                                        {
-                                            if (singleProperty.Name.ToLower().Contains(configData.Properties[i].ToLower()) || singleProperty.OriginalString.ToLower().Contains(configData.Properties[i].ToLower())) //This property has a match for this highlight search text
-                                            {
-                                                hasProp = true;
-                                                if (singleProperty.FirstValue >= configData.PropMinVal[i]) //This property matches the highlight property
-                                                    fullMatch = true;
-                                                else if (configData.PropMinVal[i] == -1)
-                                                    fullMatch = true;
-                                                else
-                                                    fullMatch = false;
-                                            }
-                                        }
-                                        if (!hasProp) fullMatch = false;
-                                    }
-                                    if (fullMatch) item.Value.SetHighLightBorder(configData.Hue);
+                                    if (configData.IsMatch(itemData)) item.Value.SetHighLightBorder(configData.Hue);
                                 }
                         }
                     }

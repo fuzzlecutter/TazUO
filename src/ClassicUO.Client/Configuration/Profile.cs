@@ -606,6 +606,8 @@ namespace ClassicUO.Configuration
 
         public bool UseWASDInsteadArrowKeys { get; set; } = false;
 
+        public int NearbyLootGumpHeight { get; set; } = 550;
+
 
         public void Save(string path, bool saveGumps = true)
         {
