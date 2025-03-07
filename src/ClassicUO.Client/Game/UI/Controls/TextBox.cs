@@ -128,6 +128,10 @@ namespace ClassicUO.Game.UI.Controls
             {
                 return Color.White;
             }
+
+            if (hue == 0)
+                hue = 946; //Change black text to standard gray
+
             return new Color() { PackedValue = HuesLoader.Instance.GetHueColorRgba8888(31, (ushort)hue) };
         }
 
