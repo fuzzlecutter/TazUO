@@ -45,6 +45,7 @@ namespace ClassicUO.Game.UI
         private static HashSet<uint> _corpsesRequested = new HashSet<uint>();
         private static HashSet<uint> _openedCorpses = new HashSet<uint>();
         private static int selectedIndex;
+        private static Point lastLocation;
 
         public NearbyLootGump() : base(0, 0)
         {
@@ -56,6 +57,13 @@ namespace ClassicUO.Game.UI
             CanCloseWithRightClick = true;
             Width = WIDTH;
             Height = ProfileManager.CurrentProfile.NearbyLootGumpHeight;
+
+            if (lastLocation == default)
+            {
+                CenterXInViewPort();
+                CenterYInViewPort();
+            } else
+                Location = lastLocation;
 
             Add(alphaBG = new AlphaBlendControl() { Width = Width, Height = Height });
 
@@ -252,6 +260,7 @@ namespace ClassicUO.Game.UI
             resizeDrag.MouseUp -= ResizeDrag_MouseUp;
             resizeDrag.MouseDown -= ResizeDrag_MouseDown;
             EventSink.OPLOnReceive -= EventSink_OPLOnReceive;
+            lastLocation = Location;
         }
         protected override void OnKeyDown(SDL.SDL_Keycode key, SDL.SDL_Keymod mod)
         {
@@ -309,6 +318,7 @@ namespace ClassicUO.Game.UI
                 scrollArea.Height = Height - lootButton.Y - lootButton.Height;
                 alphaBG.Height = Height;
                 resizeDrag.Y = Height - 10;
+                scrollArea.SlowUpdate();//Recalculate scrollbar
             }
         }
         protected override void UpdateContents()
@@ -337,7 +347,7 @@ namespace ClassicUO.Game.UI
                 if (AutoLootManager.Instance.IsBeingLooted(LocalSerial))
                     return 32;
 
-                if (NearbyLootGump.SelectedIndex == index || MouseIsOver)
+                if (NearbyLootGump.SelectedIndex == index)
                     return 53;
 
                 return 0;
@@ -362,7 +372,7 @@ namespace ClassicUO.Game.UI
                 return;
             }
             borderTexture = SolidColorTextureCache.GetTexture(Color.White);
-            CanMove = false;
+            CanMove = true;
             AcceptMouseInput = true;
             Width = NearbyLootGump.WIDTH;
             Height = ITEM_SIZE;
@@ -423,11 +433,29 @@ namespace ClassicUO.Game.UI
                 alphaBG.Hue = bgHue;
         }
 
-        protected override void OnMouseDown(int x, int y, MouseButtonType button)
+        protected override void OnMouseEnter(int x, int y)
         {
-            base.OnMouseDown(x, y, button);
+            base.OnMouseEnter(x, y);
+            NearbyLootGump.SelectedIndex = index;
+        }
 
-            if (button != MouseButtonType.Left) return;
+        protected override void OnDragBegin(int x, int y)
+        {
+            base.OnDragBegin(x, y);
+            Parent?.InvokeDragBegin(new Point(x, y));
+        }
+
+        protected override void OnDragEnd(int x, int y)
+        {
+            base.OnDragEnd(x, y);
+            Parent?.InvokeDragEnd(new Point(x, y));
+        }
+
+        protected override void OnMouseUp(int x, int y, MouseButtonType button)
+        {
+            base.OnMouseUp(x, y, button);
+
+            if (button != MouseButtonType.Left || !MouseIsOver) return;
 
             if (Keyboard.Shift && currentItem != null && ProfileManager.CurrentProfile.EnableAutoLoot && !ProfileManager.CurrentProfile.HoldShiftForContext && !ProfileManager.CurrentProfile.HoldShiftToSplitStack)
             {
