@@ -102,14 +102,18 @@ namespace ClassicUO.Game.UI.Controls
         }
     }
 
-    internal class CustomGumpPic : GumpPicBase
+    internal class EmbeddedGumpPic : GumpPicBase
     {
         private Texture2D _customTexture;
-        public int Width { get; }
-        public int Height { get; }
-        public ushort Hue { get; set; }
 
-        public CustomGumpPic(int x, int y, Texture2D texture, ushort hue = 0)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="texture">Texture does not dispose, make sure you handle disposing elsewhere.</param>
+        /// <param name="hue"></param>
+        public EmbeddedGumpPic(int x, int y, Texture2D texture, ushort hue = 0)
         {
             X = x;
             Y = y;
@@ -124,7 +128,7 @@ namespace ClassicUO.Game.UI.Controls
 
         public override bool Draw(UltimaBatcher2D batcher, int x, int y)
         {
-            if (IsDisposed || _customTexture == null)
+            if (IsDisposed || _customTexture == null || _customTexture.IsDisposed)
             {
                 return false;
             }
@@ -139,12 +143,6 @@ namespace ClassicUO.Game.UI.Controls
             );
 
             return base.Draw(batcher, x, y);
-        }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-            _customTexture?.Dispose();
         }
     }
 
