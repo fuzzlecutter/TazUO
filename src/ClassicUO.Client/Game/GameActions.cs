@@ -857,6 +857,8 @@ namespace ClassicUO.Game
                                      button,
                                      switches,
                                      entries);
+            if (CUOEnviroment.Debug)
+                GameActions.Print($"Gump Button: {button} for gump: {server}");
         }
 
         public static void RequestHelp()
