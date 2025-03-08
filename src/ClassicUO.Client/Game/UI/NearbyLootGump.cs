@@ -179,7 +179,7 @@ namespace ClassicUO.Game.UI
         }
         private void ProcessCorpse(Item corpse, ref List<Item> itemList)
         {
-            if (corpse == null)
+            if (corpse == null || !corpse.IsCorpse || corpse.IsHumanCorpse)
                 return;
 
             if (corpse.Items != null)
