@@ -109,7 +109,7 @@ namespace ClassicUO.Game.Managers
         /// <param name="corpse"></param>
         public void HandleCorpse(Item corpse)
         {
-            if (corpse != null && corpse.IsCorpse && ProfileManager.CurrentProfile.EnableAutoLoot)
+            if (corpse != null && corpse.IsCorpse && !corpse.IsHumanCorpse && ProfileManager.CurrentProfile.EnableAutoLoot)
             {
                 for (LinkedObject i = corpse.Items; i != null; i = i.Next)
                 {
