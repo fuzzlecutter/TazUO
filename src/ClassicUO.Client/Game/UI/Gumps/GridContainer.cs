@@ -49,6 +49,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using static ClassicUO.Game.UI.Gumps.GridHightlightMenu;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -508,10 +509,6 @@ namespace ClassicUO.Game.UI.Gumps
             if (!firstItemsLoaded)
             {
                 firstItemsLoaded = true;
-                if (isCorpse)
-                {
-                    AutoLootManager.Instance.HandleCorpse(container);
-                }
             }
         }
 
@@ -677,7 +674,7 @@ namespace ClassicUO.Game.UI.Gumps
                 GridItem item = gridSlotManager.FindItem(parent.Serial);
                 if (item != null)
                 {
-                    UIManager.Add(new SimpleTimedTextGump(text, (uint)hue, TimeSpan.FromSeconds(2), 200) { X = item.ScreenCoordinateX, Y = item.ScreenCoordinateY });
+                    item.AddText(text, hue);
                 }
             }
         }
@@ -804,6 +801,7 @@ namespace ClassicUO.Game.UI.Gumps
             Label count;
             AlphaBlendControl background;
             private CustomToolTip toolTipThis, toolTipitem1, toolTipitem2;
+            private List<SimpleTimedTextGump> timedTexts = new List<SimpleTimedTextGump>();
 
             private bool borderHighlight = false;
             private ushort borderHighlightHue = 0;
@@ -848,6 +846,30 @@ namespace ClassicUO.Game.UI.Gumps
                 hit.MouseExit += _hit_MouseExit;
                 hit.MouseUp += _hit_MouseUp;
                 hit.MouseDoubleClick += _hit_MouseDoubleClick;
+            }
+
+            public void AddText(string text, ushort hue)
+            {
+                var t = new SimpleTimedTextGump(text, (uint)hue, TimeSpan.FromSeconds(2), 200) { X = ScreenCoordinateX, Y = ScreenCoordinateY };
+                timedTexts.Add(t);
+
+                List<SimpleTimedTextGump> delMe = new List<SimpleTimedTextGump>();
+
+                foreach (var tt in timedTexts)
+                {
+                    if(tt == null) continue;
+                    if (tt.IsDisposed)
+                    {
+                        delMe.Add(tt);
+                        continue;
+                    }
+                    tt.Y -= t.Height + 5;
+                }
+
+                foreach (var tt in delMe) 
+                    timedTexts.Remove(tt);
+
+                UIManager.Add(t);
             }
 
             public void SetHighLightBorder(ushort hue)
@@ -977,7 +999,7 @@ namespace ClassicUO.Game.UI.Gumps
                     }
                     else if (Keyboard.Shift && _item != null && ProfileManager.CurrentProfile.EnableAutoLoot && !ProfileManager.CurrentProfile.HoldShiftForContext && !ProfileManager.CurrentProfile.HoldShiftToSplitStack)
                     {
-                        AutoLootManager.Instance.AddLootItem(_item.Graphic, _item.Hue, _item.Name);
+                        AutoLootManager.Instance.AddAutoLootEntry(_item.Graphic, _item.Hue, _item.Name);
                         GameActions.Print($"Added this item to auto loot.");
                     }
                     else if (_item != null)
@@ -1514,11 +1536,7 @@ namespace ClassicUO.Game.UI.Gumps
                     System.Threading.Thread.Sleep(1000);
 
                     if (tcount != hcount) { return; } //Another call has already been made
-                    List<GridHighlightData> highlightConfigs = new List<GridHighlightData>();
-                    for (int propIndex = 0; propIndex < ProfileManager.CurrentProfile.GridHighlight_PropNames.Count; propIndex++)
-                    {
-                        highlightConfigs.Add(GridHighlightData.GetGridHighlightData(propIndex));
-                    }
+                    GridHighlightData[] highlightConfigs = GridHighlightData.AllConfigs;
 
                     foreach (var item in gridSlots) //For each grid slot
                     {
@@ -1530,27 +1548,7 @@ namespace ClassicUO.Game.UI.Gumps
                             if (itemData.HasData)
                                 foreach (GridHighlightData configData in highlightConfigs) //For each highlight configuration
                                 {
-                                    bool fullMatch = true;
-                                    for (int i = 0; i < configData.Properties.Count; i++) //For each property in a single grid highlight config
-                                    {
-                                        if (!fullMatch) break;
-                                        bool hasProp = false;
-                                        foreach (var singleProperty in itemData.singlePropertyData) //For each property on the item
-                                        {
-                                            if (singleProperty.Name.ToLower().Contains(configData.Properties[i].ToLower()) || singleProperty.OriginalString.ToLower().Contains(configData.Properties[i].ToLower())) //This property has a match for this highlight search text
-                                            {
-                                                hasProp = true;
-                                                if (singleProperty.FirstValue >= configData.PropMinVal[i]) //This property matches the highlight property
-                                                    fullMatch = true;
-                                                else if (configData.PropMinVal[i] == -1)
-                                                    fullMatch = true;
-                                                else
-                                                    fullMatch = false;
-                                            }
-                                        }
-                                        if (!hasProp) fullMatch = false;
-                                    }
-                                    if (fullMatch) item.Value.SetHighLightBorder(configData.Hue);
+                                    if (configData.IsMatch(itemData)) item.Value.SetHighLightBorder(configData.Hue);
                                 }
                         }
                     }

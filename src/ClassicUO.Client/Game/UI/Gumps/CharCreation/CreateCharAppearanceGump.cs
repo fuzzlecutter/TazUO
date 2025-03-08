@@ -818,6 +818,8 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
                 return 3000612;
             else if (name.Length > maxLength)
                 return 3000611;
+            else if (name.Trim() != name)
+                return 3000611;
 
             int exceptCount = 0;
 

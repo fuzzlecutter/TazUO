@@ -547,7 +547,7 @@ namespace ClassicUO.LegionScripting
 
             FileName = fileName;
             FullPath = System.IO.Path.Combine(Path, FileName);
-            FileContents = File.ReadAllLines(FullPath);
+            FileContents = ReadFromFile();
             GenerateScript();
         }
 
@@ -562,8 +562,13 @@ namespace ClassicUO.LegionScripting
 
         public void ReloadFromFile()
         {
-            FileContents = File.ReadAllLines(FullPath);
+            FileContents = ReadFromFile();
             GenerateScript();
+        }
+
+        public string[] ReadFromFile()
+        {
+            return File.ReadAllLines(FullPath);
         }
 
         public void GenerateScript()

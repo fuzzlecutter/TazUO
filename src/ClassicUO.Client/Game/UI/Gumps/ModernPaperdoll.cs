@@ -37,7 +37,6 @@ namespace ClassicUO.Game.UI.Gumps
 
         public ModernPaperdoll(uint localSerial) : base(localSerial, 0)
         {
-            UIManager.GetGump<MinimizedPaperdoll>()?.Dispose();
             #region SET VARS
             AcceptMouseInput = true;
             CanMove = true;
@@ -59,7 +58,7 @@ namespace ClassicUO.Game.UI.Gumps
             itemLayerSlots = new Dictionary<Layer[], ItemSlot>();
             #endregion
 
-            Add(backgroundImage = new CustomGumpPic(0, 0, MordernPaperdollGump, ProfileManager.CurrentProfile.ModernPaperDollHue));
+            Add(backgroundImage = new EmbeddedGumpPic(0, 0, MordernPaperdollGump, ProfileManager.CurrentProfile.ModernPaperDollHue));
 
             HitBox _menuHit = new HitBox(Width - 26, 1, 25, 16, alpha: 0f);
             Add(_menuHit);

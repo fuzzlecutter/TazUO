@@ -13,27 +13,30 @@ namespace ClassicUO.Game.UI.Gumps
         public SimpleTimedTextGump(string text, Color color, TimeSpan duration) : base(0, 0)
         {
             expireAt = DateTime.Now.Add(duration);
-
-            Add(new TextBox(text, TrueTypeLoader.EMBEDDED_FONT, 20, null, color));
-            
+            TextBox t;
+            Add(t=new TextBox(text, TrueTypeLoader.EMBEDDED_FONT, 20, null, color));
+            Height = t.MeasuredSize.Y;
+            Width = t.MeasuredSize.X;
             WantUpdateSize = true;
         }
 
         public SimpleTimedTextGump(string text, uint hue, TimeSpan duration) : base(0, 0)
         {
             expireAt = DateTime.Now.Add(duration);
-
-            Add(new TextBox(text, TrueTypeLoader.EMBEDDED_FONT, 20, null, (int)hue));
-
+            TextBox t;
+            Add(t=new TextBox(text, TrueTypeLoader.EMBEDDED_FONT, 20, null, (int)hue));
+            Height = t.MeasuredSize.Y;
+            Width = t.MeasuredSize.X;
             WantUpdateSize = true;
         }
 
         public SimpleTimedTextGump(string text, uint hue, TimeSpan duration, int width) : base(0, 0)
         {
             expireAt = DateTime.Now.Add(duration);
-
-            Add(new TextBox(text, TrueTypeLoader.EMBEDDED_FONT, 20, width, (int)hue));
-
+            TextBox t;
+            Add(t = new TextBox(text, TrueTypeLoader.EMBEDDED_FONT, 20, width, (int)hue));
+            Height = t.MeasuredSize.Y;
+            Width = t.MeasuredSize.X;
             WantUpdateSize = true;
         }
 

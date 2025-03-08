@@ -158,15 +158,15 @@ namespace ClassicUO.LegionScripting
             int z = args[4].AsInt();
 
 
-            GameActions.PickUp(item, 0, 0, amt);
-            GameActions.DropItem
-            (
-                item,
-                World.Player.X + x,
-                World.Player.Y + y,
-                World.Player.Z + z,
-                0
-            );
+            if(GameActions.PickUp(item, 0, 0, amt))
+                GameActions.DropItem
+                (
+                    item,
+                    World.Player.X + x,
+                    World.Player.Y + y,
+                    World.Player.Z + z,
+                    0
+                );
 
             return true;
         }
@@ -184,7 +184,8 @@ namespace ClassicUO.LegionScripting
             if (args.Length > 2)
                 amt = args[2].AsUShort();
 
-            GameActions.GrabItem(item, amt, bag, !force);
+            if (GameActions.PickUp(item, 0, 0, amt))
+                GameActions.DropItem(item, 0xFFFF, 0xFFFF, 0, bag);
             return true;
         }
         public static bool SystemMessage(string command, Argument[] args, bool quiet, bool force)

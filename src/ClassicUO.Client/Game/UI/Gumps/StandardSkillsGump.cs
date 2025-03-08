@@ -44,6 +44,7 @@ using ClassicUO.Renderer;
 using ClassicUO.Resources;
 using Microsoft.Xna.Framework;
 using SDL2;
+using System.Diagnostics;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -82,6 +83,8 @@ namespace ClassicUO.Game.UI.Gumps
                 AcceptMouseInput = true
             };
 
+            _scrollArea.SizeChanged += OnScrollSizeChanged;
+
             Add(_scrollArea);
 
             Add(new GumpPic(50, 35 + _diffY, 0x082B, 0));
@@ -92,7 +95,7 @@ namespace ClassicUO.Game.UI.Gumps
             (
                 22,
                 45 + _diffY + _bottomLine.Height - 10,
-                _scrollArea.Width - 14,
+                _scrollArea.Width - 14 - 44,
                 _scrollArea.Height - (83 + _diffY),
                 false
             ) { AcceptMouseInput = true, CanMove = true };
@@ -178,7 +181,14 @@ namespace ClassicUO.Game.UI.Gumps
             Add(_hitBox);
             _hitBox.MouseUp += _hitBox_MouseUp;
 
+            RepositionElements();
+
             _container.ReArrangeChildren();
+        }
+
+        private void OnScrollSizeChanged(object sender, EventArgs e)
+        {
+            RepositionElements();
         }
 
         public override GumpType GumpType => GumpType.SkillMenu;
@@ -211,7 +221,6 @@ namespace ClassicUO.Game.UI.Gumps
                     _gumpPic.IsVisible = true;
                     WantUpdateSize = true;
 
-                    _container.WantUpdateSize = true;
                     _container.ReArrangeChildren();
                 }
             }
@@ -252,7 +261,6 @@ namespace ClassicUO.Game.UI.Gumps
                 _container.Add(control);
                 control.IsMinimized = !g.IsMaximized;
 
-                _container.WantUpdateSize = true;
                 _container.ReArrangeChildren();
             }
             else if (buttonID == 1) // reset
@@ -272,7 +280,6 @@ namespace ClassicUO.Game.UI.Gumps
 
                                                        LoadSkills();
 
-                                                       _container.WantUpdateSize = true;
                                                        _container.ReArrangeChildren();
                                                    }
                                                }, false, MessageButtonType.OK_CANCEL));
@@ -306,29 +313,44 @@ namespace ClassicUO.Game.UI.Gumps
             }
         }
 
-        public override void Update()
+        private void SkillGroupMinimizedChanged(object sender, EventArgs e)
+        {
+            _container.ReArrangeChildren();
+            RepositionElements();
+        }
+
+        protected void RepositionElements()
         {
             WantUpdateSize = true;
 
-            bool wantUpdate = _container.WantUpdateSize;
-
             _bottomLine.Y = Height - 98;
             _bottomComment.Y = Height - 85;
-            _area.Height = _container.Height = Height - (150 + _diffY);
+            _area.Height = Height - (150 + _diffY);
             _newGroupButton.Y = Height - 52;
             _skillsLabelSum.Y = _bottomComment.Y + 2;
             _checkReal.Y = _newGroupButton.Y - 6;
             _checkCaps.Y = _newGroupButton.Y + 7;
+        }
 
+        public override void Update()
+        {
+            bool wantUpdateSize = _container.WantUpdateSize;
 
             base.Update();
 
-            if (wantUpdate)
+            if (wantUpdateSize)
             {
                 _container.ReArrangeChildren();
+                _container.ForceSizeUpdate(false);
+                RepositionElements();
             }
         }
 
+        public override void Dispose()
+        {
+            base.Dispose();
+            _scrollArea.SizeChanged -= OnScrollSizeChanged;
+        }
 
         public void Update(int skillIndex)
         {
@@ -378,6 +400,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             base.Restore(xml);
             _scrollArea.Height = _scrollArea.SpecialHeight = int.Parse(xml.GetAttribute("height"));
+            RepositionElements();
         }
 
         private void SumTotalSkills()
@@ -586,7 +609,6 @@ namespace ClassicUO.Game.UI.Gumps
 
                 return false;
             }
-
 
             protected override void OnMouseOver(int x, int y)
             {
@@ -978,10 +1000,10 @@ namespace ClassicUO.Game.UI.Gumps
 
             public override bool Draw(UltimaBatcher2D batcher, int x, int y)
             {
-                Vector3 hueVector = ShaderHueTranslator.GetHueVector(0);
-
                 if (UIManager.LastControlMouseDown(MouseButtonType.Left) == this)
                 {
+                    Vector3 hueVector = ShaderHueTranslator.GetHueVector(0);
+
                     batcher.Draw
                     (
                         SolidColorTextureCache.GetTexture(Color.Wheat),
