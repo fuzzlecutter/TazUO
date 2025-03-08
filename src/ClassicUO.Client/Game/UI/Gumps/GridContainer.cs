@@ -49,6 +49,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using static ClassicUO.Game.UI.Gumps.GridHightlightMenu;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -673,7 +674,7 @@ namespace ClassicUO.Game.UI.Gumps
                 GridItem item = gridSlotManager.FindItem(parent.Serial);
                 if (item != null)
                 {
-                    UIManager.Add(new SimpleTimedTextGump(text, (uint)hue, TimeSpan.FromSeconds(2), 200) { X = item.ScreenCoordinateX, Y = item.ScreenCoordinateY });
+                    item.AddText(text, hue);
                 }
             }
         }
@@ -800,6 +801,7 @@ namespace ClassicUO.Game.UI.Gumps
             Label count;
             AlphaBlendControl background;
             private CustomToolTip toolTipThis, toolTipitem1, toolTipitem2;
+            private List<SimpleTimedTextGump> timedTexts = new List<SimpleTimedTextGump>();
 
             private bool borderHighlight = false;
             private ushort borderHighlightHue = 0;
@@ -844,6 +846,30 @@ namespace ClassicUO.Game.UI.Gumps
                 hit.MouseExit += _hit_MouseExit;
                 hit.MouseUp += _hit_MouseUp;
                 hit.MouseDoubleClick += _hit_MouseDoubleClick;
+            }
+
+            public void AddText(string text, ushort hue)
+            {
+                var t = new SimpleTimedTextGump(text, (uint)hue, TimeSpan.FromSeconds(2), 200) { X = ScreenCoordinateX, Y = ScreenCoordinateY };
+                timedTexts.Add(t);
+
+                List<SimpleTimedTextGump> delMe = new List<SimpleTimedTextGump>();
+
+                foreach (var tt in timedTexts)
+                {
+                    if(tt == null) continue;
+                    if (tt.IsDisposed)
+                    {
+                        delMe.Add(tt);
+                        continue;
+                    }
+                    tt.Y -= t.Height + 5;
+                }
+
+                foreach (var tt in delMe) 
+                    timedTexts.Remove(tt);
+
+                UIManager.Add(t);
             }
 
             public void SetHighLightBorder(ushort hue)
