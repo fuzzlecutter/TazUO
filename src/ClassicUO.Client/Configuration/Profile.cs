@@ -601,13 +601,10 @@ namespace ClassicUO.Configuration
         public bool ModernPaperdollAnchorEnabled { get; set; } = false;
         public bool JournalAnchorEnabled { get; set; } = false;
         public bool EnableGumpCloseAnimation { get; set; } = true;
-
         public bool EnableAutoLootProgressBar { get; set; } = true;
-
         public bool UseWASDInsteadArrowKeys { get; set; } = false;
-
         public int NearbyLootGumpHeight { get; set; } = 550;
-
+        public bool ForceTooltipsOnOldClients { get; set; } = true;
 
         public void Save(string path, bool saveGumps = true)
         {

@@ -89,6 +89,12 @@ namespace ClassicUO.Game.Managers
 
             Profile currentProfile = ProfileManager.CurrentProfile;
 
+            if(textType == TextType.OBJECT)
+            {
+                if (currentProfile.ForceTooltipsOnOldClients && ForcedTooltipManager.IsObjectTextRequested(parent, text, hue)) 
+                    return;
+            }
+
             EventSink.InvokeRawMessageReceived(parent, new MessageEventArgs
                 (
                     parent,

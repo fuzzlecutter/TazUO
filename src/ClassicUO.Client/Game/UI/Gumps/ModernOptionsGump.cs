@@ -2462,19 +2462,25 @@ namespace ClassicUO.Game.UI.Gumps
             }), true, page);
             content.RemoveIndent();
             content.BlankLine();
+
             content.AddToRight(new ModernColorPickerWithLabel(lang.GetTazUO.BackgroundHue, profile.ToolTipBGHue, (h) =>
             {
                 profile.ToolTipBGHue = h;
             }), true, page);
+
             content.BlankLine();
             content.AddToRight(new InputFieldWithLabel(lang.GetTazUO.HeaderFormatItemName, Theme.INPUT_WIDTH, profile.TooltipHeaderFormat, false, (s, e) =>
             {
                 profile.TooltipHeaderFormat = ((InputField.StbTextBox)s).Text;
             }), true, page);
+
             content.BlankLine();
             content.AddToRight(c = new ModernButton(0, 0, 200, 40, ButtonAction.Activate, lang.GetTazUO.TooltipOverrideSettings, Theme.BUTTON_FONT_COLOR) { IsSelectable = true, IsSelected = true }, true, page);
             c.MouseUp += (s, e) => { UIManager.GetGump<ToolTipOverideMenu>()?.Dispose(); UIManager.Add(new ToolTipOverideMenu()); };
 
+            content.BlankLine();
+            content.AddToRight(c = new CheckboxWithLabel(lang.GetTazUO.ForcedTooltips, 0, profile.ForceTooltipsOnOldClients, b => { profile.ForceTooltipsOnOldClients = b; }), true, page);
+            c.SetTooltip("This feature relies on simulating single clicking items and is not a perfect solution.");
             #endregion
 
             #region Font settings
