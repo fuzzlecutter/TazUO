@@ -584,7 +584,10 @@ namespace ClassicUO.LegionScripting
             Gump g = UIManager.GetGumpServer(gumpID);
 
             if (g != null)
+            {
                 GameActions.ReplyGump(g.LocalSerial, gumpID, buttonID, new uint[0] { }, new Tuple<ushort, string>[0]);
+                g.Dispose();
+            }
 
             return true;
         }
