@@ -48,6 +48,12 @@ namespace ClassicUO.Game.UI.Gumps
             topSecion.AddRight(enablepb = new Checkbox(0x00D2, 0x00D3, "", 0xff, 0xffff) { IsChecked = ProfileManager.CurrentProfile.EnableAutoLootProgressBar });
             enablepb.ValueChanged += (e, v) => { ProfileManager.CurrentProfile.EnableAutoLootProgressBar = enablepb.IsChecked; };
 
+            topSecion.Add(new TextBox("Also loot human corpses", TrueTypeLoader.EMBEDDED_FONT, 18, null, Color.White, strokeEffect: false) { AcceptMouseInput = true });
+
+            Checkbox enablehc;
+            topSecion.AddRight(enablehc = new Checkbox(0x00D2, 0x00D3, "", 0xff, 0xffff) { IsChecked = ProfileManager.CurrentProfile.AutoLootHumanCorpses });
+            enablehc.ValueChanged += (e, v) => { ProfileManager.CurrentProfile.AutoLootHumanCorpses = enablehc.IsChecked; };
+
             NiceButton addEntry;
             topSecion.Add(addEntry = new NiceButton(0, 0, 100, 25, ButtonAction.Activate, "Add entry") { IsSelectable = false });
             addEntry.MouseUp += (e, v) =>

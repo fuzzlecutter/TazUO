@@ -529,6 +529,7 @@ namespace ClassicUO.Configuration
         public bool EnableSpellIndicators { get; set; } = true;
 
         public bool EnableAutoLoot { get; set; } = false;
+        public bool AutoLootHumanCorpses { get; set; } = false;
 
         public static uint GumpsVersion { get; private set; }
 
