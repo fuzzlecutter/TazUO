@@ -606,6 +606,7 @@ namespace ClassicUO.Configuration
         public bool UseWASDInsteadArrowKeys { get; set; } = false;
         public int NearbyLootGumpHeight { get; set; } = 550;
         public bool ForceTooltipsOnOldClients { get; set; } = true;
+        public bool NearbyLootOpensHumanCorpses { get; set; } = false;
 
         public void Save(string path, bool saveGumps = true)
         {
