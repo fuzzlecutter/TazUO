@@ -33,6 +33,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using ClassicUO.Configuration;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Network;
@@ -64,13 +65,20 @@ namespace ClassicUO.Game.Managers
         {
             if (_itemsProperties.TryGetValue(serial, out ItemProperty p))
             {
+                if (ProfileManager.CurrentProfile.ForceTooltipsOnOldClients)
+                    ForcedTooltipManager.RequestName(serial);
+
                 return true; //p.Revision != 0;  <-- revision == 0 can contain the name.
             }
+
+            if(ProfileManager.CurrentProfile.ForceTooltipsOnOldClients) 
+                ForcedTooltipManager.RequestName(serial);
 
             // if we don't have the OPL of this item, let's request it to the server.
             // Original client seems asking for OPL when character is not running. 
             // We'll ask OPL when mouse is over an object.
-            PacketHandlers.AddMegaClilocRequest(serial);
+            if(World.ClientFeatures.TooltipsEnabled)
+                PacketHandlers.AddMegaClilocRequest(serial);
 
             return false;
         }

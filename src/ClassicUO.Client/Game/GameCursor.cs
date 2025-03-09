@@ -559,7 +559,7 @@ namespace ClassicUO.Game
             if (Client.Game.Scene is GameScene gs)
             {
                 if (
-                    !World.ClientFeatures.TooltipsEnabled
+                    (!World.ClientFeatures.TooltipsEnabled && ProfileManager.CurrentProfile != null && !ProfileManager.CurrentProfile.ForceTooltipsOnOldClients)
                     || (
                         SelectedObject.Object is Item selectedItem
                         && selectedItem.IsLocked

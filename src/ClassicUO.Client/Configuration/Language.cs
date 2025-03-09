@@ -532,6 +532,7 @@ namespace ClassicUO.Configuration
             public string BackgroundHue { get; set; } = "Background hue";
             public string HeaderFormatItemName { get; set; } = "Header format(Item name)";
             public string TooltipOverrideSettings { get; set; } = "Tooltip override settings";
+            public string ForcedTooltips { get; set; } = "Force tooltips on pre-tooltip servers";
             #endregion
 
             #region Fontsettings
