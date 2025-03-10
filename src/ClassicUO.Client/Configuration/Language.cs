@@ -574,6 +574,9 @@ namespace ClassicUO.Configuration
             #endregion
 
             public string AutoLoot { get; set; } = "Autoloot";
+            public string AutoLootEnable { get; set; } = "Enable auto loot";
+            public string AutoLootProgessBarEnable { get; set; } = "Show progress bar while looting";
+            public string AutoLootHumanCorpses { get; set; } = "Loot human corpses? (Potentially player corpses)";
 
             #region VisibileLayers
             public string VisibleLayers { get; set; } = "Visible Layers";

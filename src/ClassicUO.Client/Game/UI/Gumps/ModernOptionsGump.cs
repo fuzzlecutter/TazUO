@@ -14,11 +14,13 @@ using SDL2;
 using StbTextEditSharp;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using static ClassicUO.Game.Managers.AutoLootManager;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -2666,15 +2668,6 @@ namespace ClassicUO.Game.UI.Gumps
             }), true, page);
             #endregion
 
-            content.AddToLeft(c = new ModernButton(0, 0, content.LeftWidth, 40, ButtonAction.Activate, lang.GetTazUO.AutoLoot, Theme.BUTTON_FONT_COLOR));
-            c.MouseUp += (s, e) =>
-            {
-                if (e.Button == MouseButtonType.Left)
-                {
-                    AutoLootOptions.AddToUI();
-                }
-            };
-
             #region Hidden layers
             page = ((int)PAGE.TUOOptions + 1011);
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.VisibleLayers, page, content.LeftWidth));
@@ -2705,6 +2698,23 @@ namespace ClassicUO.Game.UI.Gumps
                     rightSide = false;
                 }
             }
+            #endregion
+
+            #region Autoloot
+            page = ((int)PAGE.TUOOptions + 1012);
+            content.AddToLeft(SubCategoryButton(lang.GetTazUO.AutoLoot, page, content.LeftWidth));
+            content.ResetRightSide();
+
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AutoLootEnable, 0, profile.EnableAutoLoot, b => profile.EnableAutoLoot = b), true, page);
+            content.BlankLine();
+
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AutoLootProgessBarEnable, 0, profile.EnableAutoLootProgressBar, b => profile.EnableAutoLootProgressBar = b), true, page);
+            content.BlankLine();
+
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AutoLootHumanCorpses, 0, profile.AutoLootHumanCorpses, b => profile.AutoLootHumanCorpses = b), true, page);
+            content.BlankLine();
+
+            content.AddToRight(c = new AutoLootConfigs(content.RightWidth - Theme.SCROLL_BAR_WIDTH - 10), true, page);
             #endregion
 
             options.Add(
@@ -2941,6 +2951,122 @@ namespace ClassicUO.Game.UI.Gumps
         }
 
         #region Custom Controls For Options
+        private class AutoLootConfigs : Control
+        {
+            private DataBox _dataBox;
+            public AutoLootConfigs(int width)
+            {
+                AcceptMouseInput = true;
+                CanMove = true;
+                Width = width;
+
+                Add(_dataBox = new DataBox(0, 0, width, 0));
+
+                ModernButton b;
+                _dataBox.Add(b = new ModernButton(0, 0, 100, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Add entry", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    var nl = AutoLootManager.Instance.AddAutoLootEntry();
+                    _dataBox.Insert(2, GenConfigEntry(nl, width));
+                    RearrangeDataBox();
+                };
+
+                Area titles = new Area(false);
+                titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 55 });
+                titles.Add(new TextBox("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 50) >> 1) + 60 });
+                titles.ForceSizeUpdate();
+                _dataBox.Add(titles);
+
+                for (int i = 0; i < AutoLootManager.Instance.AutoLootList.Count; i++)
+                {
+                    AutoLootItem autoLootItem = AutoLootManager.Instance.AutoLootList[i];
+                    _dataBox.Add(GenConfigEntry(autoLootItem, width));
+                }
+                RearrangeDataBox();
+            }
+
+            private Control GenConfigEntry(AutoLootItem autoLootItem, int width)
+            {
+                int ewidth = (width - 90 - 60) >> 1;
+
+                Area area = new Area() { Width = width, Height = 107 };
+
+                int x = 0;
+                if (autoLootItem.Graphic > 0)
+                {
+                    ResizableStaticPic rsp;
+                    area.Add(rsp = new ResizableStaticPic(autoLootItem.Graphic, 50, 50) { Hue = (ushort)(autoLootItem.Hue == ushort.MaxValue ? 0 : autoLootItem.Hue) });
+                    rsp.SetTooltip(autoLootItem.Name);
+                }
+                x += 50;
+
+                InputField graphicInput = new InputField(ewidth, 50, 100, -1, autoLootItem.Graphic.ToString(), false, (s, e) =>
+                {
+                    InputField graphicInput = (InputField)s;
+                    if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
+                    {
+                        autoLootItem.Graphic = ngh;
+                    }
+                    else if (ushort.TryParse(graphicInput.Text, out var ng))
+                    {
+                        autoLootItem.Graphic = ng;
+                    }
+                })
+                { X = x };
+                graphicInput.SetTooltip("Graphic");
+                area.Add(graphicInput);
+                x += graphicInput.Width + 5;
+
+
+                InputField hueInput = new InputField(ewidth, 50, 100, -1, autoLootItem.Hue == ushort.MaxValue ? "-1" : autoLootItem.Hue.ToString(), false, (s, e) =>
+                {
+                    InputField hueInput = (InputField)s;
+                    if (hueInput.Text == "-1")
+                    {
+                        autoLootItem.Hue = ushort.MaxValue;
+                    }
+                    else if (ushort.TryParse(hueInput.Text, out var ng))
+                    {
+                        autoLootItem.Hue = ng;
+                    }
+                })
+                { X = x };
+                hueInput.SetTooltip("Hue (-1 to match any)");
+                area.Add(hueInput);
+                x += hueInput.Width + 5;
+
+                NiceButton delete;
+                area.Add(delete = new NiceButton(x, 0, 90, 49, ButtonAction.Activate, "Delete") { IsSelectable = false, DisplayBorder = true });
+                delete.MouseUp += (s, e) =>
+                {
+                    if (e.Button == Input.MouseButtonType.Left)
+                    {
+                        AutoLootManager.Instance.TryRemoveAutoLootEntry(autoLootItem.UID);
+                        area.Dispose();
+                        RearrangeDataBox();
+                    }
+                };
+
+                InputField regxInput = new InputField(width, 50, width, -1, "Regex feature coming soon", false, (s, e) =>
+                {
+                    InputField regxInput = (InputField)s;
+                    
+                })
+                { Y = 52 };
+                regxInput.SetTooltip("Regex to match");
+                area.Add(regxInput);
+
+                return area;
+            }
+
+            private void RearrangeDataBox()
+            {
+                _dataBox.ReArrangeChildren();
+                _dataBox.ForceSizeUpdate();
+                Height = _dataBox.Height;
+            }
+        }
+
         private class ModernColorPickerWithLabel : Control, SearchableOption
         {
             private TextBox _label;
@@ -3861,6 +3987,12 @@ namespace ClassicUO.Game.UI.Gumps
             public void SetText(string text)
             {
                 _textbox.SetText(text);
+            }
+
+            public void SetTooltip(string text)
+            {
+                base.SetTooltip(text);
+                _textbox.SetTooltip(text);
             }
 
 
