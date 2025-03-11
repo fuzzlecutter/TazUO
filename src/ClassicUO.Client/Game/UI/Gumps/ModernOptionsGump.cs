@@ -71,8 +71,8 @@ namespace ClassicUO.Game.UI.Gumps
             Width = 900;
             Height = 700;
 
-            X = (Client.Game.Window.ClientBounds.Width >> 1) - (Width >> 1);
-            Y = (Client.Game.Window.ClientBounds.Height >> 1) - (Height >> 1);
+            CenterXInScreen();
+            CenterYInScreen();
 
             Add(new ColorBox(Width, Height, Theme.BACKGROUND) { AcceptMouseInput = true, CanMove = true, Alpha = 0.85f });
 
@@ -2666,6 +2666,26 @@ namespace ClassicUO.Game.UI.Gumps
                 double v = (double)i / (double)100;
                 profile.PaperdollScale = v > 0 ? v : 1f;
             }), true, page);
+
+            content.BlankLine();
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.GlobalScaling, 0, profile.GlobalScaling, b => profile.GlobalScaling = b), true, page);
+
+            SliderWithLabel s;
+            content.AddToRight(s = new SliderWithLabel(lang.GetTazUO.GlobalScale, 0, Theme.SLIDER_WIDTH, 50, 175, (int)(profile.GlobalScale * 100), null), true, page);
+
+            ModernButton b;
+            content.AddToRight(b = new ModernButton(s.X + s.Width + 75, s.Y - 20, 75, 40, ButtonAction.Activate, "Apply", Theme.BUTTON_FONT_COLOR), false, page);
+            b.MouseUp += (_, e) =>
+            {
+                if (e.Button == MouseButtonType.Left)
+                {
+                    float v = ((float)s.GetValue() / (float)100);
+                    if (v <= 0)
+                        profile.GlobalScaling = false;
+
+                    profile.GlobalScale = v > 0 ? v : 1f;
+                }
+            };
             #endregion
 
             #region Hidden layers
@@ -3252,6 +3272,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             private readonly TextBox _label;
             private readonly Slider _slider;
+            public int GetValue() => _slider.Value;
 
             public SliderWithLabel(string label, int textWidth, int barWidth, int min, int max, int value, Action<int> valueChanged = null)
             {
