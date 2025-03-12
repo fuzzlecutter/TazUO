@@ -12,7 +12,8 @@ namespace ClassicUO.Game.UI.Gumps
                 "- Added forced tooltip option for pre-tooltip servers\n" +
                 "- Added global scaling\n" +
                 "- Add regex matched for autoloot\n" +
-                "- Improved modern shop gump asthetics\n",
+                "- Improved modern shop gump asthetics\n" +
+                "- Counter bars can now be assigned spells\n",
 
             "/c[white][3.26.1]/cd\n" +
                 "- Fix for replygump command in legion scripting\n" +
