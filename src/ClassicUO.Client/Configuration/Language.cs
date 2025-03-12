@@ -490,6 +490,7 @@ namespace ClassicUO.Configuration
             public string DisableAutoFollow { get; set; } = "Disable alt click to auto follow";
             public string DisableMouseInteractionsForOverheadText { get; set; } = "Disable mouse interactions for overhead text";
             public string OverridePartyMemberHues { get; set; } = "Override party member body hues with friendly hue";
+            public string TurnDelay { get; set; } = "Adjust turn delay";
             #endregion
 
             #region Misc

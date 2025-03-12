@@ -2313,6 +2313,10 @@ namespace ClassicUO.Game.UI.Gumps
             }), true, page);
             content.BlankLine();
             content.AddToRight(new CheckboxWithLabel(lang.GetGeneral.ShowTargetIndicator, isChecked: profile.ShowTargetIndicator, valueChanged: (b) => { profile.ShowTargetIndicator = b; }), true, page);
+
+            content.BlankLine();
+            content.AddToRight(c = new SliderWithLabel(lang.GetTazUO.TurnDelay, 0, Theme.SLIDER_WIDTH, 45, 120, profile.TurnDelay, i => profile.TurnDelay = (ushort)i), true, page);
+            c.SetTooltip("This settting may cause throttling, Use with caution.");
             #endregion
 
             #region Misc
