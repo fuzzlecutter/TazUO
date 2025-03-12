@@ -104,6 +104,20 @@ jobs:
         tag_name: ${{ env.TAG_NAME }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Discord Github Updates
+      uses: tsickert/discord-webhook@v7.0.0
+      with:
+        webhook-url: ${{ secrets.DISCORDWEBHOOK }}
+        content: |
+          v${{ env.VERSION }} (Development build) is available.
+
+          [Download here](https://github.com/bittiez/TazUO/releases/tag/TazUO-BleedingEdge)  
+          Or use the [launcher](https://github.com/bittiez/TUO-Launcher/releases/latest)
+          
+          # Release notes 
+          `These are automatically generated`
+          ${{ steps.release_notes.outputs.RELEASE_NOTES }}
     
     - name: Upload Release
       uses: ncipollo/release-action@v1
