@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using ClassicUO.Configuration;
 using ClassicUO.Game.GameObjects;
@@ -8,11 +7,10 @@ using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
 using ClassicUO.Renderer;
+using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Media;
 using SDL2;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 using static ClassicUO.Game.UI.Gumps.GridHightlightMenu;
 
 namespace ClassicUO.Game.UI
@@ -413,7 +411,14 @@ namespace ClassicUO.Game.UI
 
             string name = item.Name;
             if (string.IsNullOrEmpty(name))
-                name = item.ItemData.Name;
+            {
+                name = StringHelper.CapitalizeAllWords(
+                            StringHelper.GetPluralAdjustedString(
+                                item.ItemData.Name,
+                                item.Amount > 1
+                            )
+                        );
+            }
 
             if (itemLabel == null)
             {
