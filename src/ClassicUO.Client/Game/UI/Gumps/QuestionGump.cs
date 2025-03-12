@@ -77,8 +77,8 @@ namespace ClassicUO.Game.UI.Gumps
             CanMove = false;
             IsModal = true;
 
-            X = (Client.Game.Window.ClientBounds.Width - Width) >> 1;
-            Y = (Client.Game.Window.ClientBounds.Height - Height) >> 1;
+            CenterXInScreen();
+            CenterYInScreen();
 
             ab.X = -X;
             ab.Y = -Y;

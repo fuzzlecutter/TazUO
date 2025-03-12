@@ -607,6 +607,8 @@ namespace ClassicUO.Configuration
         public int NearbyLootGumpHeight { get; set; } = 550;
         public bool ForceTooltipsOnOldClients { get; set; } = true;
         public bool NearbyLootOpensHumanCorpses { get; set; } = false;
+        public bool GlobalScaling { get; set; } = false;
+        public float GlobalScale {  get; set; } = 1.5f;
 
         public void Save(string path, bool saveGumps = true)
         {

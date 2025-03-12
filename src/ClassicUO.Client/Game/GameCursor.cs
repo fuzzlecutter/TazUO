@@ -558,6 +558,11 @@ namespace ClassicUO.Game
         {
             if (Client.Game.Scene is GameScene gs)
             {
+                if(ProfileManager.CurrentProfile.GlobalScaling)
+                {
+                    position.X = (int)(position.X * ProfileManager.CurrentProfile.GlobalScale);
+                    position.Y = (int)(position.Y * ProfileManager.CurrentProfile.GlobalScale);
+                }    
                 if (
                     (!World.ClientFeatures.TooltipsEnabled && ProfileManager.CurrentProfile != null && !ProfileManager.CurrentProfile.ForceTooltipsOnOldClients)
                     || (
