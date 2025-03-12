@@ -201,8 +201,8 @@ namespace ClassicUO.Game
                 }
 
                 return new Point(
-                    (int)((artInfo.UV.Width >> 1) * scale) - ItemHold.MouseOffset.X,
-                    (int)((artInfo.UV.Height >> 1) * scale) - ItemHold.MouseOffset.Y
+                    (int)((int)((artInfo.UV.Width >> 1) * scale) - (ItemHold.MouseOffset.X)),
+                    (int)((int)((artInfo.UV.Height >> 1) * scale) - (ItemHold.MouseOffset.Y))
                 );
             }
 
@@ -412,7 +412,11 @@ namespace ClassicUO.Game
                             break;
                     }
 
-                    _aura.Draw(sb, Mouse.Position.X, Mouse.Position.Y, hue, 0f);
+                    float scale = 1;
+                    if (ProfileManager.CurrentProfile.GlobalScaling)
+                        scale = ProfileManager.CurrentProfile.GlobalScale;
+
+                    _aura.Draw(sb, (int)(Mouse.Position.X * scale), (int)(Mouse.Position.Y * scale), hue, 0f);
                 }
 
                 if (ProfileManager.CurrentProfile.ShowTargetRangeIndicator)
@@ -452,7 +456,7 @@ namespace ClassicUO.Game
 
             if (ItemHold.Enabled && !ItemHold.Dropped)
             {
-                float scale = 1;
+                float scale = 1, gscale = 1;
 
                 if (
                     ProfileManager.CurrentProfile != null
@@ -460,6 +464,14 @@ namespace ClassicUO.Game
                 )
                 {
                     scale = UIManager.ContainerScale;
+                }
+
+                if (
+                    ProfileManager.CurrentProfile != null
+                    && ProfileManager.CurrentProfile.GlobalScaling
+                )
+                {
+                    gscale = ProfileManager.CurrentProfile.GlobalScale;
                 }
 
                 ushort draggingGraphic = GetDraggingItemGraphic();
@@ -482,10 +494,10 @@ namespace ClassicUO.Game
                     );
 
                     var rect = new Rectangle(
-                        x,
-                        y,
-                        (int)(artInfo.UV.Width * scale),
-                        (int)(artInfo.UV.Height * scale)
+                        (int)(x * gscale),
+                        (int)(y * gscale),
+                        (int)(artInfo.UV.Width * scale * gscale),
+                        (int)(artInfo.UV.Height * scale * gscale)
                     );
 
                     sb.Draw(artInfo.Texture, rect, artInfo.UV, hue);
@@ -536,7 +548,7 @@ namespace ClassicUO.Game
                 }
 
                 ref readonly var artInfo = ref Client.Game.Arts.GetArt(Graphic);
-               
+
                 var rect = artInfo.UV;
 
                 const int BORDER_SIZE = 1;
@@ -558,11 +570,11 @@ namespace ClassicUO.Game
         {
             if (Client.Game.Scene is GameScene gs)
             {
-                if(ProfileManager.CurrentProfile.GlobalScaling)
+                if (ProfileManager.CurrentProfile.GlobalScaling)
                 {
                     position.X = (int)(position.X * ProfileManager.CurrentProfile.GlobalScale);
                     position.Y = (int)(position.Y * ProfileManager.CurrentProfile.GlobalScale);
-                }    
+                }
                 if (
                     (!World.ClientFeatures.TooltipsEnabled && ProfileManager.CurrentProfile != null && !ProfileManager.CurrentProfile.ForceTooltipsOnOldClients)
                     || (
