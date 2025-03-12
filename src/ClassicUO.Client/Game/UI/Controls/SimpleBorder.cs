@@ -23,6 +23,12 @@ namespace ClassicUO.Game.UI.Controls
         public new int Width { get { return 0; } set { _width = value; } }
         public new int Height { get { return 0; } set { _height = value; } }
 
+        public override void AlphaChanged(float oldValue, float newValue)
+        {
+            base.AlphaChanged(oldValue, newValue);
+            hueVector = ShaderHueTranslator.GetHueVector(Hue, false, newValue);
+        }
+
         public override bool Draw(UltimaBatcher2D batcher, int x, int y)
         {
             if (IsDisposed)

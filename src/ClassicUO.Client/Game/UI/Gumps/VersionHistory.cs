@@ -10,7 +10,9 @@ namespace ClassicUO.Game.UI.Gumps
         private static string[] updateTexts = {
             "/c[white][3.27.0]/cd\n" +
                 "- Added forced tooltip option for pre-tooltip servers\n" +
-                "- Added global scaling\n",
+                "- Added global scaling\n" +
+                "- Add regex matched for autoloot\n" +
+                "- Improved modern shop gump asthetics\n",
 
             "/c[white][3.26.1]/cd\n" +
                 "- Fix for replygump command in legion scripting\n" +
