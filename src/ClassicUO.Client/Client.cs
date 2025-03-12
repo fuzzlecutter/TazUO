@@ -59,8 +59,6 @@ namespace ClassicUO
         {
             Debug.Assert(Game == null);
 
-            ScriptCompiler.InvokeAfterCompiling("Configure");
-
             Load();
 
             Log.Trace("Running game...");
@@ -85,8 +83,6 @@ namespace ClassicUO
                 Log.Trace("Done!");
 
                 UoAssist.Start();
-
-                ScriptCompiler.InvokeAfterCompiling("Initialize");
 
                 Game.Run();
             }
