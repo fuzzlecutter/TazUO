@@ -381,33 +381,33 @@ namespace ClassicUO.Game.UI.Gumps
 
             public bool IsMatch(ItemPropertiesData itemData)
             {
-                if (itemData.HasData)
-                    // Iterate through each search property
-                    for (int i = 0; i < Properties.Count; i++)
+                if (!itemData.HasData) return false;
+
+                // Iterate through each search property
+                for (int i = 0; i < Properties.Count; i++)
+                {
+                    string searchString = Properties[i];
+                    double minVal = PropMinVal[i];
+                    bool fullMatch = false;
+
+                    // Check each property on the item
+                    foreach (var property in itemData.singlePropertyData)
                     {
-                        string searchString = Properties[i];
-                        double minVal = PropMinVal[i];
-
-                        // Check each property on the item
-                        foreach (var property in itemData.singlePropertyData)
-                        {
-                            // Check if the property's Name or OriginalString contains the search string (case-insensitive)
-                            if (property.Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                property.OriginalString.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0)
+                        // Check if the property's Name or OriginalString contains the search string (case-insensitive)
+                        if (property.Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                            property.OriginalString.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0)
+                            if ((minVal == -1) || (property.FirstValue >= minVal))
                             {
-                                // Check if the property's value meets the minimum (if set)
-                                bool meetsMin = (minVal == -1) || (property.FirstValue >= minVal);
-
-                                if (meetsMin)
-                                {
-                                    return true;
-                                }
+                                fullMatch = true;
+                                break;
                             }
-                        }
                     }
 
+                    if (!fullMatch) return false;
+                }
+
                 // All search properties have a corresponding match
-                return false;
+                return true;
             }
 
             public static GridHighlightData GetGridHighlightData(int keyLoc)
