@@ -110,10 +110,10 @@ jobs:
       with:
         webhook-url: ${{ secrets.DISCORDWEBHOOK }}
         content: |
-          v${{ env.VERSION }} (Development build) is available.
+          # v${{ env.VERSION }} (Development build) is available.
 
-          [Download here](https://github.com/bittiez/TazUO/releases/tag/TazUO-BleedingEdge)  
-          Or use the [launcher](https://github.com/bittiez/TUO-Launcher/releases/latest)
+          [Download here](<https://github.com/bittiez/TazUO/releases/tag/TazUO-BleedingEdge>)  
+          Or use the [launcher](<https://github.com/bittiez/TUO-Launcher/releases/latest>)
           
           # Release notes 
           `These are automatically generated`
