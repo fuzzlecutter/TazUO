@@ -155,7 +155,7 @@ namespace ClassicUO.Configuration
         public bool UseCircleOfTransparency { get; set; }
         public int CircleOfTransparencyRadius { get; set; } = Constants.MAX_CIRCLE_OF_TRANSPARENCY_RADIUS / 2;
         public int CircleOfTransparencyType { get; set; } // 0 = normal, 1 = like original client
-        public int VendorGumpHeight { get; set; } = 60;   //original vendor gump size
+        public int VendorGumpHeight { get; set; } = 350;   //original vendor gump size
         public float DefaultScale { get; set; } = 1.0f;
         public bool EnableMousewheelScaleZoom { get; set; }
         public bool SaveScaleAfterClose { get; set; }
@@ -529,6 +529,7 @@ namespace ClassicUO.Configuration
         public bool EnableSpellIndicators { get; set; } = true;
 
         public bool EnableAutoLoot { get; set; } = false;
+        public bool AutoLootHumanCorpses { get; set; } = false;
 
         public static uint GumpsVersion { get; private set; }
 
@@ -601,13 +602,14 @@ namespace ClassicUO.Configuration
         public bool ModernPaperdollAnchorEnabled { get; set; } = false;
         public bool JournalAnchorEnabled { get; set; } = false;
         public bool EnableGumpCloseAnimation { get; set; } = true;
-
         public bool EnableAutoLootProgressBar { get; set; } = true;
-
         public bool UseWASDInsteadArrowKeys { get; set; } = false;
-
         public int NearbyLootGumpHeight { get; set; } = 550;
-
+        public bool ForceTooltipsOnOldClients { get; set; } = true;
+        public bool NearbyLootOpensHumanCorpses { get; set; } = false;
+        public bool GlobalScaling { get; set; } = false;
+        public float GlobalScale {  get; set; } = 1.5f;
+        public ushort TurnDelay { get; set; } = 100;
 
         public void Save(string path, bool saveGumps = true)
         {

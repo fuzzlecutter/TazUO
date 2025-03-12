@@ -14,11 +14,13 @@ using SDL2;
 using StbTextEditSharp;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using static ClassicUO.Game.Managers.AutoLootManager;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -69,8 +71,8 @@ namespace ClassicUO.Game.UI.Gumps
             Width = 900;
             Height = 700;
 
-            X = (Client.Game.Window.ClientBounds.Width >> 1) - (Width >> 1);
-            Y = (Client.Game.Window.ClientBounds.Height >> 1) - (Height >> 1);
+            CenterXInScreen();
+            CenterYInScreen();
 
             Add(new ColorBox(Width, Height, Theme.BACKGROUND) { AcceptMouseInput = true, CanMove = true, Alpha = 0.85f });
 
@@ -1970,6 +1972,10 @@ namespace ClassicUO.Game.UI.Gumps
             #region General
             page = ((int)PAGE.TUOOptions + 1000);
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.GridContainers, page, content.LeftWidth));
+
+            content.AddToRight(new HttpClickableLink("Grid Containers Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Grid-Containers", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
+
             content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.EnableGridContainers, 0, profile.UseGridLayoutContainerGumps, (b) =>
             {
                 profile.UseGridLayoutContainerGumps = b;
@@ -2072,7 +2078,9 @@ namespace ClassicUO.Game.UI.Gumps
 
             content.BlankLine();
 
-            content.AddToRight(c = new ModernButton(0, 0, 200, 40, ButtonAction.Activate, lang.GetTazUO.GridHighlightSettings, Theme.BUTTON_FONT_COLOR), true, page);
+            content.AddToRight(new HttpClickableLink("Grid Highlighting Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Grid-highlighting-based-on-item-properties", Theme.TEXT_FONT_COLOR), true, page);
+            content.AddToRight(c = new ModernButton(0, 0, 200, 40, ButtonAction.Activate, lang.GetTazUO.GridHighlightSettings, Theme.BUTTON_FONT_COLOR) { IsSelected = true }, true, page);
+
             c.MouseUp += (s, e) =>
             {
                 UIManager.GetGump<GridHightlightMenu>()?.Dispose();
@@ -2087,6 +2095,9 @@ namespace ClassicUO.Game.UI.Gumps
             #region Journal
             page = ((int)PAGE.TUOOptions + 1001);
             content.ResetRightSide();
+
+            content.AddToRight(new HttpClickableLink("Journal Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Journal", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
 
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.Journal, page, content.LeftWidth));
             content.AddToRight(new SliderWithLabel(lang.GetTazUO.MaxJournalEntries, 0, Theme.SLIDER_WIDTH, 100, 2000, profile.MaxJournalEntries, (i) =>
@@ -2135,6 +2146,10 @@ namespace ClassicUO.Game.UI.Gumps
             page = ((int)PAGE.TUOOptions + 1002);
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.ModernPaperdoll, page, content.LeftWidth));
             content.ResetRightSide();
+
+            content.AddToRight(new HttpClickableLink("Modern Paperdoll Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Alternate-Paperdoll", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
+
             content.AddToRight(c = new CheckboxWithLabel(lang.GetTazUO.EnableModernPaperdoll, 0, profile.UseModernPaperdoll, (b) =>
             {
                 profile.UseModernPaperdoll = b;
@@ -2170,6 +2185,10 @@ namespace ClassicUO.Game.UI.Gumps
             page = ((int)PAGE.TUOOptions + 1003);
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.Nameplates, page, content.LeftWidth));
             content.ResetRightSide();
+
+            content.AddToRight(new HttpClickableLink("Nameplates Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Nameplate-options", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
+
             content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.NameplatesAlsoActAsHealthBars, 0, profile.NamePlateHealthBar, (b) =>
             {
                 profile.NamePlateHealthBar = b;
@@ -2294,12 +2313,20 @@ namespace ClassicUO.Game.UI.Gumps
             }), true, page);
             content.BlankLine();
             content.AddToRight(new CheckboxWithLabel(lang.GetGeneral.ShowTargetIndicator, isChecked: profile.ShowTargetIndicator, valueChanged: (b) => { profile.ShowTargetIndicator = b; }), true, page);
+
+            content.BlankLine();
+            content.AddToRight(c = new SliderWithLabel(lang.GetTazUO.TurnDelay, 0, Theme.SLIDER_WIDTH, 45, 120, profile.TurnDelay, i => profile.TurnDelay = (ushort)i), true, page);
+            c.SetTooltip("This settting may cause throttling, Use with caution.");
             #endregion
 
             #region Misc
             page = ((int)PAGE.TUOOptions + 1005);
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.Misc, page, content.LeftWidth));
             content.ResetRightSide();
+
+            content.AddToRight(new HttpClickableLink("Misc Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Miscellaneous", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
+
             content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.DisableSystemChat, 0, profile.DisableSystemChat, (b) =>
             {
                 profile.DisableSystemChat = b;
@@ -2451,6 +2478,7 @@ namespace ClassicUO.Game.UI.Gumps
             page = ((int)PAGE.TUOOptions + 1006);
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.Tooltips, page, content.LeftWidth));
             content.ResetRightSide();
+
             content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AlignTooltipsToTheLeftSide, 0, profile.LeftAlignToolTips, (b) =>
             {
                 profile.LeftAlignToolTips = b;
@@ -2462,25 +2490,36 @@ namespace ClassicUO.Game.UI.Gumps
             }), true, page);
             content.RemoveIndent();
             content.BlankLine();
+
             content.AddToRight(new ModernColorPickerWithLabel(lang.GetTazUO.BackgroundHue, profile.ToolTipBGHue, (h) =>
             {
                 profile.ToolTipBGHue = h;
             }), true, page);
+
             content.BlankLine();
             content.AddToRight(new InputFieldWithLabel(lang.GetTazUO.HeaderFormatItemName, Theme.INPUT_WIDTH, profile.TooltipHeaderFormat, false, (s, e) =>
             {
                 profile.TooltipHeaderFormat = ((InputField.StbTextBox)s).Text;
             }), true, page);
+
             content.BlankLine();
+            content.AddToRight(new HttpClickableLink("Tooltip Overrides Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Tooltip-Override", Theme.TEXT_FONT_COLOR), true, page);
             content.AddToRight(c = new ModernButton(0, 0, 200, 40, ButtonAction.Activate, lang.GetTazUO.TooltipOverrideSettings, Theme.BUTTON_FONT_COLOR) { IsSelectable = true, IsSelected = true }, true, page);
             c.MouseUp += (s, e) => { UIManager.GetGump<ToolTipOverideMenu>()?.Dispose(); UIManager.Add(new ToolTipOverideMenu()); };
 
+            content.BlankLine();
+            content.AddToRight(c = new CheckboxWithLabel(lang.GetTazUO.ForcedTooltips, 0, profile.ForceTooltipsOnOldClients, b => { profile.ForceTooltipsOnOldClients = b; }), true, page);
+            c.SetTooltip("This feature relies on simulating single clicking items and is not a perfect solution.");
             #endregion
 
             #region Font settings
             page = ((int)PAGE.TUOOptions + 1007);
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.FontSettings, page, content.LeftWidth));
             content.ResetRightSide();
+
+            content.AddToRight(new HttpClickableLink("TTF Fonts Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.TTF-Fonts", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
+
             content.AddToRight(new SliderWithLabel(lang.GetTazUO.TtfFontBorder, 0, Theme.SLIDER_WIDTH, 0, 2, profile.TextBorderSize, (i) =>
             {
                 profile.TextBorderSize = i;
@@ -2561,6 +2600,9 @@ namespace ClassicUO.Game.UI.Gumps
             page = ((int)PAGE.TUOOptions + 1008);
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.Controller, page, content.LeftWidth));
             content.ResetRightSide();
+
+            content.AddToRight(new HttpClickableLink("Controller Support Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Controller-Support", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
 
             content.AddToRight(new SliderWithLabel(lang.GetTazUO.MouseSesitivity, 0, Theme.SLIDER_WIDTH, 1, 20, profile.ControllerMouseSensativity, (i) => { profile.ControllerMouseSensativity = i; }), true, page);
 
@@ -2648,6 +2690,9 @@ namespace ClassicUO.Game.UI.Gumps
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.GumpScaling, page, content.LeftWidth));
             content.ResetRightSide();
 
+            content.AddToRight(new HttpClickableLink("Scaling Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Global-Scaling", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
+
             content.AddToRight(new TextBox(lang.GetTazUO.ScalingInfo, Theme.FONT, Theme.STANDARD_TEXT_SIZE, content.RightWidth - 20, Theme.TEXT_FONT_COLOR, FontStashSharp.RichText.TextHorizontalAlignment.Center, false), true, page);
 
             content.BlankLine();
@@ -2658,16 +2703,27 @@ namespace ClassicUO.Game.UI.Gumps
                 double v = (double)i / (double)100;
                 profile.PaperdollScale = v > 0 ? v : 1f;
             }), true, page);
-            #endregion
 
-            content.AddToLeft(c = new ModernButton(0, 0, content.LeftWidth, 40, ButtonAction.Activate, lang.GetTazUO.AutoLoot, Theme.BUTTON_FONT_COLOR));
-            c.MouseUp += (s, e) =>
+            content.BlankLine();
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.GlobalScaling, 0, profile.GlobalScaling, b => profile.GlobalScaling = b), true, page);
+
+            SliderWithLabel s;
+            content.AddToRight(s = new SliderWithLabel(lang.GetTazUO.GlobalScale, 0, Theme.SLIDER_WIDTH, 50, 175, (int)(profile.GlobalScale * 100), null), true, page);
+
+            ModernButton b;
+            content.AddToRight(b = new ModernButton(s.X + s.Width + 75, s.Y - 20, 75, 40, ButtonAction.Activate, "Apply", Theme.BUTTON_FONT_COLOR), false, page);
+            b.MouseUp += (_, e) =>
             {
                 if (e.Button == MouseButtonType.Left)
                 {
-                    AutoLootOptions.AddToUI();
+                    float v = ((float)s.GetValue() / (float)100);
+                    if (v <= 0)
+                        profile.GlobalScaling = false;
+
+                    profile.GlobalScale = v > 0 ? v : 1f;
                 }
             };
+            #endregion
 
             #region Hidden layers
             page = ((int)PAGE.TUOOptions + 1011);
@@ -2699,6 +2755,26 @@ namespace ClassicUO.Game.UI.Gumps
                     rightSide = false;
                 }
             }
+            #endregion
+
+            #region Autoloot
+            page = ((int)PAGE.TUOOptions + 1012);
+            content.AddToLeft(SubCategoryButton(lang.GetTazUO.AutoLoot, page, content.LeftWidth));
+            content.ResetRightSide();
+
+            content.AddToRight(new HttpClickableLink("Autoloot Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Simple-Auto-Loot", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
+
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AutoLootEnable, 0, profile.EnableAutoLoot, b => profile.EnableAutoLoot = b), true, page);
+            content.BlankLine();
+
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AutoLootProgessBarEnable, 0, profile.EnableAutoLootProgressBar, b => profile.EnableAutoLootProgressBar = b), true, page);
+            content.BlankLine();
+
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AutoLootHumanCorpses, 0, profile.AutoLootHumanCorpses, b => profile.AutoLootHumanCorpses = b), true, page);
+            content.BlankLine();
+
+            content.AddToRight(c = new AutoLootConfigs(content.RightWidth - Theme.SCROLL_BAR_WIDTH - 10), true, page);
             #endregion
 
             options.Add(
@@ -2935,6 +3011,122 @@ namespace ClassicUO.Game.UI.Gumps
         }
 
         #region Custom Controls For Options
+        private class AutoLootConfigs : Control
+        {
+            private DataBox _dataBox;
+            public AutoLootConfigs(int width)
+            {
+                AcceptMouseInput = true;
+                CanMove = true;
+                Width = width;
+
+                Add(_dataBox = new DataBox(0, 0, width, 0));
+
+                ModernButton b;
+                _dataBox.Add(b = new ModernButton(0, 0, 100, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Add entry", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    var nl = AutoLootManager.Instance.AddAutoLootEntry();
+                    _dataBox.Insert(2, GenConfigEntry(nl, width));
+                    RearrangeDataBox();
+                };
+
+                Area titles = new Area(false);
+                titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 55 });
+                titles.Add(new TextBox("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 50) >> 1) + 60 });
+                titles.ForceSizeUpdate();
+                _dataBox.Add(titles);
+
+                for (int i = 0; i < AutoLootManager.Instance.AutoLootList.Count; i++)
+                {
+                    AutoLootItem autoLootItem = AutoLootManager.Instance.AutoLootList[i];
+                    _dataBox.Add(GenConfigEntry(autoLootItem, width));
+                }
+                RearrangeDataBox();
+            }
+
+            private Control GenConfigEntry(AutoLootItem autoLootItem, int width)
+            {
+                int ewidth = (width - 90 - 60) >> 1;
+
+                Area area = new Area() { Width = width, Height = 107 };
+
+                int x = 0;
+                if (autoLootItem.Graphic > 0)
+                {
+                    ResizableStaticPic rsp;
+                    area.Add(rsp = new ResizableStaticPic(autoLootItem.Graphic, 50, 50) { Hue = (ushort)(autoLootItem.Hue == ushort.MaxValue ? 0 : autoLootItem.Hue) });
+                    rsp.SetTooltip(autoLootItem.Name);
+                }
+                x += 50;
+
+                InputField graphicInput = new InputField(ewidth, 50, 100, -1, autoLootItem.Graphic.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox graphicInput = (InputField.StbTextBox)s;
+                    if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
+                    {
+                        autoLootItem.Graphic = ngh;
+                    }
+                    else if (ushort.TryParse(graphicInput.Text, out var ng))
+                    {
+                        autoLootItem.Graphic = ng;
+                    }
+                })
+                { X = x };
+                graphicInput.SetTooltip("Graphic");
+                area.Add(graphicInput);
+                x += graphicInput.Width + 5;
+
+
+                InputField hueInput = new InputField(ewidth, 50, 100, -1, autoLootItem.Hue == ushort.MaxValue ? "-1" : autoLootItem.Hue.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox hueInput = (InputField.StbTextBox)s;
+                    if (hueInput.Text == "-1")
+                    {
+                        autoLootItem.Hue = ushort.MaxValue;
+                    }
+                    else if (ushort.TryParse(hueInput.Text, out var ng))
+                    {
+                        autoLootItem.Hue = ng;
+                    }
+                })
+                { X = x };
+                hueInput.SetTooltip("Hue (-1 to match any)");
+                area.Add(hueInput);
+                x += hueInput.Width + 5;
+
+                NiceButton delete;
+                area.Add(delete = new NiceButton(x, 0, 90, 49, ButtonAction.Activate, "Delete") { IsSelectable = false, DisplayBorder = true });
+                delete.MouseUp += (s, e) =>
+                {
+                    if (e.Button == Input.MouseButtonType.Left)
+                    {
+                        AutoLootManager.Instance.TryRemoveAutoLootEntry(autoLootItem.UID);
+                        area.Dispose();
+                        RearrangeDataBox();
+                    }
+                };
+
+                InputField regxInput = new InputField(width, 50, width, -1, autoLootItem.RegexSearch, false, (s, e) =>
+                {
+                    InputField.StbTextBox regxInput = (InputField.StbTextBox)s;
+                    autoLootItem.RegexSearch = string.IsNullOrEmpty(regxInput.Text) ? string.Empty : regxInput.Text;
+                })
+                { Y = 52 };
+                regxInput.SetTooltip("Regex to match items against");
+                area.Add(regxInput);
+
+                return area;
+            }
+
+            private void RearrangeDataBox()
+            {
+                _dataBox.ReArrangeChildren();
+                _dataBox.ForceSizeUpdate();
+                Height = _dataBox.Height;
+            }
+        }
+
         private class ModernColorPickerWithLabel : Control, SearchableOption
         {
             private TextBox _label;
@@ -3120,6 +3312,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             private readonly TextBox _label;
             private readonly Slider _slider;
+            public int GetValue() => _slider.Value;
 
             public SliderWithLabel(string label, int textWidth, int barWidth, int min, int max, int value, Action<int> valueChanged = null)
             {
@@ -3855,6 +4048,12 @@ namespace ClassicUO.Game.UI.Gumps
             public void SetText(string text)
             {
                 _textbox.SetText(text);
+            }
+
+            public void SetTooltip(string text)
+            {
+                base.SetTooltip(text);
+                _textbox.SetTooltip(text);
             }
 
 

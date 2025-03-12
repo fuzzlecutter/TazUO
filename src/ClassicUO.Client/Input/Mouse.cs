@@ -30,6 +30,7 @@
 
 #endregion
 
+using ClassicUO.Configuration;
 using ClassicUO.Game;
 using Microsoft.Xna.Framework;
 using SDL2;
@@ -170,6 +171,12 @@ namespace ClassicUO.Input
             Position.X = (int)((double)Position.X * Client.Game.GraphicManager.PreferredBackBufferWidth / Client.Game.Window.ClientBounds.Width);
 
             Position.Y = (int)((double)Position.Y * Client.Game.GraphicManager.PreferredBackBufferHeight / Client.Game.Window.ClientBounds.Height);
+
+            if (World.InGame && ProfileManager.CurrentProfile.GlobalScaling)
+            {
+                Position.X = (int)(Position.X / ProfileManager.CurrentProfile.GlobalScale);
+                Position.Y = (int)(Position.Y / ProfileManager.CurrentProfile.GlobalScale);
+            }
 
             IsDragging = LButtonPressed || RButtonPressed || MButtonPressed;
         }

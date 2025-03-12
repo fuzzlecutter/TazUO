@@ -118,7 +118,7 @@ namespace ClassicUO.Game.Managers
                 updateTimerEnabled = value;
                 if (value)
                 {
-                    UpdateTimerTotalTime = new Dictionary<Type,double>();
+                    UpdateTimerTotalTime = new Dictionary<Type, double>();
                     UpdateTimerCount = new Dictionary<Type, int>();
                     updateTimer = Stopwatch.StartNew();
                 }
@@ -411,7 +411,7 @@ namespace ClassicUO.Game.Managers
                     g.Update();
                     updateTimer.Stop();
 
-                    if(!UpdateTimerTotalTime.ContainsKey(g.GetType()))
+                    if (!UpdateTimerTotalTime.ContainsKey(g.GetType()))
                     {
                         UpdateTimerTotalTime[g.GetType()] = 0;
                         UpdateTimerCount[g.GetType()] = 0;
@@ -462,8 +462,10 @@ namespace ClassicUO.Game.Managers
         public static void Draw(UltimaBatcher2D batcher)
         {
             SortControlsByInfo();
-
-            batcher.Begin();
+            if (World.InGame && ProfileManager.CurrentProfile.GlobalScaling)
+                batcher.Begin(null, Matrix.CreateScale(ProfileManager.CurrentProfile.GlobalScale));
+            else
+                batcher.Begin();
 
             for (LinkedListNode<Gump> last = Gumps.Last; last != null; last = last.Previous)
             {

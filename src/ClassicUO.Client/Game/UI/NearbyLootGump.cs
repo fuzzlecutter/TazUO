@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using ClassicUO.Configuration;
 using ClassicUO.Game.GameObjects;
@@ -8,11 +7,10 @@ using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
 using ClassicUO.Renderer;
+using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Media;
 using SDL2;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 using static ClassicUO.Game.UI.Gumps.GridHightlightMenu;
 
 namespace ClassicUO.Game.UI
@@ -69,6 +67,13 @@ namespace ClassicUO.Game.UI
 
             Control c;
             Add(c = new TextBox("Nearby corpse loot", Assets.TrueTypeLoader.EMBEDDED_FONT, 24, WIDTH, Color.OrangeRed, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { AcceptMouseInput = false });
+
+            Add(c = new NiceButton(Width - 20, 0, 20, 20, ButtonAction.Default, "+"));
+            c.SetTooltip("Options");
+            c.MouseUp += (s, e) => {
+                if (e.Button == MouseButtonType.Left)
+                    GenOptionsContext().Show();
+            };
 
             Add(lootButton = new NiceButton(0, c.Height, WIDTH >> 1, 20, ButtonAction.Default, "Loot All"));
             lootButton.MouseUp += (sender, e) =>
@@ -142,6 +147,16 @@ namespace ClassicUO.Game.UI
             }
         }
 
+        private ContextMenuControl GenOptionsContext()
+        {
+            var c = new ContextMenuControl();
+            c.Add(new ContextMenuItemEntry("Open human corpses?", () => {
+                ProfileManager.CurrentProfile.NearbyLootOpensHumanCorpses ^= true;
+                RequestUpdateContents();
+            }, true, ProfileManager.CurrentProfile.NearbyLootOpensHumanCorpses));
+
+            return c;
+        }
         private void UpdateNearbyLoot()
         {
             itemCount = 0;
@@ -160,7 +175,7 @@ namespace ClassicUO.Game.UI
             }
 
             finalItemList = finalItemList
-                .OrderBy(item => item.Graphic != 0x0EED) // Items with Graphic 0x0EED(Gold) come first
+                .OrderBy(item => !item.IsCoin) // Items that are coins come first
                 .ThenBy(item => item.Graphic)           // Sort by Graphic
                 .ThenBy(item => item.Hue)               // Sort by Hue
                 .ToList();
@@ -179,7 +194,7 @@ namespace ClassicUO.Game.UI
         }
         private void ProcessCorpse(Item corpse, ref List<Item> itemList)
         {
-            if (corpse == null || !corpse.IsCorpse || corpse.IsHumanCorpse)
+            if (corpse == null || !corpse.IsCorpse || (corpse.IsHumanCorpse && !ProfileManager.CurrentProfile.NearbyLootOpensHumanCorpses))
                 return;
 
             if (corpse.Items != null)
@@ -189,7 +204,7 @@ namespace ClassicUO.Game.UI
                 {
 
                     Item item = (Item)i;
-                    if (item == null)
+                    if (item == null || item.Graphic == default(ushort))
                         continue;
 
                     itemList.Add(item);
@@ -396,7 +411,14 @@ namespace ClassicUO.Game.UI
 
             string name = item.Name;
             if (string.IsNullOrEmpty(name))
-                name = item.ItemData.Name;
+            {
+                name = StringHelper.CapitalizeAllWords(
+                            StringHelper.GetPluralAdjustedString(
+                                item.ItemData.Name,
+                                item.Amount > 1
+                            )
+                        );
+            }
 
             if (itemLabel == null)
             {

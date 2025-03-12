@@ -67,12 +67,6 @@ namespace ClassicUO
             CUOEnviroment.GameThread = Thread.CurrentThread;
             CUOEnviroment.GameThread.Name = "CUO_MAIN_THREAD";
 
-#if DEBUG
-            ScriptCompiler.Compile(true, true);
-#else
-            ScriptCompiler.Compile(false, true);
-#endif
-
 #if !DEBUG
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
             {

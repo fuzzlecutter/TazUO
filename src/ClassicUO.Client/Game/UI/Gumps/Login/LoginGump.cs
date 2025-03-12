@@ -396,7 +396,15 @@ namespace ClassicUO.Game.UI.Gumps.Login
                     _textboxAccount.ContextMenu.Add(new ContextMenuItemEntry(acct, () => { _textboxAccount.SetText(acct); }));
                 }
                 _textboxAccount.SetTooltip("Right click to select another account.");
-                _textboxAccount.MouseUp += (s, e) => { if (e.Button == MouseButtonType.Right) _textboxAccount.ContextMenu.Show(); };
+                _textboxAccount.MouseUp += (s, e) =>
+                {
+                    if (e.Button == MouseButtonType.Right)
+                    {
+                        _textboxAccount.ContextMenu.Show();
+                        UIManager.ContextMenu.X = _textboxAccount.X + _textboxAccount.Width;
+                        UIManager.ContextMenu.Y = _textboxAccount.Y + _textboxAccount.Height;
+                    }
+                };
             }
 
             _passwordFake.RealText = Crypter.Decrypt(Settings.GlobalSettings.Password);
@@ -569,7 +577,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
         protected override void OnControllerButtonUp(SDL.SDL_GameControllerButton button)
         {
             base.OnControllerButtonUp(button);
-            if(button == SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A)
+            if (button == SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A)
             {
                 SaveCheckboxStatus();
                 LoginScene ls = Client.Game.GetScene<LoginScene>();

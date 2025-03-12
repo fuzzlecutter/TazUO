@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
 using ClassicUO.Assets;
+using ClassicUO.Game;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
@@ -247,7 +248,7 @@ namespace ClassicUO.LegionScripting
                                     ScriptManagerGump.RefreshContent = true;
                                 }
                             }
-                            catch (Exception e) { Console.WriteLine(e.ToString()); }
+                            catch (Exception e) { GameActions.Print(e.ToString(), 32); }
                         }
                     });
                     r.CenterXInScreen();

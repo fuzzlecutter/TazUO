@@ -5,13 +5,10 @@ using ClassicUO.Game.UI.Controls;
 using ClassicUO.Input;
 using ClassicUO.Network;
 using ClassicUO.Renderer;
-using ClassicUO.Renderer.Animations;
-using ClassicUO.Resources;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -37,12 +34,13 @@ namespace ClassicUO.Game.UI.Gumps
         public ModernShopGump(uint serial, bool isPurchaseGump) : base(serial, 0)
         {
             #region VARS
-            X = 200;
-            Y = 200;
             Width = WIDTH;
             Height = ProfileManager.CurrentProfile.VendorGumpHeight;
             if (Height < 200)
                 Height = 200;
+
+            CenterXInViewPort();
+            CenterYInViewPort();
 
             AcceptMouseInput = true;
             CanCloseWithRightClick = true;

@@ -8,6 +8,18 @@ namespace ClassicUO.Game.UI.Gumps
     internal class VersionHistory : Gump
     {
         private static string[] updateTexts = {
+            "/c[white][3.27.0]/cd\n" +
+                "- Added forced tooltip option for pre-tooltip servers\n" +
+                "- Added global scaling\n" +
+                "- Add regex matching for autoloot\n" +
+                "- Improved modern shop gump asthetics\n" +
+                "- Counter bars can now be assigned spells\n" +
+                "- Removed unused scripting system\n" +
+                "- Added adjustable turn delay\n",
+
+            "/c[white][3.26.1]/cd\n" +
+                "- Fix for replygump command in legion scripting\n" +
+
             "/c[white][3.26.0]/cd\n" +
                 "- Added optional regex to tooltip overrides\n" +
                 "- Minor improvements in tooltip overrides\n" +
@@ -231,13 +243,6 @@ namespace ClassicUO.Game.UI.Gumps
                 "- Fixed an issue with having zero tooltip overrides\n" +
                 "- Fixed journal width issue when timestamps are disabled\n" +
                 "- Added {3} to tooltip overrides, inserting the original tooltip property",
-
-            "/c[white][3.6.0]/cd\n" +
-                "- Tooltip import crash fix\n" +
-                "- Tooltip delete all override button added\n" +
-                "- Tooltip override color fix\n" +
-                "- Added an error message when importing tooltip override fails\n" +
-                "- Fixed tooltip background hue offset",
 
             "\n\n/c[white]For further history please visit our discord."
         };

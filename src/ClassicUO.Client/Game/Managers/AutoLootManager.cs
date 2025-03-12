@@ -1,6 +1,7 @@
 ﻿using ClassicUO.Configuration;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.UI.Gumps;
+using ClassicUO.Utility;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -109,7 +110,7 @@ namespace ClassicUO.Game.Managers
         /// <param name="corpse"></param>
         public void HandleCorpse(Item corpse)
         {
-            if (corpse != null && corpse.IsCorpse && !corpse.IsHumanCorpse && ProfileManager.CurrentProfile.EnableAutoLoot)
+            if (corpse != null && corpse.IsCorpse && (!corpse.IsHumanCorpse || ProfileManager.CurrentProfile.AutoLootHumanCorpses) && ProfileManager.CurrentProfile.EnableAutoLoot)
             {
                 for (LinkedObject i = corpse.Items; i != null; i = i.Next)
                 {
@@ -241,6 +242,8 @@ namespace ClassicUO.Game.Managers
             public string Name { get; set; } = "";
             public ushort Graphic { get; set; } = 0;
             public ushort Hue { get; set; } = ushort.MaxValue;
+            public string RegexSearch { get; set; } = string.Empty;
+            private bool RegexMatch => RegexSearch != string.Empty;
             /// <summary>
             /// Do not set this manually.
             /// </summary>
@@ -248,16 +251,18 @@ namespace ClassicUO.Game.Managers
 
             public bool Match(Item compareTo)
             {
-                if (Graphic == compareTo.Graphic) //Graphic matches
-                {
-                    return HueCheck(compareTo.Hue);
-                }
-                return false;
+                if (Graphic != compareTo.Graphic) return false;
+
+                if (!HueCheck(compareTo.Hue)) return false;
+
+                if (RegexMatch && !RegexCheck(compareTo)) return false;
+
+                return true;
             }
 
             private bool HueCheck(ushort value)
             {
-                if (Hue == ushort.MaxValue) //Ignore hue, only check graphic.
+                if (Hue == ushort.MaxValue) //Ignore hue.
                 {
                     return true;
                 }
@@ -269,6 +274,17 @@ namespace ClassicUO.Game.Managers
                 {
                     return false;
                 }
+            }
+
+            private bool RegexCheck(Item compareTo)
+            {
+                string search = "";
+                if (World.OPL.TryGetNameAndData(compareTo, out string name, out string data))
+                    search += name + data;
+                else
+                    search = StringHelper.GetPluralAdjustedString(compareTo.ItemData.Name);
+
+                return System.Text.RegularExpressions.Regex.IsMatch(search, RegexSearch, System.Text.RegularExpressions.RegexOptions.Multiline);
             }
 
             public bool Equals(AutoLootItem other)
