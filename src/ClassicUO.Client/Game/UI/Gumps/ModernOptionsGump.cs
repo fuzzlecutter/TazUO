@@ -3022,7 +3022,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 InputField graphicInput = new InputField(ewidth, 50, 100, -1, autoLootItem.Graphic.ToString(), false, (s, e) =>
                 {
-                    InputField graphicInput = (InputField)s;
+                    InputField.StbTextBox graphicInput = (InputField.StbTextBox)s;
                     if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
                     {
                         autoLootItem.Graphic = ngh;
@@ -3040,7 +3040,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 InputField hueInput = new InputField(ewidth, 50, 100, -1, autoLootItem.Hue == ushort.MaxValue ? "-1" : autoLootItem.Hue.ToString(), false, (s, e) =>
                 {
-                    InputField hueInput = (InputField)s;
+                    InputField.StbTextBox hueInput = (InputField.StbTextBox)s;
                     if (hueInput.Text == "-1")
                     {
                         autoLootItem.Hue = ushort.MaxValue;
@@ -3067,13 +3067,13 @@ namespace ClassicUO.Game.UI.Gumps
                     }
                 };
 
-                InputField regxInput = new InputField(width, 50, width, -1, "Regex feature coming soon", false, (s, e) =>
+                InputField regxInput = new InputField(width, 50, width, -1, autoLootItem.RegexSearch, false, (s, e) =>
                 {
-                    InputField regxInput = (InputField)s;
-                    
+                    InputField.StbTextBox regxInput = (InputField.StbTextBox)s;
+                    autoLootItem.RegexSearch = string.IsNullOrEmpty(regxInput.Text) ? string.Empty : regxInput.Text;                    
                 })
                 { Y = 52 };
-                regxInput.SetTooltip("Regex to match");
+                regxInput.SetTooltip("Regex to match items against");
                 area.Add(regxInput);
 
                 return area;

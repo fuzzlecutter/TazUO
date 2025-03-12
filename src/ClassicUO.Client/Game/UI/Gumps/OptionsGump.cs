@@ -4405,15 +4405,6 @@ namespace ClassicUO.Game.UI.Gumps
                 section.AddRight(_closeHPBarWhenAnchored = AddCheckBox(null, "", _currentProfile.CloseHealthBarIfAnchored, 0, 0));
 
 
-                NiceButton autoLoot;
-                section.Add(autoLoot = new NiceButton(0, 0, 150, TEXTBOX_HEIGHT, ButtonAction.Activate, "Open auto loot options") {  IsSelectable = false, DisplayBorder = true });
-                autoLoot.MouseUp += (s, e) => {
-                    if(e.Button == MouseButtonType.Left)
-                    {
-                        AutoLootOptions.AddToUI();
-                    }
-                };
-
                 rightArea.Add(section);
                 startY += section.Height + SPACING + 30;
             } //Misc
