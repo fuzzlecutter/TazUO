@@ -610,6 +610,8 @@ namespace ClassicUO.Configuration
         public bool GlobalScaling { get; set; } = false;
         public float GlobalScale {  get; set; } = 1.5f;
         public ushort TurnDelay { get; set; } = 100;
+        public bool SellAgentEnabled { get; set; } = false;
+        public bool BuyAgentEnabled { get; set; } = false;
 
         public void Save(string path, bool saveGumps = true)
         {
