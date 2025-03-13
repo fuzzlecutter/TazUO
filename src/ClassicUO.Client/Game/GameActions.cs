@@ -373,13 +373,15 @@ namespace ClassicUO.Game
             }
         }
 
-        public static void BandageSelf()
+        public static bool BandageSelf()
         {
             Item bandage = World.Player.FindBandage();
             if (bandage != null)
             {
                 NetClient.Socket.Send_TargetSelectedObject(bandage.Serial, World.Player.Serial);
+                return true;
             }
+            return false;
         }
 
         /// <summary>

@@ -43,7 +43,8 @@ namespace ClassicUO.LegionScripting
 
             Add(title = new TextBox("Script Manager", TrueTypeLoader.EMBEDDED_FONT, 18, Width, Color.DarkOrange, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { Y = BorderControl.BorderSize, AcceptMouseInput = false });
 
-            Add(refresh = new NiceButton(Width - 75 - BorderControl.BorderSize, BorderControl.BorderSize, 75, 25, ButtonAction.Default, "Refresh") { 
+            Add(refresh = new NiceButton(Width - 75 - BorderControl.BorderSize, BorderControl.BorderSize, 75, 25, ButtonAction.Default, "Refresh")
+            {
                 IsSelectable = false
             });
 
@@ -408,8 +409,12 @@ namespace ClassicUO.LegionScripting
             {
                 get
                 {
-                    if (Script != null && Script.GetScript != null)
+                    if (Script.ScriptType == ScriptType.LegionScript && Script != null && Script.GetScript != null)
                         return Script.GetScript.IsPlaying ? "Stop" : "Play";
+
+                    if (Script.ScriptType == ScriptType.Python && Script.PythonThread != null)
+                        return "Stop";
+
                     return "Play";
                 }
             }

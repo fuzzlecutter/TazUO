@@ -294,14 +294,11 @@ namespace ClassicUO.LegionScripting
                 }
                 else if (script.ScriptType == ScriptType.Python)
                 {
-                    if (script.PythonTask == null || script.PythonTask.Status != TaskStatus.Running)
+                    if (script.PythonThread == null || !script.PythonThread.IsAlive)
                     {
                         script.ReadFromFile();
-                        script.PythonCancellationToken = new CancellationTokenSource();
-                        script.PythonTask = Task.Factory.StartNew(() => ExecutePythonScript(script), script.PythonCancellationToken.Token).ContinueWith((t) =>
-                        {
-                            StopScript(script);
-                        });
+                        script.PythonThread = new Thread(() => ExecutePythonScript(script));
+                        script.PythonThread.Start();
                     }
                 }
 
@@ -317,11 +314,14 @@ namespace ClassicUO.LegionScripting
             {
                 script.pythonEngine.Execute(script.FileContentsJoined, script.pythonScope);
             }
+            catch (ThreadAbortException) { }
             catch (Exception e)
             {
                 GameActions.Print("Python Script Error:");
                 GameActions.Print(e.Message);
             }
+
+            PythonAPI.QueuedPythonActions.Enqueue(() => { StopScript(script); });
         }
         public static void StopScript(ScriptFile script)
         {
@@ -340,9 +340,8 @@ namespace ClassicUO.LegionScripting
                 }
                 else if (script.ScriptType == ScriptType.Python)
                 {
-                    if (script.PythonTask.Status == TaskStatus.Running)
-                        script.PythonCancellationToken.Cancel();
-                    script.PythonTask = null;
+                    script.PythonThread?.Abort();
+                    script.PythonThread = null;
                 }
 
                 ScriptStoppedEvent?.Invoke(null, new ScriptInfoEvent(script));
@@ -557,15 +556,14 @@ namespace ClassicUO.LegionScripting
         public string[] FileContents;
         public string FileContentsJoined;
         public ScriptType ScriptType = ScriptType.LegionScript;
-        public Task PythonTask;
+        public Thread PythonThread;
         public ScriptEngine pythonEngine;
         public ScriptScope pythonScope;
-        public CancellationTokenSource PythonCancellationToken;
         public bool IsPlaying
         {
             get
             {
-                return PythonTask != null && PythonTask.Status == TaskStatus.Running;
+                return PythonThread != null;
             }
         }
 

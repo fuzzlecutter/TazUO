@@ -44,6 +44,8 @@ namespace ClassicUO.LegionScripting
         /// Used for methods searching for items that don't return the item.
         /// </summary>
         public uint Found { get; private set; }
+        public uint LeftHandClearedItem { get; private set; }
+        public uint RightHandClearedItem { get; private set; }
 
         /// <summary>
         /// Get the players backpack
@@ -53,6 +55,31 @@ namespace ClassicUO.LegionScripting
         #endregion
 
         #region Methods
+        public void Attack(uint serial) => InvokeOnMainThread(() => GameActions.Attack(serial));
+        public bool BandageSelf() => InvokeOnMainThread(GameActions.BandageSelf);
+        public void ClearLeftHand() => InvokeOnMainThread(() =>
+        {
+            Item i = World.Player.FindItemByLayer(Game.Data.Layer.OneHanded);
+            if (i != null)
+            {
+                GameActions.GrabItem(i, i.Amount, Backpack);
+                LeftHandClearedItem = i;
+            }
+        });
+        public void ClearRightHand() => InvokeOnMainThread(() =>
+        {
+            Item i = World.Player.FindItemByLayer(Game.Data.Layer.TwoHanded);
+            if (i != null)
+            {
+                GameActions.GrabItem(i, i.Amount, Backpack);
+                RightHandClearedItem = i;
+            }
+        });
+        public void MoveItem(uint serial, uint destination, int amt = 0, int x = 0xFFFF, int y = 0xFFFF) => InvokeOnMainThread(() =>
+        {
+            if (GameActions.PickUp(serial, 0, 0, amt))
+                GameActions.DropItem(serial, x, y, 0, destination);
+        });
         public void SysMsg(string message, ushort hue = 946) => InvokeOnMainThread(() => GameActions.Print(message, hue));
         public Item FindItem(uint serial) => InvokeOnMainThread(() => World.Items.Get(serial));
         public bool FindType(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
@@ -67,7 +94,7 @@ namespace ClassicUO.LegionScripting
 
                 return false;
             });
-        public void UseObject(uint obj, bool skipQueue = true) => InvokeOnMainThread(() => { if (skipQueue) GameActions.DoubleClick(obj); else GameActions.DoubleClickQueued(obj); });
+        public void UseObject(uint serial, bool skipQueue = true) => InvokeOnMainThread(() => { if (skipQueue) GameActions.DoubleClick(serial); else GameActions.DoubleClickQueued(serial); });
         #endregion
     }
 }
