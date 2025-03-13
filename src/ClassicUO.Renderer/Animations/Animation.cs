@@ -280,6 +280,8 @@ namespace ClassicUO.Renderer.Animations
 
                 if (frames.IsEmpty)
                 {
+                    animDir.FrameCount = 0;
+                    animDir.SpriteInfos = Array.Empty<SpriteInfo>();
                     return Span<SpriteInfo>.Empty;
                 }
 
