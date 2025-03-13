@@ -639,7 +639,8 @@ namespace ClassicUO.Game.GameObjects
                         IsCorpse
                     );
 
-                    if (frames.IsEmpty)
+                    //IsEmpty should already check length == 0, however we were somehow getting zero length frames still, adding a .Length == 0 fixed it.
+                    if (frames.IsEmpty || frames.Length == 0)
                     {
                         continue;
                     }

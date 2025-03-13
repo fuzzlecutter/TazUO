@@ -367,8 +367,11 @@ namespace ClassicUO.Game.UI.Controls
                 {
                     foreach (Control c in removalList)
                     {
-                        OnChildRemoved();
-                        Children.Remove(c);
+                        if (Children.Contains(c))
+                        {
+                            OnChildRemoved();
+                            Children.Remove(c);
+                        }
                     }
                 }
 
