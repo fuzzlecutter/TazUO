@@ -84,6 +84,8 @@ namespace ClassicUO.Game.Managers
 
             foreach (var sellConfig in sellItems)
             {
+                if (!sellConfig.Enabled) continue;
+
                 ushort current_count = 0;
                 foreach (var item in sellPackets[vendorSerial].AvailableItems)
                 {
@@ -124,6 +126,8 @@ namespace ClassicUO.Game.Managers
         public ushort Graphic { get; set; }
         public ushort Hue { get; set; } = ushort.MaxValue;
         public ushort MaxAmount { get; set; } = ushort.MaxValue;
+
+        public bool Enabled { get; set; } = true;
     }
 
     internal class VendorSellInfo

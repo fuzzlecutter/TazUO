@@ -3041,17 +3041,18 @@ namespace ClassicUO.Game.UI.Gumps
                     RearrangeDataBox();
                 };
 
-                _dataBox.Add(b = new ModernButton(0, 0, 100, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Target item", Theme.BUTTON_FONT_COLOR));
+                _dataBox.Add(b = new ModernButton(0, 0, 150, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Target item", Theme.BUTTON_FONT_COLOR));
                 b.MouseUp += (s, e) =>
                 {
-                    TargetHelper.TargetObject((e) => {
+                    TargetHelper.TargetObject((e) =>
+                    {
                         if (e == null) return;
                         var sc = BuySellAgent.Instance.NewSellConfig();
                         sc.Graphic = e.Graphic;
                         sc.Hue = e.Hue;
                         _dataBox.Insert(2, GenConfigEntry(sc, width));
                         RearrangeDataBox();
-                    });                    
+                    });
                 };
 
                 Area titles = new Area(false);
@@ -3131,8 +3132,19 @@ namespace ClassicUO.Game.UI.Gumps
                 area.Add(maxInput);
                 x += maxInput.Width + 5;
 
+                CheckboxWithLabel enabled = new CheckboxWithLabel(isChecked: itemConfig.Enabled, valueChanged: (e) =>
+                {
+                    itemConfig.Enabled = e;
+                })
+                { X = x };
+                enabled.Y = (area.Height - enabled.Height) >> 1;
+                enabled.SetTooltip("Enable this entry?");
+                area.Add(enabled);
+                x += enabled.Width;
+
                 NiceButton delete;
-                area.Add(delete = new NiceButton(x, 0, 90, 49, ButtonAction.Activate, "Delete") { IsSelectable = false, DisplayBorder = true });
+                area.Add(delete = new NiceButton(x, 0, area.Width - x, 49, ButtonAction.Activate, "X") { IsSelectable = false, DisplayBorder = true });
+                delete.SetTooltip("Delete this entry");
                 delete.MouseUp += (s, e) =>
                 {
                     if (e.Button == Input.MouseButtonType.Left)
