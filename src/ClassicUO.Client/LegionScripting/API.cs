@@ -75,6 +75,13 @@ namespace ClassicUO.LegionScripting
                 RightHandClearedItem = i;
             }
         });
+        public void ClickObject(uint serial) => InvokeOnMainThread(() => GameActions.SingleClick(serial));
+        public int Contents(uint serial) => InvokeOnMainThread(() =>
+        {
+            Item i = World.Items.Get(serial);
+            if (i != null) return i.Amount;
+            return 0;
+        });
         public void MoveItem(uint serial, uint destination, int amt = 0, int x = 0xFFFF, int y = 0xFFFF) => InvokeOnMainThread(() =>
         {
             if (GameActions.PickUp(serial, 0, 0, amt))

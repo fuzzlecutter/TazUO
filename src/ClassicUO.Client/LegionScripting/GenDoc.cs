@@ -6,10 +6,10 @@ using ClassicUO;
 
 public static class GenDoc
 {
-    public static string GenerateMarkdown(Type type)
+    public static string GenerateMarkdown(Type type, out StringBuilder python)
     {
         var sb = new StringBuilder();
-
+        python = new StringBuilder();
         // Add class name
         sb.AppendLine($"# {type.Name}  ");
         sb.AppendLine($"This was automatically generated on version `v{CUOEnviroment.Version}`.  ");
@@ -28,6 +28,7 @@ public static class GenDoc
             foreach (var property in properties)
             {
                 sb.AppendLine($"- **{property.Name}** (*{property.PropertyType.Name}*)");
+                python.AppendLine($"{property.Name} = None");
             }
         }
         else
@@ -38,7 +39,7 @@ public static class GenDoc
 
         // List methods
         sb.AppendLine("## Methods");
-        var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+        var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Where(m => !m.IsSpecialName);;
         if (methods.Any())
         {
             foreach (var method in methods)
@@ -54,6 +55,10 @@ public static class GenDoc
 
                 sb.AppendLine("***");
                 sb.AppendLine();
+
+                python.AppendLine($"def {method.Name}({GetPythonParameters(method.GetParameters())}):");
+                python.AppendLine($"    pass");
+                python.AppendLine();
             }
         }
         else
@@ -117,5 +122,20 @@ public static class GenDoc
         if (parameters.Length > 0) sb.Remove(sb.Length - 2, 2);
 
         sb.Append(")");
+    }
+    private static string GetPythonParameters(ParameterInfo[] parameters)
+    {
+        if (parameters.Length == 0) return "";
+
+        var sb = new StringBuilder();
+        foreach (var param in parameters)
+        {
+            sb.Append($"{param.Name}");
+            if(param.IsOptional) sb.Append("=None");
+            sb.Append(", ");
+        }
+        sb.Remove(sb.Length - 2, 2);
+
+        return sb.ToString();
     }
 }

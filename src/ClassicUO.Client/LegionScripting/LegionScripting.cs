@@ -614,6 +614,10 @@ namespace ClassicUO.LegionScripting
         {
             var c = File.ReadAllLines(FullPath);
             FileContentsJoined = string.Join("\n", c);
+            if(ScriptType == ScriptType.Python)
+            {
+                FileContentsJoined = FileContentsJoined.Replace("import API", string.Empty);
+            }
             return c;
         }
 
