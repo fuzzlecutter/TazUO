@@ -231,20 +231,19 @@ namespace ClassicUO.LegionScripting
                 options.ContextMenu = new ContextMenuControl();
                 options.ContextMenu.Add(new ContextMenuItemEntry("New script", () =>
                 {
-                    InputRequest r = new InputRequest("Enter a name for this script. Do not include any file extensions.", "Create", "Cancel", (r, s) =>
+                    InputRequest r = new InputRequest("Enter a name for this script. Use .lscript or .py", "Create", "Cancel", (r, s) =>
                     {
                         if (r == InputRequest.Result.BUTTON1 && !string.IsNullOrEmpty(s))
                         {
-                            int p = s.IndexOf('.');
-                            if (p != -1)
-                                s = s.Substring(0, p);
+                            if (!s.EndsWith(".lscript") && !s.EndsWith(".py"))
+                                return;
 
                             try
                             {
                                 string gPath = parentGroup == "" ? group : Path.Combine(parentGroup, group);
-                                if (!File.Exists(Path.Combine(LegionScripting.ScriptPath, gPath, s + ".lscript")))
+                                if (!File.Exists(Path.Combine(LegionScripting.ScriptPath, gPath, s)))
                                 {
-                                    File.WriteAllText(Path.Combine(LegionScripting.ScriptPath, gPath, s + ".lscript"), "// My script");
+                                    File.WriteAllText(Path.Combine(LegionScripting.ScriptPath, gPath, s), "# My script");
                                     ScriptManagerGump.RefreshContent = true;
                                 }
                             }
@@ -531,9 +530,9 @@ namespace ClassicUO.LegionScripting
 
             private void Play_MouseUp(object sender, MouseEventArgs e)
             {
-                if (Script != null && Script.GetScript != null)
+                if (Script != null)
                 {
-                    if (Script.GetScript.IsPlaying)
+                    if (Script.IsPlaying || (Script.GetScript != null && Script.GetScript.IsPlaying))
                         LegionScripting.StopScript(Script);
                     else
                         LegionScripting.PlayScript(Script);
@@ -542,7 +541,7 @@ namespace ClassicUO.LegionScripting
 
             private void SetBGColors()
             {
-                if (Script.GetScript != null && Script.GetScript.IsPlaying)
+                if (Script.IsPlaying || (Script.GetScript != null && Script.GetScript.IsPlaying))
                     background.BaseColor = Color.DarkGreen;
                 else
                     background.BaseColor = Color.DarkRed;

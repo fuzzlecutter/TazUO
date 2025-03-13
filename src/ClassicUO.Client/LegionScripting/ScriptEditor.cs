@@ -83,7 +83,8 @@ namespace ClassicUO.LegionScripting
             {
                 File.WriteAllText(ScriptFile.FullPath, sb);
                 GameActions.Print($"Saved {ScriptFile.FileName}.");
-                ScriptFile.ReloadFromFile();
+                if (ScriptFile.ScriptType == ScriptType.LegionScript)
+                    ScriptFile.ReloadFromFile();
             }
             catch (Exception ex)
             {
