@@ -584,6 +584,9 @@ namespace ClassicUO.Configuration
             public string AutoSellMenu { get; set; } = "Auto Sell";
             public string AutoSellEnable { get; set; } = "Enable auto sell feature";
 
+            public string AutoBuyMenu { get; set; } = "Auto Buy";
+            public string AutoBuyEnable { get; set; } = "Enable auto buy feature";
+
             #region VisibileLayers
             public string VisibleLayers { get; set; } = "Visible Layers";
             public string VisLayersInfo { get; set; } = "These settings are to hide layers on in-game mobiles. Check the box to hide that layer.";

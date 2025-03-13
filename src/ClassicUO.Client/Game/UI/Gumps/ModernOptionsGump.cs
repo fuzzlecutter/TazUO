@@ -2782,10 +2782,27 @@ namespace ClassicUO.Game.UI.Gumps
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.AutoSellMenu, page, content.LeftWidth));
             content.ResetRightSide();
 
+            content.AddToRight(new HttpClickableLink("Auto Sell Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Auto-Sell-Agent", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
+
             content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AutoSellEnable, 0, profile.SellAgentEnabled, b => profile.SellAgentEnabled = b), true, page);
             content.BlankLine();
 
             content.AddToRight(new SellAgentConfigs(content.RightWidth - Theme.SCROLL_BAR_WIDTH - 10), true, page);
+            #endregion
+
+            #region Auto buy
+            page = ((int)PAGE.TUOOptions + 1014);
+            content.AddToLeft(SubCategoryButton(lang.GetTazUO.AutoBuyMenu, page, content.LeftWidth));
+            content.ResetRightSide();
+
+            content.AddToRight(new HttpClickableLink("Auto Buy Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Auto-Buy-Agent", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
+
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AutoBuyEnable, 0, profile.BuyAgentEnabled, b => profile.BuyAgentEnabled = b), true, page);
+            content.BlankLine();
+
+            content.AddToRight(new BuyAgentConfigs(content.RightWidth - Theme.SCROLL_BAR_WIDTH - 10), true, page);
             #endregion
 
             options.Add(
@@ -3022,6 +3039,150 @@ namespace ClassicUO.Game.UI.Gumps
         }
 
         #region Custom Controls For Options
+        private class BuyAgentConfigs : Control
+        {
+            private DataBox _dataBox;
+            public BuyAgentConfigs(int width)
+            {
+                AcceptMouseInput = true;
+                CanMove = true;
+                Width = width;
+
+                Add(_dataBox = new DataBox(0, 0, width, 0));
+
+                ModernButton b;
+                _dataBox.Add(b = new ModernButton(0, 0, 100, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Add entry", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    _dataBox.Insert(3, GenConfigEntry(BuySellAgent.Instance.NewBuyConfig(), width));
+                    RearrangeDataBox();
+                };
+
+                _dataBox.Add(b = new ModernButton(0, 0, 150, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Target item", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    TargetHelper.TargetObject((e) =>
+                    {
+                        if (e == null) return;
+                        var sc = BuySellAgent.Instance.NewBuyConfig();
+                        sc.Graphic = e.Graphic;
+                        sc.Hue = e.Hue;
+                        _dataBox.Insert(3, GenConfigEntry(sc, width));
+                        RearrangeDataBox();
+                    });
+                };
+
+                Area titles = new Area(false);
+                titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 50 });
+                titles.Add(new TextBox("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 60) / 3) + 55 });
+                titles.Add(new TextBox("Max Amount", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = (((width - 90 - 60) / 3) * 2) + 60 });
+                titles.ForceSizeUpdate();
+                _dataBox.Add(titles);
+
+                if (BuySellAgent.Instance.BuyConfigs != null)
+                    foreach (var item in BuySellAgent.Instance.BuyConfigs)
+                    {
+                        _dataBox.Add(GenConfigEntry(item, width));
+                    }
+                RearrangeDataBox();
+            }
+
+            private Control GenConfigEntry(BuySellItemConfig itemConfig, int width)
+            {
+                int ewidth = (width - 90 - 60) / 3;
+
+                Area area = new Area() { Width = width, Height = 50 };
+
+                int x = 0;
+                if (itemConfig.Graphic > 0)
+                {
+                    ResizableStaticPic rsp;
+                    area.Add(rsp = new ResizableStaticPic(itemConfig.Graphic, 50, 50) { Hue = (ushort)(itemConfig.Hue == ushort.MaxValue ? 0 : itemConfig.Hue) });
+                }
+                x += 50;
+
+                InputField graphicInput = new InputField(ewidth, 50, 100, -1, itemConfig.Graphic.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox graphicInput = (InputField.StbTextBox)s;
+                    if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
+                    {
+                        itemConfig.Graphic = ngh;
+                    }
+                    else if (ushort.TryParse(graphicInput.Text, out var ng))
+                    {
+                        itemConfig.Graphic = ng;
+                    }
+                })
+                { X = x };
+                graphicInput.SetTooltip("Graphic");
+                area.Add(graphicInput);
+                x += graphicInput.Width + 5;
+
+
+                InputField hueInput = new InputField(ewidth, 50, 100, -1, itemConfig.Hue == ushort.MaxValue ? "-1" : itemConfig.Hue.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox hueInput = (InputField.StbTextBox)s;
+                    if (hueInput.Text == "-1")
+                    {
+                        itemConfig.Hue = ushort.MaxValue;
+                    }
+                    else if (ushort.TryParse(hueInput.Text, out var ng))
+                    {
+                        itemConfig.Hue = ng;
+                    }
+                })
+                { X = x };
+                hueInput.SetTooltip("Hue (-1 to match any)");
+                area.Add(hueInput);
+                x += hueInput.Width + 5;
+
+                InputField maxInput = new InputField(ewidth, 50, 100, -1, itemConfig.MaxAmount.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox maxInput = (InputField.StbTextBox)s;
+                    if (ushort.TryParse(maxInput.Text, out var ng))
+                    {
+                        itemConfig.MaxAmount = ng;
+                    }
+                })
+                { X = x };
+                maxInput.SetTooltip("Max Amount");
+                area.Add(maxInput);
+                x += maxInput.Width + 5;
+
+                CheckboxWithLabel enabled = new CheckboxWithLabel(isChecked: itemConfig.Enabled, valueChanged: (e) =>
+                {
+                    itemConfig.Enabled = e;
+                })
+                { X = x };
+                enabled.Y = (area.Height - enabled.Height) >> 1;
+                enabled.SetTooltip("Enable this entry?");
+                area.Add(enabled);
+                x += enabled.Width;
+
+                NiceButton delete;
+                area.Add(delete = new NiceButton(x, 0, area.Width - x, 49, ButtonAction.Activate, "X") { IsSelectable = false, DisplayBorder = true });
+                delete.SetTooltip("Delete this entry");
+                delete.MouseUp += (s, e) =>
+                {
+                    if (e.Button == Input.MouseButtonType.Left)
+                    {
+                        BuySellAgent.Instance?.DeleteConfig(itemConfig);
+                        area.Dispose();
+                        RearrangeDataBox();
+                    }
+                };
+
+                return area;
+            }
+
+            private void RearrangeDataBox()
+            {
+                _dataBox.ReArrangeChildren();
+                _dataBox.ForceSizeUpdate();
+                Height = _dataBox.Height;
+            }
+        }
+
         private class SellAgentConfigs : Control
         {
             private DataBox _dataBox;
@@ -3037,7 +3198,7 @@ namespace ClassicUO.Game.UI.Gumps
                 _dataBox.Add(b = new ModernButton(0, 0, 100, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Add entry", Theme.BUTTON_FONT_COLOR));
                 b.MouseUp += (s, e) =>
                 {
-                    _dataBox.Insert(2, GenConfigEntry(BuySellAgent.Instance.NewSellConfig(), width));
+                    _dataBox.Insert(3, GenConfigEntry(BuySellAgent.Instance.NewSellConfig(), width));
                     RearrangeDataBox();
                 };
 
@@ -3050,7 +3211,7 @@ namespace ClassicUO.Game.UI.Gumps
                         var sc = BuySellAgent.Instance.NewSellConfig();
                         sc.Graphic = e.Graphic;
                         sc.Hue = e.Hue;
-                        _dataBox.Insert(2, GenConfigEntry(sc, width));
+                        _dataBox.Insert(3, GenConfigEntry(sc, width));
                         RearrangeDataBox();
                     });
                 };
