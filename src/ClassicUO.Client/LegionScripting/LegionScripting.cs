@@ -35,7 +35,7 @@ namespace ClassicUO.LegionScripting
 
         public static void Init()
         {
-            Python.CreateEngine();
+            Task.Factory.StartNew(() => Python.CreateEngine());
             ScriptPath = Path.GetFullPath(Path.Combine(CUOEnviroment.ExecutablePath, "LegionScripts"));
 
             if (!_loaded)
@@ -316,7 +316,8 @@ namespace ClassicUO.LegionScripting
             try
             {
                 script.pythonEngine.Execute(script.FileContentsJoined, script.pythonScope);
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 GameActions.Print("Python Script Error:");
                 GameActions.Print(e.Message);

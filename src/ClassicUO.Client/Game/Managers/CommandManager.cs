@@ -39,6 +39,7 @@ using ClassicUO.Resources;
 using ClassicUO.Utility.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace ClassicUO.Game.Managers
@@ -51,6 +52,18 @@ namespace ClassicUO.Game.Managers
 
         public static void Initialize()
         {
+            Register
+            (
+                "genpydoc",
+                s =>
+                {
+                    var md = GenDoc.GenerateMarkdown(typeof(LegionScripting.API));
+                    var path = Path.Combine(CUOEnviroment.ExecutablePath, "Data", "PythonDocs.md");
+                    File.WriteAllText(path, md);
+                    GameActions.Print("Python API docs generated and saved to: " + path);
+                }
+            );
+
             Register
             (
                 "info",

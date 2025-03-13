@@ -39,16 +39,27 @@ namespace ClassicUO.LegionScripting
             resultEvent.WaitOne();
         }
 
-        public uint Found;
+        #region Properties
+        /// <summary>
+        /// Used for methods searching for items that don't return the item.
+        /// </summary>
+        public uint Found { get; private set; }
 
-        public void SysMsg(string message) => InvokeOnMainThread(() => GameActions.Print(message));
-        public PlayerMobile Player() => InvokeOnMainThread(() => World.Player);
+        /// <summary>
+        /// Get the players backpack
+        /// </summary>
+        public Item Backpack { get { return InvokeOnMainThread(() => World.Player.FindItemByLayer(Game.Data.Layer.Backpack)); } }
+        public PlayerMobile Player { get { return InvokeOnMainThread(() => World.Player); } }
+        #endregion
+
+        #region Methods
+        public void SysMsg(string message, ushort hue = 946) => InvokeOnMainThread(() => GameActions.Print(message, hue));
         public Item FindItem(uint serial) => InvokeOnMainThread(() => World.Items.Get(serial));
-        public bool FindType(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = ushort.MaxValue) =>
+        public bool FindType(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
             InvokeOnMainThread(() =>
             {
                 List<Item> result = Utility.FindItems(graphic, uint.MaxValue, uint.MaxValue, container, hue, range);
-                if (result.Count > 0)
+                if (result.Count > 0 && result[0].Amount >= minamount)
                 {
                     Found = result[0].Serial;
                     return true;
@@ -56,7 +67,7 @@ namespace ClassicUO.LegionScripting
 
                 return false;
             });
-
-        public Item Backpack() => InvokeOnMainThread(() => World.Player.FindItemByLayer(Game.Data.Layer.Backpack));
+        public void UseObject(uint obj, bool skipQueue = true) => InvokeOnMainThread(() => { if (skipQueue) GameActions.DoubleClick(obj); else GameActions.DoubleClickQueued(obj); });
+        #endregion
     }
 }
