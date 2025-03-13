@@ -135,6 +135,9 @@ namespace ClassicUO.Game.UI.Controls
             _background = new AlphaBlendControl(0.7f);
             Add(_background);
 
+            ScrollArea _scroll = new ScrollArea(0, 0, 0, 0, true);
+            Add(_scroll);
+
             int y = 0;
 
             for (int i = 0; i < list.Count; i++)
@@ -153,10 +156,18 @@ namespace ClassicUO.Game.UI.Controls
 
                 _background.Height += item.Height;
 
-                Add(item);
+                _scroll.Add(item);
 
                 y += item.Height;
             }
+
+            if(y >= Client.Game.Window.ClientBounds.Height >> 1)
+            {
+                y = Client.Game.Window.ClientBounds.Height >> 1;
+            }
+
+            _scroll.Height = Height = _background.Height = y;
+            _scroll.Width = _background.Width;
 
             X = Mouse.Position.X + 5;
             Y = Mouse.Position.Y - 20;
