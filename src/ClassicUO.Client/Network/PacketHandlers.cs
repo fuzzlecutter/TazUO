@@ -1406,10 +1406,12 @@ namespace ClassicUO.Network
                             first = first.Next;
                         }
                     }
+                    List<Item> buyList = new List<Item>();
 
                     while (first != null)
                     {
                         Item it = (Item)first;
+                        buyList.Add(it);
                         if (ProfileManager.CurrentProfile.UseModernShopGump)
                             modernShopGump.AddItem
                             (
@@ -1442,6 +1444,8 @@ namespace ClassicUO.Network
                             first = first.Next;
                         }
                     }
+
+                    BuySellAgent.Instance?.HandleBuyPacket(buyList, serial);
                 }
             }
             else
@@ -3514,6 +3518,8 @@ namespace ClassicUO.Network
 
                 //if (string.IsNullOrEmpty(item.Name))
                 //    item.Name = name;
+                BuySellAgent.Instance?.HandleSellPacket(vendor, serial, graphic, hue, amount, price);
+
                 if (ProfileManager.CurrentProfile.UseModernShopGump)
                     modernGump.AddItem
                         (
@@ -3542,6 +3548,8 @@ namespace ClassicUO.Network
                 UIManager.Add(modernGump);
             else
                 UIManager.Add(gump);
+
+            BuySellAgent.Instance?.HandleSellPacketFinished(vendor);
         }
 
         private static void UpdateHitpoints(ref StackDataReader p)

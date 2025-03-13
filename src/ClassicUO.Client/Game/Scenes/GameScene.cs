@@ -223,6 +223,7 @@ namespace ClassicUO.Game.Scenes
             }
 
             LegionScripting.LegionScripting.Init();
+            BuySellAgent.Load();
         }
 
         private void ChatOnMessageReceived(object sender, MessageEventArgs e)
@@ -361,6 +362,8 @@ namespace ClassicUO.Game.Scenes
             {
                 return;
             }
+
+            BuySellAgent.Unload();
 
             LegionScripting.LegionScripting.Unload();
 

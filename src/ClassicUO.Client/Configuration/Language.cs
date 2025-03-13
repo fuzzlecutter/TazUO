@@ -581,6 +581,9 @@ namespace ClassicUO.Configuration
             public string AutoLootProgessBarEnable { get; set; } = "Show progress bar while looting";
             public string AutoLootHumanCorpses { get; set; } = "Loot human corpses? (Potentially player corpses)";
 
+            public string AutoSellMenu { get; set; } = "Auto Sell";
+            public string AutoSellEnable { get; set; } = "Enable auto sell feature";
+
             #region VisibileLayers
             public string VisibleLayers { get; set; } = "Visible Layers";
             public string VisLayersInfo { get; set; } = "These settings are to hide layers on in-game mobiles. Check the box to hide that layer.";
