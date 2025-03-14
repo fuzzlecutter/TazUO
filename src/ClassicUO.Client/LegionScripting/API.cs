@@ -7,6 +7,7 @@ using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Network;
+using IronPython.Runtime.Operations;
 
 namespace ClassicUO.LegionScripting
 {
@@ -152,7 +153,23 @@ namespace ClassicUO.LegionScripting
 
                 return false;
             });
+        public Tuple<bool, uint> FindLayer(string layer, uint serial = uint.MaxValue) => InvokeOnMainThread(()=>{
+            Mobile m = serial == uint.MaxValue ? World.Player : World.Mobiles.Get(serial);
+            if(m != null){
+                Layer matchedLayer = Utility.GetItemLayer(layer.ToLower());
+                Item item = m.FindItemByLayer(matchedLayer);
+                if(item != null)
+                {
+                    Found = item;
+                    return new Tuple<bool, uint>(true, item);
+                }
+            }
+            return new Tuple<bool, uint>(false, 0);
+        });
         public void UseObject(uint serial, bool skipQueue = true) => InvokeOnMainThread(() => { if (skipQueue) GameActions.DoubleClick(serial); else GameActions.DoubleClickQueued(serial); });
+        public void CreateCooldownBar(double seconds, string text, ushort hue) => InvokeOnMainThread(()=>{
+            Game.Managers.CoolDownBarManager.AddCoolDownBar(TimeSpan.FromSeconds(seconds), text, hue, false);
+        });
         #endregion
     }
 }
