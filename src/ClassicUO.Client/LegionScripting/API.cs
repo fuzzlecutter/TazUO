@@ -3,7 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using ClassicUO.Game;
+using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
+using ClassicUO.Game.UI.Gumps;
+using ClassicUO.Network;
 
 namespace ClassicUO.LegionScripting
 {
@@ -52,6 +55,20 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         public Item Backpack { get { return InvokeOnMainThread(() => World.Player.FindItemByLayer(Game.Data.Layer.Backpack)); } }
         public PlayerMobile Player { get { return InvokeOnMainThread(() => World.Player); } }
+        public enum Direction : byte
+        {
+            North = 0x00,
+            Right = 0x01,
+            East = 0x02,
+            Down = 0x03,
+            South = 0x04,
+            Left = 0x05,
+            West = 0x06,
+            Up = 0x07,
+            Mask = 0x7,
+            Running = 0x80,
+            NONE = 0xED
+        }
         #endregion
 
         #region Methods
@@ -82,10 +99,45 @@ namespace ClassicUO.LegionScripting
             if (i != null) return i.Amount;
             return 0;
         });
+        public void ContextMenu(uint serial, ushort entry) => InvokeOnMainThread(() =>
+        {
+            PopupMenuGump.CloseNext = serial;
+            NetClient.Socket.Send_RequestPopupMenu(serial);
+            NetClient.Socket.Send_PopupMenuSelection(serial, entry);
+        });
+        public void EquipItem(uint serial) => InvokeOnMainThread(() =>
+        {
+            if (GameActions.PickUp(serial, 0, 0, 1))
+                GameActions.Equip(serial);
+        });
         public void MoveItem(uint serial, uint destination, int amt = 0, int x = 0xFFFF, int y = 0xFFFF) => InvokeOnMainThread(() =>
         {
             if (GameActions.PickUp(serial, 0, 0, amt))
                 GameActions.DropItem(serial, x, y, 0, destination);
+        });
+        public void UseSkill(string skillName) => InvokeOnMainThread(() =>
+        {
+            if (skillName.Length > 0)
+            {
+                for (int i = 0; i < World.Player.Skills.Length; i++)
+                {
+                    if (World.Player.Skills[i].Name.IndexOf(skillName, StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        GameActions.UseSkill(World.Player.Skills[i].Index);
+                        break;
+                    }
+                }
+            }
+        });
+        public bool BuffExists(string buffName) => InvokeOnMainThread(() =>
+        {
+            foreach (BuffIcon buff in World.Player.BuffIcons.Values)
+            {
+                if (buff.Title.Contains(buffName))
+                    return true;
+            }
+
+            return false;
         });
         public void SysMsg(string message, ushort hue = 946) => InvokeOnMainThread(() => GameActions.Print(message, hue));
         public Item FindItem(uint serial) => InvokeOnMainThread(() => World.Items.Get(serial));
