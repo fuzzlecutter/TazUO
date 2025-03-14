@@ -37,9 +37,11 @@ public static class GenDoc
         }
         sb.AppendLine();
 
+        GenEnums(type, ref sb, ref python);
+
         // List methods
         sb.AppendLine("## Methods");
-        var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Where(m => !m.IsSpecialName);;
+        var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Where(m => !m.IsSpecialName); ;
         if (methods.Any())
         {
             foreach (var method in methods)
@@ -69,6 +71,31 @@ public static class GenDoc
         return sb.ToString();
     }
 
+    private static void GenEnums(Type type, ref StringBuilder sb, ref StringBuilder python)
+    {
+        // List enums
+        sb.AppendLine("## Enums");
+        var enums = type.GetNestedTypes(BindingFlags.Public).Where(t => t.IsEnum);
+        if (enums.Any())
+        {
+            foreach (var enumType in enums)
+            {
+                sb.AppendLine($"### {enumType.Name}");
+                sb.AppendLine("| Name | Value |");
+                sb.AppendLine("| --- | --- |");
+                foreach (var enumValue in Enum.GetValues(enumType))
+                {
+                    sb.AppendLine($"| {enumValue} | {(byte)enumValue} |");
+                }
+                sb.AppendLine();
+            }
+        }
+        else
+        {
+            sb.AppendLine("_No enums found._");
+        }
+        sb.AppendLine();
+    }
     private static void GenReturnType(Type returnType, ref StringBuilder sb)
     {
         if (returnType != typeof(void))
@@ -131,7 +158,7 @@ public static class GenDoc
         foreach (var param in parameters)
         {
             sb.Append($"{param.Name}");
-            if(param.IsOptional) sb.Append("=None");
+            if (param.IsOptional) sb.Append("=None");
             sb.Append(", ");
         }
         sb.Remove(sb.Length - 2, 2);
