@@ -1137,6 +1137,13 @@ namespace ClassicUO.Game.Scenes
             int winGamePosY = 0;
             int winGameWidth = Camera.Bounds.Width;
             int winGameHeight = Camera.Bounds.Height;
+
+            if (ProfileManager.CurrentProfile.GlobalScaling && ProfileManager.CurrentProfile.GameWindowFullSize)
+            {
+                winGameWidth = (int)(winGameWidth / ProfileManager.CurrentProfile.GlobalScale);
+                winGameHeight = (int)(winGameHeight / ProfileManager.CurrentProfile.GlobalScale);
+            }
+
             int winGameCenterX = winGamePosX + (winGameWidth >> 1);
             int winGameCenterY = winGamePosY + (winGameHeight >> 1) + (World.Player.Z << 2);
             winGameCenterX -= (int)World.Player.Offset.X - ProfileManager.CurrentProfile.PlayerOffset.X;
@@ -1184,8 +1191,9 @@ namespace ClassicUO.Game.Scenes
             }
 
             int realMinRangeX = Math.Max(0, tileOffX - size);
-            int realMaxRangeX = tileOffX + size;
             int realMinRangeY = Math.Max(0, tileOffY - size);
+
+            int realMaxRangeX = tileOffX + size;
             int realMaxRangeY = tileOffY + size;
 
             int drawOffset = (int)(44 / zoom);
