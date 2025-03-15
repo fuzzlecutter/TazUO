@@ -857,7 +857,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 foreach (var tt in timedTexts)
                 {
-                    if(tt == null) continue;
+                    if (tt == null) continue;
                     if (tt.IsDisposed)
                     {
                         delMe.Add(tt);
@@ -866,7 +866,7 @@ namespace ClassicUO.Game.UI.Gumps
                     tt.Y -= t.Height + 5;
                 }
 
-                foreach (var tt in delMe) 
+                foreach (var tt in delMe)
                     timedTexts.Remove(tt);
 
                 UIManager.Add(t);
@@ -1548,7 +1548,12 @@ namespace ClassicUO.Game.UI.Gumps
                             if (itemData.HasData)
                                 foreach (GridHighlightData configData in highlightConfigs) //For each highlight configuration
                                 {
-                                    if (configData.IsMatch(itemData)) item.Value.SetHighLightBorder(configData.Hue);
+                                    if (configData.IsMatch(itemData))
+                                    {
+                                        item.Value.SetHighLightBorder(configData.Hue);
+                                        if (CUOEnviroment.Debug)
+                                            GameActions.Print($"Item {item.Value.SlotItem.Name} matched grid highlight: {configData.Name}");
+                                    }
                                 }
                         }
                     }
