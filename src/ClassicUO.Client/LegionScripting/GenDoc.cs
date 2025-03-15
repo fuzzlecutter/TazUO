@@ -100,7 +100,23 @@ public static class GenDoc
     {
         if (returnType != typeof(void))
         {
-            sb.AppendLine($"#### Return Type: *{returnType.Name}*");
+            if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Tuple<,>))
+            {
+                sb.AppendLine();
+                sb.Append("#### Return Type: *Tuple(");
+
+                var genericArguments = returnType.GetGenericArguments();
+                for (int i = 0; i < genericArguments.Length; i++)
+                {
+                    sb.Append($"{genericArguments[i].Name}, ");
+                }
+                if (genericArguments.Length > 0) sb.Remove(sb.Length - 2, 2);
+                sb.Append(")*");
+            }
+            else
+            {
+                sb.AppendLine($"#### Return Type: *{returnType.Name}*");
+            }
         }
         else
         {

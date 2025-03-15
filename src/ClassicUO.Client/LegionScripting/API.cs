@@ -7,7 +7,6 @@ using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Network;
-using IronPython.Runtime.Operations;
 
 namespace ClassicUO.LegionScripting
 {
@@ -45,13 +44,6 @@ namespace ClassicUO.LegionScripting
 
         #region Properties
         /// <summary>
-        /// Used for methods searching for items that don't return the item.
-        /// </summary>
-        public uint Found { get; private set; }
-        public uint LeftHandClearedItem { get; private set; }
-        public uint RightHandClearedItem { get; private set; }
-
-        /// <summary>
         /// Get the players backpack
         /// </summary>
         public Item Backpack { get { return InvokeOnMainThread(() => World.Player.FindItemByLayer(Game.Data.Layer.Backpack)); } }
@@ -74,23 +66,25 @@ namespace ClassicUO.LegionScripting
         #region Methods
         public void Attack(uint serial) => InvokeOnMainThread(() => GameActions.Attack(serial));
         public bool BandageSelf() => InvokeOnMainThread(GameActions.BandageSelf);
-        public void ClearLeftHand() => InvokeOnMainThread(() =>
+        public Item ClearLeftHand() => InvokeOnMainThread(() =>
         {
             Item i = World.Player.FindItemByLayer(Game.Data.Layer.OneHanded);
             if (i != null)
             {
                 GameActions.GrabItem(i, i.Amount, Backpack);
-                LeftHandClearedItem = i;
+                return i;
             }
+            return null;
         });
-        public void ClearRightHand() => InvokeOnMainThread(() =>
+        public Item ClearRightHand() => InvokeOnMainThread(() =>
         {
             Item i = World.Player.FindItemByLayer(Game.Data.Layer.TwoHanded);
             if (i != null)
             {
                 GameActions.GrabItem(i, i.Amount, Backpack);
-                RightHandClearedItem = i;
+                return i;
             }
+            return null;
         });
         public void ClickObject(uint serial) => InvokeOnMainThread(() => GameActions.SingleClick(serial));
         public int Contents(uint serial) => InvokeOnMainThread(() =>
@@ -141,33 +135,32 @@ namespace ClassicUO.LegionScripting
         });
         public void SysMsg(string message, ushort hue = 946) => InvokeOnMainThread(() => GameActions.Print(message, hue));
         public Item FindItem(uint serial) => InvokeOnMainThread(() => World.Items.Get(serial));
-        public bool FindType(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
+        public Item FindType(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
             InvokeOnMainThread(() =>
             {
                 List<Item> result = Utility.FindItems(graphic, uint.MaxValue, uint.MaxValue, container, hue, range);
                 if (result.Count > 0 && result[0].Amount >= minamount)
                 {
-                    Found = result[0].Serial;
-                    return true;
+                    return result[0];
                 }
 
-                return false;
+                return null;
             });
-        public Tuple<bool, uint> FindLayer(string layer, uint serial = uint.MaxValue) => InvokeOnMainThread(()=>{
+        public Item FindLayer(string layer, uint serial = uint.MaxValue) => InvokeOnMainThread(() =>
+        {
             Mobile m = serial == uint.MaxValue ? World.Player : World.Mobiles.Get(serial);
-            if(m != null){
+            if (m != null)
+            {
                 Layer matchedLayer = Utility.GetItemLayer(layer.ToLower());
                 Item item = m.FindItemByLayer(matchedLayer);
-                if(item != null)
-                {
-                    Found = item;
-                    return new Tuple<bool, uint>(true, item);
-                }
+                if (item != null)
+                    return item;
             }
-            return new Tuple<bool, uint>(false, 0);
+            return null;
         });
         public void UseObject(uint serial, bool skipQueue = true) => InvokeOnMainThread(() => { if (skipQueue) GameActions.DoubleClick(serial); else GameActions.DoubleClickQueued(serial); });
-        public void CreateCooldownBar(double seconds, string text, ushort hue) => InvokeOnMainThread(()=>{
+        public void CreateCooldownBar(double seconds, string text, ushort hue) => InvokeOnMainThread(() =>
+        {
             Game.Managers.CoolDownBarManager.AddCoolDownBar(TimeSpan.FromSeconds(seconds), text, hue, false);
         });
         #endregion
