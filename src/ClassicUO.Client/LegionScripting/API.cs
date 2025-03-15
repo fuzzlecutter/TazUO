@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
@@ -41,6 +42,8 @@ namespace ClassicUO.LegionScripting
             QueuedPythonActions.Enqueue(wrappedAction);
             resultEvent.WaitOne();
         }
+
+        private ConcurrentDictionary<uint, byte> ignoreList = new ConcurrentDictionary<uint, byte>();
 
         #region Properties
         /// <summary>
@@ -139,11 +142,13 @@ namespace ClassicUO.LegionScripting
             InvokeOnMainThread(() =>
             {
                 List<Item> result = Utility.FindItems(graphic, uint.MaxValue, uint.MaxValue, container, hue, range);
-                if (result.Count > 0 && result[0].Amount >= minamount)
+                foreach (Item i in result)
                 {
-                    return result[0];
+                    if (i.Amount >= minamount && !ignoreList.ContainsKey(i))
+                    {
+                        return i;
+                    }
                 }
-
                 return null;
             });
         public Item FindLayer(string layer, uint serial = uint.MaxValue) => InvokeOnMainThread(() =>
@@ -163,6 +168,8 @@ namespace ClassicUO.LegionScripting
         {
             Game.Managers.CoolDownBarManager.AddCoolDownBar(TimeSpan.FromSeconds(seconds), text, hue, false);
         });
+        public void IgnoreObject(uint serial) => ignoreList.TryAdd(serial, 0);
+        public void ClearIgnoreList() => ignoreList.Clear();
         #endregion
     }
 }
