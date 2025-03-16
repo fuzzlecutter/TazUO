@@ -3370,7 +3370,7 @@ namespace ClassicUO.Game.UI.Gumps
                 if (autoLootItem.Graphic > 0)
                 {
                     ResizableStaticPic rsp;
-                    area.Add(rsp = new ResizableStaticPic(autoLootItem.Graphic, 50, 50) { Hue = (ushort)(autoLootItem.Hue == ushort.MaxValue ? 0 : autoLootItem.Hue) });
+                    area.Add(rsp = new ResizableStaticPic((uint)autoLootItem.Graphic, 50, 50) { Hue = (ushort)(autoLootItem.Hue == ushort.MaxValue ? 0 : autoLootItem.Hue) });
                     rsp.SetTooltip(autoLootItem.Name);
                 }
                 x += 50;
@@ -3378,11 +3378,11 @@ namespace ClassicUO.Game.UI.Gumps
                 InputField graphicInput = new InputField(ewidth, 50, 100, -1, autoLootItem.Graphic.ToString(), false, (s, e) =>
                 {
                     InputField.StbTextBox graphicInput = (InputField.StbTextBox)s;
-                    if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
+                    if (graphicInput.Text.StartsWith("0x") && short.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
                     {
                         autoLootItem.Graphic = ngh;
                     }
-                    else if (ushort.TryParse(graphicInput.Text, out var ng))
+                    else if (short.TryParse(graphicInput.Text, out var ng))
                     {
                         autoLootItem.Graphic = ng;
                     }

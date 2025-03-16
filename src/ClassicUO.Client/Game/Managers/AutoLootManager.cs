@@ -89,7 +89,7 @@ namespace ClassicUO.Game.Managers
         /// <returns></returns>
         public AutoLootItem AddAutoLootEntry(ushort graphic = 0, ushort hue = ushort.MaxValue, string name = "")
         {
-            AutoLootItem item = new AutoLootItem() { Graphic = graphic, Hue = hue, Name = name };
+            AutoLootItem item = new AutoLootItem() { Graphic = (short)graphic, Hue = hue, Name = name };
 
             foreach (AutoLootItem entry in autoLootItems)
             {
@@ -240,10 +240,10 @@ namespace ClassicUO.Game.Managers
         public class AutoLootItem
         {
             public string Name { get; set; } = "";
-            public ushort Graphic { get; set; } = 0;
+            public short Graphic { get; set; } = 0;
             public ushort Hue { get; set; } = ushort.MaxValue;
             public string RegexSearch { get; set; } = string.Empty;
-            private bool RegexMatch => RegexSearch != string.Empty;
+            private bool RegexMatch => !string.IsNullOrEmpty(RegexSearch);
             /// <summary>
             /// Do not set this manually.
             /// </summary>
@@ -251,7 +251,7 @@ namespace ClassicUO.Game.Managers
 
             public bool Match(Item compareTo)
             {
-                if (Graphic != compareTo.Graphic) return false;
+                if (Graphic != -1 && Graphic != compareTo.Graphic) return false;
 
                 if (!HueCheck(compareTo.Hue)) return false;
 
