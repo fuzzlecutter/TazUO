@@ -152,6 +152,13 @@ namespace ClassicUO.LegionScripting
                 }
                 return null;
             });
+
+        /// <summary>
+        /// Attempt to find an item on a layer
+        /// </summary>
+        /// <param name="layer">The layer to check, see https://github.com/bittiez/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Layers.cs</param>
+        /// <param name="serial">Optional, if not set it will check yourself, otherwise it will check the mobile requested</param>
+        /// <returns></returns>
         public Item FindLayer(string layer, uint serial = uint.MaxValue) => InvokeOnMainThread(() =>
         {
             Mobile m = serial == uint.MaxValue ? World.Player : World.Mobiles.Get(serial);
@@ -164,6 +171,12 @@ namespace ClassicUO.LegionScripting
             }
             return null;
         });
+
+        /// <summary>
+        /// Attempt to use(double click) an object.
+        /// </summary>
+        /// <param name="serial">The serial</param>
+        /// <param name="skipQueue">Defaults true, set to false to use a double click queue</param>
         public void UseObject(uint serial, bool skipQueue = true) => InvokeOnMainThread(() => { if (skipQueue) GameActions.DoubleClick(serial); else GameActions.DoubleClickQueued(serial); });
 
         /// <summary>
@@ -243,6 +256,57 @@ namespace ClassicUO.LegionScripting
         /// Cancel auto follow mode
         /// </summary>
         public void CancelAutoFollow() => InvokeOnMainThread(() => ProfileManager.CurrentProfile.FollowingMode = false);
+
+        /// <summary>
+        /// Attempt to rename something like a pet
+        /// </summary>
+        /// <param name="serial">Serial of the mobile to rename</param>
+        /// <param name="name">The new name</param>
+        public void Rename(uint serial, string name) => InvokeOnMainThread(() => { GameActions.Rename(serial, name); });
+
+        /// <summary>
+        /// Attempt to dismount if mounted
+        /// </summary>
+        /// <returns>Returns the serial of your mount</returns>
+        public uint Dismount() => InvokeOnMainThread<uint>(() =>
+        {
+            Item mount = World.Player.FindItemByLayer(Layer.Mount);
+            if (mount != null)
+            {
+                GameActions.DoubleClick(World.Player);
+                return mount.Serial;
+            }
+            return 0;
+        });
+
+        /// <summary>
+        /// Attempt to mount(double click) 
+        /// </summary>
+        /// <param name="serial"></param>
+        public void Mount(uint serial) => InvokeOnMainThread(() => { GameActions.DoubleClick(serial); });
+
+        /// <summary>
+        /// Attempt to use the first item found by graphic(type)
+        /// </summary>
+        /// <param name="graphic">Graphic/Type</param>
+        /// <param name="hue">Hue of item</param>
+        /// <param name="container">Parent container</param>
+        /// <param name="skipQueue">Defaults to true, set to false to queue the double click</param>
+        public void UseType(uint graphic, ushort hue = ushort.MaxValue, uint container = uint.MaxValue, bool skipQueue = true) => InvokeOnMainThread(() =>
+        {
+            var result = Utility.FindItems(graphic, hue: hue, parentContainer: container);
+            foreach (Item i in result)
+            {
+                if (!ignoreList.ContainsKey(i))
+                {
+                    if (skipQueue)
+                        GameActions.DoubleClick(i);
+                    else
+                        GameActions.DoubleClickQueued(i);
+                    return;
+                }
+            }
+        });
         #endregion
     }
 }
