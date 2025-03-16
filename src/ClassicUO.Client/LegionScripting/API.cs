@@ -164,12 +164,64 @@ namespace ClassicUO.LegionScripting
             return null;
         });
         public void UseObject(uint serial, bool skipQueue = true) => InvokeOnMainThread(() => { if (skipQueue) GameActions.DoubleClick(serial); else GameActions.DoubleClickQueued(serial); });
+        
+        /// <summary>
+        /// Create a cooldown bar
+        /// </summary>
+        /// <param name="seconds">Duration in seconds for the cooldown bar</param>
+        /// <param name="text">Text on the cooldown bar</param>
+        /// <param name="hue">Hue to color the cooldown bar</param>
         public void CreateCooldownBar(double seconds, string text, ushort hue) => InvokeOnMainThread(() =>
         {
             Game.Managers.CoolDownBarManager.AddCoolDownBar(TimeSpan.FromSeconds(seconds), text, hue, false);
         });
+        
+        /// <summary>
+        /// Adds an item or mobile to your ignore list.
+        /// </summary>
+        /// <param name="serial">The item/mobile serial</param>
         public void IgnoreObject(uint serial) => ignoreList.TryAdd(serial, 0);
+        
+        /// <summary>
+        /// Clears the ignore list
+        /// </summary>
         public void ClearIgnoreList() => ignoreList.Clear();
+        
+        /// <summary>
+        /// Attempt to pathfind to a location
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <param name="distance">Distance away from goal to stop.</param>
+        public void Pathfind(int x, int y, int z, int distance = 0) => InvokeOnMainThread(() =>
+        {
+            Pathfinder.WalkTo(x, y, z, distance);
+        });
+        
+        /// <summary>
+        /// Attempt to pathfind to a mobile or item
+        /// </summary>
+        /// <param name="entity">The mobile or item</param>
+        /// <param name="distance">Distance to stop from goal</param>
+        public void Pathfind(uint entity, int distance = 0) => InvokeOnMainThread(() =>
+        {
+            var mob = World.Get(entity);
+            if (mob != null)
+            {
+                if (mob is Mobile)
+                    Pathfinder.WalkTo(mob.X, mob.Y, mob.Z, distance);
+                else if (mob is Item i && i.OnGround)
+                    Pathfinder.WalkTo(i.X, i.Y, i.Z, distance);
+            }
+
+        });
+        
+        /// <summary>
+        /// Check if you are already pathfinding.
+        /// </summary>
+        /// <returns>true/false</returns>
+        public bool Pathfinding() => InvokeOnMainThread(() => Pathfinder.AutoWalking);
         #endregion
     }
 }
