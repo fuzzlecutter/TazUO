@@ -3346,6 +3346,23 @@ namespace ClassicUO.Game.UI.Gumps
                     RearrangeDataBox();
                 };
 
+                _dataBox.Add(b = new ModernButton(0, 0, 200, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Target item to add", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    TargetHelper.TargetObject((o) =>
+                    {
+                        if (o != null)
+                        {
+                            var nl = AutoLootManager.Instance.AddAutoLootEntry(o.Graphic, o.Hue, o.Name);
+                            if (_dataBox != null)
+                            {
+                                _dataBox.Insert(2, GenConfigEntry(nl, width));
+                                RearrangeDataBox();
+                            }
+                        }
+                    });
+                };
+
                 Area titles = new Area(false);
                 titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 55 });
                 titles.Add(new TextBox("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 50) >> 1) + 60 });
