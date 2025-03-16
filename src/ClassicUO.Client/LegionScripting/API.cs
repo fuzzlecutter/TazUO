@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using ClassicUO.Configuration;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
@@ -164,7 +165,7 @@ namespace ClassicUO.LegionScripting
             return null;
         });
         public void UseObject(uint serial, bool skipQueue = true) => InvokeOnMainThread(() => { if (skipQueue) GameActions.DoubleClick(serial); else GameActions.DoubleClickQueued(serial); });
-        
+
         /// <summary>
         /// Create a cooldown bar
         /// </summary>
@@ -175,18 +176,18 @@ namespace ClassicUO.LegionScripting
         {
             Game.Managers.CoolDownBarManager.AddCoolDownBar(TimeSpan.FromSeconds(seconds), text, hue, false);
         });
-        
+
         /// <summary>
         /// Adds an item or mobile to your ignore list.
         /// </summary>
         /// <param name="serial">The item/mobile serial</param>
         public void IgnoreObject(uint serial) => ignoreList.TryAdd(serial, 0);
-        
+
         /// <summary>
         /// Clears the ignore list
         /// </summary>
         public void ClearIgnoreList() => ignoreList.Clear();
-        
+
         /// <summary>
         /// Attempt to pathfind to a location
         /// </summary>
@@ -198,7 +199,7 @@ namespace ClassicUO.LegionScripting
         {
             Pathfinder.WalkTo(x, y, z, distance);
         });
-        
+
         /// <summary>
         /// Attempt to pathfind to a mobile or item
         /// </summary>
@@ -216,12 +217,32 @@ namespace ClassicUO.LegionScripting
             }
 
         });
-        
+
         /// <summary>
         /// Check if you are already pathfinding.
         /// </summary>
         /// <returns>true/false</returns>
         public bool Pathfinding() => InvokeOnMainThread(() => Pathfinder.AutoWalking);
+
+        /// <summary>
+        /// Automatically follow a mobile
+        /// </summary>
+        /// <param name="mobile">The mobile</param>
+        public void AutoFollow(uint mobile) => InvokeOnMainThread(() =>
+        {
+            ProfileManager.CurrentProfile.FollowingMode = true;
+            ProfileManager.CurrentProfile.FollowingTarget = mobile;
+        });
+
+        /// <summary>
+        /// Cancel pathfinding.
+        /// </summary>
+        public void CancelPathfinding() => InvokeOnMainThread(Pathfinder.StopAutoWalk);
+
+        /// <summary>
+        /// Cancel auto follow mode
+        /// </summary>
+        public void CancelAutoFollow() => InvokeOnMainThread(() => ProfileManager.CurrentProfile.FollowingMode = false);
         #endregion
     }
 }
