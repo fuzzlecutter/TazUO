@@ -412,6 +412,17 @@ namespace ClassicUO.LegionScripting
         /// Logout of the game
         /// </summary>
         public void Logout() => InvokeOnMainThread(()=>GameActions.Logout());
+        
+        /// <summary>
+        /// Turn your character a specific direction
+        /// </summary>
+        /// <param name="direction">north, northeast, etc</param>
+        public void Turn(string direction) => InvokeOnMainThread(()=>{
+            Direction d = Utility.GetDirection(direction);
+
+            if (d != Direction.NONE && World.Player.Direction != d)
+                World.Player.Walk(d, false);
+        });
         #endregion
     }
 }

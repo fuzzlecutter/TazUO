@@ -10,6 +10,7 @@ namespace ClassicUO.Game.UI.Gumps
         private static string[] updateTexts = {
             "/c[white][3.28.0]/cd\n" +
                 "- Added auto buy and sell agents\n" +
+                "- Added Python scripting language support to legion scripting\n",
 
             "/c[white][3.27.0]/cd\n" +
                 "- Added forced tooltip option for pre-tooltip servers\n" +
