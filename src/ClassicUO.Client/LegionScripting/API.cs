@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using ClassicUO.Configuration;
 using ClassicUO.Game;
@@ -115,7 +114,7 @@ namespace ClassicUO.LegionScripting
                 }
             }
         });
-        
+
         /// <summary>
         /// Check if a buff is active
         /// </summary>
@@ -407,21 +406,46 @@ namespace ClassicUO.LegionScripting
                 }
             }
         });
-        
+
         /// <summary>
         /// Logout of the game
         /// </summary>
-        public void Logout() => InvokeOnMainThread(()=>GameActions.Logout());
-        
+        public void Logout() => InvokeOnMainThread(() => GameActions.Logout());
+
         /// <summary>
         /// Turn your character a specific direction
         /// </summary>
         /// <param name="direction">north, northeast, etc</param>
-        public void Turn(string direction) => InvokeOnMainThread(()=>{
+        public void Turn(string direction) => InvokeOnMainThread(() =>
+        {
             Direction d = Utility.GetDirection(direction);
 
             if (d != Direction.NONE && World.Player.Direction != d)
                 World.Player.Walk(d, false);
+        });
+
+        /// <summary>
+        /// Get all items in a container
+        /// </summary>
+        /// <param name="container"></param>
+        /// <returns>A list of items in the container</returns>
+        public Item[] ItemsInContainer(uint container) => InvokeOnMainThread(() =>
+        {
+            return Utility.FindItems(parentContainer: container).ToArray();
+        });
+
+        /// <summary>
+        /// Gets item name and properties
+        /// </summary>
+        /// <param name="serial"></param>
+        /// <returns>Item name and properties, or empty if we don't have them.</returns>
+        public string ItemNameAndProps(uint serial) => InvokeOnMainThread(() =>
+        {
+            if (World.OPL.TryGetNameAndData(serial, out string n, out string d))
+            {
+                return n + "\n" + d;
+            }
+            return string.Empty;
         });
         #endregion
     }
