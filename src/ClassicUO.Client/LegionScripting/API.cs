@@ -7,6 +7,7 @@ using ClassicUO.Configuration;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
+using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Network;
 
@@ -52,19 +53,6 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         public Item Backpack { get { return InvokeOnMainThread(() => World.Player.FindItemByLayer(Game.Data.Layer.Backpack)); } }
         public PlayerMobile Player { get { return InvokeOnMainThread(() => World.Player); } }
-        public enum Direction : byte
-        {
-            North = 0x00,
-            Right = 0x01,
-            East = 0x02,
-            Down = 0x03,
-            South = 0x04,
-            Left = 0x05,
-            West = 0x06,
-            Up = 0x07,
-            Running = 0x80,
-            NONE = 0xED
-        }
         #endregion
 
         #region Methods
@@ -307,6 +295,48 @@ namespace ClassicUO.LegionScripting
                 }
             }
         });
+
+        /// <summary>
+        /// Wait for a target cursor
+        /// </summary>
+        /// <param name="targetType">Neutral/Harmful/Beneficial</param>
+        /// <param name="timeout">Duration in seconds to wait</param>
+        public bool WaitForTarget(string targetType = "Neutral", double timeout = 5)
+        {
+            //Can't use Time.Ticks due to threading concerns
+            var expire = DateTime.UtcNow.AddSeconds(timeout);
+
+
+            TargetType targetT = TargetType.Neutral;
+            switch (targetType)
+            {
+                case "Harmful":
+                    targetT = TargetType.Harmful;
+                    break;
+                case "Beneficial":
+                    targetT = TargetType.Beneficial;
+                    break;
+            }
+
+            while (!InvokeOnMainThread(() => { return TargetManager.IsTargeting && TargetManager.TargetingType == targetT; }))
+            {
+                if (DateTime.UtcNow > expire)
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Target an item or mobile
+        /// </summary>
+        /// <param name="serial">Serial of the item/mobile to target</param>
+        public void Target(uint serial) => InvokeOnMainThread(() => TargetManager.Target(serial));
+
+        /// <summary>
+        /// Target yourself
+        /// </summary>
+        public void TargetSelf() => InvokeOnMainThread(() => InvokeOnMainThread(() => TargetManager.Target(World.Player.Serial)));
         #endregion
     }
 }
