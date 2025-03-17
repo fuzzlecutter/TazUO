@@ -78,7 +78,7 @@ namespace ClassicUO.LegionScripting
             return null;
         });
         public void ClickObject(uint serial) => InvokeOnMainThread(() => GameActions.SingleClick(serial));
-        
+
         /// <summary>
         /// Get an item count for the contents of a container
         /// </summary>
@@ -90,7 +90,7 @@ namespace ClassicUO.LegionScripting
             if (i != null) return (int)Utility.ContentsCount(i);
             return 0;
         });
-        
+
         /// <summary>
         /// Send a context menu(right click menu) response.
         /// </summary>
@@ -102,7 +102,7 @@ namespace ClassicUO.LegionScripting
             NetClient.Socket.Send_RequestPopupMenu(serial);
             NetClient.Socket.Send_PopupMenuSelection(serial, entry);
         });
-        
+
         /// <summary>
         /// Attempt to equip an item. Layer is automatically detected.
         /// </summary>
@@ -112,7 +112,7 @@ namespace ClassicUO.LegionScripting
             if (GameActions.PickUp(serial, 0, 0, 1))
                 GameActions.Equip(serial);
         });
-        
+
         /// <summary>
         /// Move an item to another container
         /// </summary>
@@ -126,7 +126,7 @@ namespace ClassicUO.LegionScripting
             if (GameActions.PickUp(serial, 0, 0, amt))
                 GameActions.DropItem(serial, x, y, 0, destination);
         });
-        
+
         /// <summary>
         /// Use a skill
         /// </summary>
@@ -391,6 +391,21 @@ namespace ClassicUO.LegionScripting
         /// <param name="serial">Serial of the item/mobile to target</param>
         public void Target(uint serial) => InvokeOnMainThread(() => TargetManager.Target(serial));
 
+        /// <summary>
+        /// Request the player to target something
+        /// </summary>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public uint RequestTarget(double timeout = 5)
+        {
+            var expire = DateTime.Now.AddSeconds(timeout);
+            InvokeOnMainThread(() => TargetManager.SetTargeting(CursorTarget.Internal, CursorType.Target, TargetType.Neutral));
+            while (DateTime.Now < expire)
+                if (!InvokeOnMainThread(() => TargetManager.IsTargeting))
+                    return TargetManager.LastTargetInfo.Serial;
+            InvokeOnMainThread(() => TargetManager.Reset());
+            return 0;
+        }
         /// <summary>
         /// Target yourself
         /// </summary>
