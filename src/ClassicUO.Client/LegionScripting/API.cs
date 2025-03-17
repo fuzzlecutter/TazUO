@@ -447,6 +447,18 @@ namespace ClassicUO.LegionScripting
             }
             return string.Empty;
         });
+        
+        /// <summary>
+        /// Check if a player has a server gump
+        /// </summary>
+        /// <param name="ID">Skip to check if player has any gump from server.</param>
+        /// <returns>Returns gump id if found</returns>
+        public uint HasGump(uint ID = uint.MaxValue) => InvokeOnMainThread<uint>(()=>{
+            if (World.Player.HasGump && (World.Player.LastGumpID == ID || ID == uint.MaxValue)){
+                return World.Player.LastGumpID;
+            }
+            return 0;
+        });
         #endregion
     }
 }
