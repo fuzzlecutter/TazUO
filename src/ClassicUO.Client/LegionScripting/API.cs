@@ -153,6 +153,26 @@ namespace ClassicUO.LegionScripting
         });
 
         /// <summary>
+        /// Move an item to the ground near you
+        /// </summary>
+        /// <param name="serial"></param>
+        /// <param name="amt">0 to grab entire stack</param>
+        /// <param name="x">Offset from your location</param>
+        /// <param name="y">Offset from your location</param>
+        /// <param name="z">Offset from your location</param>
+        public void MoveItemOffset(uint serial, int amt = 0, int x = 0, int y = 0, int z = 0) => InvokeOnMainThread(() =>
+        {
+            if (GameActions.PickUp(serial, 0, 0, amt))
+                GameActions.DropItem(
+                    serial,
+                    World.Player.X + x,
+                    World.Player.Y + y,
+                    World.Player.Z + z,
+                    0
+                );
+        });
+
+        /// <summary>
         /// Use a skill
         /// </summary>
         /// <param name="skillName"></param>
@@ -674,6 +694,14 @@ namespace ClassicUO.LegionScripting
 
             });
         }
+
+        /// <summary>
+        /// Attempt to cast a spell by its name
+        /// </summary>
+        /// <param name="spellName">This can be a partial match. Fireba will cast Fireball.</param>
+        public void CastSpell(string spellName) => InvokeOnMainThread(() => { GameActions.CastSpellByName(spellName); });
+
+
         #endregion
     }
 }
