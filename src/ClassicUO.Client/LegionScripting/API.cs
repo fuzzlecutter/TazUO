@@ -78,28 +78,59 @@ namespace ClassicUO.LegionScripting
             return null;
         });
         public void ClickObject(uint serial) => InvokeOnMainThread(() => GameActions.SingleClick(serial));
-        public int Contents(uint serial) => InvokeOnMainThread(() =>
+        
+        /// <summary>
+        /// Get an item count for the contents of a container
+        /// </summary>
+        /// <param name="serial"></param>
+        /// <returns></returns>
+        public int Contents(uint serial) => InvokeOnMainThread<int>(() =>
         {
             Item i = World.Items.Get(serial);
-            if (i != null) return i.Amount;
+            if (i != null) return (int)Utility.ContentsCount(i);
             return 0;
         });
+        
+        /// <summary>
+        /// Send a context menu(right click menu) response.
+        /// </summary>
+        /// <param name="serial"></param>
+        /// <param name="entry"></param>
         public void ContextMenu(uint serial, ushort entry) => InvokeOnMainThread(() =>
         {
             PopupMenuGump.CloseNext = serial;
             NetClient.Socket.Send_RequestPopupMenu(serial);
             NetClient.Socket.Send_PopupMenuSelection(serial, entry);
         });
+        
+        /// <summary>
+        /// Attempt to equip an item. Layer is automatically detected.
+        /// </summary>
+        /// <param name="serial"></param>
         public void EquipItem(uint serial) => InvokeOnMainThread(() =>
         {
             if (GameActions.PickUp(serial, 0, 0, 1))
                 GameActions.Equip(serial);
         });
+        
+        /// <summary>
+        /// Move an item to another container
+        /// </summary>
+        /// <param name="serial"></param>
+        /// <param name="destination"></param>
+        /// <param name="amt">Amount to move</param>
+        /// <param name="x">X coordinate inside a container</param>
+        /// <param name="y">Y coordinate inside a container</param>
         public void MoveItem(uint serial, uint destination, int amt = 0, int x = 0xFFFF, int y = 0xFFFF) => InvokeOnMainThread(() =>
         {
             if (GameActions.PickUp(serial, 0, 0, amt))
                 GameActions.DropItem(serial, x, y, 0, destination);
         });
+        
+        /// <summary>
+        /// Use a skill
+        /// </summary>
+        /// <param name="skillName"></param>
         public void UseSkill(string skillName) => InvokeOnMainThread(() =>
         {
             if (skillName.Length > 0)
