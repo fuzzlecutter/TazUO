@@ -412,6 +412,23 @@ namespace ClassicUO.LegionScripting
         public void TargetSelf() => InvokeOnMainThread(() => InvokeOnMainThread(() => TargetManager.Target(World.Player.Serial)));
 
         /// <summary>
+        /// Target a land tile
+        /// </summary>
+        /// <param name="xOffset">X from your position</param>
+        /// <param name="yOffset">Y from your position</param>
+        public void TargetLandRel(int xOffset, int yOffset) => InvokeOnMainThread(() =>
+        {
+            if (!TargetManager.IsTargeting)
+                return;
+
+            ushort x = (ushort)(World.Player.X + xOffset);
+            ushort y = (ushort)(World.Player.Y + yOffset);
+
+            World.Map.GetMapZ(x, y, out sbyte gZ, out sbyte sZ);
+            TargetManager.Target(0, x, y, gZ);
+        });
+
+        /// <summary>
         /// Stops the current script
         /// </summary>
         public void Stop()
