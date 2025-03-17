@@ -447,7 +447,6 @@ namespace ClassicUO.LegionScripting
             }
             return string.Empty;
         });
-
         /// <summary>
         /// Check if a player has a server gump
         /// </summary>
