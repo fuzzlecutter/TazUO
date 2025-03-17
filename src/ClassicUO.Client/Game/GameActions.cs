@@ -1084,7 +1084,7 @@ namespace ClassicUO.Game
                 UIManager.Add(new CombatBookGump(100, 100));
             }
         }
-        private static void SendAbility(byte idx, bool primary)
+        public static void SendAbility(byte idx, bool primary)
         {
             if ((World.ClientLockedFeatures.Flags & LockedFeatureFlags.AOS) == 0)
             {
@@ -1137,7 +1137,7 @@ namespace ClassicUO.Game
             }
             else
             {
-                SendAbility(0, true);
+                SendAbility(1, true);
             }
 
             ability ^= (Ability)0x80;

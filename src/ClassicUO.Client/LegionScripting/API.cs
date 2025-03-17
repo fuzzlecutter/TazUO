@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Threading;
 using ClassicUO.Configuration;
 using ClassicUO.Game;
@@ -406,6 +407,7 @@ namespace ClassicUO.LegionScripting
             InvokeOnMainThread(() => TargetManager.Reset());
             return 0;
         }
+
         /// <summary>
         /// Target yourself
         /// </summary>
@@ -426,6 +428,28 @@ namespace ClassicUO.LegionScripting
 
             World.Map.GetMapZ(x, y, out sbyte gZ, out sbyte sZ);
             TargetManager.Target(0, x, y, gZ);
+        });
+
+        /// <summary>
+        /// Target a tile relative to your location
+        /// </summary>
+        /// <param name="xOffset">X Offset from your position</param>
+        /// <param name="yOffset">Y Offset from your position</param>
+        /// <param name="graphic">Optional graphic, will only target if tile matches this</param>
+        public void TargetTileRel(int xOffset, int yOffset, uint graphic = uint.MaxValue) => InvokeOnMainThread(() =>
+        {
+            if (!TargetManager.IsTargeting)
+                return;
+
+            ushort x = (ushort)(World.Player.X + xOffset);
+            ushort y = (ushort)(World.Player.Y + yOffset);
+
+            GameObject g = World.Map.GetTile(x, y);
+
+            if (graphic != uint.MaxValue && g.Graphic != graphic)
+                return;
+
+            TargetManager.Target(g.Graphic, x, y, g.Z);
         });
 
         /// <summary>
@@ -542,6 +566,42 @@ namespace ClassicUO.LegionScripting
             }
             return false;
         });
+
+        /// <summary>
+        /// Toggle flying if you are a gargoyle
+        /// </summary>
+        public void ToggleFly() => InvokeOnMainThread(() =>
+        {
+            if (World.Player.Race == RaceType.GARGOYLE)
+                NetClient.Socket.Send_ToggleGargoyleFlying();
+        });
+
+        /// <summary>
+        /// Activate an ability
+        /// </summary>
+        /// <param name="ability">primary/secondary/stun/disarm</param>
+        public void ActivateAbility(string ability) =>
+            InvokeOnMainThread(() =>
+            {
+                switch (ability.ToLower())
+                {
+                    case "primary":
+                            GameActions.UsePrimaryAbility();
+                        break;
+
+                    case "secondary":
+                            GameActions.UseSecondaryAbility();
+                        break;
+
+                    case "stun":
+                            NetClient.Socket.Send_StunRequest();
+                        break;
+
+                    case "disarm":
+                            NetClient.Socket.Send_DisarmRequest();
+                        break;
+                }
+            });
         #endregion
     }
 }
