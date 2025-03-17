@@ -33,6 +33,8 @@ namespace ClassicUO.LegionScripting
         public static event EventHandler<ScriptInfoEvent> ScriptStartedEvent;
         public static event EventHandler<ScriptInfoEvent> ScriptStoppedEvent;
 
+        public static Dictionary<int, ScriptFile> PyThreads = new Dictionary<int, ScriptFile>();
+
         public static void Init()
         {
             Task.Factory.StartNew(() => Python.CreateEngine());
@@ -298,6 +300,7 @@ namespace ClassicUO.LegionScripting
                     {
                         script.ReadFromFile();
                         script.PythonThread = new Thread(() => ExecutePythonScript(script));
+                        PyThreads.Add(script.PythonThread.ManagedThreadId, script);
                         script.PythonThread.Start();
                     }
                 }
@@ -340,6 +343,9 @@ namespace ClassicUO.LegionScripting
                 }
                 else if (script.ScriptType == ScriptType.Python)
                 {
+                    if(script.PythonThread != null)
+                        PyThreads.Remove(script.PythonThread.ManagedThreadId);
+
                     script.PythonThread?.Abort();
                     script.PythonThread = null;
                 }

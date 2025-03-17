@@ -115,6 +115,12 @@ namespace ClassicUO.LegionScripting
                 }
             }
         });
+        
+        /// <summary>
+        /// Check if a buff is active
+        /// </summary>
+        /// <param name="buffName">The name/title of the buff</param>
+        /// <returns></returns>
         public bool BuffExists(string buffName) => InvokeOnMainThread(() =>
         {
             foreach (BuffIcon buff in World.Player.BuffIcons.Values)
@@ -125,8 +131,30 @@ namespace ClassicUO.LegionScripting
 
             return false;
         });
+
+        /// <summary>
+        /// Show a system message(Left side of screen)
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <param name="hue">Color of the message</param>
         public void SysMsg(string message, ushort hue = 946) => InvokeOnMainThread(() => GameActions.Print(message, hue));
+
+        /// <summary>
+        /// Try to get an item by its serial
+        /// </summary>
+        /// <param name="serial">The serial</param>
+        /// <returns></returns>
         public Item FindItem(uint serial) => InvokeOnMainThread(() => World.Items.Get(serial));
+
+        /// <summary>
+        /// Attempt to find an item by type(graphic)
+        /// </summary>
+        /// <param name="graphic">Graphic/Type of item to find</param>
+        /// <param name="container">Container to search</param>
+        /// <param name="range">Max range of item(if on ground)</param>
+        /// <param name="hue">Hue of item</param>
+        /// <param name="minamount">Only match if item stack is at lease this much</param>
+        /// <returns>Returns the first item found that matches</returns>
         public Item FindType(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
             InvokeOnMainThread(() =>
             {
@@ -146,7 +174,7 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="layer">The layer to check, see https://github.com/bittiez/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Layers.cs</param>
         /// <param name="serial">Optional, if not set it will check yourself, otherwise it will check the mobile requested</param>
-        /// <returns></returns>
+        /// <returns>The item if it exists</returns>
         public Item FindLayer(string layer, uint serial = uint.MaxValue) => InvokeOnMainThread(() =>
         {
             Mobile m = serial == uint.MaxValue ? World.Player : World.Mobiles.Get(serial);
@@ -337,6 +365,53 @@ namespace ClassicUO.LegionScripting
         /// Target yourself
         /// </summary>
         public void TargetSelf() => InvokeOnMainThread(() => InvokeOnMainThread(() => TargetManager.Target(World.Player.Serial)));
+
+        /// <summary>
+        /// Stops the current script
+        /// </summary>
+        public void Stop()
+        {
+            int t = Thread.CurrentThread.ManagedThreadId;
+            InvokeOnMainThread(() =>
+            {
+                if (LegionScripting.PyThreads.TryGetValue(t, out var s))
+                    LegionScripting.StopScript(s);
+            });
+        }
+
+        /// <summary>
+        /// Set a skills lock status
+        /// </summary>
+        /// <param name="skill">The skill name, can be partia;</param>
+        /// <param name="up_down_locked">up/down/locked</param>
+        public void SetSkillLock(string skill, string up_down_locked) => InvokeOnMainThread(() =>
+        {
+            skill = skill.ToLower();
+            Lock status = Lock.Up;
+            switch (up_down_locked)
+            {
+                case "down":
+                    status = Lock.Down;
+                    break;
+                case "locked":
+                    status = Lock.Locked;
+                    break;
+            }
+
+            for (int i = 0; i < World.Player.Skills.Length; i++)
+            {
+                if (World.Player.Skills[i].Name.ToLower().Contains(skill))
+                {
+                    World.Player.Skills[i].Lock = status;
+                    break;
+                }
+            }
+        });
+        
+        /// <summary>
+        /// Logout of the game
+        /// </summary>
+        public void Logout() => InvokeOnMainThread(()=>GameActions.Logout());
         #endregion
     }
 }
