@@ -56,8 +56,22 @@ namespace ClassicUO.LegionScripting
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Attack a mobile
+        /// </summary>
+        /// <param name="serial"></param>
         public void Attack(uint serial) => InvokeOnMainThread(() => GameActions.Attack(serial));
+
+        /// <summary>
+        /// Attempt to bandage yourself. Older clients this will not work, you will need to find a bandage, use it, and target yourself.
+        /// </summary>
+        /// <returns>True if bandages found and used</returns>
         public bool BandageSelf() => InvokeOnMainThread(GameActions.BandageSelf);
+
+        /// <summary>
+        /// If you have an item in your left hand, move it to your backpack
+        /// </summary>
+        /// <returns>The item that was in your hand</returns>
         public Item ClearLeftHand() => InvokeOnMainThread(() =>
         {
             Item i = World.Player.FindItemByLayer(Game.Data.Layer.OneHanded);
@@ -68,6 +82,11 @@ namespace ClassicUO.LegionScripting
             }
             return null;
         });
+
+        /// <summary>
+        /// If you have an item in your right hand, move it to your backpack
+        /// </summary>
+        /// <returns>The item that was in your hand</returns>
         public Item ClearRightHand() => InvokeOnMainThread(() =>
         {
             Item i = World.Player.FindItemByLayer(Game.Data.Layer.TwoHanded);
@@ -78,6 +97,11 @@ namespace ClassicUO.LegionScripting
             }
             return null;
         });
+
+        /// <summary>
+        /// Single click an object
+        /// </summary>
+        /// <param name="serial"></param>
         public void ClickObject(uint serial) => InvokeOnMainThread(() => GameActions.SingleClick(serial));
 
         /// <summary>
@@ -577,31 +601,79 @@ namespace ClassicUO.LegionScripting
         });
 
         /// <summary>
-        /// Activate an ability
+        /// Toggle an ability
         /// </summary>
         /// <param name="ability">primary/secondary/stun/disarm</param>
-        public void ActivateAbility(string ability) =>
+        public void ToggleAbility(string ability) =>
             InvokeOnMainThread(() =>
             {
                 switch (ability.ToLower())
                 {
                     case "primary":
-                            GameActions.UsePrimaryAbility();
+                        GameActions.UsePrimaryAbility();
                         break;
 
                     case "secondary":
-                            GameActions.UseSecondaryAbility();
+                        GameActions.UseSecondaryAbility();
                         break;
 
                     case "stun":
-                            NetClient.Socket.Send_StunRequest();
+                        NetClient.Socket.Send_StunRequest();
                         break;
 
                     case "disarm":
-                            NetClient.Socket.Send_DisarmRequest();
+                        NetClient.Socket.Send_DisarmRequest();
                         break;
                 }
             });
+
+        /// <summary>
+        /// Check if your primary ability is active
+        /// </summary>
+        /// <returns>true/false</returns>
+        public bool PrimaryAbilityActive() => ((byte)World.Player.PrimaryAbility & 0x80) != 0;
+
+        /// <summary>
+        /// Check if your secondary ability is active
+        /// </summary>
+        /// <returns>true/false</returns>
+        public bool SecondaryAbilityActive() => ((byte)World.Player.SecondaryAbility & 0x80) != 0;
+
+        /// <summary>
+        /// Check if your journal contains a message
+        /// </summary>
+        /// <param name="msg">The message to check for</param>
+        /// <returns>True if message was found</returns>
+        public bool InJournal(string msg)
+        {
+            int id = Thread.CurrentThread.ManagedThreadId;
+
+            if (string.IsNullOrEmpty(msg)) return false;
+
+            return InvokeOnMainThread(() =>
+            {
+                if (LegionScripting.PyJournals.TryGetValue(id, out var journalEntries))
+                {
+                    foreach (var je in journalEntries)
+                        if (je.Text.Contains(msg)) return true;
+                }
+
+                return false;
+            });
+        }
+
+        /// <summary>
+        /// Clear your journal(This is specific for each script)
+        /// </summary>
+        public void ClearJournal()
+        {
+            int id = Thread.CurrentThread.ManagedThreadId;
+            InvokeOnMainThread(() =>
+            {
+                LegionScripting.PyJournals.Remove(id);
+
+            });
+        }
         #endregion
     }
 }

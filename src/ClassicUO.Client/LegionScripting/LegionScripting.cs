@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,6 +34,7 @@ namespace ClassicUO.LegionScripting
         public static event EventHandler<ScriptInfoEvent> ScriptStoppedEvent;
 
         public static Dictionary<int, ScriptFile> PyThreads = new Dictionary<int, ScriptFile>();
+        public static Dictionary<int, List<JournalEntry>> PyJournals = new Dictionary<int, List<JournalEntry>>();
 
         public static void Init()
         {
@@ -59,7 +60,21 @@ namespace ClassicUO.LegionScripting
         {
             foreach (ScriptFile script in runningScripts)
             {
-                script.GetScript.JournalEntryAdded(e);
+                if (script.ScriptType == ScriptType.LegionScript)
+                    script.GetScript.JournalEntryAdded(e);
+                else
+                {
+                    if (PyJournals.ContainsKey(script.PythonThread.ManagedThreadId))
+                    {
+                        PyJournals[script.PythonThread.ManagedThreadId].Add(e);
+                        if (PyJournals[script.PythonThread.ManagedThreadId].Count > 50)
+                            PyJournals[script.PythonThread.ManagedThreadId].RemoveRange(0, PyJournals[script.PythonThread.ManagedThreadId].Count - 50);
+                    }
+                    else
+                    {
+                        PyJournals.Add(script.PythonThread.ManagedThreadId, new List<JournalEntry> { e });
+                    }
+                }
             }
         }
         public static void LoadScriptsFromFile()
@@ -244,6 +259,8 @@ namespace ClassicUO.LegionScripting
 
             Interpreter.ClearAllLists();
 
+            PyThreads.Clear();
+
             SaveScriptSettings();
             PythonAPI = null;
             _enabled = false;
@@ -291,7 +308,6 @@ namespace ClassicUO.LegionScripting
                 if (script.ScriptType == ScriptType.LegionScript)
                 {
                     script.GenerateScript();
-                    runningScripts.Add(script);
                     script.GetScript.IsPlaying = true;
                 }
                 else if (script.ScriptType == ScriptType.Python)
@@ -304,6 +320,8 @@ namespace ClassicUO.LegionScripting
                         script.PythonThread.Start();
                     }
                 }
+
+                runningScripts.Add(script);
 
                 ScriptStartedEvent?.Invoke(null, new ScriptInfoEvent(script));
             }
@@ -343,9 +361,11 @@ namespace ClassicUO.LegionScripting
                 }
                 else if (script.ScriptType == ScriptType.Python)
                 {
-                    if(script.PythonThread != null)
+                    if (script.PythonThread != null)
+                    {
                         PyThreads.Remove(script.PythonThread.ManagedThreadId);
-
+                        PyJournals.Remove(script.PythonThread.ManagedThreadId);
+                    }
                     script.PythonThread?.Abort();
                     script.PythonThread = null;
                 }
@@ -620,7 +640,7 @@ namespace ClassicUO.LegionScripting
         {
             var c = File.ReadAllLines(FullPath);
             FileContentsJoined = string.Join("\n", c);
-            if(ScriptType == ScriptType.Python)
+            if (ScriptType == ScriptType.Python)
             {
                 FileContentsJoined = FileContentsJoined.Replace("import API", string.Empty);
             }
