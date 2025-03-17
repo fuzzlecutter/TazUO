@@ -447,6 +447,7 @@ namespace ClassicUO.LegionScripting
             }
             return string.Empty;
         });
+
         /// <summary>
         /// Check if a player has a server gump
         /// </summary>
@@ -472,7 +473,7 @@ namespace ClassicUO.LegionScripting
             Gump g = UIManager.GetGumpServer(gump == uint.MaxValue ? World.Player.LastGumpID : gump);
             if (g != null)
             {
-                GameActions.ReplyGump(g.LocalSerial, g.ServerSerial, button);
+                GameActions.ReplyGump(g.LocalSerial, g.ServerSerial, button, new uint[0] { }, new Tuple<ushort, string>[0]);
                 g.Dispose();
                 return true;
             }
