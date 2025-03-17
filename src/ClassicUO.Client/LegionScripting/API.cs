@@ -447,6 +447,38 @@ namespace ClassicUO.LegionScripting
             }
             return string.Empty;
         });
+
+        /// <summary>
+        /// Check if a player has a server gump
+        /// </summary>
+        /// <param name="ID">Skip to check if player has any gump from server.</param>
+        /// <returns>Returns gump id if found</returns>
+        public uint HasGump(uint ID = uint.MaxValue) => InvokeOnMainThread<uint>(() =>
+        {
+            if (World.Player.HasGump && (World.Player.LastGumpID == ID || ID == uint.MaxValue))
+            {
+                return World.Player.LastGumpID;
+            }
+            return 0;
+        });
+
+        /// <summary>
+        /// Reply to a gump
+        /// </summary>
+        /// <param name="button">Button ID</param>
+        /// <param name="gump">Gump ID, leave blank to reply to last gump</param>
+        /// <returns>True if gump was found, false if not</returns>
+        public bool ReplyGump(int button, uint gump = uint.MaxValue) => InvokeOnMainThread(() =>
+        {
+            Gump g = UIManager.GetGumpServer(gump == uint.MaxValue ? World.Player.LastGumpID : gump);
+            if (g != null)
+            {
+                GameActions.ReplyGump(g.LocalSerial, g.ServerSerial, button);
+                g.Dispose();
+                return true;
+            }
+            return false;
+        });
         #endregion
     }
 }
