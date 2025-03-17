@@ -13,6 +13,9 @@ using ClassicUO.Network;
 
 namespace ClassicUO.LegionScripting
 {
+    /// <summary>
+    /// Python scripting access point
+    /// </summary>
     public class API
     {
         public readonly ConcurrentQueue<Action> QueuedPythonActions = new();
@@ -497,6 +500,11 @@ namespace ClassicUO.LegionScripting
         });
 
         /// <summary>
+        /// Cancel targeting
+        /// </summary>
+        public void CancelTarget() => InvokeOnMainThread(TargetManager.CancelTarget);
+
+        /// <summary>
         /// Stops the current script
         /// </summary>
         public void Stop()
@@ -612,6 +620,16 @@ namespace ClassicUO.LegionScripting
         });
 
         /// <summary>
+        /// Close the last gump open, or a specific gump
+        /// </summary>
+        /// <param name="ID"></param>
+        public void CloseGump(uint ID = uint.MaxValue) => InvokeOnMainThread(() =>
+        {
+            uint gump = ID != uint.MaxValue ? ID : World.Player.LastGumpID;
+            UIManager.GetGumpServer(gump)?.Dispose();
+        });
+
+        /// <summary>
         /// Toggle flying if you are a gargoyle
         /// </summary>
         public void ToggleFly() => InvokeOnMainThread(() =>
@@ -701,7 +719,62 @@ namespace ClassicUO.LegionScripting
         /// <param name="spellName">This can be a partial match. Fireba will cast Fireball.</param>
         public void CastSpell(string spellName) => InvokeOnMainThread(() => { GameActions.CastSpellByName(spellName); });
 
+        /// <summary>
+        /// Run in a direction
+        /// </summary>
+        /// <param name="direction">north/northeast/south/west/etc</param>
+        public void Run(string direction)
+        {
+            Direction d = Utility.GetDirection(direction);
+            InvokeOnMainThread(() => World.Player.Walk(d, true));
+        }
 
+        /// <summary>
+        /// Walk in a direction
+        /// </summary>
+        /// <param name="direction">north/northeast/south/west/etc</param>
+        public void Walk(string direction)
+        {
+            Direction d = Utility.GetDirection(direction);
+            InvokeOnMainThread(() => World.Player.Walk(d, false));
+        }
+
+        /// <summary>
+        /// Pause the script
+        /// </summary>
+        /// <param name="seconds"></param>
+        public void Pause(double seconds)
+        {
+            Thread.Sleep((int)(seconds * 1000));
+        }
+
+        /// <summary>
+        /// Toggle autolooting on or off
+        /// </summary>
+        public void ToggleAutoLoot() => InvokeOnMainThread(() =>
+        {
+            ProfileManager.CurrentProfile.EnableAutoLoot ^= true;
+        });
+
+        /// <summary>
+        /// Use a virtue
+        /// </summary>
+        /// <param name="virtue">honor/sacrifice/valor</param>
+        public void Virtue(string virtue)
+        {
+            switch (virtue.ToLower())
+            {
+                case "honor":
+                    InvokeOnMainThread(() => { NetClient.Socket.Send_InvokeVirtueRequest(0x01); });
+                    break;
+                case "sacrifice":
+                    InvokeOnMainThread(() => { NetClient.Socket.Send_InvokeVirtueRequest(0x02); });
+                    break;
+                case "valor":
+                    InvokeOnMainThread(() => { NetClient.Socket.Send_InvokeVirtueRequest(0x03); });
+                    break;
+            }
+        }
         #endregion
     }
 }
