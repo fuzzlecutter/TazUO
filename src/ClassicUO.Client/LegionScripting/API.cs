@@ -58,6 +58,17 @@ namespace ClassicUO.LegionScripting
         public PlayerMobile Player { get { return InvokeOnMainThread(() => World.Player); } }
         #endregion
 
+        #region Enum
+        public enum ScanType
+        {
+            Hostile = 0,
+            Party,
+            Followers,
+            Objects,
+            Mobiles
+        }
+        #endregion
+
         #region Methods
         /// <summary>
         /// Attack a mobile
@@ -255,7 +266,8 @@ namespace ClassicUO.LegionScripting
         /// Send a message to your party
         /// </summary>
         /// <param name="message">The message</param>
-        public void PartyMsg(string message) => InvokeOnMainThread(()=>{
+        public void PartyMsg(string message) => InvokeOnMainThread(() =>
+        {
             GameActions.SayParty(message);
         });
 
@@ -263,7 +275,8 @@ namespace ClassicUO.LegionScripting
         /// Send your guild a message
         /// </summary>
         /// <param name="message"></param>
-        public void GuildMsg(string message) => InvokeOnMainThread(()=>{
+        public void GuildMsg(string message) => InvokeOnMainThread(() =>
+        {
             GameActions.Say(message, ProfileManager.CurrentProfile.GuildMessageHue, MessageType.Guild);
         });
 
@@ -271,7 +284,8 @@ namespace ClassicUO.LegionScripting
         /// Send a message to your alliance
         /// </summary>
         /// <param name="message"></param>
-        public void AllyMsg(string message) => InvokeOnMainThread(()=>{
+        public void AllyMsg(string message) => InvokeOnMainThread(() =>
+        {
             GameActions.Say(message, ProfileManager.CurrentProfile.AllyMessageHue, MessageType.Alliance);
         });
 
@@ -279,7 +293,8 @@ namespace ClassicUO.LegionScripting
         /// Whisper a message
         /// </summary>
         /// <param name="message"></param>
-        public void WhisperMsg(string message) => InvokeOnMainThread(()=>{
+        public void WhisperMsg(string message) => InvokeOnMainThread(() =>
+        {
             GameActions.Say(message, ProfileManager.CurrentProfile.WhisperHue, MessageType.Whisper);
         });
 
@@ -287,7 +302,8 @@ namespace ClassicUO.LegionScripting
         /// Yell a message
         /// </summary>
         /// <param name="message"></param>
-        public void YellMsg(string message) => InvokeOnMainThread(()=>{
+        public void YellMsg(string message) => InvokeOnMainThread(() =>
+        {
             GameActions.Say(message, ProfileManager.CurrentProfile.YellHue, MessageType.Yell);
         });
 
@@ -295,7 +311,8 @@ namespace ClassicUO.LegionScripting
         /// Emote a message
         /// </summary>
         /// <param name="message"></param>
-        public void EmoteMsg(string message) => InvokeOnMainThread(()=>{
+        public void EmoteMsg(string message) => InvokeOnMainThread(() =>
+        {
             GameActions.Say(message, ProfileManager.CurrentProfile.EmoteHue, MessageType.Emote);
         });
 
@@ -402,6 +419,13 @@ namespace ClassicUO.LegionScripting
         /// Clears the ignore list
         /// </summary>
         public void ClearIgnoreList() => ignoreList.Clear();
+
+        /// <summary>
+        /// Check if a serial is on the ignore list
+        /// </summary>
+        /// <param name="serial"></param>
+        /// <returns></returns>
+        public bool OnIgnoreList(uint serial) => ignoreList.ContainsKey(serial);
 
         /// <summary>
         /// Attempt to pathfind to a location
@@ -846,6 +870,24 @@ namespace ClassicUO.LegionScripting
                     break;
             }
         }
+
+        /// <summary>
+        /// Find the nearest item/mobile based on scan type
+        /// </summary>
+        /// <param name="scanType"></param>
+        /// <param name="maxDistance"></param>
+        /// <returns></returns>
+        public Entity NearestEntity(ScanType scanType, int maxDistance = 10) => InvokeOnMainThread(() =>
+        {
+            uint m = Utility.FindNearestCheckPythonIgnore((ScanTypeObject)scanType);
+
+            var e = World.Get(m);
+
+            if (e != null && e.Distance <= maxDistance)
+                return e;
+
+            return null;
+        });
         #endregion
     }
 }

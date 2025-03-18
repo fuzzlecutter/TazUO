@@ -26,7 +26,7 @@ namespace ClassicUO.LegionScripting
         private static List<ScriptFile> runningScripts = new List<ScriptFile>();
         private static List<ScriptFile> removeRunningScripts = new List<ScriptFile>();
         private static LScriptSettings lScriptSettings;
-        private static API PythonAPI;
+        public static API PythonAPI;
 
         public static List<ScriptFile> LoadedScripts = new List<ScriptFile>();
 

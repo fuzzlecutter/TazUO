@@ -222,6 +222,71 @@ namespace ClassicUO.LegionScripting
                 default: return Direction.NONE;
             }
         }
+    
+        public static uint FindNearestCheckPythonIgnore(ScanTypeObject scanType)
+        {
+            int distance = int.MaxValue;
+            uint serial = 0;
 
+            if (scanType == ScanTypeObject.Objects)
+            {
+                foreach (Item item in World.Items.Values)
+                {
+                    if (item.IsMulti || item.IsDestroyed || !item.OnGround || LegionScripting.PythonAPI.OnIgnoreList(item))
+                    {
+                        continue;
+                    }
+
+                    if (item.Distance < distance)
+                    {
+                        distance = item.Distance;
+                        serial = item.Serial;
+                    }
+                }
+            }
+            else
+            {
+                foreach (Mobile mobile in World.Mobiles.Values)
+                {
+                    if (mobile.IsDestroyed || mobile == World.Player || LegionScripting.PythonAPI.OnIgnoreList(mobile))
+                    {
+                        continue;
+                    }
+
+                    switch (scanType)
+                    {
+                        case ScanTypeObject.Party:
+                            if (!World.Party.Contains(mobile))
+                            {
+                                continue;
+                            }
+                            break;
+                        case ScanTypeObject.Followers:
+                            if (!(mobile.IsRenamable && mobile.NotorietyFlag != NotorietyFlag.Invulnerable && mobile.NotorietyFlag != NotorietyFlag.Enemy))
+                            {
+                                continue;
+                            }
+                            break;
+                        case ScanTypeObject.Hostile:
+                            if (mobile.NotorietyFlag == NotorietyFlag.Ally || mobile.NotorietyFlag == NotorietyFlag.Innocent || mobile.NotorietyFlag == NotorietyFlag.Invulnerable)
+                            {
+                                continue;
+                            }
+                            break;
+                        case ScanTypeObject.Objects:
+                            /* This was handled separately above */
+                            continue;
+                    }
+
+                    if (mobile.Distance < distance)
+                    {
+                        distance = mobile.Distance;
+                        serial = mobile.Serial;
+                    }
+                }
+            }
+
+            return serial;
+        }
     }
 }
