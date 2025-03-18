@@ -225,6 +225,75 @@ namespace ClassicUO.LegionScripting
         public void SysMsg(string message, ushort hue = 946) => InvokeOnMainThread(() => GameActions.Print(message, hue));
 
         /// <summary>
+        /// Say a message.
+        /// </summary>
+        /// <param name="message">The message to say</param>
+        public void Msg(string message) => InvokeOnMainThread(() =>
+        {
+            GameActions.Say(message, ProfileManager.CurrentProfile.SpeechHue);
+        });
+
+        /// <summary>
+        /// Show a message above a mobile or item, this is only visible to you
+        /// </summary>
+        /// <param name="message">The message</param>
+        /// <param name="serial">The item or mobile</param>
+        public void HeadMsg(string message, uint serial) => InvokeOnMainThread(() =>
+        {
+            Entity e = World.Get(serial);
+            if (e == null) return;
+            MessageManager.HandleMessage(e, message, "", ProfileManager.CurrentProfile.SpeechHue, MessageType.Label, 3, TextType.OBJECT);
+        });
+
+        /// <summary>
+        /// Send a message to your party
+        /// </summary>
+        /// <param name="message">The message</param>
+        public void PartyMsg(string message) => InvokeOnMainThread(()=>{
+            GameActions.SayParty(message);
+        });
+
+        /// <summary>
+        /// Send your guild a message
+        /// </summary>
+        /// <param name="message"></param>
+        public void GuildMsg(string message) => InvokeOnMainThread(()=>{
+            GameActions.Say(message, ProfileManager.CurrentProfile.GuildMessageHue, MessageType.Guild);
+        });
+
+        /// <summary>
+        /// Send a message to your alliance
+        /// </summary>
+        /// <param name="message"></param>
+        public void AllyMsg(string message) => InvokeOnMainThread(()=>{
+            GameActions.Say(message, ProfileManager.CurrentProfile.AllyMessageHue, MessageType.Alliance);
+        });
+
+        /// <summary>
+        /// Whisper a message
+        /// </summary>
+        /// <param name="message"></param>
+        public void WhisperMsg(string message) => InvokeOnMainThread(()=>{
+            GameActions.Say(message, ProfileManager.CurrentProfile.WhisperHue, MessageType.Whisper);
+        });
+
+        /// <summary>
+        /// Yell a message
+        /// </summary>
+        /// <param name="message"></param>
+        public void YellMsg(string message) => InvokeOnMainThread(()=>{
+            GameActions.Say(message, ProfileManager.CurrentProfile.YellHue, MessageType.Yell);
+        });
+
+        /// <summary>
+        /// Emote a message
+        /// </summary>
+        /// <param name="message"></param>
+        public void EmoteMsg(string message) => InvokeOnMainThread(()=>{
+            GameActions.Say(message, ProfileManager.CurrentProfile.EmoteHue, MessageType.Emote);
+        });
+
+        /// <summary>
         /// Try to get an item by its serial
         /// </summary>
         /// <param name="serial">The serial</param>
@@ -327,7 +396,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="distance">Distance away from goal to stop.</param>
         public void Pathfind(int x, int y, int z = int.MinValue, int distance = 0) => InvokeOnMainThread(() =>
         {
-            if(z == int.MinValue)
+            if (z == int.MinValue)
                 z = World.Player.Z;
             Pathfinder.WalkTo(x, y, z, distance);
         });
@@ -525,19 +594,6 @@ namespace ClassicUO.LegionScripting
         /// Cancel targeting
         /// </summary>
         public void CancelTarget() => InvokeOnMainThread(TargetManager.CancelTarget);
-
-        /// <summary>
-        /// Stops the current script
-        /// </summary>
-        public void Stop()
-        {
-            int t = Thread.CurrentThread.ManagedThreadId;
-            InvokeOnMainThread(() =>
-            {
-                if (LegionScripting.PyThreads.TryGetValue(t, out var s))
-                    LegionScripting.StopScript(s);
-            });
-        }
 
         /// <summary>
         /// Set a skills lock status
@@ -748,6 +804,19 @@ namespace ClassicUO.LegionScripting
         public void Pause(double seconds)
         {
             Thread.Sleep((int)(seconds * 1000));
+        }
+
+        /// <summary>
+        /// Stops the current script
+        /// </summary>
+        public void Stop()
+        {
+            int t = Thread.CurrentThread.ManagedThreadId;
+            InvokeOnMainThread(() =>
+            {
+                if (LegionScripting.PyThreads.TryGetValue(t, out var s))
+                    LegionScripting.StopScript(s);
+            });
         }
 
         /// <summary>
