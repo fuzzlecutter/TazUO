@@ -54,19 +54,6 @@ namespace ClassicUO.Game.Managers
         {
             Register
             (
-                "genpydoc",
-                s =>
-                {
-                    var md = GenDoc.GenerateMarkdown(typeof(LegionScripting.API), out var py);
-                    var path = Path.Combine(CUOEnviroment.ExecutablePath, "Data", "PythonDocs.md");
-                    File.WriteAllText(path, md);
-                    File.WriteAllText(Path.Combine(CUOEnviroment.ExecutablePath, "Data", "API.py"), py.ToString());
-                    GameActions.Print("Python API docs generated and saved to: " + path);
-                }
-            );
-
-            Register
-            (
                 "info",
                 s =>
                 {
