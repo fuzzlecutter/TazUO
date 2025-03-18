@@ -108,6 +108,13 @@ namespace ClassicUO.LegionScripting
         public void ClickObject(uint serial) => InvokeOnMainThread(() => GameActions.SingleClick(serial));
 
         /// <summary>
+        /// Attempt to use(double click) an object.
+        /// </summary>
+        /// <param name="serial">The serial</param>
+        /// <param name="skipQueue">Defaults true, set to false to use a double click queue</param>
+        public void UseObject(uint serial, bool skipQueue = true) => InvokeOnMainThread(() => { if (skipQueue) GameActions.DoubleClick(serial); else GameActions.DoubleClickQueued(serial); });
+
+        /// <summary>
         /// Get an item count for the contents of a container
         /// </summary>
         /// <param name="serial"></param>
@@ -267,11 +274,27 @@ namespace ClassicUO.LegionScripting
         });
 
         /// <summary>
-        /// Attempt to use(double click) an object.
+        /// Attempt to use the first item found by graphic(type)
         /// </summary>
-        /// <param name="serial">The serial</param>
-        /// <param name="skipQueue">Defaults true, set to false to use a double click queue</param>
-        public void UseObject(uint serial, bool skipQueue = true) => InvokeOnMainThread(() => { if (skipQueue) GameActions.DoubleClick(serial); else GameActions.DoubleClickQueued(serial); });
+        /// <param name="graphic">Graphic/Type</param>
+        /// <param name="hue">Hue of item</param>
+        /// <param name="container">Parent container</param>
+        /// <param name="skipQueue">Defaults to true, set to false to queue the double click</param>
+        public void UseType(uint graphic, ushort hue = ushort.MaxValue, uint container = uint.MaxValue, bool skipQueue = true) => InvokeOnMainThread(() =>
+        {
+            var result = Utility.FindItems(graphic, hue: hue, parentContainer: container);
+            foreach (Item i in result)
+            {
+                if (!ignoreList.ContainsKey(i))
+                {
+                    if (skipQueue)
+                        GameActions.DoubleClick(i);
+                    else
+                        GameActions.DoubleClickQueued(i);
+                    return;
+                }
+            }
+        });
 
         /// <summary>
         /// Create a cooldown bar
@@ -302,8 +325,10 @@ namespace ClassicUO.LegionScripting
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <param name="distance">Distance away from goal to stop.</param>
-        public void Pathfind(int x, int y, int z, int distance = 0) => InvokeOnMainThread(() =>
+        public void Pathfind(int x, int y, int z = int.MinValue, int distance = 0) => InvokeOnMainThread(() =>
         {
+            if(z == int.MinValue)
+                z = World.Player.Z;
             Pathfinder.WalkTo(x, y, z, distance);
         });
 
@@ -332,6 +357,11 @@ namespace ClassicUO.LegionScripting
         public bool Pathfinding() => InvokeOnMainThread(() => Pathfinder.AutoWalking);
 
         /// <summary>
+        /// Cancel pathfinding.
+        /// </summary>
+        public void CancelPathfinding() => InvokeOnMainThread(Pathfinder.StopAutoWalk);
+
+        /// <summary>
         /// Automatically follow a mobile
         /// </summary>
         /// <param name="mobile">The mobile</param>
@@ -342,14 +372,29 @@ namespace ClassicUO.LegionScripting
         });
 
         /// <summary>
-        /// Cancel pathfinding.
-        /// </summary>
-        public void CancelPathfinding() => InvokeOnMainThread(Pathfinder.StopAutoWalk);
-
-        /// <summary>
         /// Cancel auto follow mode
         /// </summary>
         public void CancelAutoFollow() => InvokeOnMainThread(() => ProfileManager.CurrentProfile.FollowingMode = false);
+
+        /// <summary>
+        /// Run in a direction
+        /// </summary>
+        /// <param name="direction">north/northeast/south/west/etc</param>
+        public void Run(string direction)
+        {
+            Direction d = Utility.GetDirection(direction);
+            InvokeOnMainThread(() => World.Player.Walk(d, true));
+        }
+
+        /// <summary>
+        /// Walk in a direction
+        /// </summary>
+        /// <param name="direction">north/northeast/south/west/etc</param>
+        public void Walk(string direction)
+        {
+            Direction d = Utility.GetDirection(direction);
+            InvokeOnMainThread(() => World.Player.Walk(d, false));
+        }
 
         /// <summary>
         /// Attempt to rename something like a pet
@@ -378,29 +423,6 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="serial"></param>
         public void Mount(uint serial) => InvokeOnMainThread(() => { GameActions.DoubleClick(serial); });
-
-        /// <summary>
-        /// Attempt to use the first item found by graphic(type)
-        /// </summary>
-        /// <param name="graphic">Graphic/Type</param>
-        /// <param name="hue">Hue of item</param>
-        /// <param name="container">Parent container</param>
-        /// <param name="skipQueue">Defaults to true, set to false to queue the double click</param>
-        public void UseType(uint graphic, ushort hue = ushort.MaxValue, uint container = uint.MaxValue, bool skipQueue = true) => InvokeOnMainThread(() =>
-        {
-            var result = Utility.FindItems(graphic, hue: hue, parentContainer: container);
-            foreach (Item i in result)
-            {
-                if (!ignoreList.ContainsKey(i))
-                {
-                    if (skipQueue)
-                        GameActions.DoubleClick(i);
-                    else
-                        GameActions.DoubleClickQueued(i);
-                    return;
-                }
-            }
-        });
 
         /// <summary>
         /// Wait for a target cursor
@@ -622,7 +644,7 @@ namespace ClassicUO.LegionScripting
         /// <summary>
         /// Close the last gump open, or a specific gump
         /// </summary>
-        /// <param name="ID"></param>
+        /// <param name="ID">Gump ID</param>
         public void CloseGump(uint ID = uint.MaxValue) => InvokeOnMainThread(() =>
         {
             uint gump = ID != uint.MaxValue ? ID : World.Player.LastGumpID;
@@ -718,26 +740,6 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="spellName">This can be a partial match. Fireba will cast Fireball.</param>
         public void CastSpell(string spellName) => InvokeOnMainThread(() => { GameActions.CastSpellByName(spellName); });
-
-        /// <summary>
-        /// Run in a direction
-        /// </summary>
-        /// <param name="direction">north/northeast/south/west/etc</param>
-        public void Run(string direction)
-        {
-            Direction d = Utility.GetDirection(direction);
-            InvokeOnMainThread(() => World.Player.Walk(d, true));
-        }
-
-        /// <summary>
-        /// Walk in a direction
-        /// </summary>
-        /// <param name="direction">north/northeast/south/west/etc</param>
-        public void Walk(string direction)
-        {
-            Direction d = Utility.GetDirection(direction);
-            InvokeOnMainThread(() => World.Player.Walk(d, false));
-        }
 
         /// <summary>
         /// Pause the script
