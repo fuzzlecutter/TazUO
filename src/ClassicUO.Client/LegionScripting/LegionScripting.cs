@@ -331,6 +331,7 @@ namespace ClassicUO.LegionScripting
             script.pythonEngine ??= Python.CreateEngine();
             script.pythonScope = script.pythonEngine.CreateScope();
             script.pythonScope.SetVariable("API", PythonAPI);
+            script.pythonScope.SetVariable("Random", new Random());
             try
             {
                 script.pythonEngine.Execute(script.FileContentsJoined, script.pythonScope);

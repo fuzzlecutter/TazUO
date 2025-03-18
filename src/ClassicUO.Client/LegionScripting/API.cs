@@ -202,6 +202,12 @@ namespace ClassicUO.LegionScripting
         });
 
         /// <summary>
+        /// Attempt to cast a spell by its name
+        /// </summary>
+        /// <param name="spellName">This can be a partial match. Fireba will cast Fireball.</param>
+        public void CastSpell(string spellName) => InvokeOnMainThread(() => { GameActions.CastSpellByName(spellName); });
+
+        /// <summary>
         /// Check if a buff is active
         /// </summary>
         /// <param name="buffName">The name/title of the buff</param>
@@ -343,6 +349,16 @@ namespace ClassicUO.LegionScripting
         });
 
         /// <summary>
+        /// Get all items in a container
+        /// </summary>
+        /// <param name="container"></param>
+        /// <returns>A list of items in the container</returns>
+        public Item[] ItemsInContainer(uint container) => InvokeOnMainThread(() =>
+        {
+            return Utility.FindItems(parentContainer: container).ToArray();
+        });
+
+        /// <summary>
         /// Attempt to use the first item found by graphic(type)
         /// </summary>
         /// <param name="graphic">Graphic/Type</param>
@@ -464,6 +480,18 @@ namespace ClassicUO.LegionScripting
             Direction d = Utility.GetDirection(direction);
             InvokeOnMainThread(() => World.Player.Walk(d, false));
         }
+
+        /// <summary>
+        /// Turn your character a specific direction
+        /// </summary>
+        /// <param name="direction">north, northeast, etc</param>
+        public void Turn(string direction) => InvokeOnMainThread(() =>
+        {
+            Direction d = Utility.GetDirection(direction);
+
+            if (d != Direction.NONE && World.Player.Direction != d)
+                World.Player.Walk(d, false);
+        });
 
         /// <summary>
         /// Attempt to rename something like a pet
@@ -630,28 +658,6 @@ namespace ClassicUO.LegionScripting
         public void Logout() => InvokeOnMainThread(() => GameActions.Logout());
 
         /// <summary>
-        /// Turn your character a specific direction
-        /// </summary>
-        /// <param name="direction">north, northeast, etc</param>
-        public void Turn(string direction) => InvokeOnMainThread(() =>
-        {
-            Direction d = Utility.GetDirection(direction);
-
-            if (d != Direction.NONE && World.Player.Direction != d)
-                World.Player.Walk(d, false);
-        });
-
-        /// <summary>
-        /// Get all items in a container
-        /// </summary>
-        /// <param name="container"></param>
-        /// <returns>A list of items in the container</returns>
-        public Item[] ItemsInContainer(uint container) => InvokeOnMainThread(() =>
-        {
-            return Utility.FindItems(parentContainer: container).ToArray();
-        });
-
-        /// <summary>
         /// Gets item name and properties
         /// </summary>
         /// <param name="serial"></param>
@@ -790,12 +796,6 @@ namespace ClassicUO.LegionScripting
 
             });
         }
-
-        /// <summary>
-        /// Attempt to cast a spell by its name
-        /// </summary>
-        /// <param name="spellName">This can be a partial match. Fireba will cast Fireball.</param>
-        public void CastSpell(string spellName) => InvokeOnMainThread(() => { GameActions.CastSpellByName(spellName); });
 
         /// <summary>
         /// Pause the script
