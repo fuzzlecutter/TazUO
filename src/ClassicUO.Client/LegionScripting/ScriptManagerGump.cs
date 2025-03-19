@@ -242,6 +242,8 @@ namespace ClassicUO.LegionScripting
                             try
                             {
                                 string gPath = parentGroup == "" ? group : Path.Combine(parentGroup, group);
+                                if (gPath == NOGROUPTEXT)
+                                    gPath = string.Empty;
                                 if (!File.Exists(Path.Combine(LegionScripting.ScriptPath, gPath, s)))
                                 {
                                     File.WriteAllText(Path.Combine(LegionScripting.ScriptPath, gPath, s), "# My script");
@@ -404,6 +406,7 @@ namespace ClassicUO.LegionScripting
             private NiceButton playstop, menu;
 
             public ScriptFile Script { get; }
+            private string ScriptDisplayName { get { return Script == null ? String.Empty : Script.FileName.Substring(0, Script.FileName.IndexOf('.')); } }
 
             private string playStopText
             {
@@ -426,10 +429,12 @@ namespace ClassicUO.LegionScripting
                 Script = script;
                 CanMove = true;
 
+                SetTooltip(ScriptDisplayName);
+
                 Add(background = new AlphaBlendControl(0.35f) { Height = Height, Width = Width });
 
-                Add(label = new TextBox(script.FileName.Substring(0, script.FileName.IndexOf('.')), TrueTypeLoader.EMBEDDED_FONT, 16, w - 130, Color.White, strokeEffect: false) { AcceptMouseInput = false });
-                label.Y = (Height - label.MeasuredSize.Y) / 2;
+                Add(label = new TextBox(ScriptDisplayName, TrueTypeLoader.EMBEDDED_FONT, 16, w - 130, Color.White, strokeEffect: false) { AcceptMouseInput = false });
+                label.Y = 5;
                 label.X = 5;
 
                 Add(playstop = new NiceButton(w - 75, 0, 50, Height, ButtonAction.Default, playStopText) { IsSelectable = false });
@@ -558,7 +563,13 @@ namespace ClassicUO.LegionScripting
             {
                 Width = w;
                 background.Width = w;
+                label.UpdateText(ScriptDisplayName, w - 80);
                 label.Width = w - 80;
+                if (label.RTL.Lines.Count > 1)
+                {
+                    var msize = label.RTL.Lines[0].Count;
+                    label.UpdateText(ScriptDisplayName.Substring(0, msize - 3) + "...", w - 80);
+                }
                 playstop.X = label.X + label.Width + 5;
                 menu.X = playstop.X + playstop.Width;
             }
