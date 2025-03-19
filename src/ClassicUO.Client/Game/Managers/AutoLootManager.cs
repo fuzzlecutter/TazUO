@@ -171,8 +171,9 @@ namespace ClassicUO.Game.Managers
                 }
 
                 Item m = World.Items.Get(moveItem);
-                if (m != null)
+                if (m != null && !m.RecentlyLooted)
                 {
+                    m.RecentlyLooted = true;
                     GameActions.GrabItem(m, m.Amount);
                     nextLootTime = Time.Ticks + ProfileManager.CurrentProfile.MoveMultiObjectDelay;
                 }
