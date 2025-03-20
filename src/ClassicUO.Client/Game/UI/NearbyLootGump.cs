@@ -204,7 +204,7 @@ namespace ClassicUO.Game.UI
                 {
 
                     Item item = (Item)i;
-                    if (item == null || item.Graphic == default(ushort))
+                    if (item == null || item.Graphic == default(ushort) || !item.IsLootable)
                         continue;
 
                     itemList.Add(item);
