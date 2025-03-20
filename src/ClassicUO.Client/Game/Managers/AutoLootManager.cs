@@ -19,6 +19,7 @@ namespace ClassicUO.Game.Managers
         public List<AutoLootItem> AutoLootList { get => autoLootItems; set => autoLootItems = value; }
 
         private HashSet<uint> quickContainsLookup = new HashSet<uint>();
+        private HashSet<uint> recentlyLooted = new HashSet<uint>();
         private static ConcurrentQueue<uint> lootItems = new ConcurrentQueue<uint>();
         private List<AutoLootItem> autoLootItems = new List<AutoLootItem>();
         private bool loaded = false;
@@ -54,7 +55,7 @@ namespace ClassicUO.Game.Managers
         /// </summary>
         private void CheckAndLoot(Item i)
         {
-            if (!loaded || i == null || quickContainsLookup.Contains(i.Serial)) return;
+            if (!loaded || i == null || quickContainsLookup.Contains(i.Serial) || recentlyLooted.Contains(i.Serial)) return;
 
             if (IsOnLootList(i))
             {
@@ -159,6 +160,7 @@ namespace ClassicUO.Game.Managers
                 if (lootItems.IsEmpty) //Que emptied out
                 {
                     currentLootTotalCount = 0;
+                    recentlyLooted.Clear();
                 }
 
                 quickContainsLookup.Remove(moveItem);
@@ -171,11 +173,11 @@ namespace ClassicUO.Game.Managers
                 }
 
                 Item m = World.Items.Get(moveItem);
-                if (m != null && !m.RecentlyLooted)
+                if (m != null && !recentlyLooted.Contains(moveItem))
                 {
-                    m.RecentlyLooted = true;
                     GameActions.GrabItem(m, m.Amount);
                     nextLootTime = Time.Ticks + ProfileManager.CurrentProfile.MoveMultiObjectDelay;
+                    recentlyLooted.Add(moveItem);
                 }
             }
         }

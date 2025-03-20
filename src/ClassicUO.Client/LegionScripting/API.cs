@@ -888,6 +888,13 @@ namespace ClassicUO.LegionScripting
 
             return null;
         });
+        
+        /// <summary>
+        /// Get a mobile from its serial
+        /// </summary>
+        /// <param name="serial"></param>
+        /// <returns>The mobile or null</returns>
+        public Mobile FindMobile(uint serial) => InvokeOnMainThread(() => World.Mobiles.Get(serial));
         #endregion
     }
 }

@@ -78,7 +78,6 @@ namespace ClassicUO.Game.GameObjects
                 }
             } 
         }
-        public bool RecentlyLooted;
         public ushort HitsMax;
         public byte HitsPercentage;
         public bool IsClicked;
