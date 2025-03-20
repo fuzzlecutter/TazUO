@@ -6400,6 +6400,8 @@ namespace ClassicUO.Network
                     mobile.Y = y;
                     mobile.Z = z;
                     mobile.Flags = flagss;
+
+                    MobileGraphicsReplacement.Replace(ref mobile.Graphic, ref hue);
                 }
                 else
                 {
@@ -6515,6 +6517,8 @@ namespace ClassicUO.Network
                 mobile.Graphic = (ushort)(graphic & 0x3FFF);
                 mobile.FixHue(hue);
                 mobile.Flags = flagss;
+
+                MobileGraphicsReplacement.Replace(ref mobile.Graphic, ref mobile.Hue);
             }
 
             if (created && !obj.IsClicked)

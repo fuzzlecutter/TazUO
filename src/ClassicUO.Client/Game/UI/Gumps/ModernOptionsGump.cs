@@ -2805,6 +2805,14 @@ namespace ClassicUO.Game.UI.Gumps
             content.AddToRight(new BuyAgentConfigs(content.RightWidth - Theme.SCROLL_BAR_WIDTH - 10), true, page);
             #endregion
 
+            #region Graphic Filter
+            page = ((int)PAGE.TUOOptions + 1015);
+            content.AddToLeft(SubCategoryButton(lang.GetTazUO.GraphicChangeFilter, page, content.LeftWidth));
+            content.ResetRightSide();
+
+            content.AddToRight(new MobileFilterConfigs(content.RightWidth - Theme.SCROLL_BAR_WIDTH - 10), true, page);
+            #endregion
+
             options.Add(
             new SettingsOption(
                 "",
@@ -3039,6 +3047,152 @@ namespace ClassicUO.Game.UI.Gumps
         }
 
         #region Custom Controls For Options
+        private class MobileFilterConfigs : Control
+        {
+            private DataBox _dataBox;
+
+            public MobileFilterConfigs(int width)
+            {
+                AcceptMouseInput = true;
+                CanMove = true;
+                Width = width;
+
+                Add(_dataBox = new DataBox(0, 0, width, 0));
+
+                ModernButton b;
+                _dataBox.Add(b = new ModernButton(0, 0, 100, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Add entry", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    _dataBox.Insert(3, GenConfigEntry(MobileGraphicsReplacement.NewFilter(0, 0), width));
+                    RearrangeDataBox();
+                };
+
+                _dataBox.Add(b = new ModernButton(0, 0, 150, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Target mobile", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    TargetHelper.TargetObject((e) =>
+                    {
+                        if (e == null) return;
+                        var sc = MobileGraphicsReplacement.NewFilter(e.Graphic, e.Graphic, e.Hue);
+                        _dataBox.Insert(3, GenConfigEntry(sc, width));
+                        RearrangeDataBox();
+                    });
+                };
+
+                Area titles = new Area(false);
+                titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 0 });
+                titles.Add(new TextBox("New Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 5) / 3) + 5 });
+                titles.Add(new TextBox("New Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = (((width - 90 - 5) / 3) * 2) + 10 });
+                titles.ForceSizeUpdate();
+                _dataBox.Add(titles);
+
+                foreach (var item in MobileGraphicsReplacement.MobileFilters)
+                {
+                    _dataBox.Add(GenConfigEntry(item.Value, width));
+                }
+                RearrangeDataBox();
+            }
+
+            private Control GenConfigEntry(MobileChangeFilter filter, int width)
+            {
+                int ewidth = (width - 90 ) / 3;
+
+                Area area = new Area() { Width = width, Height = 50 };
+
+                int x = 0;
+                InputField graphicInput = new InputField(ewidth, 50, 100, -1, filter.OriginalGraphic.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox graphicInput = (InputField.StbTextBox)s;
+                    if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
+                    {
+                        filter.OriginalGraphic = ngh;
+                    }
+                    else if (ushort.TryParse(graphicInput.Text, out var ng))
+                    {
+                        filter.OriginalGraphic = ng;
+                    }
+                })
+                { X = x };
+                graphicInput.SetTooltip("Original Graphic");
+                area.Add(graphicInput);
+                x += graphicInput.Width + 5;
+
+                InputField newgraphicInput = new InputField(ewidth, 50, 100, -1, filter.ReplacementGraphic.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox graphicInput = (InputField.StbTextBox)s;
+                    if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
+                    {
+                        filter.ReplacementGraphic = ngh;
+                    }
+                    else if (ushort.TryParse(graphicInput.Text, out var ng))
+                    {
+                        filter.ReplacementGraphic = ng;
+                    }
+                })
+                { X = x };
+                newgraphicInput.SetTooltip("Replacement Graphic");
+                area.Add(newgraphicInput);
+                x += newgraphicInput.Width + 5;
+
+                InputField hueInput = new InputField(ewidth, 50, 100, -1, filter.NewHue == ushort.MaxValue ? "-1" : filter.NewHue.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox hueInput = (InputField.StbTextBox)s;
+                    if (hueInput.Text == "-1")
+                    {
+                        filter.NewHue = ushort.MaxValue;
+                    }
+                    else if (ushort.TryParse(hueInput.Text, out var ng))
+                    {
+                        filter.NewHue = ng;
+                    }
+                })
+                { X = x };
+                hueInput.SetTooltip("Hue (-1 to leave original)");
+                area.Add(hueInput);
+                x += hueInput.Width + 5;
+
+                NiceButton delete;
+                area.Add(delete = new NiceButton(x, 0, area.Width - x, 49, ButtonAction.Activate, "X") { IsSelectable = false, DisplayBorder = true });
+                delete.SetTooltip("Delete this entry");
+                delete.MouseUp += (s, e) =>
+                {
+                    if (e.Button == Input.MouseButtonType.Left)
+                    {
+                        MobileGraphicsReplacement.DeleteFilter(filter.OriginalGraphic);
+                        area.Dispose();
+                        RearrangeDataBox();
+                    }
+                };
+
+                return area;
+            }
+
+            private static byte GetAnimGroup(ushort graphic)
+            {
+                var groupType = Client.Game.Animations.GetAnimType(graphic);
+                switch (AnimationsLoader.Instance.GetGroupIndex(graphic, groupType))
+                {
+                    case AnimationGroups.Low:
+                        return (byte)LowAnimationGroup.Stand;
+
+                    case AnimationGroups.High:
+                        return (byte)HighAnimationGroup.Stand;
+
+                    case AnimationGroups.People:
+                        return (byte)PeopleAnimationGroup.Stand;
+                }
+
+                return 0;
+            }
+
+            private void RearrangeDataBox()
+            {
+                _dataBox.ReArrangeChildren();
+                _dataBox.ForceSizeUpdate();
+                Height = _dataBox.Height;
+            }
+        }
+
         private class BuyAgentConfigs : Control
         {
             private DataBox _dataBox;

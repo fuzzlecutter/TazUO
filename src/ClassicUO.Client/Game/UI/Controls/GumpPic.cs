@@ -139,6 +139,7 @@ namespace ClassicUO.Game.UI.Controls
             batcher.Draw(
                 _customTexture,
                 new Rectangle(x, y, Width, Height),
+                new Rectangle(_customTexture.Bounds.X, _customTexture.Bounds.Y, _customTexture.Width, _customTexture.Height),
                 hueVector
             );
 
