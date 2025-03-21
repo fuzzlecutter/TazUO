@@ -60,7 +60,8 @@ namespace ClassicUO.Game.UI
             {
                 CenterXInViewPort();
                 CenterYInViewPort();
-            } else
+            }
+            else
                 Location = lastLocation;
 
             Add(alphaBG = new AlphaBlendControl() { Width = Width, Height = Height });
@@ -70,7 +71,8 @@ namespace ClassicUO.Game.UI
 
             Add(c = new NiceButton(Width - 20, 0, 20, 20, ButtonAction.Default, "+"));
             c.SetTooltip("Options");
-            c.MouseUp += (s, e) => {
+            c.MouseUp += (s, e) =>
+            {
                 if (e.Button == MouseButtonType.Left)
                     GenOptionsContext().Show();
             };
@@ -150,7 +152,8 @@ namespace ClassicUO.Game.UI
         private ContextMenuControl GenOptionsContext()
         {
             var c = new ContextMenuControl();
-            c.Add(new ContextMenuItemEntry("Open human corpses?", () => {
+            c.Add(new ContextMenuItemEntry("Open human corpses?", () =>
+            {
                 ProfileManager.CurrentProfile.NearbyLootOpensHumanCorpses ^= true;
                 RequestUpdateContents();
             }, true, ProfileManager.CurrentProfile.NearbyLootOpensHumanCorpses));
@@ -199,6 +202,9 @@ namespace ClassicUO.Game.UI
 
             if (corpse.Items != null)
             {
+                if (_corpsesRequested.Contains(corpse))
+                    _corpsesRequested.Remove(corpse);
+                    
                 _openedCorpses.Add(corpse);
                 for (LinkedObject i = corpse.Items; i != null; i = i.Next)
                 {
@@ -260,7 +266,7 @@ namespace ClassicUO.Game.UI
         {
             if (_corpsesRequested.Contains(serial))
             {
-                if(remove) _corpsesRequested.Remove(serial);
+                if (remove) _corpsesRequested.Remove(serial);
                 return true;
             }
 
