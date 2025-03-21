@@ -204,7 +204,7 @@ namespace ClassicUO.Game.UI
             {
                 if (_corpsesRequested.Contains(corpse))
                     _corpsesRequested.Remove(corpse);
-                    
+
                 _openedCorpses.Add(corpse);
                 for (LinkedObject i = corpse.Items; i != null; i = i.Next)
                 {
@@ -226,8 +226,7 @@ namespace ClassicUO.Game.UI
         {
             if (_corpsesRequested.Contains(corpse))
                 return;
-
-            if (World.Player.AutoOpenedCorpses.Contains(corpse.Serial))
+            if (corpse.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
                 return;
 
             _corpsesRequested.Add(corpse.Serial);
