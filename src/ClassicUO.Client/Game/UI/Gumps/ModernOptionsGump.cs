@@ -3063,8 +3063,12 @@ namespace ClassicUO.Game.UI.Gumps
                 _dataBox.Add(b = new ModernButton(0, 0, 100, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Add entry", Theme.BUTTON_FONT_COLOR));
                 b.MouseUp += (s, e) =>
                 {
-                    _dataBox.Insert(3, GenConfigEntry(MobileGraphicsReplacement.NewFilter(0, 0), width));
-                    RearrangeDataBox();
+                    var newConfig = MobileGraphicsReplacement.NewFilter(0, 0);
+                    if (newConfig != null)
+                    {
+                        _dataBox.Insert(3, GenConfigEntry(newConfig, width));
+                        RearrangeDataBox();
+                    }
                 };
 
                 _dataBox.Add(b = new ModernButton(0, 0, 150, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Target mobile", Theme.BUTTON_FONT_COLOR));
@@ -3074,8 +3078,11 @@ namespace ClassicUO.Game.UI.Gumps
                     {
                         if (e == null) return;
                         var sc = MobileGraphicsReplacement.NewFilter(e.Graphic, e.Graphic, e.Hue);
-                        _dataBox.Insert(3, GenConfigEntry(sc, width));
-                        RearrangeDataBox();
+                        if (sc != null)
+                        {
+                            _dataBox.Insert(3, GenConfigEntry(sc, width));
+                            RearrangeDataBox();
+                        }
                     });
                 };
 
@@ -3095,7 +3102,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             private Control GenConfigEntry(MobileChangeFilter filter, int width)
             {
-                int ewidth = (width - 90 ) / 3;
+                int ewidth = (width - 90) / 3;
 
                 Area area = new Area() { Width = width, Height = 50 };
 
@@ -3106,10 +3113,12 @@ namespace ClassicUO.Game.UI.Gumps
                     if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
                     {
                         filter.OriginalGraphic = ngh;
+                        MobileGraphicsReplacement.ResetLists();
                     }
                     else if (ushort.TryParse(graphicInput.Text, out var ng))
                     {
                         filter.OriginalGraphic = ng;
+                        MobileGraphicsReplacement.ResetLists();
                     }
                 })
                 { X = x };

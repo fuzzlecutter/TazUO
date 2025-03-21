@@ -53,19 +53,36 @@ namespace ClassicUO.Game.Managers
             }
         }
 
+        public static void ResetLists()
+        {
+            Dictionary<ushort, MobileChangeFilter> newList = new Dictionary<ushort, MobileChangeFilter>();
+            quickLookup.Clear();
+
+            foreach (var item in mobileChangeFilters)
+            {
+                newList.Add(item.Value.OriginalGraphic, item.Value);
+                quickLookup.Add(item.Value.OriginalGraphic);
+            }
+            mobileChangeFilters = newList;
+        }
+
         public static MobileChangeFilter NewFilter(ushort originalGraphic, ushort newGraphic, ushort newHue = ushort.MaxValue)
         {
-            MobileChangeFilter f;
-            mobileChangeFilters.Add(originalGraphic, f = new MobileChangeFilter()
+            if (!mobileChangeFilters.ContainsKey(originalGraphic))
             {
-                OriginalGraphic = originalGraphic,
-                ReplacementGraphic = newGraphic,
-                NewHue = newHue
-            });
+                MobileChangeFilter f;
+                mobileChangeFilters.Add(originalGraphic, f = new MobileChangeFilter()
+                {
+                    OriginalGraphic = originalGraphic,
+                    ReplacementGraphic = newGraphic,
+                    NewHue = newHue
+                });
 
-            quickLookup.Add(originalGraphic);
+                quickLookup.Add(originalGraphic);
+                return f;
 
-            return f;
+            }
+            return null;
         }
 
         public static void DeleteFilter(ushort originalGraphic)
