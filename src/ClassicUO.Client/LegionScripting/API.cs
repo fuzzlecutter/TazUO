@@ -985,13 +985,28 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="text"></param>
         /// <param name="normal">Graphic when not clicked or hovering</param>
-        /// <param name="pressed"></param>
-        /// <param name="hover"></param>
+        /// <param name="pressed">Graphic when pressed</param>
+        /// <param name="hover">Graphic on hover</param>
         /// <returns></returns>
         public Button CreateGumpButton(string text = "", ushort hue = 996, ushort normal = 0x00EF, ushort pressed = 0x00F0, ushort hover = 0x00EE)
         {
             Button b = new Button(0, normal, pressed, hover, caption: text, normalHue: hue, hoverHue: hue);
             return b;
+        }
+
+        /// <summary>
+        /// Create a radio button for gumps, use group numbers to only allow one item to be checked at a time
+        /// </summary>
+        /// <param name="text">Optional text</param>
+        /// <param name="group">Group ID</param>
+        /// <param name="inactive">Unchecked graphic</param>
+        /// <param name="active">Checked graphic</param>
+        /// <param name="hue">Text color</param>
+        /// <returns></returns>
+        public RadioButton CreateGumpRadioButton(string text = "", int group = 0, ushort inactive=0x00D0, ushort active=0x00D1, ushort hue = 0xFFFF)
+        {
+            RadioButton rb = new RadioButton(group, inactive, active, text, color: hue);
+            return rb;
         }
         #endregion
     }
