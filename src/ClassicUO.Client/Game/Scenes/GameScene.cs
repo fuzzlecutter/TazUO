@@ -1046,7 +1046,9 @@ namespace ClassicUO.Game.Scenes
             if (!_use_render_target)
             {
                 if (ProfileManager.CurrentProfile.GlobalScaling)
-  {                  matrix = Matrix.CreateScale(ProfileManager.CurrentProfile.GlobalScale);
+                {
+                    Camera.Zoom = 1f; // oScale + ProfileManager.CurrentProfile.GlobalScale;
+                    matrix = Matrix.CreateScale(ProfileManager.CurrentProfile.GlobalScale);
                     camera_viewport.Bounds = new Rectangle(
                         (int)(camera_viewport.Bounds.X * ProfileManager.CurrentProfile.GlobalScale),
                         (int)(camera_viewport.Bounds.Y * ProfileManager.CurrentProfile.GlobalScale),
