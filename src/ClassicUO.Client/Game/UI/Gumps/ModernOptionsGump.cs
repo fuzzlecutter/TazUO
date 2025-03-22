@@ -2317,6 +2317,9 @@ namespace ClassicUO.Game.UI.Gumps
             content.BlankLine();
             content.AddToRight(c = new SliderWithLabel(lang.GetTazUO.TurnDelay, 0, Theme.SLIDER_WIDTH, 45, 120, profile.TurnDelay, i => profile.TurnDelay = (ushort)i), true, page);
             c.SetTooltip("This settting may cause throttling, Use with caution.");
+
+            content.BlankLine();
+            content.AddToRight(new CheckboxWithLabel(lang.GetGeneral.IgnoreStaminaCheck, 0, profile.IgnoreStaminaCheck, (b) => profile.IgnoreStaminaCheck = b), true, page);
             #endregion
 
             #region Misc

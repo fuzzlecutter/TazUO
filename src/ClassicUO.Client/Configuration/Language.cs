@@ -152,6 +152,7 @@ namespace ClassicUO.Configuration
             public string AuraOptAlways { get; set; } = "Always";
             public string AuraForParty { get; set; } = "Use a custom color for party members";
             public string AuraPartyColor { get; set; } = "Party aura color";
+            public string IgnoreStaminaCheck { get; set; } = "Disable stamina check for movement";
             #endregion
 
             #region General->Gumps
