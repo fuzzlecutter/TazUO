@@ -192,14 +192,34 @@ namespace ClassicUO.LegionScripting
         internal class GroupControl : Control
         {
             public event EventHandler<EventArgs> GroupExpandedShrunk;
-
-            private readonly AlphaBlendControl background;
             private readonly NiceButton expand, options;
             private readonly TextBox label;
             private readonly DataBox dataBox;
             private readonly string group;
             private readonly string parentGroup;
             private const int HEIGHT = 25;
+
+            private const string SCRIPT_HEADER =
+            "# See examples at" +
+            "\n#   https://github.com/bittiez/PublicLegionScripts/" +
+            "\n# Or documentation at" + 
+            "\n#   https://github.com/bittiez/TazUO/wiki/TazUO.Legion-Scripting";
+            private const string EXAMPLE_LSCRIPT =
+            SCRIPT_HEADER + 
+            @"
+player = API.Player
+delay = 8
+diffhits = 10
+
+while True:
+    if player.HitsMax - player.Hits > diffhits or player.IsPoisoned:
+        if API.BandageSelf():
+            API.CreateCooldownBar(delay, 'Bandaging...', 21)
+            API.Pause(delay)
+        else:
+            API.SysMsg('WARNING: No bandages!', 32)
+            break
+    API.Pause(0.5)";
             private string expandShrink
             {
                 get
@@ -232,7 +252,7 @@ namespace ClassicUO.LegionScripting
                 options.ContextMenu = new ContextMenuControl();
                 options.ContextMenu.Add(new ContextMenuItemEntry("New script", () =>
                 {
-                    InputRequest r = new InputRequest("Enter a name for this script. Use .lscript or .py", "Create", "Cancel", (r, s) =>
+                    InputRequest r = new InputRequest("Enter a name for this script. \nUse /c[#da6e22].lscript/cd or /c[#da6e22].py", "Create", "Cancel", (r, s) =>
                     {
                         if (r == InputRequest.Result.BUTTON1 && !string.IsNullOrEmpty(s))
                         {
@@ -246,7 +266,7 @@ namespace ClassicUO.LegionScripting
                                     gPath = string.Empty;
                                 if (!File.Exists(Path.Combine(LegionScripting.ScriptPath, gPath, s)))
                                 {
-                                    File.WriteAllText(Path.Combine(LegionScripting.ScriptPath, gPath, s), "# My script");
+                                    File.WriteAllText(Path.Combine(LegionScripting.ScriptPath, gPath, s), SCRIPT_HEADER);
                                     ScriptManagerGump.RefreshContent = true;
                                 }
                             }
@@ -276,9 +296,9 @@ namespace ClassicUO.LegionScripting
                                     if (!Directory.Exists(path))
                                     {
                                         Directory.CreateDirectory(path);
-                                        File.WriteAllText(Path.Combine(path, "Example.lscript"), "// This script was placed here because empty groups will not show up, there needs to be at least one script in a group.");
-                                        ScriptManagerGump.RefreshContent = true;
                                     }
+                                    File.WriteAllText(Path.Combine(path, "Example.py"), EXAMPLE_LSCRIPT);
+                                    ScriptManagerGump.RefreshContent = true;
                                 }
                                 catch (Exception e) { Console.WriteLine(e.ToString()); }
                             }
@@ -314,7 +334,7 @@ namespace ClassicUO.LegionScripting
                         options.ContextMenu.Show();
                 };
 
-                Add(background = new AlphaBlendControl(0.35f) { Height = HEIGHT, Width = label.Width + expand.Width + options.Width });
+                Add(new AlphaBlendControl(0.35f) { Height = HEIGHT, Width = label.Width + expand.Width + options.Width });
                 Add(expand);
                 Add(label);
                 Add(options);
@@ -429,7 +449,7 @@ namespace ClassicUO.LegionScripting
                 Script = script;
                 CanMove = true;
 
-                SetTooltip(ScriptDisplayName);
+                SetTooltip(Script.FileName); //Full filename to show py or lscript
 
                 Add(background = new AlphaBlendControl(0.35f) { Height = Height, Width = Width });
 

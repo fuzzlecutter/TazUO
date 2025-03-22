@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -234,6 +235,13 @@ namespace ClassicUO.LegionScripting
                 if (File.Exists(path))
                 {
                     lScriptSettings = JsonSerializer.Deserialize<LScriptSettings>(File.ReadAllText(path));
+                    for (int i = 0; i < lScriptSettings.CharAutoStartScripts.Count; i++)
+                    {
+                        var val = lScriptSettings.CharAutoStartScripts.ElementAt(i);
+                        val.Value.RemoveAll(script => !LoadedScripts.Any(s => s.FileName == script));
+                    }
+
+                    lScriptSettings.GlobalAutoStartScripts.RemoveAll(script => !LoadedScripts.Any(s => s.FileName == script));
                     return;
                 }
             }
