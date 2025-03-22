@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using System.Threading;
 using ClassicUO.Configuration;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
+using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Network;
+using Microsoft.Xna.Framework;
 
 namespace ClassicUO.LegionScripting
 {
@@ -888,13 +889,110 @@ namespace ClassicUO.LegionScripting
 
             return null;
         });
-        
+
         /// <summary>
         /// Get a mobile from its serial
         /// </summary>
         /// <param name="serial"></param>
         /// <returns>The mobile or null</returns>
         public Mobile FindMobile(uint serial) => InvokeOnMainThread(() => World.Mobiles.Get(serial));
+
+        /// <summary>
+        /// Get a blank gump
+        /// </summary>
+        /// <param name="acceptMouseInput">Allow clicking the gump</param>
+        /// <param name="canMove">Allow the play to move this gump</param>
+        /// <returns>A new, empty gump</returns>
+        public Gump CreateGump(bool acceptMouseInput = true, bool canMove = true)
+        {
+            var g = new Gump(0, 0)
+            {
+                AcceptMouseInput = true,
+                CanMove = true,
+                WantUpdateSize = true
+            };
+            return g;
+        }
+
+        /// <summary>
+        /// Add a gump to the players screen
+        /// </summary>
+        /// <param name="g">The gump to add</param>
+        public void AddGump(Gump g) => InvokeOnMainThread(() =>
+        {
+            UIManager.Add(g);
+        });
+
+        /// <summary>
+        /// Create a checkbox for gumps
+        /// </summary>
+        /// <param name="text">Optional text label</param>
+        /// <param name="hue">Optional hue</param>
+        /// <returns>The checkbox</returns>
+        public Checkbox CreateGumpCheckbox(string text = "", ushort hue = 0) => new Checkbox(0x00D2, 0x00D3, text, color: hue) { CanMove = true };
+
+        /// <summary>
+        /// Create a label for a gump
+        /// </summary>
+        /// <param name="text">The text</param>
+        /// <param name="hue">The hue of the text</param>
+        /// <returns></returns>
+        public Label CreateGumpLabel(string text, ushort hue = 996) => new Label(text, true, hue) { CanMove = true };
+
+        /// <summary>
+        /// Get a transparent color box for gumps
+        /// </summary>
+        /// <param name="opacity">0.5 = 50%</param>
+        /// <param name="color">Html color code like #000000</param>
+        /// <returns></returns>
+        public AlphaBlendControl CreateGumpColorBox(float opacity = 0.7f, string color = "#000000")
+        {
+            AlphaBlendControl bc = new AlphaBlendControl(opacity);
+
+            if (color.StartsWith("#") && color.Length == 7)
+            {
+                byte r = Convert.ToByte(color.Substring(1, 2), 16);
+                byte g = Convert.ToByte(color.Substring(3, 2), 16);
+                byte b = Convert.ToByte(color.Substring(5, 2), 16);
+
+                bc.BaseColor = new Color(r, g, b);
+            }
+            else
+            {
+                bc.BaseColor = Color.Black;
+            }
+            return bc;
+        }
+
+        /// <summary>
+        /// Create a picture of an item
+        /// </summary>
+        /// <param name="graphic"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public ResizableStaticPic CreateGumpItemPic(uint graphic, int width, int height)
+        {
+            ResizableStaticPic pic = new ResizableStaticPic(graphic, width, height)
+            {
+                AcceptMouseInput = false
+            };
+            return pic;
+        }
+
+        /// <summary>
+        /// Create a button for gumps
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="normal">Graphic when not clicked or hovering</param>
+        /// <param name="pressed"></param>
+        /// <param name="hover"></param>
+        /// <returns></returns>
+        public Button CreateGumpButton(string text = "", ushort hue = 996, ushort normal = 0x00EF, ushort pressed = 0x00F0, ushort hover = 0x00EE)
+        {
+            Button b = new Button(0, normal, pressed, hover, caption: text, normalHue: hue, hoverHue: hue);
+            return b;
+        }
         #endregion
     }
 }
