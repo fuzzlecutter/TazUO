@@ -139,8 +139,14 @@ namespace ClassicUO.Game.Managers
 
             if (!File.Exists(path))
             {
-                Directory.CreateDirectory(ProfileManager.ProfilePath);
-                File.Create(path).Close();
+                try
+                {
+                    File.Create(path).Close();
+                }
+                catch (Exception)
+                {
+                    Log.Error($"Warning, unable to create {path}.");
+                }
             }
 
             using (XmlTextWriter xml = new XmlTextWriter(path, Encoding.UTF8)
