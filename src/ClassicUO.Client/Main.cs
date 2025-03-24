@@ -107,7 +107,6 @@ namespace ClassicUO
                 {
                     crashfile.WriteAsync(sb.ToString()).RunSynchronously();
                 }
-                reportCrash.Wait();
             };
 #endif
             ReadSettingsFromArgs(args);
