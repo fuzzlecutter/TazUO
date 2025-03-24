@@ -74,9 +74,9 @@ namespace ClassicUO
                 sb.AppendLine("######################## [START LOG] ########################");
 
 #if DEV_BUILD
-                sb.AppendLine($"ClassicUO [DEV_BUILD] - {CUOEnviroment.Version} - {DateTime.Now}");
+                sb.AppendLine($"TazUO [DEV_BUILD] - {CUOEnviroment.Version} - {DateTime.Now}");
 #else
-                sb.AppendLine($"ClassicUO [STANDARD_BUILD] - {CUOEnviroment.Version} - {DateTime.Now}");
+                sb.AppendLine($"TazUO [STANDARD_BUILD] - {CUOEnviroment.Version} - {DateTime.Now}");
 #endif
 
                 sb.AppendLine
@@ -96,12 +96,6 @@ namespace ClassicUO
                 sb.AppendLine("######################## [END LOG] ########################");
                 sb.AppendLine();
                 sb.AppendLine();
-
-                System.Threading.Tasks.Task reportCrash = System.Threading.Tasks.Task.Factory.StartNew(() =>
-                {
-                    string s = "CV: " + Settings.GlobalSettings.ClientVersion + " - TUO: " + CUOEnviroment.Version.ToString() + "\n" + e.ExceptionObject.ToString();
-                    new CrashReportWebhook().SendMessage(s);
-                });
 
                 Log.Panic(e.ExceptionObject.ToString());
                 string path = Path.Combine(CUOEnviroment.ExecutablePath, "Logs");
