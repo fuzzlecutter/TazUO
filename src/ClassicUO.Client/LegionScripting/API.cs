@@ -739,6 +739,37 @@ namespace ClassicUO.LegionScripting
         });
 
         /// <summary>
+        /// Check if a gump contains a specific text.
+        /// </summary>
+        /// <param name="text">Can be regex if you start with $, otherwise it's just regular search. Case Sensitive.</param>
+        /// <param name="ID">Gump ID, blank to use the last gump.</param>
+        /// <returns></returns>
+        public bool GumpContains(string text, uint ID = uint.MaxValue) => InvokeOnMainThread(() =>
+        {
+            Gump g = UIManager.GetGumpServer(ID == uint.MaxValue ? World.Player.LastGumpID : ID);
+            if (g != null)
+            {
+                bool regex = text.StartsWith("$");
+                if (regex)
+                    text = text.Substring(1);
+
+                foreach (Control c in g.Children)
+                {
+                    if (c is Label l && (l.Text.Contains(text) || (regex && System.Text.RegularExpressions.Regex.IsMatch(l.Text, text))))
+                    {
+                        return true;
+                    }
+                    else if (c is HtmlControl ht && (ht.Text.Contains(text) || (regex && System.Text.RegularExpressions.Regex.IsMatch(ht.Text, text))))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        });
+
+        /// <summary>
         /// Toggle flying if you are a gargoyle
         /// </summary>
         public void ToggleFly() => InvokeOnMainThread(() =>
@@ -1003,7 +1034,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="active">Checked graphic</param>
         /// <param name="hue">Text color</param>
         /// <returns></returns>
-        public RadioButton CreateGumpRadioButton(string text = "", int group = 0, ushort inactive=0x00D0, ushort active=0x00D1, ushort hue = 0xFFFF)
+        public RadioButton CreateGumpRadioButton(string text = "", int group = 0, ushort inactive = 0x00D0, ushort active = 0x00D1, ushort hue = 0xFFFF)
         {
             RadioButton rb = new RadioButton(group, inactive, active, text, color: hue);
             return rb;
