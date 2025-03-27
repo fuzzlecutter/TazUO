@@ -70,7 +70,7 @@ namespace ClassicUO.Assets
                     if (UOFileManager.IsUOPInstallation && File.Exists(path))
                     {
                         _file = new UOFileUop(path, "build/soundlegacymul/{0:D8}.dat");
-                        Entries = new UOFileIndex[Math.Max(((UOFileUop) _file).TotalEntriesCount, MAX_SOUND_DATA_INDEX_COUNT)];
+                        Entries = new UOFileIndex[Math.Max(((UOFileUop)_file).TotalEntriesCount, MAX_SOUND_DATA_INDEX_COUNT)];
                     }
                     else
                     {
@@ -142,7 +142,7 @@ namespace ClassicUO.Assets
                         }
                     }
 
-                    path = UOFileManager.GetUOFilePath(UOFileManager.Version >= ClientVersion.CV_4011C ?  @"Music/Digital/Config.txt" : @"Music/Config.txt");
+                    path = UOFileManager.GetUOFilePath(UOFileManager.Version >= ClientVersion.CV_4011C ? @"Music/Digital/Config.txt" : @"Music/Config.txt");
 
                     if (File.Exists(path))
                     {
@@ -282,7 +282,7 @@ namespace ClassicUO.Assets
             {
                 data[i] = _file.ReadByte();
             }
-            
+
             return true;
         }
 
@@ -329,7 +329,7 @@ namespace ClassicUO.Assets
             // Enumerate all files in the directory, using the file name as a pattern
             // This will list all case variants of the filename even on file systems that
             // are case sensitive.
-            Regex  pattern = new Regex($"^{name}.mp3", RegexOptions.IgnoreCase);
+            Regex pattern = new Regex($"^{name}.mp3", RegexOptions.IgnoreCase);
             //string[] fileList = Directory.GetFiles(dir, "*.mp3", SearchOption.AllDirectories).Where(path => pattern.IsMatch(Path.GetFileName(path))).ToArray();
             string[] fileList = Directory.GetFiles(dir, "*.mp3", SearchOption.AllDirectories);
             fileList = Array.FindAll(fileList, path => pattern.IsMatch(Path.GetFileName(path)));
@@ -341,12 +341,12 @@ namespace ClassicUO.Assets
                     // More than one file with the same name but different case spelling found
                     Log.Warn($"Ambiguous File reference for {name}. More than one file found with different spellings.");
                 }
-
+#if DEBUG
                 Log.Debug($"Loading music:\t\t{fileList[0]}");
-
+#endif
                 return Path.GetFileName(fileList[0]);
             }
-            
+
             // If we've made it this far, there is no file with that name, regardless of case spelling
             // return name and GetMusic will fail gracefully (play nothing)
             Log.Warn($"No File found known as {name}");

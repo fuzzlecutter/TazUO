@@ -209,7 +209,6 @@ namespace ClassicUO
             _background = Texture2D.FromStream(GraphicsDevice, ms);
 
             loadResourceAssets.Wait(10000);
-
             SetScene(new LoginScene());
             SetWindowPositionBySettings();
         }
@@ -621,12 +620,12 @@ namespace ClassicUO
             switch (sdlEvent->type)
             {
                 case SDL_EventType.SDL_AUDIODEVICEADDED:
-                    Console.WriteLine("AUDIO ADDED: {0}", sdlEvent->adevice.which);
+                    Log.Trace($"AUDIO ADDED: {sdlEvent->adevice.which}");
 
                     break;
 
                 case SDL_EventType.SDL_AUDIODEVICEREMOVED:
-                    Console.WriteLine("AUDIO REMOVED: {0}", sdlEvent->adevice.which);
+                    Log.Trace($"AUDIO REMOVED: {sdlEvent->adevice.which}");
 
                     break;
 

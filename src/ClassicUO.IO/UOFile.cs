@@ -59,8 +59,9 @@ namespace ClassicUO.IO
 
         protected virtual void Load()
         {
+#if DEBUG
             Log.Trace($"Loading file:\t\t{FilePath}");
-
+#endif
             FileInfo fileInfo = new FileInfo(FilePath);
 
             if (!fileInfo.Exists)
@@ -92,7 +93,7 @@ namespace ClassicUO.IO
                 try
                 {
                     _accessor.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
-                    SetData(ptr, (long) _accessor.SafeMemoryMappedViewHandle.ByteLength);
+                    SetData(ptr, (long)_accessor.SafeMemoryMappedViewHandle.ByteLength);
                 }
                 catch
                 {
