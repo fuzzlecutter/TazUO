@@ -118,6 +118,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         #region public vars
         public readonly bool IsPlayerBackpack = false;
+        public bool StackNonStackableItems = false;
 
         public GridSlotManager GetGridSlotManager { get { return gridSlotManager; } }
 
@@ -145,6 +146,7 @@ namespace ClassicUO.Game.UI.Gumps
             IsPlayerBackpack = LocalSerial == World.Player.FindItemByLayer(Layer.Backpack).Serial;
 
             autoSortContainer = GridSaveSystem.Instance.AutoSortContainer(LocalSerial);
+            StackNonStackableItems = GridSaveSystem.Instance.StackNonStackables(LocalSerial);
 
             Point lastPos = IsPlayerBackpack ? ProfileManager.CurrentProfile.BackpackGridPosition : GridSaveSystem.Instance.GetLastPosition(LocalSerial);
             Point savedSize = IsPlayerBackpack ? ProfileManager.CurrentProfile.BackpackGridSize : GridSaveSystem.Instance.GetLastSize(LocalSerial);
@@ -207,17 +209,18 @@ namespace ClassicUO.Game.UI.Gumps
 
             var regularGumpIcon = Client.Game.Gumps.GetGump(5839).Texture;
             openRegularGump = new GumpPic(background.Width - 25 - borderWidth, borderWidth, regularGumpIcon == null ? (ushort)1209 : (ushort)5839, 0);
+            openRegularGump.ContextMenu = GenContextMenu();
+
             openRegularGump.MouseUp += (sender, e) =>
             {
                 if (e.Button == MouseButtonType.Left)
                 {
-                    UseOldContainerStyle = true;
-                    OpenOldContainer(LocalSerial);
+                    openRegularGump.ContextMenu?.Show();
                 }
             };
             openRegularGump.MouseEnter += (sender, e) => { openRegularGump.Graphic = regularGumpIcon == null ? (ushort)1210 : (ushort)5840; };
             openRegularGump.MouseExit += (sender, e) => { openRegularGump.Graphic = regularGumpIcon == null ? (ushort)1209 : (ushort)5839; };
-            openRegularGump.SetTooltip("Open the original style container.\n\n" +
+            openRegularGump.SetTooltip(
                 "/c[orange]Grid Container Controls:/cd\n" +
                 "Ctrl + Click to lock an item in place\n" +
                 "Alt + Click to add an item to the quick move queue\n" +
@@ -323,6 +326,23 @@ namespace ClassicUO.Game.UI.Gumps
 
         public override GumpType GumpType => GumpType.GridContainer;
 
+        private ContextMenuControl GenContextMenu()
+        {
+            var control = new ContextMenuControl();
+            control.Add(new ContextMenuItemEntry("Open Original Container", () =>
+            {
+                UseOldContainerStyle = true;
+                OpenOldContainer(LocalSerial);
+            }));
+
+            control.Add(new ContextMenuItemEntry("Stack similar items in original container", () =>
+            {
+                StackNonStackableItems = !StackNonStackableItems;
+                openRegularGump.ContextMenu = GenContextMenu();
+            }, true, StackNonStackableItems));
+
+            return control;
+        }
         private static int GetWidth(int columns = -1)
         {
             if (columns < 0)
@@ -346,7 +366,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             if (!skipSave)
             {
-                GridSaveSystem.Instance.SaveContainer(LocalSerial, gridSlotManager.GridSlots, Width, Height, X, Y, UseOldContainerStyle, autoSortContainer);
+                GridSaveSystem.Instance.SaveContainer(LocalSerial, gridSlotManager.GridSlots, Width, Height, X, Y, UseOldContainerStyle, autoSortContainer, StackNonStackableItems);
             }
 
             if (IsPlayerBackpack)
@@ -561,7 +581,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             if (gridSlotManager != null && !skipSave)
                 if (gridSlotManager.ItemPositions.Count > 0 && !isCorpse)
-                    GridSaveSystem.Instance.SaveContainer(LocalSerial, gridSlotManager.GridSlots, Width, Height, X, Y, UseOldContainerStyle, autoSortContainer);
+                    GridSaveSystem.Instance.SaveContainer(LocalSerial, gridSlotManager.GridSlots, Width, Height, X, Y, UseOldContainerStyle, autoSortContainer, StackNonStackableItems);
 
             base.Dispose();
         }
@@ -966,7 +986,8 @@ namespace ClassicUO.Game.UI.Gumps
                         {
                             Rectangle containerBounds = ContainerManager.Get(container.Graphic).Bounds;
                             gridContainer.gridSlotManager.AddLockedItemSlot(Client.Game.GameCursor.ItemHold.Serial, slot);
-                            GameActions.DropItem(Client.Game.GameCursor.ItemHold.Serial, containerBounds.Width / 2, containerBounds.Height / 2, 0, container.Serial);
+                            var pos = GetBoxPosition(slot, Client.Game.GameCursor.ItemHold.Graphic, containerBounds.Width, containerBounds.Height);
+                            GameActions.DropItem(Client.Game.GameCursor.ItemHold.Serial, pos.X, pos.Y, 0, container.Serial);
                             Mouse.CancelDoubleClick = true;
                         }
                     }
@@ -1024,6 +1045,31 @@ namespace ClassicUO.Game.UI.Gumps
                         }
                     }
                 }
+            }
+
+            private (int X, int Y) GetBoxPosition(int boxIndex, uint itemGraphic, int width, int height)
+            {
+                if (gridContainer.StackNonStackableItems)
+                    foreach (var gridSlot in gridContainer.gridSlotManager.GridSlots.Values)
+                    {
+                        if (gridSlot._item != null && gridSlot._item.Graphic == itemGraphic && gridSlot._item != itemGraphic)
+                        {
+                            return (gridSlot._item.X, gridSlot._item.Y);
+                        }
+                    }
+
+                int gridSize = (int)Math.Ceiling(Math.Sqrt(gridContainer.gridSlotManager.GridSlots.Count));
+
+                int row = boxIndex / gridSize;
+                int col = boxIndex % gridSize;
+
+                float cellWidth = width / gridSize;
+                float cellHeight = height / gridSize;
+
+                float x = col * cellWidth + cellWidth / 2;
+                float y = row * cellHeight + cellHeight / 2;
+
+                return ((int)x, (int)y);
             }
 
             private void _hit_MouseExit(object sender, MouseEventArgs e)
@@ -1895,7 +1941,7 @@ namespace ClassicUO.Game.UI.Gumps
                 enabled = true;
             }
 
-            public bool SaveContainer(uint serial, Dictionary<int, GridItem> gridSlots, int width, int height, int lastX = 100, int lastY = 100, bool? useOriginalContainer = false, bool autoSort = false)
+            public bool SaveContainer(uint serial, Dictionary<int, GridItem> gridSlots, int width, int height, int lastX = 100, int lastY = 100, bool? useOriginalContainer = false, bool autoSort = false, bool stacknonstackables = false)
             {
                 if (!enabled)
                     return false;
@@ -1919,6 +1965,7 @@ namespace ClassicUO.Game.UI.Gumps
                 thisContainer.SetAttributeValue("lastY", lastY.ToString());
                 thisContainer.SetAttributeValue("useOriginalContainer", useOriginalContainer.ToString());
                 thisContainer.SetAttributeValue("autoSort", autoSort.ToString());
+                thisContainer.SetAttributeValue("stacknonstackables", stacknonstackables.ToString());
 
                 foreach (var slot in gridSlots)
                 {
@@ -2056,6 +2103,22 @@ namespace ClassicUO.Game.UI.Gumps
                 return autoSort;
             }
 
+            public bool StackNonStackables(uint container)
+            {
+                bool stacknoners = false;
+
+                XElement thisContainer = rootElement.Element("container_" + container.ToString());
+                if (thisContainer != null)
+                {
+                    XAttribute attribute = thisContainer.Attribute("stacknonstackables");
+                    if (attribute != null)
+                    {
+                        bool.TryParse(attribute.Value, out stacknoners);
+                    }
+                }
+
+                return stacknoners;
+            }
             private void RemoveOldContainers()
             {
                 long cutOffTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - TIME_CUTOFF;

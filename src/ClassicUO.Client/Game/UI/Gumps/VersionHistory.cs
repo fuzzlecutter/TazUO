@@ -11,7 +11,8 @@ namespace ClassicUO.Game.UI.Gumps
             "/c[white][3.28.0]/cd\n" +
                 "- Added auto buy and sell agents\n" +
                 "- Added Python scripting language support to legion scripting\n" +
-                "- Added graphic replacement option\n",
+                "- Added graphic replacement option\n" +
+                "- Better item stacking in original containers while using grid containers \n",
 
             "/c[white][3.27.0]/cd\n" +
                 "- Added forced tooltip option for pre-tooltip servers\n" +
