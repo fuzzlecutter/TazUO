@@ -27,7 +27,6 @@ namespace ClassicUO.Game.UI.Gumps
     internal class ModernOptionsGump : Gump
     {
         private LeftSideMenuRightSideContent mainContent;
-        private mainScrollArea mainScrollAreaContent;
         private List<SettingsOption> options = new List<SettingsOption>();
 
         public static string SearchText { get; private set; } = string.Empty;
@@ -2813,7 +2812,7 @@ namespace ClassicUO.Game.UI.Gumps
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.GraphicChangeFilter, page, content.LeftWidth));
             content.ResetRightSide();
 
-            content.AddToRight(new MobileFilterConfigs(content.RightWidth - Theme.SCROLL_BAR_WIDTH - 10), true, page);
+            content.AddToRight(new GraphicFilterConfigs(content.RightWidth - Theme.SCROLL_BAR_WIDTH - 10), true, page);
             #endregion
 
             options.Add(
@@ -3050,11 +3049,11 @@ namespace ClassicUO.Game.UI.Gumps
         }
 
         #region Custom Controls For Options
-        private class MobileFilterConfigs : Control
+        private class GraphicFilterConfigs : Control
         {
             private DataBox _dataBox;
 
-            public MobileFilterConfigs(int width)
+            public GraphicFilterConfigs(int width)
             {
                 AcceptMouseInput = true;
                 CanMove = true;
@@ -3063,10 +3062,10 @@ namespace ClassicUO.Game.UI.Gumps
                 Add(_dataBox = new DataBox(0, 0, width, 0));
 
                 ModernButton b;
-                _dataBox.Add(b = new ModernButton(0, 0, 100, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Add entry", Theme.BUTTON_FONT_COLOR));
+                _dataBox.Add(b = new ModernButton(0, 0, 150, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Add blank entry", Theme.BUTTON_FONT_COLOR));
                 b.MouseUp += (s, e) =>
                 {
-                    var newConfig = MobileGraphicsReplacement.NewFilter(0, 0);
+                    var newConfig = GraphicsReplacement.NewFilter(0, 0);
                     if (newConfig != null)
                     {
                         _dataBox.Insert(3, GenConfigEntry(newConfig, width));
@@ -3074,14 +3073,14 @@ namespace ClassicUO.Game.UI.Gumps
                     }
                 };
 
-                _dataBox.Add(b = new ModernButton(0, 0, 150, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Target mobile", Theme.BUTTON_FONT_COLOR));
+                _dataBox.Add(b = new ModernButton(0, 0, 150, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Target entity", Theme.BUTTON_FONT_COLOR));
                 b.MouseUp += (s, e) =>
                 {
                     TargetHelper.TargetObject((e) =>
                     {
                         if (e == null) return;
-                        var sc = MobileGraphicsReplacement.NewFilter(e.Graphic, e.Graphic, e.Hue);
-                        if (sc != null)
+                        var sc = GraphicsReplacement.NewFilter(e.Graphic, e.Graphic, e.Hue);
+                        if (sc != null && _dataBox != null)
                         {
                             _dataBox.Insert(3, GenConfigEntry(sc, width));
                             RearrangeDataBox();
@@ -3096,14 +3095,14 @@ namespace ClassicUO.Game.UI.Gumps
                 titles.ForceSizeUpdate();
                 _dataBox.Add(titles);
 
-                foreach (var item in MobileGraphicsReplacement.MobileFilters)
+                foreach (var item in GraphicsReplacement.MobileFilters)
                 {
                     _dataBox.Add(GenConfigEntry(item.Value, width));
                 }
                 RearrangeDataBox();
             }
 
-            private Control GenConfigEntry(MobileChangeFilter filter, int width)
+            private Control GenConfigEntry(GraphicChangeFilter filter, int width)
             {
                 int ewidth = (width - 90) / 3;
 
@@ -3116,12 +3115,12 @@ namespace ClassicUO.Game.UI.Gumps
                     if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
                     {
                         filter.OriginalGraphic = ngh;
-                        MobileGraphicsReplacement.ResetLists();
+                        GraphicsReplacement.ResetLists();
                     }
                     else if (ushort.TryParse(graphicInput.Text, out var ng))
                     {
                         filter.OriginalGraphic = ng;
-                        MobileGraphicsReplacement.ResetLists();
+                        GraphicsReplacement.ResetLists();
                     }
                 })
                 { X = x };
@@ -3170,31 +3169,13 @@ namespace ClassicUO.Game.UI.Gumps
                 {
                     if (e.Button == Input.MouseButtonType.Left)
                     {
-                        MobileGraphicsReplacement.DeleteFilter(filter.OriginalGraphic);
+                        GraphicsReplacement.DeleteFilter(filter.OriginalGraphic);
                         area.Dispose();
                         RearrangeDataBox();
                     }
                 };
 
                 return area;
-            }
-
-            private static byte GetAnimGroup(ushort graphic)
-            {
-                var groupType = Client.Game.Animations.GetAnimType(graphic);
-                switch (AnimationsLoader.Instance.GetGroupIndex(graphic, groupType))
-                {
-                    case AnimationGroups.Low:
-                        return (byte)LowAnimationGroup.Stand;
-
-                    case AnimationGroups.High:
-                        return (byte)HighAnimationGroup.Stand;
-
-                    case AnimationGroups.People:
-                        return (byte)PeopleAnimationGroup.Stand;
-                }
-
-                return 0;
             }
 
             private void RearrangeDataBox()

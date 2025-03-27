@@ -916,7 +916,6 @@ namespace ClassicUO.Network
             World.Player.Graphic = p.ReadUInt16BE();
             World.Player.CheckGraphicChange();
 
-            MobileGraphicsReplacement.Replace(ref World.Player.Graphic, ref World.Player.Hue);
             ushort x = p.ReadUInt16BE();
             ushort y = p.ReadUInt16BE();
             sbyte z = (sbyte)p.ReadUInt16BE();
@@ -2914,7 +2913,6 @@ namespace ClassicUO.Network
                 mobile.Graphic = graphic;
                 mobile.CheckGraphicChange();
                 mobile.FixHue(hue);
-                MobileGraphicsReplacement.Replace(ref mobile.Graphic, ref mobile.Hue);
                 // TODO: x,y,z, direction cause elastic effect, ignore 'em for the moment
             }
             else
@@ -2949,7 +2947,6 @@ namespace ClassicUO.Network
                 World.Player.CheckGraphicChange();
                 World.Player.FixHue(hue);
                 World.Player.Flags = flags;
-                MobileGraphicsReplacement.Replace(ref World.Player.Graphic, ref World.Player.Hue);
             }
             else
             {
@@ -6404,8 +6401,6 @@ namespace ClassicUO.Network
                     mobile.Y = y;
                     mobile.Z = z;
                     mobile.Flags = flagss;
-
-                    MobileGraphicsReplacement.Replace(ref mobile.Graphic, ref hue);
                 }
                 else
                 {
@@ -6521,8 +6516,6 @@ namespace ClassicUO.Network
                 mobile.Graphic = (ushort)(graphic & 0x3FFF);
                 mobile.FixHue(hue);
                 mobile.Flags = flagss;
-
-                MobileGraphicsReplacement.Replace(ref mobile.Graphic, ref mobile.Hue);
             }
 
             if (created && !obj.IsClicked)

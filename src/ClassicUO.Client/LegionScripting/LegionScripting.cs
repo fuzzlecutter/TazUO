@@ -245,7 +245,7 @@ namespace ClassicUO.LegionScripting
                     return;
                 }
             }
-            catch (Exception e) { }
+            catch (Exception) { }
 
             lScriptSettings = new LScriptSettings();
         }

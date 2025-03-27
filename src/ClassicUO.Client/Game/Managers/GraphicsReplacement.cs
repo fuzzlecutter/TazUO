@@ -5,10 +5,10 @@ using System.Text.Json;
 
 namespace ClassicUO.Game.Managers
 {
-    internal static class MobileGraphicsReplacement
+    internal static class GraphicsReplacement
     {
-        private static Dictionary<ushort, MobileChangeFilter> mobileChangeFilters = new Dictionary<ushort, MobileChangeFilter>();
-        public static Dictionary<ushort, MobileChangeFilter> MobileFilters { get { return mobileChangeFilters; } }
+        private static Dictionary<ushort, GraphicChangeFilter> mobileChangeFilters = new Dictionary<ushort, GraphicChangeFilter>();
+        public static Dictionary<ushort, GraphicChangeFilter> MobileFilters { get { return mobileChangeFilters; } }
         private static HashSet<ushort> quickLookup = new HashSet<ushort>();
         public static void Load()
         {
@@ -16,7 +16,7 @@ namespace ClassicUO.Game.Managers
             {
                 try
                 {
-                    mobileChangeFilters = JsonSerializer.Deserialize<Dictionary<ushort, MobileChangeFilter>>(File.ReadAllText(GetSavePath()));
+                    mobileChangeFilters = JsonSerializer.Deserialize<Dictionary<ushort, GraphicChangeFilter>>(File.ReadAllText(GetSavePath()));
                     foreach (var filter in mobileChangeFilters)
                         quickLookup.Add(filter.Key);
                 }
@@ -32,11 +32,11 @@ namespace ClassicUO.Game.Managers
             if (mobileChangeFilters.Count > 0)
                 try
                 {
-                    File.WriteAllText(GetSavePath(), JsonSerializer.Serialize<Dictionary<ushort, MobileChangeFilter>>(mobileChangeFilters));
+                    File.WriteAllText(GetSavePath(), JsonSerializer.Serialize<Dictionary<ushort, GraphicChangeFilter>>(mobileChangeFilters));
                 }
                 catch (Exception e)
                 {
-                    GameActions.Print("Failed to save mobile graphic change filter.");
+                    GameActions.Print($"Failed to save mobile graphic change filter. {e.Message}");
                 }
             mobileChangeFilters.Clear();
             quickLookup.Clear();
@@ -55,7 +55,7 @@ namespace ClassicUO.Game.Managers
 
         public static void ResetLists()
         {
-            Dictionary<ushort, MobileChangeFilter> newList = new Dictionary<ushort, MobileChangeFilter>();
+            Dictionary<ushort, GraphicChangeFilter> newList = new Dictionary<ushort, GraphicChangeFilter>();
             quickLookup.Clear();
 
             foreach (var item in mobileChangeFilters)
@@ -66,12 +66,12 @@ namespace ClassicUO.Game.Managers
             mobileChangeFilters = newList;
         }
 
-        public static MobileChangeFilter NewFilter(ushort originalGraphic, ushort newGraphic, ushort newHue = ushort.MaxValue)
+        public static GraphicChangeFilter NewFilter(ushort originalGraphic, ushort newGraphic, ushort newHue = ushort.MaxValue)
         {
             if (!mobileChangeFilters.ContainsKey(originalGraphic))
             {
-                MobileChangeFilter f;
-                mobileChangeFilters.Add(originalGraphic, f = new MobileChangeFilter()
+                GraphicChangeFilter f;
+                mobileChangeFilters.Add(originalGraphic, f = new GraphicChangeFilter()
                 {
                     OriginalGraphic = originalGraphic,
                     ReplacementGraphic = newGraphic,
@@ -100,7 +100,7 @@ namespace ClassicUO.Game.Managers
         }
     }
 
-    internal class MobileChangeFilter
+    internal class GraphicChangeFilter
     {
         public ushort OriginalGraphic { get; set; }
         public ushort ReplacementGraphic { get; set; }
