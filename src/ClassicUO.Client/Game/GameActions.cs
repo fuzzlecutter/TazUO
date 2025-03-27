@@ -38,6 +38,7 @@ using ClassicUO.Game.Scenes;
 using ClassicUO.Game.UI;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
+using ClassicUO.LegionScripting;
 using ClassicUO.Network;
 using ClassicUO.Resources;
 using ClassicUO.Utility;
@@ -95,6 +96,27 @@ namespace ClassicUO.Game
         public static void OpenDurabilityGump()
         {
             UIManager.Add(new DurabilitysGump());
+        }
+
+        public static void OpenLegionScriptingGump()
+        {
+            UIManager.Add(new ScriptManagerGump());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>False if no nearby loot gump was open</returns>
+        public static bool CloseLegionScriptingGump(){
+            Gump g = UIManager.GetGump<ScriptManagerGump>();
+
+            if (g != null)
+            {
+                g.Dispose();
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

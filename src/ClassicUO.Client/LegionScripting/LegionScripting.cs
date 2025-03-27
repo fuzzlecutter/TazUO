@@ -56,6 +56,23 @@ namespace ClassicUO.LegionScripting
             AutoPlayChar();
             PythonAPI = new API();
             _enabled = true;
+
+            CommandManager.Register("lscriptfile", a => {
+                if (a.Length < 2)
+                {
+                    GameActions.Print("Usage: lscriptfile <filename>");
+                    return;
+                }
+
+                foreach (ScriptFile f in LoadedScripts)
+                {
+                    if (f.FileName == a[1])
+                    {
+                        PlayScript(f);
+                        return;
+                    }
+                }
+            });
         }
         private static void EventSink_JournalEntryAdded(object sender, JournalEntry e)
         {

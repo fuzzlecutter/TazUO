@@ -1112,6 +1112,12 @@ namespace ClassicUO.Game.Managers
                         GameActions.OpenNearbyLootGump();
 
                     break;
+                
+                case MacroType.ToggleLegionScripting:
+                    if (!GameActions.CloseLegionScriptingGump())
+                        GameActions.OpenLegionScriptingGump();
+
+                    break;
 
                 case MacroType.OpenDoor:
                     GameActions.OpenDoor();
@@ -2655,7 +2661,8 @@ namespace ClassicUO.Game.Managers
         ToggleGump,
         ToggleDurabilityGump,
         ShowNearbyItems,
-        ToggleNearbyLootGump
+        ToggleNearbyLootGump,
+        ToggleLegionScripting
     }
 
     public enum MacroSubType

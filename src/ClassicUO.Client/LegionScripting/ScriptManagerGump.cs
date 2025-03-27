@@ -30,7 +30,6 @@ namespace ClassicUO.LegionScripting
         public const string NOGROUPTEXT = "No group";
         public ScriptManagerGump() : base(lastWidth, lastHeight, 300, 200, 0, 0)
         {
-            UIManager.GetGump<ScriptManagerGump>()?.Dispose();
             X = lastX;
             Y = lastY;
             CanCloseWithRightClick = true;
