@@ -410,7 +410,6 @@ namespace ClassicUO.Game.Scenes
             InfoBars.Save();
             ProfileManager.UnLoadProfile();
 
-            StaticFilters.CleanCaveTextures();
             StaticFilters.CleanTreeTextures();
 
             NetClient.Socket.Disconnected -= SocketOnDisconnected;

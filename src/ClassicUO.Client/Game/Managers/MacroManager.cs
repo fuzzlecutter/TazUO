@@ -2004,8 +2004,8 @@ namespace ClassicUO.Game.Managers
 
                     break;
 
-                case MacroType.ToggleCaveTiles:
-                    StaticFilters.CleanCaveTextures();
+                case MacroType.BorderCaveTiles:
+                    StaticFilters.ApplyStaticBorder();
                     ProfileManager.CurrentProfile.EnableCaveBorder = !ProfileManager.CurrentProfile.EnableCaveBorder;
 
                     break;
@@ -2649,7 +2649,7 @@ namespace ClassicUO.Game.Managers
         ToggleDrawRoofs,
         ToggleTreeStumps,
         ToggleVegetation,
-        ToggleCaveTiles,
+        BorderCaveTiles,
         CloseInactiveHealthBars,
         CloseCorpses,
         UseObject,
