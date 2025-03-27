@@ -3095,7 +3095,7 @@ namespace ClassicUO.Game.UI.Gumps
                 titles.ForceSizeUpdate();
                 _dataBox.Add(titles);
 
-                foreach (var item in GraphicsReplacement.MobileFilters)
+                foreach (var item in GraphicsReplacement.GraphicFilters)
                 {
                     _dataBox.Add(GenConfigEntry(item.Value, width));
                 }

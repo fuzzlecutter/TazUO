@@ -7,8 +7,8 @@ namespace ClassicUO.Game.Managers
 {
     internal static class GraphicsReplacement
     {
-        private static Dictionary<ushort, GraphicChangeFilter> mobileChangeFilters = new Dictionary<ushort, GraphicChangeFilter>();
-        public static Dictionary<ushort, GraphicChangeFilter> MobileFilters { get { return mobileChangeFilters; } }
+        private static Dictionary<ushort, GraphicChangeFilter> graphicChangeFilters = new Dictionary<ushort, GraphicChangeFilter>();
+        public static Dictionary<ushort, GraphicChangeFilter> GraphicFilters { get { return graphicChangeFilters; } }
         private static HashSet<ushort> quickLookup = new HashSet<ushort>();
         public static void Load()
         {
@@ -16,8 +16,8 @@ namespace ClassicUO.Game.Managers
             {
                 try
                 {
-                    mobileChangeFilters = JsonSerializer.Deserialize<Dictionary<ushort, GraphicChangeFilter>>(File.ReadAllText(GetSavePath()));
-                    foreach (var filter in mobileChangeFilters)
+                    graphicChangeFilters = JsonSerializer.Deserialize<Dictionary<ushort, GraphicChangeFilter>>(File.ReadAllText(GetSavePath()));
+                    foreach (var filter in graphicChangeFilters)
                         quickLookup.Add(filter.Key);
                 }
                 catch (Exception e)
@@ -29,24 +29,31 @@ namespace ClassicUO.Game.Managers
 
         public static void Save()
         {
-            if (mobileChangeFilters.Count > 0)
+            if (graphicChangeFilters.Count > 0)
+            {
                 try
                 {
-                    File.WriteAllText(GetSavePath(), JsonSerializer.Serialize<Dictionary<ushort, GraphicChangeFilter>>(mobileChangeFilters));
+                    File.WriteAllText(GetSavePath(), JsonSerializer.Serialize<Dictionary<ushort, GraphicChangeFilter>>(graphicChangeFilters));
                 }
                 catch (Exception e)
                 {
-                    GameActions.Print($"Failed to save mobile graphic change filter. {e.Message}");
+                    Console.WriteLine($"Failed to save mobile graphic change filter. {e.Message}");
                 }
-            mobileChangeFilters.Clear();
-            quickLookup.Clear();
+                graphicChangeFilters.Clear();
+                quickLookup.Clear();
+            }
+            else
+            {
+                if (File.Exists(GetSavePath()))
+                    File.Delete(GetSavePath());
+            }
         }
 
         public static void Replace(ref ushort graphic, ref ushort hue)
         {
             if (quickLookup.Contains(graphic))
             {
-                var filter = mobileChangeFilters[graphic];
+                var filter = graphicChangeFilters[graphic];
                 graphic = filter.ReplacementGraphic;
                 if (filter.NewHue != ushort.MaxValue)
                     hue = filter.NewHue;
@@ -58,20 +65,20 @@ namespace ClassicUO.Game.Managers
             Dictionary<ushort, GraphicChangeFilter> newList = new Dictionary<ushort, GraphicChangeFilter>();
             quickLookup.Clear();
 
-            foreach (var item in mobileChangeFilters)
+            foreach (var item in graphicChangeFilters)
             {
                 newList.Add(item.Value.OriginalGraphic, item.Value);
                 quickLookup.Add(item.Value.OriginalGraphic);
             }
-            mobileChangeFilters = newList;
+            graphicChangeFilters = newList;
         }
 
         public static GraphicChangeFilter NewFilter(ushort originalGraphic, ushort newGraphic, ushort newHue = ushort.MaxValue)
         {
-            if (!mobileChangeFilters.ContainsKey(originalGraphic))
+            if (!graphicChangeFilters.ContainsKey(originalGraphic))
             {
                 GraphicChangeFilter f;
-                mobileChangeFilters.Add(originalGraphic, f = new GraphicChangeFilter()
+                graphicChangeFilters.Add(originalGraphic, f = new GraphicChangeFilter()
                 {
                     OriginalGraphic = originalGraphic,
                     ReplacementGraphic = newGraphic,
@@ -87,8 +94,8 @@ namespace ClassicUO.Game.Managers
 
         public static void DeleteFilter(ushort originalGraphic)
         {
-            if (mobileChangeFilters.ContainsKey(originalGraphic))
-                mobileChangeFilters.Remove(originalGraphic);
+            if (graphicChangeFilters.ContainsKey(originalGraphic))
+                graphicChangeFilters.Remove(originalGraphic);
 
             if (quickLookup.Contains(originalGraphic))
                 quickLookup.Remove(originalGraphic);
