@@ -187,7 +187,8 @@ namespace ClassicUO.Game.UI.Gumps
                     {
                         X = startX + 200,
                         Y = startY,
-                        AcceptMouseInput = true
+                        AcceptMouseInput = true,
+                        CanMove = true
                     };
 
                     label.MouseUp += OnLabelClick;
@@ -251,6 +252,7 @@ namespace ClassicUO.Game.UI.Gumps
             if (l != null)
             {
                 SDL.SDL_SetClipboardText(l.Text);
+                GameActions.Print($"Copied to clipboard: {l.Text}");
             }
         }
 
