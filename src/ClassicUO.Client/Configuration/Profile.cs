@@ -85,9 +85,9 @@ namespace ClassicUO.Configuration
 
         // sounds
         public bool EnableSound { get; set; } = true;
-        public int SoundVolume { get; set; } = 100;
+        public int SoundVolume { get; set; } = 70;
         public bool EnableMusic { get; set; } = true;
-        public int MusicVolume { get; set; } = 100;
+        public int MusicVolume { get; set; } = 70;
         public bool EnableFootstepsSound { get; set; } = true;
         public bool EnableCombatMusic { get; set; } = true;
         public bool ReproduceSoundsInBackground { get; set; }
@@ -193,7 +193,7 @@ namespace ClassicUO.Configuration
         public bool GameWindowLock { get; set; }
         public bool GameWindowFullSize { get; set; }
         public bool WindowBorderless { get; set; } = false;
-        [JsonConverter(typeof(Point2Converter))] public Point GameWindowSize { get; set; } = new Point(600, 480);
+        [JsonConverter(typeof(Point2Converter))] public Point GameWindowSize { get; set; } = new Point(800, 680);
         [JsonConverter(typeof(Point2Converter))] public Point TopbarGumpPosition { get; set; } = new Point(0, 0);
         public bool TopbarGumpIsMinimized { get; set; }
         public bool TopbarGumpIsDisabled { get; set; }
@@ -250,7 +250,7 @@ namespace ClassicUO.Configuration
         public string LastActiveNameOverheadOption { get; set; } = "All";
         public bool NameOverheadToggled { get; set; } = false;
         public bool ShowTargetRangeIndicator { get; set; }
-        public bool PartyInviteGump { get; set; }
+        public bool PartyInviteGump { get; set; } = true;
         public bool CustomBarsToggled { get; set; }
         public bool CBBlackBGToggled { get; set; }
 
@@ -265,7 +265,7 @@ namespace ClassicUO.Configuration
         public int CounterBarHighlightAmount { get; set; } = 5;
         public int CounterBarCellSize { get; set; } = 40;
         public int CounterBarRows { get; set; } = 1;
-        public int CounterBarColumns { get; set; } = 1;
+        public int CounterBarColumns { get; set; } = 5;
 
         public bool ShowSkillsChangedMessage { get; set; } = true;
         public int ShowSkillsChangedDeltaValue { get; set; } = 1;
@@ -367,7 +367,7 @@ namespace ClassicUO.Configuration
         public byte NamePlateBorderOpacity { get; set; } = 50;
 
         public bool LeftAlignToolTips { get; set; } = false;
-        public bool ForceCenterAlignTooltipMobiles { get; set; } = false;
+        public bool ForceCenterAlignTooltipMobiles { get; set; } = true;
 
         public bool CorpseSingleClickLoot { get; set; } = false;
 
@@ -382,9 +382,9 @@ namespace ClassicUO.Configuration
         public byte GridContainersScale { get; set; } = 100;
         public bool GridContainerScaleItems { get; set; } = true;
         public bool GridEnableContPreview { get; set; } = true;
-        public int Grid_BorderStyle { get; set; } = 0;
-        public int Grid_DefaultColumns { get; set; } = 4;
-        public int Grid_DefaultRows { get; set; } = 4;
+        public int Grid_BorderStyle { get; set; } = 8;
+        public int Grid_DefaultColumns { get; set; } = 5;
+        public int Grid_DefaultRows { get; set; } = 5;
         public bool Grid_UseContainerHue { get; set; } = false;
         public bool Grid_HideBorder { get; set; } = false;
         #endregion
@@ -492,7 +492,7 @@ namespace ClassicUO.Configuration
 
         public bool UseModernShopGump { get; set; } = false;
 
-        public int MaxJournalEntries { get; set; } = 750;
+        public int MaxJournalEntries { get; set; } = 250;
         public bool HideJournalBorder { get; set; } = false;
         public bool HideJournalTimestamp { get; set; } = false;
 
@@ -505,7 +505,7 @@ namespace ClassicUO.Configuration
 
         public string LastVersionHistoryShown { get; set; }
 
-        public int AdvancedSkillsGumpHeight { get; set; } = 310;
+        public int AdvancedSkillsGumpHeight { get; set; } = 510;
 
         #region ToolTip Overrides
         public List<string> ToolTipOverride_SearchText { get; set; } = new List<string>() { "Physical Res", "Fire Resist", "Cold Resist", "Poison Resist", "Energy Resist", "Weapon Damage" };
@@ -571,7 +571,7 @@ namespace ClassicUO.Configuration
             }
         };
 
-        public bool UseLastMovedCooldownPosition { get; set; } = false;
+        public bool UseLastMovedCooldownPosition { get; set; } = true;
         public bool CloseHealthBarIfAnchored { get; set; } = false;
 
         [JsonConverter(typeof(Point2Converter))]
@@ -579,7 +579,7 @@ namespace ClassicUO.Configuration
 
         public bool ForceResyncOnHang { get; set; } = false;
 
-        public bool UseOneHPBarForLastAttack { get; set; } = false;
+        public bool UseOneHPBarForLastAttack { get; set; } = true;
 
         public bool DisableMouseInteractionOverheadText { get; set; } = false;
 
