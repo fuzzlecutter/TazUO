@@ -425,8 +425,17 @@ while True:
             private NiceButton playstop, menu;
 
             public ScriptFile Script { get; }
-            private string ScriptDisplayName { get { return Script == null ? String.Empty : Script.FileName.Substring(0, Script.FileName.IndexOf('.')); } }
-
+            private string ScriptDisplayName
+            {
+                get
+                {
+                    if (Script == null || string.IsNullOrEmpty(Script.FileName))
+                        return string.Empty;
+            
+                    int lastDotIndex = Script.FileName.LastIndexOf('.');
+                    return lastDotIndex == -1 ? Script.FileName : Script.FileName.Substring(0, lastDotIndex);
+                }
+            }
             private string playStopText
             {
                 get
