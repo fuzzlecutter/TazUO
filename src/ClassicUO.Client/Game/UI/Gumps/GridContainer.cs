@@ -312,6 +312,8 @@ namespace ClassicUO.Game.UI.Gumps
 
             BuildBorder();
             ResizeWindow(savedSize);
+
+            EventSink.OPLOnReceive += OPLReceived;
         }
 
         public override GumpType GumpType => GumpType.GridContainer;
@@ -356,7 +358,17 @@ namespace ClassicUO.Game.UI.Gumps
                    + (borderWidth * 2)          // Borders on the top and bottom
                    + ((gridItemSize + Y_SPACING) * rows); // Total height of grid items with spacing
         }
-
+        private void OPLReceived(object sender, OPLEventArgs e)
+        {
+            foreach(var slot in gridSlotManager.GridSlots.Values)
+            {
+                if (slot.SlotItem != null && slot.SlotItem.Serial == e.Serial)
+                {
+                    slot.ApplyGridHighlighting();
+                    break;
+                }
+            }
+        }
         public override void Save(XmlTextWriter writer)
         {
             base.Save(writer);
@@ -484,6 +496,8 @@ namespace ClassicUO.Game.UI.Gumps
 
         public override void Dispose()
         {
+            EventSink.OPLOnReceive -= OPLReceived;
+
             if (isCorpse)
             {
                 lastCorpseX = X;
@@ -827,7 +841,25 @@ namespace ClassicUO.Game.UI.Gumps
                 UIManager.Add(timedText);
             }
 
-            public void SetHighLightBorder(ushort hue)
+            public void ApplyGridHighlighting()
+            {
+                SetHighlightBorderHue(0);
+
+                if (_item == null) return;
+
+                ItemPropertiesData itemData = new ItemPropertiesData(_item);
+
+                if (!itemData.HasData) return;
+
+                foreach (var highlightConfig in GridHighlightData.AllConfigs)
+                    if (highlightConfig.IsMatch(itemData))
+                    {
+                        SetHighlightBorderHue(highlightConfig.Hue);
+                        if (CUOEnviroment.Debug)
+                            GameActions.Print($"Item {_item.Name} matched grid highlight: {highlightConfig.Name}");
+                    }
+            }
+            public void SetHighlightBorderHue(ushort hue)
             {
                 borderHighlight = hue != 0;
                 borderHighlightHue = hue;
@@ -1377,6 +1409,7 @@ namespace ClassicUO.Game.UI.Gumps
                         if (slot.Value.SlotItem != null)
                             continue;
                         slot.Value.SetGridItem(i);
+                        slot.Value.ApplyGridHighlighting();
                         AddLockedItemSlot(i, slot.Key);
                         break;
                     }
@@ -1395,7 +1428,6 @@ namespace ClassicUO.Game.UI.Gumps
                     }
                 }
                 SetGridPositions();
-                ApplyHighlightProperties();
             }
 
             public void SetLockedSlot(int slot, bool locked)
@@ -1510,42 +1542,6 @@ namespace ClassicUO.Game.UI.Gumps
             }
 
             public int hcount = 0;
-
-            public void ApplyHighlightProperties()
-            {
-                if (ProfileManager.CurrentProfile.GridHighlight_CorpseOnly && !container.IsCorpse)
-                    return;
-                hcount++;
-                Task.Factory.StartNew(() =>
-                {
-                    var tcount = hcount;
-                    System.Threading.Thread.Sleep(1000);
-
-                    if (tcount != hcount) { return; } //Another call has already been made
-                    GridHighlightData[] highlightConfigs = GridHighlightData.AllConfigs;
-
-                    foreach (var item in gridSlots) //For each grid slot
-                    {
-                        item.Value.SetHighLightBorder(0);
-                        if (item.Value.SlotItem != null)
-                        {
-                            ItemPropertiesData itemData = new ItemPropertiesData(item.Value.SlotItem);
-
-                            if (itemData.HasData)
-                                foreach (GridHighlightData configData in highlightConfigs) //For each highlight configuration
-                                {
-                                    if (configData.IsMatch(itemData))
-                                    {
-                                        item.Value.SetHighLightBorder(configData.Hue);
-                                        if (CUOEnviroment.Debug)
-                                            GameActions.Print($"Item {item.Value.SlotItem.Name} matched grid highlight: {configData.Name}");
-                                    }
-                                }
-                        }
-                    }
-                });
-            }
-
         }
 
         private class GridScrollArea : Control
