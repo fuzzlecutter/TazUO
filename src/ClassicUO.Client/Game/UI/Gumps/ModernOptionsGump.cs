@@ -2464,11 +2464,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 profile.PlayerOffset = new Point(profile.PlayerOffset.X, i);
             }), true, page);
-            content.BlankLine();
-            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.UseLandTexturesWhereAvailable, 0, profile.UseLandTextures, (b) =>
-            {
-                profile.UseLandTextures = b;
-            }), true, page);
+
             content.BlankLine();
             content.AddToRight(new InputFieldWithLabel(lang.GetTazUO.SOSGumpID, Theme.INPUT_WIDTH, profile.SOSGumpID.ToString(), true, (s, e) => { if (uint.TryParse(((InputField.StbTextBox)s).Text, out uint id)) { profile.SOSGumpID = id; } }), true, page);
             content.BlankLine();

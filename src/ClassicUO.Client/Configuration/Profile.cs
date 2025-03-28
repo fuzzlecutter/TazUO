@@ -593,8 +593,6 @@ namespace ClassicUO.Configuration
         [JsonConverter(typeof(Point2Converter))]
         public Point PlayerOffset { get; set; } = new Point(0, 0);
 
-        public bool UseLandTextures { get; set; } = false;
-
         public double PaperdollScale { get; set; } = 1f;
 
         public uint SOSGumpID { get; set; } = 1915258020;
