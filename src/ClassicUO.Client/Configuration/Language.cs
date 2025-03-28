@@ -588,8 +588,8 @@ namespace ClassicUO.Configuration
 
             public string AutoBuyMenu { get; set; } = "Auto Buy";
             public string AutoBuyEnable { get; set; } = "Enable auto buy feature";
-
             public string GraphicChangeFilter { get; set; } = "Graphic Filter";
+            public string Hotkeys { get; set; } = "Hotkeys";
 
 
             #region VisibileLayers
