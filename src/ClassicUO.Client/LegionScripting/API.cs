@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using ClassicUO.Configuration;
 using ClassicUO.Game;
@@ -49,7 +50,7 @@ namespace ClassicUO.LegionScripting
             resultEvent.WaitOne();
         }
 
-        private ConcurrentDictionary<uint, byte> ignoreList = new();
+        private ConcurrentBag<uint> ignoreList = new();
         private ConcurrentQueue<JournalEntry> journalEntries = new();
         public ConcurrentQueue<JournalEntry> JournalEntries { get { return journalEntries; } }
 
@@ -350,7 +351,7 @@ namespace ClassicUO.LegionScripting
                 List<Item> result = Utility.FindItems(graphic, uint.MaxValue, uint.MaxValue, container, hue, range);
                 foreach (Item i in result)
                 {
-                    if (i.Amount >= minamount && !ignoreList.ContainsKey(i))
+                    if (i.Amount >= minamount && !ignoreList.Contains(i))
                     {
                         return i;
                     }
@@ -399,7 +400,7 @@ namespace ClassicUO.LegionScripting
             var result = Utility.FindItems(graphic, hue: hue, parentContainer: container);
             foreach (Item i in result)
             {
-                if (!ignoreList.ContainsKey(i))
+                if (!ignoreList.Contains(i))
                 {
                     if (skipQueue)
                         GameActions.DoubleClick(i);
@@ -425,19 +426,19 @@ namespace ClassicUO.LegionScripting
         /// Adds an item or mobile to your ignore list.
         /// </summary>
         /// <param name="serial">The item/mobile serial</param>
-        public void IgnoreObject(uint serial) => ignoreList.TryAdd(serial, 0);
+        public void IgnoreObject(uint serial) => ignoreList.Add(serial);
 
         /// <summary>
         /// Clears the ignore list
         /// </summary>
-        public void ClearIgnoreList() => ignoreList.Clear();
+        public void ClearIgnoreList() => ignoreList = [];
 
         /// <summary>
         /// Check if a serial is on the ignore list
         /// </summary>
         /// <param name="serial"></param>
         /// <returns></returns>
-        public bool OnIgnoreList(uint serial) => ignoreList.ContainsKey(serial);
+        public bool OnIgnoreList(uint serial) => ignoreList.Contains(serial);
 
         /// <summary>
         /// Attempt to pathfind to a location
@@ -613,7 +614,7 @@ namespace ClassicUO.LegionScripting
         /// <summary>
         /// Target yourself
         /// </summary>
-        public void TargetSelf() => InvokeOnMainThread(() => InvokeOnMainThread(() => TargetManager.Target(World.Player.Serial)));
+        public void TargetSelf() => InvokeOnMainThread(() => TargetManager.Target(World.Player.Serial));
 
         /// <summary>
         /// Target a land tile

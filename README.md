@@ -5,10 +5,13 @@
 The wiki has been restored! And we have set up a new [Discord](https://discord.gg/QvqzkB95G4)
 
 ***
+
+
 | Channel | Status |
 | --- | --- |
 | Release | [![Release](https://github.com/bittiez/TazUO/actions/workflows/build-test.yml/badge.svg?branch=main)](https://github.com/bittiez/TazUO/actions/workflows/build-test.yml) |
 | Dev | [![Dev](https://github.com/bittiez/TazUO/actions/workflows/build-test.yml/badge.svg?branch=dev)](https://github.com/bittiez/TazUO/actions/workflows/build-test.yml) |
+
 
 # What is TazUO?
 **TazUO** was originally a fork from ClassicUO with the mindset of adding features requested by users to improve QOL. **TazUO** has since moved away from ClassicUO, we will keep an eye on ClassicUO updates and incorporate changes or fixes as they have a wider user base that provides bug reports, but **TazUO** will no longer be merging all changes from ClassicUO.

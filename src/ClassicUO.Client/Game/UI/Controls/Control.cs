@@ -270,7 +270,7 @@ namespace ClassicUO.Game.UI.Controls
         /// </summary>
         /// <param name="width"></param>
         public void SetWidth(int width){
-            Width = width;
+            Width = width < 0 ? 0 : width;
         }
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace ClassicUO.Game.UI.Controls
         /// </summary>
         /// <param name="height"></param>
         public void SetHeight(int height){
-            Height = height;
+            Height = height < 0 ? 0 : height;
         }
 
         /// <summary>

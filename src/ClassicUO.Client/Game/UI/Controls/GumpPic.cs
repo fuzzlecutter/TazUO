@@ -135,11 +135,10 @@ namespace ClassicUO.Game.UI.Controls
 
             Vector3 hueVector = ShaderHueTranslator.GetHueVector(Hue, false, Alpha, true);
 
-            // Desenha a textura customizada
             batcher.Draw(
                 _customTexture,
                 new Rectangle(x, y, Width, Height),
-                new Rectangle(_customTexture.Bounds.X, _customTexture.Bounds.Y, _customTexture.Width, _customTexture.Height),
+                _customTexture.Bounds,
                 hueVector
             );
 

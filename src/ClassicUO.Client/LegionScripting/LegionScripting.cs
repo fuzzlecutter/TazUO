@@ -250,8 +250,10 @@ namespace ClassicUO.LegionScripting
                     return;
                 }
             }
-            catch (Exception) { }
-
+            catch (Exception ex)
+            {
+                Log.Error($"Unexpected error: {ex}");
+            }
             lScriptSettings = new LScriptSettings();
         }
         private static void SaveScriptSettings()

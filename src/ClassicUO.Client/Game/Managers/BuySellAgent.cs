@@ -6,6 +6,7 @@ using System.Text.Json;
 using ClassicUO.Configuration;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Network;
+using ClassicUO.Utility.Logging;
 
 namespace ClassicUO.Game.Managers
 {
@@ -24,23 +25,32 @@ namespace ClassicUO.Game.Managers
         {
             Instance = new BuySellAgent();
 
-            string savePath = Path.Combine(ProfileManager.ProfilePath, "SellAgentConfig.json");
-            if (File.Exists(savePath))
+            try
             {
-                Instance.sellItems = JsonSerializer.Deserialize<List<BuySellItemConfig>>(File.ReadAllText(savePath));
-            }
+                string savePath = Path.Combine(ProfileManager.ProfilePath, "SellAgentConfig.json");
+                if (File.Exists(savePath))
+                {
+                    Instance.sellItems = JsonSerializer.Deserialize<List<BuySellItemConfig>>(File.ReadAllText(savePath));
+                }
 
-            savePath = Path.Combine(ProfileManager.ProfilePath, "BuyAgentConfig.json");
-            if (File.Exists(savePath))
+                savePath = Path.Combine(ProfileManager.ProfilePath, "BuyAgentConfig.json");
+                if (File.Exists(savePath))
+                {
+                    Instance.buyItems = JsonSerializer.Deserialize<List<BuySellItemConfig>>(File.ReadAllText(savePath));
+                }
+            }
+            catch (Exception ex)
             {
-                Instance.buyItems = JsonSerializer.Deserialize<List<BuySellItemConfig>>(File.ReadAllText(savePath));
+                Log.Error($"Error loading BuySellAgent config: {ex}");
             }
         }
 
         public void DeleteConfig(BuySellItemConfig config)
         {
-            SellConfigs.Remove(config);
-            //BuyConfigs.Remove(config);
+            if(config == null) return;
+            
+            SellConfigs?.Remove(config);
+            BuyConfigs?.Remove(config);
         }
 
         public BuySellItemConfig NewSellConfig()

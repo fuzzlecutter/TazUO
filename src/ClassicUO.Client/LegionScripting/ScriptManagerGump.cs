@@ -201,10 +201,10 @@ namespace ClassicUO.LegionScripting
             private const string SCRIPT_HEADER =
             "# See examples at" +
             "\n#   https://github.com/bittiez/PublicLegionScripts/" +
-            "\n# Or documentation at" + 
+            "\n# Or documentation at" +
             "\n#   https://github.com/bittiez/TazUO/wiki/TazUO.Legion-Scripting";
             private const string EXAMPLE_LSCRIPT =
-            SCRIPT_HEADER + 
+            SCRIPT_HEADER +
             @"
 player = API.Player
 delay = 8
@@ -431,7 +431,7 @@ while True:
                 {
                     if (Script == null || string.IsNullOrEmpty(Script.FileName))
                         return string.Empty;
-            
+
                     int lastDotIndex = Script.FileName.LastIndexOf('.');
                     return lastDotIndex == -1 ? Script.FileName : Script.FileName.Substring(0, lastDotIndex);
                 }
@@ -440,8 +440,11 @@ while True:
             {
                 get
                 {
-                    if (Script.ScriptType == ScriptType.LegionScript && Script != null && Script.GetScript != null)
-                        return Script.GetScript.IsPlaying ? "Stop" : "Play";
+                    if (Script == null)
+                        return "Play";
+
+                    if (Script.ScriptType == ScriptType.LegionScript && Script.GetScript?.IsPlaying == true)
+                        return "Stop";
 
                     if (Script.ScriptType == ScriptType.Python && Script.PythonThread != null)
                         return "Stop";
@@ -596,7 +599,8 @@ while True:
                 if (label.RTL.Lines.Count > 1)
                 {
                     var msize = label.RTL.Lines[0].Count;
-                    label.UpdateText(ScriptDisplayName.Substring(0, msize - 3) + "...", w - 80);
+                    if (msize >= 3)
+                        label.UpdateText(ScriptDisplayName.Substring(0, msize - 3) + "...", w - 80);
                 }
                 playstop.X = label.X + label.Width + 5;
                 menu.X = playstop.X + playstop.Width;
