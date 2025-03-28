@@ -10,6 +10,7 @@ using ClassicUO.Configuration;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
+using ClassicUO.Utility.Logging;
 using IronPython.Hosting;
 using LScript;
 using Microsoft.Scripting.Hosting;
@@ -27,7 +28,6 @@ namespace ClassicUO.LegionScripting
         private static List<ScriptFile> runningScripts = new List<ScriptFile>();
         private static List<ScriptFile> removeRunningScripts = new List<ScriptFile>();
         private static LScriptSettings lScriptSettings;
-        public static API PythonAPI;
 
         public static List<ScriptFile> LoadedScripts = new List<ScriptFile>();
 
@@ -35,7 +35,6 @@ namespace ClassicUO.LegionScripting
         public static event EventHandler<ScriptInfoEvent> ScriptStoppedEvent;
 
         public static Dictionary<int, ScriptFile> PyThreads = new Dictionary<int, ScriptFile>();
-        public static Dictionary<int, List<JournalEntry>> PyJournals = new Dictionary<int, List<JournalEntry>>();
 
         public static void Init()
         {
@@ -54,10 +53,10 @@ namespace ClassicUO.LegionScripting
             LoadLScriptSettings();
             AutoPlayGlobal();
             AutoPlayChar();
-            PythonAPI = new API();
             _enabled = true;
 
-            CommandManager.Register("lscriptfile", a => {
+            CommandManager.Register("lscriptfile", a =>
+            {
                 if (a.Length < 2)
                 {
                     GameActions.Print("Usage: lscriptfile <filename>");
@@ -81,18 +80,7 @@ namespace ClassicUO.LegionScripting
                 if (script.ScriptType == ScriptType.LegionScript)
                     script.GetScript.JournalEntryAdded(e);
                 else
-                {
-                    if (PyJournals.ContainsKey(script.PythonThread.ManagedThreadId))
-                    {
-                        PyJournals[script.PythonThread.ManagedThreadId].Add(e);
-                        if (PyJournals[script.PythonThread.ManagedThreadId].Count > 50)
-                            PyJournals[script.PythonThread.ManagedThreadId].RemoveRange(0, PyJournals[script.PythonThread.ManagedThreadId].Count - 50);
-                    }
-                    else
-                    {
-                        PyJournals.Add(script.PythonThread.ManagedThreadId, new List<JournalEntry> { e });
-                    }
-                }
+                    script.scopedAPI.JournalEntries.Enqueue(e);
             }
         }
         public static void LoadScriptsFromFile()
@@ -275,7 +263,7 @@ namespace ClassicUO.LegionScripting
             {
                 File.WriteAllText(path, json);
             }
-            catch (Exception e) { }
+            catch (Exception e) { Log.Error($"Error saving lscript settings: {e}"); }
         }
         public static void Unload()
         {
@@ -287,7 +275,10 @@ namespace ClassicUO.LegionScripting
             PyThreads.Clear();
 
             SaveScriptSettings();
-            PythonAPI = null;
+
+            while (API.QueuedPythonActions.TryDequeue(out var action)) //Clear any queued actions
+            { }
+
             _enabled = false;
         }
         public static void OnUpdate()
@@ -320,7 +311,7 @@ namespace ClassicUO.LegionScripting
                 removeRunningScripts.Clear();
             }
 
-            while (PythonAPI.QueuedPythonActions.TryDequeue(out var action))
+            while (API.QueuedPythonActions.TryDequeue(out var action))
                 action();
         }
         public static void PlayScript(ScriptFile script)
@@ -355,8 +346,9 @@ namespace ClassicUO.LegionScripting
         {
             script.pythonEngine ??= Python.CreateEngine();
             script.pythonScope = script.pythonEngine.CreateScope();
-            script.pythonScope.SetVariable("API", PythonAPI);
-            script.pythonScope.SetVariable("Random", new Random());
+            var api = new API();
+            script.scopedAPI = api;
+            script.pythonScope.SetVariable("API", api);
             try
             {
                 script.pythonEngine.Execute(script.FileContentsJoined, script.pythonScope);
@@ -367,8 +359,9 @@ namespace ClassicUO.LegionScripting
                 GameActions.Print("Python Script Error:");
                 GameActions.Print(e.Message);
             }
-
-            PythonAPI.QueuedPythonActions.Enqueue(() => { StopScript(script); });
+            script.pythonScope = null;
+            script.scopedAPI = null;
+            API.QueuedPythonActions.Enqueue(() => { StopScript(script); });
         }
         public static void StopScript(ScriptFile script)
         {
@@ -390,9 +383,9 @@ namespace ClassicUO.LegionScripting
                     if (script.PythonThread != null)
                     {
                         PyThreads.Remove(script.PythonThread.ManagedThreadId);
-                        PyJournals.Remove(script.PythonThread.ManagedThreadId);
+                        script.PythonThread.Abort();
                     }
-                    script.PythonThread?.Abort();
+                    script.scopedAPI = null;
                     script.PythonThread = null;
                 }
 
@@ -611,6 +604,7 @@ namespace ClassicUO.LegionScripting
         public Thread PythonThread;
         public ScriptEngine pythonEngine;
         public ScriptScope pythonScope;
+        public API scopedAPI;
         public bool IsPlaying
         {
             get
@@ -664,13 +658,22 @@ namespace ClassicUO.LegionScripting
 
         public string[] ReadFromFile()
         {
-            var c = File.ReadAllLines(FullPath);
-            FileContentsJoined = string.Join("\n", c);
-            if (ScriptType == ScriptType.Python)
+            try
             {
-                FileContentsJoined = FileContentsJoined.Replace("import API", string.Empty);
+                var c = File.ReadAllLines(FullPath);
+                FileContentsJoined = string.Join("\n", c);
+                if (ScriptType == ScriptType.Python)
+                {
+                    string pattern = @"^\s*(?:from\s+[\w.]+\s+import\s+API|import\s+API)\s*$";
+                    FileContentsJoined = System.Text.RegularExpressions.Regex.Replace(FileContentsJoined, pattern, string.Empty, System.Text.RegularExpressions.RegexOptions.Multiline);
+                }
+                return c;
             }
-            return c;
+            catch (Exception e)
+            {
+                Log.Error($"Error reading script file: {e}");
+                return new string[0];
+            }
         }
 
         public void GenerateScript()

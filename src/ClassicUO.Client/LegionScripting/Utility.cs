@@ -223,7 +223,7 @@ namespace ClassicUO.LegionScripting
             }
         }
     
-        public static uint FindNearestCheckPythonIgnore(ScanTypeObject scanType)
+        public static uint FindNearestCheckPythonIgnore(ScanTypeObject scanType, API api)
         {
             int distance = int.MaxValue;
             uint serial = 0;
@@ -232,7 +232,7 @@ namespace ClassicUO.LegionScripting
             {
                 foreach (Item item in World.Items.Values)
                 {
-                    if (item.IsMulti || item.IsDestroyed || !item.OnGround || LegionScripting.PythonAPI.OnIgnoreList(item))
+                    if (item.IsMulti || item.IsDestroyed || !item.OnGround || api.OnIgnoreList(item))
                     {
                         continue;
                     }
@@ -248,7 +248,7 @@ namespace ClassicUO.LegionScripting
             {
                 foreach (Mobile mobile in World.Mobiles.Values)
                 {
-                    if (mobile.IsDestroyed || mobile == World.Player || LegionScripting.PythonAPI.OnIgnoreList(mobile))
+                    if (mobile.IsDestroyed || mobile == World.Player || api.OnIgnoreList(mobile))
                     {
                         continue;
                     }

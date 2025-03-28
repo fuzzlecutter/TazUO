@@ -19,8 +19,8 @@ namespace ClassicUO.LegionScripting
     /// </summary>
     public class API
     {
-        public readonly ConcurrentQueue<Action> QueuedPythonActions = new();
-        private T InvokeOnMainThread<T>(Func<T> func)
+        public static readonly ConcurrentQueue<Action> QueuedPythonActions = new();
+        private static T InvokeOnMainThread<T>(Func<T> func)
         {
             var resultEvent = new ManualResetEvent(false);
             T result = default;
@@ -35,7 +35,7 @@ namespace ClassicUO.LegionScripting
             resultEvent.WaitOne(); // Wait for the main thread to complete the operation
             return result;
         }
-        private void InvokeOnMainThread(Action action)
+        private static void InvokeOnMainThread(Action action)
         {
             var resultEvent = new ManualResetEvent(false);
 
@@ -49,14 +49,25 @@ namespace ClassicUO.LegionScripting
             resultEvent.WaitOne();
         }
 
-        private ConcurrentDictionary<uint, byte> ignoreList = new ConcurrentDictionary<uint, byte>();
+        private ConcurrentDictionary<uint, byte> ignoreList = new();
+        private ConcurrentQueue<JournalEntry> journalEntries = new();
+        public ConcurrentQueue<JournalEntry> JournalEntries { get { return journalEntries; } }
 
         #region Properties
         /// <summary>
         /// Get the players backpack
         /// </summary>
         public Item Backpack { get { return InvokeOnMainThread(() => World.Player.FindItemByLayer(Game.Data.Layer.Backpack)); } }
+        /// <summary>
+        /// Returns the player character
+        /// </summary>
         public PlayerMobile Player { get { return InvokeOnMainThread(() => World.Player); } }
+        /// <summary>
+        /// Can be used for random numbers.
+        /// `API.Random.Next(1, 100)` will return a number between 1 and 100.
+        /// `API.Random.Next(100)` will return a number between 0 and 100.
+        /// </summary>
+        public Random Random { get; set; } = new();
         #endregion
 
         #region Enum
@@ -824,20 +835,14 @@ namespace ClassicUO.LegionScripting
         /// <returns>True if message was found</returns>
         public bool InJournal(string msg)
         {
-            int id = Thread.CurrentThread.ManagedThreadId;
-
             if (string.IsNullOrEmpty(msg)) return false;
 
-            return InvokeOnMainThread(() =>
+            foreach (var je in JournalEntries.ToArray())
             {
-                if (LegionScripting.PyJournals.TryGetValue(id, out var journalEntries))
-                {
-                    foreach (var je in journalEntries)
-                        if (je.Text.Contains(msg)) return true;
-                }
+                if (je.Text.Contains(msg)) return true;
+            }
 
-                return false;
-            });
+            return false;
         }
 
         /// <summary>
@@ -845,12 +850,7 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         public void ClearJournal()
         {
-            int id = Thread.CurrentThread.ManagedThreadId;
-            InvokeOnMainThread(() =>
-            {
-                LegionScripting.PyJournals.Remove(id);
-
-            });
+            while (JournalEntries.TryDequeue(out _)) { }
         }
 
         /// <summary>
@@ -911,7 +911,7 @@ namespace ClassicUO.LegionScripting
         /// <returns></returns>
         public Entity NearestEntity(ScanType scanType, int maxDistance = 10) => InvokeOnMainThread(() =>
         {
-            uint m = Utility.FindNearestCheckPythonIgnore((ScanTypeObject)scanType);
+            uint m = Utility.FindNearestCheckPythonIgnore((ScanTypeObject)scanType, this);
 
             var e = World.Get(m);
 
