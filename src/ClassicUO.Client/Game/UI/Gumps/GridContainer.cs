@@ -45,11 +45,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using static ClassicUO.Game.UI.Gumps.GridHightlightMenu;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -333,6 +331,10 @@ namespace ClassicUO.Game.UI.Gumps
                 openRegularGump.ContextMenu = GenContextMenu();
             }, true, StackNonStackableItems));
 
+            control.Add(new ContextMenuItemEntry("Open Grid highlight settings", () =>
+            {
+                GridHightlightMenu.Open();
+            }));
             return control;
         }
         private static int GetWidth(int columns = -1)

@@ -160,6 +160,11 @@ namespace ClassicUO.Game.UI.Gumps
             return area;
         }
 
+        public static void Open()
+        {
+            UIManager.GetGump<GridHightlightMenu>()?.Dispose();
+            UIManager.Add(new GridHightlightMenu());
+        }
         public static GridHighlightData[] GetAllGridHighlightData()
         {
             List<GridHighlightData> data = new List<GridHighlightData>();

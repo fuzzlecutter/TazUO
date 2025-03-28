@@ -2082,8 +2082,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             c.MouseUp += (s, e) =>
             {
-                UIManager.GetGump<GridHightlightMenu>()?.Dispose();
-                UIManager.Add(new GridHightlightMenu());
+                GridHightlightMenu.Open();
             };
             content.AddToRight(new SliderWithLabel(lang.GetTazUO.GridHighlightSize, 0, Theme.SLIDER_WIDTH, 1, 5, profile.GridHightlightSize, (i) =>
             {
