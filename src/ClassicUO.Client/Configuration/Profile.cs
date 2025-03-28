@@ -133,8 +133,6 @@ namespace ClassicUO.Configuration
         // visual
         public bool EnabledCriminalActionQuery { get; set; } = true;
         public bool EnabledBeneficialCriminalActionQuery { get; set; } = false;
-        public bool EnableStatReport { get; set; } = true;
-        public bool EnableSkillReport { get; set; } = true;
         public bool UseOldStatusGump { get; set; }
         public int BackpackStyle { get; set; }
         public bool HighlightGameObjects { get; set; }
@@ -158,7 +156,6 @@ namespace ClassicUO.Configuration
         public int VendorGumpHeight { get; set; } = 350;   //original vendor gump size
         public float DefaultScale { get; set; } = 1.0f;
         public bool EnableMousewheelScaleZoom { get; set; }
-        public bool SaveScaleAfterClose { get; set; }
         public bool RestoreScaleAfterUnpressCtrl { get; set; }
         public bool BandageSelfOld { get; set; } = true;
         public bool EnableDeathScreen { get; set; } = true;
@@ -181,7 +178,6 @@ namespace ClassicUO.Configuration
         public bool PathfindSingleClick { get; set; }
         public bool AlwaysRun { get; set; } = true;
         public bool AlwaysRunUnlessHidden { get; set; } = true;
-        public bool SmoothMovements { get; set; } = true;
         public bool HoldDownKeyTab { get; set; } = true;
         public bool HoldShiftForContext { get; set; } = false;
         public bool HoldShiftToSplitStack { get; set; } = false;
@@ -243,7 +239,6 @@ namespace ClassicUO.Configuration
 
         [JsonConverter(typeof(Point2Converter))] public Point OverrideContainerLocationPosition { get; set; } = new Point(200, 200);
         public bool HueContainerGumps { get; set; } = true;
-        public bool DragSelectHumanoidsOnly { get; set; }
         public int DragSelectStartX { get; set; } = 100;
         public int DragSelectStartY { get; set; } = 100;
         public bool DragSelectAsAnchor { get; set; } = false;
@@ -280,8 +275,6 @@ namespace ClassicUO.Configuration
         public bool AnimatedWaterEffect { get; set; } = false;
 
         public bool PartyAura { get; set; }
-
-        public bool UseXBR { get; set; } = true;
 
         public bool HideChatGradient { get; set; } = false;
 
@@ -486,8 +479,6 @@ namespace ClassicUO.Configuration
 
         public string NamePlateFont { get; set; } = "avadonian";
         public int NamePlateFontSize { get; set; } = 20;
-
-        public string DefaultTTFFont { get; set; } = "Roboto-Regular";
         public int TextBorderSize { get; set; } = 1;
 
         public bool UseModernShopGump { get; set; } = false;
@@ -599,7 +590,6 @@ namespace ClassicUO.Configuration
 
         public bool ModernPaperdollAnchorEnabled { get; set; } = false;
         public bool JournalAnchorEnabled { get; set; } = false;
-        public bool EnableGumpCloseAnimation { get; set; } = true;
         public bool EnableAutoLootProgressBar { get; set; } = true;
         public bool UseWASDInsteadArrowKeys { get; set; } = false;
         public int NearbyLootGumpHeight { get; set; } = 550;
