@@ -360,14 +360,7 @@ namespace ClassicUO.Game.UI.Gumps
         }
         private void OPLReceived(object sender, OPLEventArgs e)
         {
-            foreach(var slot in gridSlotManager.GridSlots.Values)
-            {
-                if (slot.SlotItem != null && slot.SlotItem.Serial == e.Serial)
-                {
-                    slot.ApplyGridHighlighting();
-                    break;
-                }
-            }
+            gridSlotManager.FindItem(e.Serial)?.ApplyGridHighlighting();
         }
         public override void Save(XmlTextWriter writer)
         {
@@ -375,7 +368,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             if (!skipSave)
             {
-                GridSaveSystem.Instance.SaveContainer(LocalSerial, gridSlotManager.GridSlots, Width, Height, X, Y, UseOldContainerStyle, autoSortContainer, StackNonStackableItems);
+                GridSaveSystem.Instance.SaveContainer(this);
             }
 
             if (IsPlayerBackpack)
@@ -534,19 +527,7 @@ namespace ClassicUO.Game.UI.Gumps
             }
 
             if (gridSlotManager != null && !skipSave && gridSlotManager.ItemPositions.Count > 0 && !isCorpse)
-            {
-                GridSaveSystem.Instance.SaveContainer(
-                    LocalSerial,
-                    gridSlotManager.GridSlots,
-                    Width,
-                    Height,
-                    X,
-                    Y,
-                    UseOldContainerStyle,
-                    autoSortContainer,
-                    StackNonStackableItems
-                );
-            }
+                GridSaveSystem.Instance.SaveContainer(this);
 
             base.Dispose();
         }
@@ -766,26 +747,34 @@ namespace ClassicUO.Game.UI.Gumps
         public class GridItem : Control
         {
             private readonly HitBox hit;
-            private bool mousePressedWhenEntered = false;
+            private bool mousePressedWhenEntered;
             private readonly Item container;
             private Item _item;
             private readonly GridContainer gridContainer;
-            public bool ItemGridLocked = false;
+            public bool ItemGridLocked { get; set; }
             private readonly int slot;
             private GridContainerPreview preview;
-            Label count;
-            AlphaBlendControl background;
+            private Label count;
+            private AlphaBlendControl background;
             private CustomToolTip toolTipThis, toolTipitem1, toolTipitem2;
-            private List<SimpleTimedTextGump> timedTexts = new List<SimpleTimedTextGump>();
+            private readonly List<SimpleTimedTextGump> timedTexts = new();
 
-            private bool borderHighlight = false;
-            private ushort borderHighlightHue = 0;
+            private bool borderHighlight;
+            private ushort borderHighlightHue;
 
-            public bool Hightlight = false;
-            public bool SelectHighlight = false;
-            public Item SlotItem { get { return _item; } set { _item = value; LocalSerial = value.Serial; } }
+            public bool Highlight { get; set; }
+            public bool SelectHighlight { get; set; }
+            public Item SlotItem
+            {
+                get => _item;
+                set
+                {
+                    _item = value;
+                    LocalSerial = value?.Serial ?? 0;
+                }
+            }
 
-            private readonly int[] spellbooks = { 0x0EFA, 0x2253, 0x2252, 0x238C, 0x23A0, 0x2D50, 0x2D9D, 0x225A };
+            private readonly int[] spellbooks = [0x0EFA, 0x2253, 0x2252, 0x238C, 0x23A0, 0x2D50, 0x2D9D, 0x225A];
 
             public GridItem(uint serial, int size, Item container, GridContainer gridContainer, int count)
             {
@@ -830,14 +819,15 @@ namespace ClassicUO.Game.UI.Gumps
                     X = ScreenCoordinateX,
                     Y = ScreenCoordinateY
                 };
-                timedTexts.Add(timedText);
 
-                foreach (var tt in timedTexts.Where(tt => tt != null && tt.IsDisposed).ToList())
-                    timedTexts.Remove(tt);
+                // Remove disposed timed texts
+                timedTexts.RemoveAll(tt => tt == null || tt.IsDisposed);
 
+                // Adjust the Y position of existing timed texts
                 foreach (var tt in timedTexts)
                     tt.Y -= timedText.Height + 5;
 
+                timedTexts.Add(timedText);
                 UIManager.Add(timedText);
             }
 
@@ -886,7 +876,7 @@ namespace ClassicUO.Game.UI.Gumps
                     _item = null;
                     LocalSerial = 0;
                     hit.ClearTooltip();
-                    Hightlight = false;
+                    Highlight = false;
                     count?.Dispose();
                     count = null;
                     ItemGridLocked = false;
@@ -913,7 +903,7 @@ namespace ClassicUO.Game.UI.Gumps
                 }
 
                 if (MultiItemMoveGump.MoveItems.Contains(_item))
-                    Hightlight = true;
+                    Highlight = true;
 
                 hit.SetTooltip(_item);
             }
@@ -1178,7 +1168,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 if (ItemGridLocked)
                     hueVector = ShaderHueTranslator.GetHueVector(0x2, false, (float)ProfileManager.CurrentProfile.GridBorderAlpha / 100);
-                if (Hightlight || SelectHighlight)
+                if (Highlight || SelectHighlight)
                 {
                     hueVector = ShaderHueTranslator.GetHueVector(0x34, false, 1);
                 }
@@ -1422,7 +1412,7 @@ namespace ClassicUO.Game.UI.Gumps
                     {
                         if (SearchItemNameAndProps(searchText, slot.Value.SlotItem))
                         {
-                            slot.Value.Hightlight = ProfileManager.CurrentProfile.GridContainerSearchMode == 1;
+                            slot.Value.Highlight = ProfileManager.CurrentProfile.GridContainerSearchMode == 1;
                             slot.Value.IsVisible = true;
                         }
                     }
@@ -1845,9 +1835,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 get
                 {
-                    if (instance == null)
-                        instance = new GridSaveSystem();
-                    return instance;
+                    return instance ??= new GridSaveSystem();
                 }
             }
 
@@ -1876,34 +1864,29 @@ namespace ClassicUO.Game.UI.Gumps
                 }
                 enabled = true;
             }
-
-            public bool SaveContainer(uint serial, Dictionary<int, GridItem> gridSlots, int width, int height, int lastX = 100, int lastY = 100, bool? useOriginalContainer = false, bool autoSort = false, bool stacknonstackables = false)
+            public bool SaveContainer(GridContainer container)
             {
-                if (!enabled)
-                    return false;
+                if (!enabled) return false;
 
-                if (useOriginalContainer == null)
-                    useOriginalContainer = false;
-
-                XElement thisContainer = rootElement.Element("container_" + serial.ToString());
+                XElement thisContainer = rootElement.Element("container_" + container.LocalSerial.ToString());
                 if (thisContainer == null)
                 {
-                    thisContainer = new XElement("container_" + serial.ToString());
+                    thisContainer = new XElement("container_" + container.LocalSerial.ToString());
                     rootElement.Add(thisContainer);
                 }
                 else
                     thisContainer.RemoveNodes();
 
                 thisContainer.SetAttributeValue("last_opened", DateTimeOffset.Now.ToUnixTimeSeconds().ToString());
-                thisContainer.SetAttributeValue("width", width.ToString());
-                thisContainer.SetAttributeValue("height", height.ToString());
-                thisContainer.SetAttributeValue("lastX", lastX.ToString());
-                thisContainer.SetAttributeValue("lastY", lastY.ToString());
-                thisContainer.SetAttributeValue("useOriginalContainer", useOriginalContainer.ToString());
-                thisContainer.SetAttributeValue("autoSort", autoSort.ToString());
-                thisContainer.SetAttributeValue("stacknonstackables", stacknonstackables.ToString());
+                thisContainer.SetAttributeValue("width", container.Width.ToString());
+                thisContainer.SetAttributeValue("height", container.Height.ToString());
+                thisContainer.SetAttributeValue("lastX", container.X.ToString());
+                thisContainer.SetAttributeValue("lastY", container.Y.ToString());
+                thisContainer.SetAttributeValue("useOriginalContainer", container.UseOldContainerStyle == null ? false.ToString() : container.UseOldContainerStyle.ToString());
+                thisContainer.SetAttributeValue("autoSort", container.autoSortContainer.ToString());
+                thisContainer.SetAttributeValue("stacknonstackables", container.StackNonStackableItems.ToString());
 
-                foreach (var slot in gridSlots)
+                foreach (var slot in container.gridSlotManager.GridSlots)
                 {
                     if (slot.Value.SlotItem == null)
                         continue;
@@ -1919,7 +1902,6 @@ namespace ClassicUO.Game.UI.Gumps
 
                 return true;
             }
-
             public List<GridItemSlotSaveData> GetItemSlots(uint container)
             {
                 List<GridItemSlotSaveData> items = new List<GridItemSlotSaveData>();
@@ -1949,7 +1931,6 @@ namespace ClassicUO.Game.UI.Gumps
 
                 return items;
             }
-
             public class GridItemSlotSaveData
             {
                 public readonly int Slot;
@@ -1963,7 +1944,6 @@ namespace ClassicUO.Game.UI.Gumps
                     this.IsLocked = isLocked;
                 }
             }
-
             public Point GetLastSize(uint container)
             {
                 Point lastSize = new Point(GetWidth(), GetHeight());
@@ -1983,7 +1963,6 @@ namespace ClassicUO.Game.UI.Gumps
 
                 return lastSize;
             }
-
             public Point GetLastPosition(uint container)
             {
                 Point LastPos = new Point(GridContainer.lastX, GridContainer.lastY);
@@ -2003,7 +1982,6 @@ namespace ClassicUO.Game.UI.Gumps
 
                 return LastPos;
             }
-
             public bool UseOriginalContainerGump(uint container)
             {
                 bool useOriginalContainer = false;
@@ -2021,7 +1999,6 @@ namespace ClassicUO.Game.UI.Gumps
 
                 return useOriginalContainer;
             }
-
             public bool AutoSortContainer(uint container)
             {
                 bool autoSort = false;
@@ -2038,7 +2015,6 @@ namespace ClassicUO.Game.UI.Gumps
 
                 return autoSort;
             }
-
             public bool StackNonStackables(uint container)
             {
                 bool stacknoners = false;
@@ -2058,23 +2034,15 @@ namespace ClassicUO.Game.UI.Gumps
             private void RemoveOldContainers()
             {
                 long cutOffTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - TIME_CUTOFF;
-                List<XElement> removeMe = new List<XElement>();
-                foreach (XElement container in rootElement.Elements())
-                {
-                    XAttribute lastOpened = container.Attribute("last_opened");
-                    if (lastOpened != null)
-                    {
-                        long lo = cutOffTime;
-                        long.TryParse(lastOpened.Value, out lo);
 
-                        if (lo < cutOffTime)
-                            removeMe.Add(container);
+                foreach (var container in rootElement.Elements().ToList())
+                {
+                    if (long.TryParse(container.Attribute("last_opened")?.Value, out long lastOpened) && lastOpened < cutOffTime)
+                    {
+                        container.Remove();
                     }
                 }
-                foreach (XElement container in removeMe)
-                    container.Remove();
             }
-
             private bool SaveFileCheck()
             {
                 try
@@ -2084,7 +2052,7 @@ namespace ClassicUO.Game.UI.Gumps
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Could not create file: " + gridSavePath);
+                    Log.Error("Could not create file: " + gridSavePath);
                     System.Text.StringBuilder sb = new System.Text.StringBuilder();
                     sb.AppendLine("######################## [START LOG] ########################");
 
@@ -2121,7 +2089,6 @@ namespace ClassicUO.Game.UI.Gumps
                 }
                 return true;
             }
-
             public void Clear()
             {
                 instance = null;
