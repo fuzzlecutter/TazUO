@@ -1455,7 +1455,7 @@ namespace ClassicUO.Network
 
                 if (item != null)
                 {
-                    AutoLootManager.Instance.HandleCorpse(item);
+                    //AutoLootManager.Instance.HandleCorpse(item);
 
                     if (!NearbyLootGump.IsCorpseRequested(serial))
                     {
@@ -6264,7 +6264,7 @@ namespace ClassicUO.Network
             }
             else if (SerialHelper.IsItem(containerSerial))
             {
-                AutoLootManager.Instance.HandleCorpse(World.Items.Get(containerSerial));
+                //AutoLootManager.Instance.HandleCorpse(World.Items.Get(containerSerial));
 
                 Gump gump = UIManager.GetGump<BulletinBoardGump>(containerSerial);
 
@@ -6482,6 +6482,11 @@ namespace ClassicUO.Network
                 item.Flags = flagss;
                 item.Direction = direction;
                 item.CheckGraphicChange(item.AnimIndex);
+
+                if(created)
+                    EventSink.InvokeOnItemCreated(item);
+                else
+                    EventSink.InvokeOnItemUpdated(item);
             }
             else
             {

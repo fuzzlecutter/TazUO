@@ -402,7 +402,7 @@ namespace ClassicUO.Game.Scenes
             TileMarkerManager.Instance.Save();
             SpellVisualRangeManager.Instance.Save();
             SpellVisualRangeManager.Instance.OnSceneUnload();
-            AutoLootManager.Instance.Save();
+            AutoLootManager.Instance.OnSceneUnload();
 
             NameOverHeadManager.Save();
 

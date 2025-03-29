@@ -111,7 +111,7 @@ namespace ClassicUO.Game.Managers
         /// <param name="corpse"></param>
         public void HandleCorpse(Item corpse)
         {
-            if (corpse != null && corpse.IsCorpse && (!corpse.IsHumanCorpse || ProfileManager.CurrentProfile.AutoLootHumanCorpses) && ProfileManager.CurrentProfile.EnableAutoLoot)
+            if (corpse != null && corpse.IsCorpse && corpse.Distance <= ProfileManager.CurrentProfile.AutoOpenCorpseRange && (!corpse.IsHumanCorpse || ProfileManager.CurrentProfile.AutoLootHumanCorpses) && ProfileManager.CurrentProfile.EnableAutoLoot)
             {
                 for (LinkedObject i = corpse.Items; i != null; i = i.Next)
                 {
@@ -141,6 +141,48 @@ namespace ClassicUO.Game.Managers
         public void OnSceneLoad()
         {
             Load();
+            EventSink.OPLOnReceive += OPLReceived;
+            EventSink.OnItemCreated += OnItemCreatedOrUpdated;
+            EventSink.OnItemUpdated += OnItemCreatedOrUpdated;
+
+        }
+        public void OnSceneUnload()
+        {
+            EventSink.OPLOnReceive -= OPLReceived;
+            EventSink.OnItemCreated -= OnItemCreatedOrUpdated;
+            EventSink.OnItemUpdated -= OnItemCreatedOrUpdated;
+            Save();
+        }
+
+        private void CheckItem(Item i)
+        {
+            if (i == null) return;
+
+            if (i.IsCorpse)
+            {
+                HandleCorpse(i);
+                return;
+            }
+
+            var root = World.Items.Get(i.RootContainer);
+            if (root != null && root.IsCorpse)
+            {
+                HandleCorpse(root);
+                return;
+            }
+        }
+        private void OnItemCreatedOrUpdated(object sender, EventArgs e)
+        {
+            if (!loaded) return;
+            if (sender is Item i)
+                CheckItem(i);
+        }
+        private void OPLReceived(object sender, OPLEventArgs e)
+        {
+            if (!loaded) return;
+            var item = World.Items.Get(e.Serial);
+            if (item != null)
+                CheckItem(item);
         }
 
         public void Update()

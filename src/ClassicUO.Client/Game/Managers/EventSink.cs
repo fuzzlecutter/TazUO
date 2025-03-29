@@ -1,4 +1,5 @@
 ﻿using ClassicUO.Game.Data;
+using ClassicUO.Game.GameObjects;
 using Microsoft.Xna.Framework;
 using System;
 
@@ -10,7 +11,13 @@ namespace ClassicUO.Game.Managers
         /// Invoked when an item is added to the client, sender is the Item
         /// </summary>
         public static event EventHandler<EventArgs> OnItemCreated;
-        public static void InvokeOnItemCreated(object sender) => OnItemCreated?.Invoke(sender, EventArgs.Empty);
+        public static void InvokeOnItemCreated(Item sender) => OnItemCreated?.Invoke(sender, EventArgs.Empty);
+
+        /// <summary>
+        /// Invoked when an item is already in the client but has been updated, sender is the Item
+        /// </summary>
+        public static event EventHandler<EventArgs> OnItemUpdated;
+        public static void InvokeOnItemUpdated(Item sender) => OnItemCreated?.Invoke(sender, EventArgs.Empty);
 
         /// <summary>
         /// Invoked when a corpse is added to the client, sender is the corpse Item
