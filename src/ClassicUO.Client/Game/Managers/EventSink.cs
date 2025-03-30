@@ -95,7 +95,7 @@ namespace ClassicUO.Game.Managers
         /// Invoked when a container is opened. Sender is the Item, serial is the item serial.
         /// </summary>
         public static event EventHandler<uint> OnOpenContainer;
-        public static void InvokeOnOpenContainer(object sender, uint serial) => OnOpenContainer?.Invoke(sender, serial);
+        public static void InvokeOnOpenContainer(Item sender, uint serial) => OnOpenContainer?.Invoke(sender, serial);
 
         /// <summary>
         /// Invoked when the player receives a death packet from the server

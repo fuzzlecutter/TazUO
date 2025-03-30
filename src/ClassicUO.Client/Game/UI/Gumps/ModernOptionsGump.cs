@@ -3573,13 +3573,13 @@ namespace ClassicUO.Game.UI.Gumps
 
                 for (int i = 0; i < AutoLootManager.Instance.AutoLootList.Count; i++)
                 {
-                    AutoLootItem autoLootItem = AutoLootManager.Instance.AutoLootList[i];
+                    AutoLootConfigEntry autoLootItem = AutoLootManager.Instance.AutoLootList[i];
                     _dataBox.Add(GenConfigEntry(autoLootItem, width));
                 }
                 RearrangeDataBox();
             }
 
-            private Control GenConfigEntry(AutoLootItem autoLootItem, int width)
+            private Control GenConfigEntry(AutoLootConfigEntry autoLootItem, int width)
             {
                 int ewidth = (width - 90 - 60) >> 1;
 
