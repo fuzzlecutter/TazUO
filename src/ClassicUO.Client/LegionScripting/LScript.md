@@ -738,6 +738,12 @@ Check if you are actively pathfinding or following
 Example: `if pathfinding`  
 
 
+## `nearestcorpse`  
+
+Find the nearest corpse. If found it will be set to `found`  
+`nearestcorpse`  
+Example: `if nearestcorpse`  
+
 
 # Aliases
 

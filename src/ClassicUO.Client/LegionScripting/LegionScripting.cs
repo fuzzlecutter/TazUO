@@ -517,6 +517,7 @@ namespace ClassicUO.LegionScripting
             Interpreter.RegisterExpressionHandler("primaryabilityactive", PrimaryAbilityActive);
             Interpreter.RegisterExpressionHandler("secondaryabilityactive", SecondaryAbilityActive);
             Interpreter.RegisterExpressionHandler("pathfinding", IsPathfinding);
+            Interpreter.RegisterExpressionHandler("nearestcorpse", NearestCorpse);
             #endregion
 
             #region Player Values
