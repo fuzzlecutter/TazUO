@@ -300,8 +300,36 @@ namespace ClassicUO.Game.UI.Controls
         protected Point _caretScreenPosition;
         protected bool _is_writing;
         protected bool _leftWasDown, _fromServer;
-        protected RenderedText _rendererText, _rendererCaret;
-
+        protected RenderedText _rendererText, _rendererCaret, _rendererPlaceholder;
+        public string PlaceHolderText
+        {
+            get
+            {
+                if (_rendererPlaceholder != null) return _rendererPlaceholder.Text;
+                return string.Empty;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    _rendererPlaceholder = null;
+                }
+                else if (!string.IsNullOrEmpty(value))
+                {
+                    _rendererPlaceholder =
+                        RenderedText.Create
+                        (
+                            value,
+                            _rendererText.Hue,
+                            _rendererText.Font,
+                            _rendererText.IsUnicode,
+                            _rendererText.FontStyle,
+                            _rendererText.Align,
+                            _rendererText.MaxWidth
+                        );
+                }
+            }
+        }
         public event EventHandler TextChanged;
 
         public MultilinesFontInfo CalculateFontInfo(string text, bool countret = true)
@@ -901,10 +929,16 @@ namespace ClassicUO.Game.UI.Controls
             if (batcher.ClipBegin(x, y, Width, Height))
             {
                 base.Draw(batcher, x, y);
-                DrawSelection(batcher, x, y);
-                _rendererText.Draw(batcher, x, y);
-                DrawCaret(batcher, x, y);
-
+                if (!IsFocused && string.IsNullOrEmpty(_rendererText.Text) && _rendererPlaceholder != null)
+                {
+                    _rendererPlaceholder.Draw(batcher, X, y, 0.7f);
+                }
+                else
+                {
+                    DrawSelection(batcher, x, y);
+                    _rendererText.Draw(batcher, x, y);
+                    DrawCaret(batcher, x, y);
+                }
                 batcher.ClipEnd();
             }
 
