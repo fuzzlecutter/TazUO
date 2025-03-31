@@ -1401,7 +1401,6 @@ namespace ClassicUO.Game.UI.Gumps
                         if (slot.Value.SlotItem != null)
                             continue;
                         slot.Value.SetGridItem(i);
-                        slot.Value.ApplyGridHighlighting();
                         AddLockedItemSlot(i, slot.Key);
                         break;
                     }
@@ -1418,6 +1417,7 @@ namespace ClassicUO.Game.UI.Gumps
                             slot.Value.IsVisible = true;
                         }
                     }
+                    slot.Value.ApplyGridHighlighting();
                 }
                 SetGridPositions();
             }
