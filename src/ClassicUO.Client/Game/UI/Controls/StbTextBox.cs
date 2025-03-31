@@ -312,6 +312,7 @@ namespace ClassicUO.Game.UI.Controls
             {
                 if (value == null)
                 {
+                    _rendererPlaceholder?.Destroy();
                     _rendererPlaceholder = null;
                 }
                 else if (!string.IsNullOrEmpty(value))
@@ -1085,6 +1086,7 @@ namespace ClassicUO.Game.UI.Controls
         {
             _rendererText?.Destroy();
             _rendererCaret?.Destroy();
+            _rendererPlaceholder?.Destroy();
 
             base.Dispose();
         }

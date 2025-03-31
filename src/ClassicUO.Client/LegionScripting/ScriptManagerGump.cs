@@ -256,8 +256,10 @@ while True:
                         if (r == InputRequest.Result.BUTTON1 && !string.IsNullOrEmpty(s))
                         {
                             if (!s.EndsWith(".lscript") && !s.EndsWith(".py"))
+                            {
+                                GameActions.Print("Script files must end with .lscript or .py", 32);
                                 return;
-
+                            }
                             try
                             {
                                 string gPath = parentGroup == "" ? group : Path.Combine(parentGroup, group);

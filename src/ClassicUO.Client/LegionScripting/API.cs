@@ -431,7 +431,7 @@ namespace ClassicUO.LegionScripting
         /// <summary>
         /// Clears the ignore list
         /// </summary>
-        public void ClearIgnoreList() => ignoreList = [];
+        public void ClearIgnoreList() => ignoreList = new();
 
         /// <summary>
         /// Check if a serial is on the ignore list
@@ -939,8 +939,8 @@ namespace ClassicUO.LegionScripting
         {
             var g = new Gump(0, 0)
             {
-                AcceptMouseInput = true,
-                CanMove = true,
+                AcceptMouseInput = acceptMouseInput,
+                CanMove = canMove,
                 WantUpdateSize = true
             };
             return g;

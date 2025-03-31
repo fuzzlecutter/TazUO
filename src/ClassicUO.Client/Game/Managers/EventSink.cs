@@ -17,7 +17,7 @@ namespace ClassicUO.Game.Managers
         /// Invoked when an item is already in the client but has been updated, sender is the Item
         /// </summary>
         public static event EventHandler<EventArgs> OnItemUpdated;
-        public static void InvokeOnItemUpdated(Item sender) => OnItemCreated?.Invoke(sender, EventArgs.Empty);
+        public static void InvokeOnItemUpdated(Item sender) => OnItemUpdated?.Invoke(sender, EventArgs.Empty);
 
         /// <summary>
         /// Invoked when a corpse is added to the client, sender is the corpse Item
