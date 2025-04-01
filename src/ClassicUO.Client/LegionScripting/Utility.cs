@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
+using System.Linq;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
@@ -224,5 +224,78 @@ namespace ClassicUO.LegionScripting
             }
         }
 
+        public static Item FindNearestCorpsePython(int distance, API api)
+        {
+            return World.Items.Values
+                .Where(c => c.IsCorpse && c.Distance <= distance && !api.OnIgnoreList(c))
+                .OrderBy(c => c.Distance)
+                .FirstOrDefault();
+        }
+
+        public static uint FindNearestCheckPythonIgnore(ScanTypeObject scanType, API api)
+        {
+            int distance = int.MaxValue;
+            uint serial = 0;
+
+            if (scanType == ScanTypeObject.Objects)
+            {
+                foreach (Item item in World.Items.Values)
+                {
+                    if (item.IsMulti || item.IsDestroyed || !item.OnGround || api.OnIgnoreList(item))
+                    {
+                        continue;
+                    }
+
+                    if (item.Distance < distance)
+                    {
+                        distance = item.Distance;
+                        serial = item.Serial;
+                    }
+                }
+            }
+            else
+            {
+                foreach (Mobile mobile in World.Mobiles.Values)
+                {
+                    if (mobile.IsDestroyed || mobile == World.Player || api.OnIgnoreList(mobile))
+                    {
+                        continue;
+                    }
+
+                    switch (scanType)
+                    {
+                        case ScanTypeObject.Party:
+                            if (!World.Party.Contains(mobile))
+                            {
+                                continue;
+                            }
+                            break;
+                        case ScanTypeObject.Followers:
+                            if (!(mobile.IsRenamable && mobile.NotorietyFlag != NotorietyFlag.Invulnerable && mobile.NotorietyFlag != NotorietyFlag.Enemy))
+                            {
+                                continue;
+                            }
+                            break;
+                        case ScanTypeObject.Hostile:
+                            if (mobile.NotorietyFlag == NotorietyFlag.Ally || mobile.NotorietyFlag == NotorietyFlag.Innocent || mobile.NotorietyFlag == NotorietyFlag.Invulnerable)
+                            {
+                                continue;
+                            }
+                            break;
+                        case ScanTypeObject.Objects:
+                            /* This was handled separately above */
+                            continue;
+                    }
+
+                    if (mobile.Distance < distance)
+                    {
+                        distance = mobile.Distance;
+                        serial = mobile.Serial;
+                    }
+                }
+            }
+
+            return serial;
+        }
     }
 }

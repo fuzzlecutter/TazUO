@@ -39,6 +39,7 @@ using ClassicUO.Resources;
 using ClassicUO.Utility.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace ClassicUO.Game.Managers
@@ -274,7 +275,7 @@ namespace ClassicUO.Game.Managers
 
                     if (!c.IsDisposed)
                     {
-                        c.SetInScreen();   
+                        c.SetInScreen();
                     }
                 }
             });
@@ -283,6 +284,8 @@ namespace ClassicUO.Game.Managers
             {
                 UIManager.Add(new UI.Gumps.UpdateTimerViewer());
             });
+
+            Register("artbrowser", (s) => { UIManager.Add(new ArtBrowserGump()); });
         }
 
 

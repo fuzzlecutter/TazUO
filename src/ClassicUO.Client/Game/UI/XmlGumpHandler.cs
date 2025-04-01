@@ -63,6 +63,12 @@ namespace ClassicUO.Game.UI
                                     gump.SavePosition = savePos;
                                 }
                                 break;
+                            case "acceptmouseinput":
+                                if (bool.TryParse(attr.Value, out bool b))
+                                {
+                                    gump.AcceptMouseInput = b;
+                                }
+                                break;
                         }
                     }
 

@@ -363,7 +363,8 @@ namespace ClassicUO.Game.UI.Gumps.Login
                     X = offsetX,
                     Y = offsetY,
                     Width = 190,
-                    Height = 25
+                    Height = 25,
+                    PlaceHolderText="Account Name"
                 }
             );
 

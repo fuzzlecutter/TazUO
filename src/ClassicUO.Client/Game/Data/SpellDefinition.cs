@@ -168,6 +168,7 @@ namespace ClassicUO.Game.Data
         {
             try
             {
+                Console.WriteLine($"Loading custom spells from {path}");
                 if (Utility.JsonHelper.LoadJsonFile(path, out List<SpellJson> spells))
                 {
                     foreach (SpellJson spell in spells)

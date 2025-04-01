@@ -27,7 +27,6 @@ namespace ClassicUO.Game.UI.Gumps
     internal class ModernOptionsGump : Gump
     {
         private LeftSideMenuRightSideContent mainContent;
-        private mainScrollArea mainScrollAreaContent;
         private List<SettingsOption> options = new List<SettingsOption>();
 
         public static string SearchText { get; private set; } = string.Empty;
@@ -2083,8 +2082,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             c.MouseUp += (s, e) =>
             {
-                UIManager.GetGump<GridHightlightMenu>()?.Dispose();
-                UIManager.Add(new GridHightlightMenu());
+                GridHightlightMenu.Open();
             };
             content.AddToRight(new SliderWithLabel(lang.GetTazUO.GridHighlightSize, 0, Theme.SLIDER_WIDTH, 1, 5, profile.GridHightlightSize, (i) =>
             {
@@ -2317,6 +2315,9 @@ namespace ClassicUO.Game.UI.Gumps
             content.BlankLine();
             content.AddToRight(c = new SliderWithLabel(lang.GetTazUO.TurnDelay, 0, Theme.SLIDER_WIDTH, 45, 120, profile.TurnDelay, i => profile.TurnDelay = (ushort)i), true, page);
             c.SetTooltip("This settting may cause throttling, Use with caution.");
+
+            content.BlankLine();
+            content.AddToRight(new CheckboxWithLabel(lang.GetGeneral.IgnoreStaminaCheck, 0, profile.IgnoreStaminaCheck, (b) => profile.IgnoreStaminaCheck = b), true, page);
             #endregion
 
             #region Misc
@@ -2462,11 +2463,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 profile.PlayerOffset = new Point(profile.PlayerOffset.X, i);
             }), true, page);
-            content.BlankLine();
-            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.UseLandTexturesWhereAvailable, 0, profile.UseLandTextures, (b) =>
-            {
-                profile.UseLandTextures = b;
-            }), true, page);
+
             content.BlankLine();
             content.AddToRight(new InputFieldWithLabel(lang.GetTazUO.SOSGumpID, Theme.INPUT_WIDTH, profile.SOSGumpID.ToString(), true, (s, e) => { if (uint.TryParse(((InputField.StbTextBox)s).Text, out uint id)) { profile.SOSGumpID = id; } }), true, page);
             content.BlankLine();
@@ -2777,6 +2774,86 @@ namespace ClassicUO.Game.UI.Gumps
             content.AddToRight(c = new AutoLootConfigs(content.RightWidth - Theme.SCROLL_BAR_WIDTH - 10), true, page);
             #endregion
 
+            #region Auto sell
+            page = ((int)PAGE.TUOOptions + 1013);
+            content.AddToLeft(SubCategoryButton(lang.GetTazUO.AutoSellMenu, page, content.LeftWidth));
+            content.ResetRightSide();
+
+            content.AddToRight(new HttpClickableLink("Auto Sell Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Auto-Sell-Agent", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
+
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AutoSellEnable, 0, profile.SellAgentEnabled, b => profile.SellAgentEnabled = b), true, page);
+            content.BlankLine();
+
+            content.AddToRight(new SellAgentConfigs(content.RightWidth - Theme.SCROLL_BAR_WIDTH - 10), true, page);
+            #endregion
+
+            #region Auto buy
+            page = ((int)PAGE.TUOOptions + 1014);
+            content.AddToLeft(SubCategoryButton(lang.GetTazUO.AutoBuyMenu, page, content.LeftWidth));
+            content.ResetRightSide();
+
+            content.AddToRight(new HttpClickableLink("Auto Buy Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Auto-Buy-Agent", Theme.TEXT_FONT_COLOR), true, page);
+            content.BlankLine();
+
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AutoBuyEnable, 0, profile.BuyAgentEnabled, b => profile.BuyAgentEnabled = b), true, page);
+            content.BlankLine();
+
+            content.AddToRight(new BuyAgentConfigs(content.RightWidth - Theme.SCROLL_BAR_WIDTH - 10), true, page);
+            #endregion
+
+            #region Graphic Filter
+            page = ((int)PAGE.TUOOptions + 1015);
+            content.AddToLeft(SubCategoryButton(lang.GetTazUO.GraphicChangeFilter, page, content.LeftWidth));
+            content.ResetRightSide();
+
+            content.AddToRight(new GraphicFilterConfigs(content.RightWidth - Theme.SCROLL_BAR_WIDTH - 10), true, page);
+            #endregion
+
+            #region Hotkeys
+            page = ((int)PAGE.TUOOptions + 1016);
+            content.AddToLeft(SubCategoryButton(lang.GetTazUO.Hotkeys, page, content.LeftWidth));
+            content.ResetRightSide();
+
+            content.AddToRight(new TextBox("These are not configurable here, this is a list of hotkeys built into the client.\nThere may be missing hotkeys, please report them on our Discord.", Theme.FONT, Theme.STANDARD_TEXT_SIZE, content.RightWidth - 15, Theme.TEXT_FONT_COLOR, strokeEffect: false), true, page);
+            content.BlankLine();
+
+            int ewidth = content.RightWidth - 15;
+
+            //Gumps ish
+            content.AddToRight(GenHotKeyDisplay("Move gumps", "ALT", ewidth, ProfileManager.CurrentProfile.HoldAltToMoveGumps), true, page);
+
+            content.AddToRight(GenHotKeyDisplay("Detatch anchored gumps", "ALT", ewidth, ProfileManager.CurrentProfile.HoldAltToMoveGumps), true, page);
+            content.AddToRight(GenHotKeyDisplay("Show lock button on various gumps", "ALT", ewidth), true, page);
+            content.AddToRight(GenHotKeyDisplay("Hold to close anchored gumps", "ALT", ewidth, ProfileManager.CurrentProfile.HoldDownKeyAltToCloseAnchored), true, page);
+            content.AddToRight(GenHotKeyDisplay("Lock gump if it's lockable", "ALT CTRL CLICK", ewidth), true, page);
+            content.AddToRight(GenHotKeyDisplay("Show gump lock icon where applicable", "ALT HOVER", ewidth), true, page);
+            content.AddToRight(GenHotKeyDisplay("Adjust gump opacity", "ALT SCROLL-WHEEL", ewidth, ProfileManager.CurrentProfile.EnableAlphaScrollingOnGumps), true, page);
+
+            //Grid container
+            content.AddToRight(GenHotKeyDisplay("Grid container - move multiple items", "ALT CLICK-ITEM", ewidth), true, page);
+            content.AddToRight(GenHotKeyDisplay("Grid container - add item to autoloot", "SHIFT CLICK-ITEM", ewidth, ProfileManager.CurrentProfile.EnableAutoLoot && !ProfileManager.CurrentProfile.HoldShiftForContext && !ProfileManager.CurrentProfile.HoldShiftToSplitStack), true, page);
+            content.AddToRight(GenHotKeyDisplay("Grid container - lock item in slot", "CTRL CLICK-ITEM", ewidth), true, page);
+            content.AddToRight(GenHotKeyDisplay("Grid container - compare item to equipped", "CTRL HOVER", ewidth), true, page);
+
+
+            content.AddToRight(GenHotKeyDisplay("Remove item from counterbar", "ALT RIGHT-CLICK", ewidth), true, page);
+            content.AddToRight(GenHotKeyDisplay("Click a mobile to follow them", "ALT CLICK", ewidth, !ProfileManager.CurrentProfile.DisableAutoFollowAlt), true, page);
+            content.AddToRight(GenHotKeyDisplay("Activate chat", "ENTER", ewidth, ProfileManager.CurrentProfile.ActivateChatAfterEnter), true, page);
+            content.AddToRight(GenHotKeyDisplay("Split item stacks", "SHIFT", ewidth, ProfileManager.CurrentProfile.HoldShiftToSplitStack), true, page);
+            content.AddToRight(GenHotKeyDisplay("Show name plates", "CTRL SHIFT", ewidth), true, page);
+            content.AddToRight(GenHotKeyDisplay("Pathfinding", "SHIFT CLICK/DOUBLE-CLICK", ewidth, ProfileManager.CurrentProfile.UseShiftToPathfind), true, page);
+            content.AddToRight(GenHotKeyDisplay("Buy/Sell all of an item at a shop", "SHIFT DOUBLE-CLICK", ewidth), true, page);
+            content.AddToRight(GenHotKeyDisplay("Item drag - Lock in position", "CTRL SCROL-WHEEL", ewidth), true, page);
+            content.AddToRight(GenHotKeyDisplay("Zoom window", "CTRL SCROL-WHEEL", ewidth, ProfileManager.CurrentProfile.EnableMousewheelScaleZoom), true, page);
+            content.AddToRight(GenHotKeyDisplay("Scroll through messages sent in chat", "CTRL q/w", ewidth, !ProfileManager.CurrentProfile.DisableCtrlQWBtn), true, page);
+            content.AddToRight(GenHotKeyDisplay("Auto-start xml gump from menu", "CTRL CLICK", ewidth), true, page);
+            content.AddToRight(GenHotKeyDisplay("World Map - Pathfind", "CTRL RIGHT-CLICK", ewidth), true, page);
+            content.AddToRight(GenHotKeyDisplay("World Map - Add Marker", "CTRL CLICK", ewidth), true, page);
+            content.AddToRight(GenHotKeyDisplay("Screen shot gump/tooltip only", "CTRL PRINTSCREEN", ewidth), true, page);
+
+            #endregion
+
             options.Add(
             new SettingsOption(
                 "",
@@ -2985,6 +3062,22 @@ namespace ClassicUO.Game.UI.Gumps
             return main;
         }
 
+        public Control GenHotKeyDisplay(string text, string hotkey, int width, bool enabled = true)
+        {
+            Area d = new Area(false);
+            d.Add(new TextBox(text, Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false));
+
+            var hk = new TextBox(hotkey, Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false);
+            hk.X = width - hk.MeasuredSize.X;
+
+            d.Add(new AlphaBlendControl() { Width = hk.MeasuredSize.X, Height = hk.MeasuredSize.Y, X = width - hk.MeasuredSize.X });
+            d.Add(hk);
+
+            d.ForceSizeUpdate();
+            if (!enabled)
+                d.Add(new AlphaBlendControl(0.65f) { Width = d.Width, Height = d.Height });
+            return d;
+        }
         public override void OnPageChanged()
         {
             base.OnPageChanged();
@@ -3011,6 +3104,430 @@ namespace ClassicUO.Game.UI.Gumps
         }
 
         #region Custom Controls For Options
+        private class GraphicFilterConfigs : Control
+        {
+            private DataBox _dataBox;
+
+            public GraphicFilterConfigs(int width)
+            {
+                AcceptMouseInput = true;
+                CanMove = true;
+                Width = width;
+
+                Add(_dataBox = new DataBox(0, 0, width, 0));
+
+                ModernButton b;
+                _dataBox.Add(b = new ModernButton(0, 0, 150, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Add blank entry", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    var newConfig = GraphicsReplacement.NewFilter(0, 0);
+                    if (newConfig != null)
+                    {
+                        _dataBox.Insert(3, GenConfigEntry(newConfig, width));
+                        RearrangeDataBox();
+                    }
+                };
+
+                _dataBox.Add(b = new ModernButton(0, 0, 150, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Target entity", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    TargetHelper.TargetObject((e) =>
+                    {
+                        if (e == null) return;
+                        var sc = GraphicsReplacement.NewFilter(e.Graphic, e.Graphic, e.Hue);
+                        if (sc != null && _dataBox != null)
+                        {
+                            _dataBox.Insert(3, GenConfigEntry(sc, width));
+                            RearrangeDataBox();
+                        }
+                    });
+                };
+
+                Area titles = new Area(false);
+                titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 0 });
+                titles.Add(new TextBox("New Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 5) / 3) + 5 });
+                titles.Add(new TextBox("New Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = (((width - 90 - 5) / 3) * 2) + 10 });
+                titles.ForceSizeUpdate();
+                _dataBox.Add(titles);
+
+                foreach (var item in GraphicsReplacement.GraphicFilters)
+                {
+                    _dataBox.Add(GenConfigEntry(item.Value, width));
+                }
+                RearrangeDataBox();
+            }
+
+            private Control GenConfigEntry(GraphicChangeFilter filter, int width)
+            {
+                int ewidth = (width - 90) / 3;
+
+                Area area = new Area() { Width = width, Height = 50 };
+
+                int x = 0;
+                InputField graphicInput = new InputField(ewidth, 50, 100, -1, filter.OriginalGraphic.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox graphicInput = (InputField.StbTextBox)s;
+                    if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
+                    {
+                        filter.OriginalGraphic = ngh;
+                        GraphicsReplacement.ResetLists();
+                    }
+                    else if (ushort.TryParse(graphicInput.Text, out var ng))
+                    {
+                        filter.OriginalGraphic = ng;
+                        GraphicsReplacement.ResetLists();
+                    }
+                })
+                { X = x };
+                graphicInput.SetTooltip("Original Graphic");
+                area.Add(graphicInput);
+                x += graphicInput.Width + 5;
+
+                InputField newgraphicInput = new InputField(ewidth, 50, 100, -1, filter.ReplacementGraphic.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox graphicInput = (InputField.StbTextBox)s;
+                    if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
+                    {
+                        filter.ReplacementGraphic = ngh;
+                    }
+                    else if (ushort.TryParse(graphicInput.Text, out var ng))
+                    {
+                        filter.ReplacementGraphic = ng;
+                    }
+                })
+                { X = x };
+                newgraphicInput.SetTooltip("Replacement Graphic");
+                area.Add(newgraphicInput);
+                x += newgraphicInput.Width + 5;
+
+                InputField hueInput = new InputField(ewidth, 50, 100, -1, filter.NewHue == ushort.MaxValue ? "-1" : filter.NewHue.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox hueInput = (InputField.StbTextBox)s;
+                    if (hueInput.Text == "-1")
+                    {
+                        filter.NewHue = ushort.MaxValue;
+                    }
+                    else if (ushort.TryParse(hueInput.Text, out var ng))
+                    {
+                        filter.NewHue = ng;
+                    }
+                })
+                { X = x };
+                hueInput.SetTooltip("Hue (-1 to leave original)");
+                area.Add(hueInput);
+                x += hueInput.Width + 5;
+
+                NiceButton delete;
+                area.Add(delete = new NiceButton(x, 0, area.Width - x, 49, ButtonAction.Activate, "X") { IsSelectable = false, DisplayBorder = true });
+                delete.SetTooltip("Delete this entry");
+                delete.MouseUp += (s, e) =>
+                {
+                    if (e.Button == Input.MouseButtonType.Left)
+                    {
+                        GraphicsReplacement.DeleteFilter(filter.OriginalGraphic);
+                        area.Dispose();
+                        RearrangeDataBox();
+                    }
+                };
+
+                return area;
+            }
+
+            private void RearrangeDataBox()
+            {
+                _dataBox.ReArrangeChildren();
+                _dataBox.ForceSizeUpdate();
+                Height = _dataBox.Height;
+            }
+        }
+
+        private class BuyAgentConfigs : Control
+        {
+            private DataBox _dataBox;
+            public BuyAgentConfigs(int width)
+            {
+                AcceptMouseInput = true;
+                CanMove = true;
+                Width = width;
+
+                Add(_dataBox = new DataBox(0, 0, width, 0));
+
+                ModernButton b;
+                _dataBox.Add(b = new ModernButton(0, 0, 100, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Add entry", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    _dataBox.Insert(3, GenConfigEntry(BuySellAgent.Instance.NewBuyConfig(), width));
+                    RearrangeDataBox();
+                };
+
+                _dataBox.Add(b = new ModernButton(0, 0, 150, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Target item", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    TargetHelper.TargetObject((e) =>
+                    {
+                        if (e == null) return;
+                        var sc = BuySellAgent.Instance.NewBuyConfig();
+                        sc.Graphic = e.Graphic;
+                        sc.Hue = e.Hue;
+                        _dataBox.Insert(3, GenConfigEntry(sc, width));
+                        RearrangeDataBox();
+                    });
+                };
+
+                Area titles = new Area(false);
+                titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 50 });
+                titles.Add(new TextBox("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 60) / 3) + 55 });
+                titles.Add(new TextBox("Max Amount", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = (((width - 90 - 60) / 3) * 2) + 60 });
+                titles.ForceSizeUpdate();
+                _dataBox.Add(titles);
+
+                if (BuySellAgent.Instance.BuyConfigs != null)
+                    foreach (var item in BuySellAgent.Instance.BuyConfigs)
+                    {
+                        _dataBox.Add(GenConfigEntry(item, width));
+                    }
+                RearrangeDataBox();
+            }
+
+            private Control GenConfigEntry(BuySellItemConfig itemConfig, int width)
+            {
+                int ewidth = (width - 90 - 60) / 3;
+
+                Area area = new Area() { Width = width, Height = 50 };
+
+                int x = 0;
+                if (itemConfig.Graphic > 0)
+                {
+                    ResizableStaticPic rsp;
+                    area.Add(rsp = new ResizableStaticPic(itemConfig.Graphic, 50, 50) { Hue = (ushort)(itemConfig.Hue == ushort.MaxValue ? 0 : itemConfig.Hue) });
+                }
+                x += 50;
+
+                InputField graphicInput = new InputField(ewidth, 50, 100, -1, itemConfig.Graphic.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox graphicInput = (InputField.StbTextBox)s;
+                    if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
+                    {
+                        itemConfig.Graphic = ngh;
+                    }
+                    else if (ushort.TryParse(graphicInput.Text, out var ng))
+                    {
+                        itemConfig.Graphic = ng;
+                    }
+                })
+                { X = x };
+                graphicInput.SetTooltip("Graphic");
+                area.Add(graphicInput);
+                x += graphicInput.Width + 5;
+
+
+                InputField hueInput = new InputField(ewidth, 50, 100, -1, itemConfig.Hue == ushort.MaxValue ? "-1" : itemConfig.Hue.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox hueInput = (InputField.StbTextBox)s;
+                    if (hueInput.Text == "-1")
+                    {
+                        itemConfig.Hue = ushort.MaxValue;
+                    }
+                    else if (ushort.TryParse(hueInput.Text, out var ng))
+                    {
+                        itemConfig.Hue = ng;
+                    }
+                })
+                { X = x };
+                hueInput.SetTooltip("Hue (-1 to match any)");
+                area.Add(hueInput);
+                x += hueInput.Width + 5;
+
+                InputField maxInput = new InputField(ewidth, 50, 100, -1, itemConfig.MaxAmount.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox maxInput = (InputField.StbTextBox)s;
+                    if (ushort.TryParse(maxInput.Text, out var ng))
+                    {
+                        itemConfig.MaxAmount = ng;
+                    }
+                })
+                { X = x };
+                maxInput.SetTooltip("Max Amount");
+                area.Add(maxInput);
+                x += maxInput.Width + 5;
+
+                CheckboxWithLabel enabled = new CheckboxWithLabel(isChecked: itemConfig.Enabled, valueChanged: (e) =>
+                {
+                    itemConfig.Enabled = e;
+                })
+                { X = x };
+                enabled.Y = (area.Height - enabled.Height) >> 1;
+                enabled.SetTooltip("Enable this entry?");
+                area.Add(enabled);
+                x += enabled.Width;
+
+                NiceButton delete;
+                area.Add(delete = new NiceButton(x, 0, area.Width - x, 49, ButtonAction.Activate, "X") { IsSelectable = false, DisplayBorder = true });
+                delete.SetTooltip("Delete this entry");
+                delete.MouseUp += (s, e) =>
+                {
+                    if (e.Button == Input.MouseButtonType.Left)
+                    {
+                        BuySellAgent.Instance?.DeleteConfig(itemConfig);
+                        area.Dispose();
+                        RearrangeDataBox();
+                    }
+                };
+
+                return area;
+            }
+
+            private void RearrangeDataBox()
+            {
+                _dataBox.ReArrangeChildren();
+                _dataBox.ForceSizeUpdate();
+                Height = _dataBox.Height;
+            }
+        }
+
+        private class SellAgentConfigs : Control
+        {
+            private DataBox _dataBox;
+            public SellAgentConfigs(int width)
+            {
+                AcceptMouseInput = true;
+                CanMove = true;
+                Width = width;
+
+                Add(_dataBox = new DataBox(0, 0, width, 0));
+
+                ModernButton b;
+                _dataBox.Add(b = new ModernButton(0, 0, 100, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Add entry", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    _dataBox.Insert(3, GenConfigEntry(BuySellAgent.Instance.NewSellConfig(), width));
+                    RearrangeDataBox();
+                };
+
+                _dataBox.Add(b = new ModernButton(0, 0, 150, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Target item", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    TargetHelper.TargetObject((e) =>
+                    {
+                        if (e == null) return;
+                        var sc = BuySellAgent.Instance.NewSellConfig();
+                        sc.Graphic = e.Graphic;
+                        sc.Hue = e.Hue;
+                        _dataBox.Insert(3, GenConfigEntry(sc, width));
+                        RearrangeDataBox();
+                    });
+                };
+
+                Area titles = new Area(false);
+                titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 50 });
+                titles.Add(new TextBox("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 60) / 3) + 55 });
+                titles.Add(new TextBox("Max Amount", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = (((width - 90 - 60) / 3) * 2) + 60 });
+                titles.ForceSizeUpdate();
+                _dataBox.Add(titles);
+
+                if (BuySellAgent.Instance.SellConfigs != null)
+                    foreach (var item in BuySellAgent.Instance.SellConfigs)
+                    {
+                        _dataBox.Add(GenConfigEntry(item, width));
+                    }
+                RearrangeDataBox();
+            }
+
+            private Control GenConfigEntry(BuySellItemConfig itemConfig, int width)
+            {
+                int ewidth = (width - 90 - 60) / 3;
+
+                Area area = new Area() { Width = width, Height = 50 };
+
+                int x = 0;
+                if (itemConfig.Graphic > 0)
+                {
+                    ResizableStaticPic rsp;
+                    area.Add(rsp = new ResizableStaticPic(itemConfig.Graphic, 50, 50) { Hue = (ushort)(itemConfig.Hue == ushort.MaxValue ? 0 : itemConfig.Hue) });
+                }
+                x += 50;
+
+                InputField graphicInput = new InputField(ewidth, 50, 100, -1, itemConfig.Graphic.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox graphicInput = (InputField.StbTextBox)s;
+                    if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
+                    {
+                        itemConfig.Graphic = ngh;
+                    }
+                    else if (ushort.TryParse(graphicInput.Text, out var ng))
+                    {
+                        itemConfig.Graphic = ng;
+                    }
+                })
+                { X = x };
+                graphicInput.SetTooltip("Graphic");
+                area.Add(graphicInput);
+                x += graphicInput.Width + 5;
+
+
+                InputField hueInput = new InputField(ewidth, 50, 100, -1, itemConfig.Hue == ushort.MaxValue ? "-1" : itemConfig.Hue.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox hueInput = (InputField.StbTextBox)s;
+                    if (hueInput.Text == "-1")
+                    {
+                        itemConfig.Hue = ushort.MaxValue;
+                    }
+                    else if (ushort.TryParse(hueInput.Text, out var ng))
+                    {
+                        itemConfig.Hue = ng;
+                    }
+                })
+                { X = x };
+                hueInput.SetTooltip("Hue (-1 to match any)");
+                area.Add(hueInput);
+                x += hueInput.Width + 5;
+
+                InputField maxInput = new InputField(ewidth, 50, 100, -1, itemConfig.MaxAmount.ToString(), false, (s, e) =>
+                {
+                    InputField.StbTextBox maxInput = (InputField.StbTextBox)s;
+                    if (ushort.TryParse(maxInput.Text, out var ng))
+                    {
+                        itemConfig.MaxAmount = ng;
+                    }
+                })
+                { X = x };
+                maxInput.SetTooltip("Max Amount");
+                area.Add(maxInput);
+                x += maxInput.Width + 5;
+
+                CheckboxWithLabel enabled = new CheckboxWithLabel(isChecked: itemConfig.Enabled, valueChanged: (e) =>
+                {
+                    itemConfig.Enabled = e;
+                })
+                { X = x };
+                enabled.Y = (area.Height - enabled.Height) >> 1;
+                enabled.SetTooltip("Enable this entry?");
+                area.Add(enabled);
+                x += enabled.Width;
+
+                NiceButton delete;
+                area.Add(delete = new NiceButton(x, 0, area.Width - x, 49, ButtonAction.Activate, "X") { IsSelectable = false, DisplayBorder = true });
+                delete.SetTooltip("Delete this entry");
+                delete.MouseUp += (s, e) =>
+                {
+                    if (e.Button == Input.MouseButtonType.Left)
+                    {
+                        BuySellAgent.Instance?.DeleteConfig(itemConfig);
+                        area.Dispose();
+                        RearrangeDataBox();
+                    }
+                };
+
+                return area;
+            }
+
+            private void RearrangeDataBox()
+            {
+                _dataBox.ReArrangeChildren();
+                _dataBox.ForceSizeUpdate();
+                Height = _dataBox.Height;
+            }
+        }
         private class AutoLootConfigs : Control
         {
             private DataBox _dataBox;
@@ -3031,6 +3548,23 @@ namespace ClassicUO.Game.UI.Gumps
                     RearrangeDataBox();
                 };
 
+                _dataBox.Add(b = new ModernButton(0, 0, 200, Theme.CHECKBOX_SIZE, ButtonAction.Default, "+ Target item to add", Theme.BUTTON_FONT_COLOR));
+                b.MouseUp += (s, e) =>
+                {
+                    TargetHelper.TargetObject((o) =>
+                    {
+                        if (o != null)
+                        {
+                            var nl = AutoLootManager.Instance.AddAutoLootEntry(o.Graphic, o.Hue, o.Name);
+                            if (_dataBox != null)
+                            {
+                                _dataBox.Insert(2, GenConfigEntry(nl, width));
+                                RearrangeDataBox();
+                            }
+                        }
+                    });
+                };
+
                 Area titles = new Area(false);
                 titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 55 });
                 titles.Add(new TextBox("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 50) >> 1) + 60 });
@@ -3039,13 +3573,13 @@ namespace ClassicUO.Game.UI.Gumps
 
                 for (int i = 0; i < AutoLootManager.Instance.AutoLootList.Count; i++)
                 {
-                    AutoLootItem autoLootItem = AutoLootManager.Instance.AutoLootList[i];
+                    AutoLootConfigEntry autoLootItem = AutoLootManager.Instance.AutoLootList[i];
                     _dataBox.Add(GenConfigEntry(autoLootItem, width));
                 }
                 RearrangeDataBox();
             }
 
-            private Control GenConfigEntry(AutoLootItem autoLootItem, int width)
+            private Control GenConfigEntry(AutoLootConfigEntry autoLootItem, int width)
             {
                 int ewidth = (width - 90 - 60) >> 1;
 
@@ -3055,7 +3589,7 @@ namespace ClassicUO.Game.UI.Gumps
                 if (autoLootItem.Graphic > 0)
                 {
                     ResizableStaticPic rsp;
-                    area.Add(rsp = new ResizableStaticPic(autoLootItem.Graphic, 50, 50) { Hue = (ushort)(autoLootItem.Hue == ushort.MaxValue ? 0 : autoLootItem.Hue) });
+                    area.Add(rsp = new ResizableStaticPic((uint)autoLootItem.Graphic, 50, 50) { Hue = (ushort)(autoLootItem.Hue == ushort.MaxValue ? 0 : autoLootItem.Hue) });
                     rsp.SetTooltip(autoLootItem.Name);
                 }
                 x += 50;
@@ -3063,11 +3597,11 @@ namespace ClassicUO.Game.UI.Gumps
                 InputField graphicInput = new InputField(ewidth, 50, 100, -1, autoLootItem.Graphic.ToString(), false, (s, e) =>
                 {
                     InputField.StbTextBox graphicInput = (InputField.StbTextBox)s;
-                    if (graphicInput.Text.StartsWith("0x") && ushort.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
+                    if (graphicInput.Text.StartsWith("0x") && short.TryParse(graphicInput.Text.Substring(2), NumberStyles.AllowHexSpecifier, null, out var ngh))
                     {
                         autoLootItem.Graphic = ngh;
                     }
-                    else if (ushort.TryParse(graphicInput.Text, out var ng))
+                    else if (short.TryParse(graphicInput.Text, out var ng))
                     {
                         autoLootItem.Graphic = ng;
                     }

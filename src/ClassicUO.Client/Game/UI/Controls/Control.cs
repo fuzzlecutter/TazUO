@@ -265,6 +265,37 @@ namespace ClassicUO.Game.UI.Controls
 
         public int TooltipMaxLength { get; private set; }
 
+        /// <summary>
+        /// Used in python API
+        /// </summary>
+        /// <param name="width"></param>
+        public void SetWidth(int width){
+            Width = width < 0 ? 0 : width;
+        }
+
+        /// <summary>
+        /// Used in python API
+        /// </summary>
+        /// <param name="height"></param>
+        public void SetHeight(int height){
+            Height = height < 0 ? 0 : height;
+        }
+
+        /// <summary>
+        /// Used in python API
+        /// </summary>
+        /// <param name="x"></param>
+        public void SetX(int x){
+            X = x;
+        }
+
+        /// <summary>
+        /// Used in python API
+        /// </summary>
+        /// <param name="y"></param>
+        public void SetY(int y){
+            Y = y;
+        }
         public void UpdateOffset(int x, int y)
         {
             if (_offset.X != x || _offset.Y != y)
@@ -367,8 +398,11 @@ namespace ClassicUO.Game.UI.Controls
                 {
                     foreach (Control c in removalList)
                     {
-                        OnChildRemoved();
-                        Children.Remove(c);
+                        if (Children.Contains(c))
+                        {
+                            OnChildRemoved();
+                            Children.Remove(c);
+                        }
                     }
                 }
 

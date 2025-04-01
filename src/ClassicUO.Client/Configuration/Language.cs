@@ -152,6 +152,7 @@ namespace ClassicUO.Configuration
             public string AuraOptAlways { get; set; } = "Always";
             public string AuraForParty { get; set; } = "Use a custom color for party members";
             public string AuraPartyColor { get; set; } = "Party aura color";
+            public string IgnoreStaminaCheck { get; set; } = "Disable stamina check for movement";
             #endregion
 
             #region General->Gumps
@@ -192,7 +193,7 @@ namespace ClassicUO.Configuration
             public string TextFade { get; set; } = "Enable text fading";
             public string CursorRange { get; set; } = "Show target range indicator";
 
-            public string AutoAvoidObstacules { get; set; } = "Auto Avoid Obstacules";
+            public string AutoAvoidObstacules { get; set; } = "Auto Avoid Obstacles";
             public string DragSelectHP { get; set; } = "Enable drag select for health bars";
             public string DragKeyMod { get; set; } = "Key modifier";
             public string DragPlayersOnly { get; set; } = "Players only";
@@ -524,6 +525,7 @@ namespace ClassicUO.Configuration
             public string UseLandTexturesWhereAvailable { get; set; } = "Use land textures where available(Experimental)";
             public string SOSGumpID { get; set; } = "SOS Gump ID";
             public string UseWASDMovement { get; set; } = "Use WASD movement instead of arrow keys";
+            public string BorderCaveTiles { get; set; } = "Apply a border to static item art";
             #endregion
 
             #region Tooltips
@@ -580,6 +582,15 @@ namespace ClassicUO.Configuration
             public string AutoLootEnable { get; set; } = "Enable auto loot";
             public string AutoLootProgessBarEnable { get; set; } = "Show progress bar while looting";
             public string AutoLootHumanCorpses { get; set; } = "Loot human corpses? (Potentially player corpses)";
+
+            public string AutoSellMenu { get; set; } = "Auto Sell";
+            public string AutoSellEnable { get; set; } = "Enable auto sell feature";
+
+            public string AutoBuyMenu { get; set; } = "Auto Buy";
+            public string AutoBuyEnable { get; set; } = "Enable auto buy feature";
+            public string GraphicChangeFilter { get; set; } = "Graphic Filter";
+            public string Hotkeys { get; set; } = "Hotkeys";
+
 
             #region VisibileLayers
             public string VisibleLayers { get; set; } = "Visible Layers";

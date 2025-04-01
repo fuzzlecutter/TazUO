@@ -8,6 +8,7 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Network;
+using ClassicUO.Configuration;
 
 namespace ClassicUO.LegionScripting
 {
@@ -459,5 +460,19 @@ namespace ClassicUO.LegionScripting
             return NetClient.Socket.Statistics.Ping;
         }
         public static bool IsPathfinding(string expression, Argument[] args, bool quiet) => Pathfinder.AutoWalking;
+        public static bool NearestCorpse(string expression, Argument[] args, bool quiet)
+        {
+            List<Item> items = Utility.FindItems(0x2006, groundRange: ProfileManager.CurrentProfile.AutoOpenCorpseRange);
+            if (items.Count > 0)
+            {
+                foreach (Item item in items)
+                {
+                    Interpreter.SetAlias(Constants.FOUND, item);
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

@@ -245,7 +245,25 @@ namespace ClassicUO.Game.UI.Controls
                 return h;
             }
         }
+        public string SetTextInternally
+        {
+            set
+            {
+                if (_maxCharCount > 0)
+                {
+                    if (NumbersOnly)
+                    {
 
+                    }
+                    if (value != null && value.Length > _maxCharCount)
+                    {
+                        value = value.Substring(0, _maxCharCount);
+                    }
+                }
+            
+                _rendererText.Text = value;
+            }
+        }
         public string Text
         {
             get => _rendererText.Text;
@@ -300,8 +318,37 @@ namespace ClassicUO.Game.UI.Controls
         protected Point _caretScreenPosition;
         protected bool _is_writing;
         protected bool _leftWasDown, _fromServer;
-        protected RenderedText _rendererText, _rendererCaret;
-
+        protected RenderedText _rendererText, _rendererCaret, _rendererPlaceholder;
+        public string PlaceHolderText
+        {
+            get
+            {
+                if (_rendererPlaceholder != null) return _rendererPlaceholder.Text;
+                return string.Empty;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    _rendererPlaceholder?.Destroy();
+                    _rendererPlaceholder = null;
+                }
+                else if (!string.IsNullOrEmpty(value))
+                {
+                    _rendererPlaceholder =
+                        RenderedText.Create
+                        (
+                            value,
+                            _rendererText.Hue,
+                            _rendererText.Font,
+                            _rendererText.IsUnicode,
+                            _rendererText.FontStyle,
+                            _rendererText.Align,
+                            _rendererText.MaxWidth
+                        );
+                }
+            }
+        }
         public event EventHandler TextChanged;
 
         public MultilinesFontInfo CalculateFontInfo(string text, bool countret = true)
@@ -901,10 +948,16 @@ namespace ClassicUO.Game.UI.Controls
             if (batcher.ClipBegin(x, y, Width, Height))
             {
                 base.Draw(batcher, x, y);
-                DrawSelection(batcher, x, y);
-                _rendererText.Draw(batcher, x, y);
-                DrawCaret(batcher, x, y);
-
+                if (!IsFocused && string.IsNullOrEmpty(_rendererText.Text) && _rendererPlaceholder != null)
+                {
+                    _rendererPlaceholder.Draw(batcher, x, y, 0.7f);
+                }
+                else
+                {
+                    DrawSelection(batcher, x, y);
+                    _rendererText.Draw(batcher, x, y);
+                    DrawCaret(batcher, x, y);
+                }
                 batcher.ClipEnd();
             }
 
@@ -1051,6 +1104,7 @@ namespace ClassicUO.Game.UI.Controls
         {
             _rendererText?.Destroy();
             _rendererCaret?.Destroy();
+            _rendererPlaceholder?.Destroy();
 
             base.Dispose();
         }

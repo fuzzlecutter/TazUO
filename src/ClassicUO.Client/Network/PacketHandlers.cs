@@ -915,6 +915,7 @@ namespace ClassicUO.Network
             p.Skip(4);
             World.Player.Graphic = p.ReadUInt16BE();
             World.Player.CheckGraphicChange();
+
             ushort x = p.ReadUInt16BE();
             ushort y = p.ReadUInt16BE();
             sbyte z = (sbyte)p.ReadUInt16BE();
@@ -1406,10 +1407,12 @@ namespace ClassicUO.Network
                             first = first.Next;
                         }
                     }
+                    List<Item> buyList = new List<Item>();
 
                     while (first != null)
                     {
                         Item it = (Item)first;
+                        buyList.Add(it);
                         if (ProfileManager.CurrentProfile.UseModernShopGump)
                             modernShopGump.AddItem
                             (
@@ -1442,6 +1445,8 @@ namespace ClassicUO.Network
                             first = first.Next;
                         }
                     }
+
+                    BuySellAgent.Instance?.HandleBuyPacket(buyList, serial);
                 }
             }
             else
@@ -1450,8 +1455,6 @@ namespace ClassicUO.Network
 
                 if (item != null)
                 {
-                    AutoLootManager.Instance.HandleCorpse(item);
-
                     if (!NearbyLootGump.IsCorpseRequested(serial))
                     {
                         if (
@@ -3514,6 +3517,8 @@ namespace ClassicUO.Network
 
                 //if (string.IsNullOrEmpty(item.Name))
                 //    item.Name = name;
+                BuySellAgent.Instance?.HandleSellPacket(vendor, serial, graphic, hue, amount, price);
+
                 if (ProfileManager.CurrentProfile.UseModernShopGump)
                     modernGump.AddItem
                         (
@@ -3542,6 +3547,8 @@ namespace ClassicUO.Network
                 UIManager.Add(modernGump);
             else
                 UIManager.Add(gump);
+
+            BuySellAgent.Instance?.HandleSellPacketFinished(vendor);
         }
 
         private static void UpdateHitpoints(ref StackDataReader p)
@@ -6255,7 +6262,7 @@ namespace ClassicUO.Network
             }
             else if (SerialHelper.IsItem(containerSerial))
             {
-                AutoLootManager.Instance.HandleCorpse(World.Items.Get(containerSerial));
+                //AutoLootManager.Instance.HandleCorpse(World.Items.Get(containerSerial));
 
                 Gump gump = UIManager.GetGump<BulletinBoardGump>(containerSerial);
 
@@ -6473,6 +6480,11 @@ namespace ClassicUO.Network
                 item.Flags = flagss;
                 item.Direction = direction;
                 item.CheckGraphicChange(item.AnimIndex);
+
+                if(created)
+                    EventSink.InvokeOnItemCreated(item);
+                else
+                    EventSink.InvokeOnItemUpdated(item);
             }
             else
             {

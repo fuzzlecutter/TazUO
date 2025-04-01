@@ -170,33 +170,18 @@ namespace ClassicUO.Game.GameObjects
                         scale = new Vector2(1.1f + sin * 0.1f, 1.1f + cos * 0.5f * 0.1f);
                     }
 
-                    if (texmapInfo.Texture != null && ProfileManager.CurrentProfile.UseLandTextures)
-                    {
-                        batcher.Draw(
-                            texmapInfo.Texture,
-                            new Rectangle(posX, posY, artInfo.UV.Width, artInfo.UV.Height),
-                            texmapInfo.UV,
-                            hueVec,
-                            0f,
-                            Vector2.Zero,
-                            SpriteEffects.None,
-                            depth + 0.5f
-                        );
-                    }
-                    else
-                    {
-                        batcher.Draw(
-                            artInfo.Texture,
-                            pos,
-                            artInfo.UV,
-                            hueVec,
-                            0f,
-                            Vector2.Zero,
-                            scale,
-                            SpriteEffects.None,
-                            depth + 0.5f
-                        );
-                    }
+                    batcher.Draw(
+                        artInfo.Texture,
+                        pos,
+                        artInfo.UV,
+                        hueVec,
+                        0f,
+                        Vector2.Zero,
+                        scale,
+                        SpriteEffects.None,
+                        depth + 0.5f
+                    );
+
                 }
             }
 

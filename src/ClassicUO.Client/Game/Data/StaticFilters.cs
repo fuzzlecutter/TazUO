@@ -38,6 +38,7 @@ using ClassicUO.Configuration;
 using ClassicUO.Assets;
 using ClassicUO.Renderer;
 using ClassicUO.Utility;
+using ClassicUO.Utility.Logging;
 
 namespace ClassicUO.Game.Data
 {
@@ -237,19 +238,23 @@ namespace ClassicUO.Game.Data
             }
         }
 
-        public static void CleanCaveTextures()
+        public static void ApplyStaticBorder()
         {
-            //foreach (ushort graphic in CaveTiles)
-            //{
-            //    ArtTexture texture = ArtLoader.Instance.GetTexture(graphic);
+            Log.Trace("Applying statics border...");
+            foreach (ushort graphic in CaveTiles)
+            {
+                ref readonly var artInfo = ref Client.Game.Arts.GetArt(graphic);
 
-            //    if (texture != null)
-            //    {
-            //        texture.Ticks = 0;
-            //    }
-            //}
+                if (artInfo.Texture != null)
+                {
+                    uint[] pixels = new uint[artInfo.Texture.Width * artInfo.Texture.Height];
+                    artInfo.Texture.GetData(pixels);
 
-            //ArtLoader.Instance.CleaUnusedResources(short.MaxValue);
+                    AddBlackBorder(pixels, artInfo.Texture.Width, artInfo.Texture.Height);
+                    artInfo.Texture.SetData(pixels);
+                    break;//Can't directly access the atlas to only modify one area of it without modifying the atlas. That is doable, but in the meantime we will just border everything.
+                }
+            }
         }
 
         public static void CleanTreeTextures()
@@ -397,6 +402,45 @@ namespace ClassicUO.Game.Data
             // }
             // return false;
         }
+
+        private static void AddBlackBorder(Span<uint> pixels, int width, int height)
+        {
+            for (int yy = 0; yy < height; yy++)
+            {
+                int startY = yy != 0 ? -1 : 0;
+                int endY = yy + 1 < height ? 2 : 1;
+
+                for (int xx = 0; xx < width; xx++)
+                {
+                    ref uint pixel = ref pixels[yy * width + xx];
+
+                    if (pixel == 0)
+                    {
+                        continue;
+                    }
+
+                    int startX = xx != 0 ? -1 : 0;
+                    int endX = xx + 1 < width ? 2 : 1;
+
+                    for (int i = startY; i < endY; i++)
+                    {
+                        int currentY = yy + i;
+
+                        for (int j = startX; j < endX; j++)
+                        {
+                            int currentX = xx + j;
+
+                            ref uint currentPixel = ref pixels[currentY * width + currentX];
+
+                            if (currentPixel == 0u)
+                            {
+                                pixel = 0xFF_00_00_00;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
-    
+
 }

@@ -30,7 +30,6 @@ namespace ClassicUO.LegionScripting
         public const string NOGROUPTEXT = "No group";
         public ScriptManagerGump() : base(lastWidth, lastHeight, 300, 200, 0, 0)
         {
-            UIManager.GetGump<ScriptManagerGump>()?.Dispose();
             X = lastX;
             Y = lastY;
             CanCloseWithRightClick = true;
@@ -43,7 +42,8 @@ namespace ClassicUO.LegionScripting
 
             Add(title = new TextBox("Script Manager", TrueTypeLoader.EMBEDDED_FONT, 18, Width, Color.DarkOrange, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { Y = BorderControl.BorderSize, AcceptMouseInput = false });
 
-            Add(refresh = new NiceButton(Width - 75 - BorderControl.BorderSize, BorderControl.BorderSize, 75, 25, ButtonAction.Default, "Refresh") { 
+            Add(refresh = new NiceButton(Width - 75 - BorderControl.BorderSize, BorderControl.BorderSize, 75, 25, ButtonAction.Default, "Refresh")
+            {
                 IsSelectable = false
             });
 
@@ -191,14 +191,34 @@ namespace ClassicUO.LegionScripting
         internal class GroupControl : Control
         {
             public event EventHandler<EventArgs> GroupExpandedShrunk;
-
-            private readonly AlphaBlendControl background;
             private readonly NiceButton expand, options;
             private readonly TextBox label;
             private readonly DataBox dataBox;
             private readonly string group;
             private readonly string parentGroup;
             private const int HEIGHT = 25;
+
+            private const string SCRIPT_HEADER =
+            "# See examples at" +
+            "\n#   https://github.com/bittiez/PublicLegionScripts/" +
+            "\n# Or documentation at" +
+            "\n#   https://github.com/bittiez/TazUO/wiki/TazUO.Legion-Scripting";
+            private const string EXAMPLE_LSCRIPT =
+            SCRIPT_HEADER +
+            @"
+player = API.Player
+delay = 8
+diffhits = 10
+
+while True:
+    if player.HitsMax - player.Hits > diffhits or player.IsPoisoned:
+        if API.BandageSelf():
+            API.CreateCooldownBar(delay, 'Bandaging...', 21)
+            API.Pause(delay)
+        else:
+            API.SysMsg('WARNING: No bandages!', 32)
+            break
+    API.Pause(0.5)";
             private string expandShrink
             {
                 get
@@ -231,20 +251,23 @@ namespace ClassicUO.LegionScripting
                 options.ContextMenu = new ContextMenuControl();
                 options.ContextMenu.Add(new ContextMenuItemEntry("New script", () =>
                 {
-                    InputRequest r = new InputRequest("Enter a name for this script. Do not include any file extensions.", "Create", "Cancel", (r, s) =>
+                    InputRequest r = new InputRequest("Enter a name for this script. \nUse /c[#da6e22].lscript/cd or /c[#da6e22].py", "Create", "Cancel", (r, s) =>
                     {
                         if (r == InputRequest.Result.BUTTON1 && !string.IsNullOrEmpty(s))
                         {
-                            int p = s.IndexOf('.');
-                            if (p != -1)
-                                s = s.Substring(0, p);
-
+                            if (!s.EndsWith(".lscript") && !s.EndsWith(".py"))
+                            {
+                                GameActions.Print("Script files must end with .lscript or .py", 32);
+                                return;
+                            }
                             try
                             {
                                 string gPath = parentGroup == "" ? group : Path.Combine(parentGroup, group);
-                                if (!File.Exists(Path.Combine(LegionScripting.ScriptPath, gPath, s + ".lscript")))
+                                if (gPath == NOGROUPTEXT)
+                                    gPath = string.Empty;
+                                if (!File.Exists(Path.Combine(LegionScripting.ScriptPath, gPath, s)))
                                 {
-                                    File.WriteAllText(Path.Combine(LegionScripting.ScriptPath, gPath, s + ".lscript"), "// My script");
+                                    File.WriteAllText(Path.Combine(LegionScripting.ScriptPath, gPath, s), SCRIPT_HEADER);
                                     ScriptManagerGump.RefreshContent = true;
                                 }
                             }
@@ -274,9 +297,9 @@ namespace ClassicUO.LegionScripting
                                     if (!Directory.Exists(path))
                                     {
                                         Directory.CreateDirectory(path);
-                                        File.WriteAllText(Path.Combine(path, "Example.lscript"), "// This script was placed here because empty groups will not show up, there needs to be at least one script in a group.");
-                                        ScriptManagerGump.RefreshContent = true;
                                     }
+                                    File.WriteAllText(Path.Combine(path, "Example.py"), EXAMPLE_LSCRIPT);
+                                    ScriptManagerGump.RefreshContent = true;
                                 }
                                 catch (Exception e) { Console.WriteLine(e.ToString()); }
                             }
@@ -312,7 +335,7 @@ namespace ClassicUO.LegionScripting
                         options.ContextMenu.Show();
                 };
 
-                Add(background = new AlphaBlendControl(0.35f) { Height = HEIGHT, Width = label.Width + expand.Width + options.Width });
+                Add(new AlphaBlendControl(0.35f) { Height = HEIGHT, Width = label.Width + expand.Width + options.Width });
                 Add(expand);
                 Add(label);
                 Add(options);
@@ -404,13 +427,30 @@ namespace ClassicUO.LegionScripting
             private NiceButton playstop, menu;
 
             public ScriptFile Script { get; }
+            private string ScriptDisplayName
+            {
+                get
+                {
+                    if (Script == null || string.IsNullOrEmpty(Script.FileName))
+                        return string.Empty;
 
+                    int lastDotIndex = Script.FileName.LastIndexOf('.');
+                    return lastDotIndex == -1 ? Script.FileName : Script.FileName.Substring(0, lastDotIndex);
+                }
+            }
             private string playStopText
             {
                 get
                 {
-                    if (Script != null && Script.GetScript != null)
-                        return Script.GetScript.IsPlaying ? "Stop" : "Play";
+                    if (Script == null)
+                        return "Play";
+
+                    if (Script.ScriptType == ScriptType.LegionScript && Script.GetScript?.IsPlaying == true)
+                        return "Stop";
+
+                    if (Script.ScriptType == ScriptType.Python && Script.PythonThread != null)
+                        return "Stop";
+
                     return "Play";
                 }
             }
@@ -422,10 +462,12 @@ namespace ClassicUO.LegionScripting
                 Script = script;
                 CanMove = true;
 
+                SetTooltip(Script.FileName); //Full filename to show py or lscript
+
                 Add(background = new AlphaBlendControl(0.35f) { Height = Height, Width = Width });
 
-                Add(label = new TextBox(script.FileName.Substring(0, script.FileName.IndexOf('.')), TrueTypeLoader.EMBEDDED_FONT, 16, w - 130, Color.White, strokeEffect: false) { AcceptMouseInput = false });
-                label.Y = (Height - label.MeasuredSize.Y) / 2;
+                Add(label = new TextBox(ScriptDisplayName, TrueTypeLoader.EMBEDDED_FONT, 16, w - 130, Color.White, strokeEffect: false) { AcceptMouseInput = false });
+                label.Y = 5;
                 label.X = 5;
 
                 Add(playstop = new NiceButton(w - 75, 0, 50, Height, ButtonAction.Default, playStopText) { IsSelectable = false });
@@ -531,9 +573,9 @@ namespace ClassicUO.LegionScripting
 
             private void Play_MouseUp(object sender, MouseEventArgs e)
             {
-                if (Script != null && Script.GetScript != null)
+                if (Script != null)
                 {
-                    if (Script.GetScript.IsPlaying)
+                    if (Script.IsPlaying || (Script.GetScript != null && Script.GetScript.IsPlaying))
                         LegionScripting.StopScript(Script);
                     else
                         LegionScripting.PlayScript(Script);
@@ -542,7 +584,7 @@ namespace ClassicUO.LegionScripting
 
             private void SetBGColors()
             {
-                if (Script.GetScript != null && Script.GetScript.IsPlaying)
+                if (Script.IsPlaying || (Script.GetScript != null && Script.GetScript.IsPlaying))
                     background.BaseColor = Color.DarkGreen;
                 else
                     background.BaseColor = Color.DarkRed;
@@ -554,7 +596,14 @@ namespace ClassicUO.LegionScripting
             {
                 Width = w;
                 background.Width = w;
+                label.UpdateText(ScriptDisplayName, w - 80);
                 label.Width = w - 80;
+                if (label.RTL.Lines.Count > 1)
+                {
+                    var msize = label.RTL.Lines[0].Count;
+                    if (msize >= 3)
+                        label.UpdateText(ScriptDisplayName.Substring(0, msize - 3) + "...", w - 80);
+                }
                 playstop.X = label.X + label.Width + 5;
                 menu.X = playstop.X + playstop.Width;
             }

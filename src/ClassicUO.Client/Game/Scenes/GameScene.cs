@@ -223,6 +223,8 @@ namespace ClassicUO.Game.Scenes
             }
 
             LegionScripting.LegionScripting.Init();
+            BuySellAgent.Load();
+            GraphicsReplacement.Load();
         }
 
         private void ChatOnMessageReceived(object sender, MessageEventArgs e)
@@ -362,6 +364,9 @@ namespace ClassicUO.Game.Scenes
                 return;
             }
 
+            GraphicsReplacement.Save();
+            BuySellAgent.Unload();
+
             LegionScripting.LegionScripting.Unload();
 
             ProfileManager.CurrentProfile.GameWindowPosition = new Point(
@@ -397,7 +402,7 @@ namespace ClassicUO.Game.Scenes
             TileMarkerManager.Instance.Save();
             SpellVisualRangeManager.Instance.Save();
             SpellVisualRangeManager.Instance.OnSceneUnload();
-            AutoLootManager.Instance.Save();
+            AutoLootManager.Instance.OnSceneUnload();
 
             NameOverHeadManager.Save();
 
@@ -405,7 +410,6 @@ namespace ClassicUO.Game.Scenes
             InfoBars.Save();
             ProfileManager.UnLoadProfile();
 
-            StaticFilters.CleanCaveTextures();
             StaticFilters.CleanTreeTextures();
 
             NetClient.Socket.Disconnected -= SocketOnDisconnected;
@@ -1041,7 +1045,9 @@ namespace ClassicUO.Game.Scenes
             if (!_use_render_target)
             {
                 if (ProfileManager.CurrentProfile.GlobalScaling)
-  {                  matrix = Matrix.CreateScale(ProfileManager.CurrentProfile.GlobalScale);
+                {
+                    Camera.Zoom = 1f; // oScale + ProfileManager.CurrentProfile.GlobalScale;
+                    matrix = Matrix.CreateScale(ProfileManager.CurrentProfile.GlobalScale);
                     camera_viewport.Bounds = new Rectangle(
                         (int)(camera_viewport.Bounds.X * ProfileManager.CurrentProfile.GlobalScale),
                         (int)(camera_viewport.Bounds.Y * ProfileManager.CurrentProfile.GlobalScale),

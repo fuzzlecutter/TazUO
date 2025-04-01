@@ -216,7 +216,7 @@ namespace ClassicUO.LegionScripting
             if (args.Length < 1)
                 throw new RunTimeError(null, "Usage: run 'direction'");
 
-            string dir = args[0].AsString().ToLower();
+            string dir = args[0].AsString();
 
             World.Player.Walk(Utility.GetDirection(dir), true);
 
@@ -227,7 +227,7 @@ namespace ClassicUO.LegionScripting
             if (args.Length < 1)
                 throw new RunTimeError(null, "Usage: walk 'direction'");
 
-            string dir = args[0].AsString().ToLower();
+            string dir = args[0].AsString();
 
             World.Player.Walk(Utility.GetDirection(dir), false);
 

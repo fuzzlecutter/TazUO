@@ -19,7 +19,7 @@ namespace ClassicUO.Game.UI.Controls
             }
         }
         public uint Graphic { get { return graphic; } set { graphic = value; } }
-
+        public bool DrawBorder { get; set; }
         public ResizableStaticPic(uint graphic, int width, int height)
         {
             this.graphic = graphic;
@@ -89,6 +89,15 @@ namespace ClassicUO.Game.UI.Controls
                     ),
                     hueVector
                 );
+
+                if (DrawBorder)
+                    batcher.DrawRectangle(
+                        SolidColorTextureCache.GetTexture(Color.Gray),
+                        x, y,
+                        Width - 1,
+                        Height - 1,
+                        ShaderHueTranslator.GetHueVector(hue, false, Alpha)
+                    );
 
                 return true;
             }

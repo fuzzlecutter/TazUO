@@ -139,8 +139,14 @@ namespace ClassicUO.Game.Managers
 
             if (!File.Exists(path))
             {
-                Directory.CreateDirectory(ProfileManager.ProfilePath);
-                File.Create(path).Close();
+                try
+                {
+                    File.Create(path).Close();
+                }
+                catch (Exception)
+                {
+                    Log.Error($"Warning, unable to create {path}.");
+                }
             }
 
             using (XmlTextWriter xml = new XmlTextWriter(path, Encoding.UTF8)
@@ -1106,6 +1112,12 @@ namespace ClassicUO.Game.Managers
                         GameActions.OpenNearbyLootGump();
 
                     break;
+                
+                case MacroType.ToggleLegionScripting:
+                    if (!GameActions.CloseLegionScriptingGump())
+                        GameActions.OpenLegionScriptingGump();
+
+                    break;
 
                 case MacroType.OpenDoor:
                     GameActions.OpenDoor();
@@ -1992,8 +2004,8 @@ namespace ClassicUO.Game.Managers
 
                     break;
 
-                case MacroType.ToggleCaveTiles:
-                    StaticFilters.CleanCaveTextures();
+                case MacroType.BorderCaveTiles:
+                    StaticFilters.ApplyStaticBorder();
                     ProfileManager.CurrentProfile.EnableCaveBorder = !ProfileManager.CurrentProfile.EnableCaveBorder;
 
                     break;
@@ -2637,7 +2649,7 @@ namespace ClassicUO.Game.Managers
         ToggleDrawRoofs,
         ToggleTreeStumps,
         ToggleVegetation,
-        ToggleCaveTiles,
+        BorderCaveTiles,
         CloseInactiveHealthBars,
         CloseCorpses,
         UseObject,
@@ -2649,7 +2661,8 @@ namespace ClassicUO.Game.Managers
         ToggleGump,
         ToggleDurabilityGump,
         ShowNearbyItems,
-        ToggleNearbyLootGump
+        ToggleNearbyLootGump,
+        ToggleLegionScripting
     }
 
     public enum MacroSubType

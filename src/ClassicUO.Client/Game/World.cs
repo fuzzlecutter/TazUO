@@ -430,7 +430,6 @@ namespace ClassicUO.Game
             {
                 item = Item.Create(serial);
                 Items.Add(item);
-                EventSink.InvokeOnItemCreated(item);
             }
 
             return item;

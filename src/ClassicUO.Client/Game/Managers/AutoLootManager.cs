@@ -2,8 +2,8 @@
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Utility;
+using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,16 +16,17 @@ namespace ClassicUO.Game.Managers
     {
         public static AutoLootManager Instance { get; private set; } = new AutoLootManager();
         public bool IsLoaded { get { return loaded; } }
-        public List<AutoLootItem> AutoLootList { get => autoLootItems; set => autoLootItems = value; }
+        public List<AutoLootConfigEntry> AutoLootList { get => autoLootItems; set => autoLootItems = value; }
 
         private HashSet<uint> quickContainsLookup = new HashSet<uint>();
-        private static ConcurrentQueue<uint> lootItems = new ConcurrentQueue<uint>();
-        private List<AutoLootItem> autoLootItems = new List<AutoLootItem>();
+        private static Queue<uint> lootItems = new Queue<uint>();
+        private List<AutoLootConfigEntry> autoLootItems = new List<AutoLootConfigEntry>();
         private bool loaded = false;
         private readonly string savePath = Path.Combine(CUOEnviroment.ExecutablePath, "Data", "Profiles", "AutoLoot.json");
         private long nextLootTime = Time.Ticks;
         private ProgressBarGump progressBarGump;
         private int currentLootTotalCount = 0;
+        private bool IsEnabled { get { return ProfileManager.CurrentProfile.EnableAutoLoot; } }
 
         private AutoLootManager() { }
 
@@ -87,11 +88,11 @@ namespace ClassicUO.Game.Managers
         /// <param name="hue"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        public AutoLootItem AddAutoLootEntry(ushort graphic = 0, ushort hue = ushort.MaxValue, string name = "")
+        public AutoLootConfigEntry AddAutoLootEntry(ushort graphic = 0, ushort hue = ushort.MaxValue, string name = "")
         {
-            AutoLootItem item = new AutoLootItem() { Graphic = graphic, Hue = hue, Name = name };
+            AutoLootConfigEntry item = new AutoLootConfigEntry() { Graphic = (short)graphic, Hue = hue, Name = name };
 
-            foreach (AutoLootItem entry in autoLootItems)
+            foreach (AutoLootConfigEntry entry in autoLootItems)
             {
                 if (entry.Equals(item))
                 {
@@ -106,11 +107,12 @@ namespace ClassicUO.Game.Managers
 
         /// <summary>
         /// Search through a corpse and check items that need to be looted.
+        /// Only call this after checking that autoloot IsEnabled
         /// </summary>
         /// <param name="corpse"></param>
-        public void HandleCorpse(Item corpse)
+        private void HandleCorpse(Item corpse)
         {
-            if (corpse != null && corpse.IsCorpse && (!corpse.IsHumanCorpse || ProfileManager.CurrentProfile.AutoLootHumanCorpses) && ProfileManager.CurrentProfile.EnableAutoLoot)
+            if (corpse != null && corpse.IsCorpse && corpse.Distance <= ProfileManager.CurrentProfile.AutoOpenCorpseRange && (!corpse.IsHumanCorpse || ProfileManager.CurrentProfile.AutoLootHumanCorpses))
             {
                 for (LinkedObject i = corpse.Items; i != null; i = i.Next)
                 {
@@ -140,13 +142,65 @@ namespace ClassicUO.Game.Managers
         public void OnSceneLoad()
         {
             Load();
+            EventSink.OPLOnReceive += OnOPLReceived;
+            EventSink.OnItemCreated += OnItemCreatedOrUpdated;
+            EventSink.OnItemUpdated += OnItemCreatedOrUpdated;
+            EventSink.OnOpenContainer += OnOpenContainer;
+
+        }
+
+        public void OnSceneUnload()
+        {
+            EventSink.OPLOnReceive -= OnOPLReceived;
+            EventSink.OnItemCreated -= OnItemCreatedOrUpdated;
+            EventSink.OnItemUpdated -= OnItemCreatedOrUpdated;
+            EventSink.OnOpenContainer -= OnOpenContainer;
+            Save();
+        }
+
+        private void CheckItem(Item i)
+        {
+            if (i == null) return;
+
+            if (i.IsCorpse)
+            {
+                HandleCorpse(i);
+                return;
+            }
+
+            var root = World.Items.Get(i.RootContainer);
+            if (root != null && root.IsCorpse)
+            {
+                HandleCorpse(root);
+                return;
+            }
+        }
+
+        private void OnOpenContainer(object sender, uint e)
+        {
+            if (!loaded || !IsEnabled) return;
+
+            HandleCorpse((Item)sender);
+        }
+        private void OnItemCreatedOrUpdated(object sender, EventArgs e)
+        {
+            if (!loaded || !IsEnabled) return;
+            if (sender is Item i)
+                CheckItem(i);
+        }
+        private void OnOPLReceived(object sender, OPLEventArgs e)
+        {
+            if (!loaded || !IsEnabled) return;
+            var item = World.Items.Get(e.Serial);
+            if (item != null)
+                CheckItem(item);
         }
 
         public void Update()
         {
-            if (!loaded) return;
+            if (!loaded || !IsEnabled) return;
 
-            if (lootItems.IsEmpty)
+            if (lootItems.Count == 0)
             {
                 progressBarGump?.Dispose();
                 return;
@@ -154,12 +208,12 @@ namespace ClassicUO.Game.Managers
 
             if (nextLootTime > Time.Ticks) return;
 
-            if (lootItems.TryDequeue(out uint moveItem))
+
+            var moveItem = lootItems.Dequeue();
+            if (moveItem != 0)
             {
-                if (lootItems.IsEmpty) //Que emptied out
-                {
-                    currentLootTotalCount = 0;
-                }
+                if (lootItems.Count == 0) //Que emptied out                
+                    currentLootTotalCount = 0;                
 
                 quickContainsLookup.Remove(moveItem);
 
@@ -171,8 +225,15 @@ namespace ClassicUO.Game.Managers
                 }
 
                 Item m = World.Items.Get(moveItem);
+
                 if (m != null)
                 {
+                    if(m.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
+                        {
+                            Item rc = World.Items.Get(m.RootContainer);
+                            if(rc.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
+                                return;
+                        }
                     GameActions.GrabItem(m, m.Amount);
                     nextLootTime = Time.Ticks + ProfileManager.CurrentProfile.MoveMultiObjectDelay;
                 }
@@ -185,7 +246,8 @@ namespace ClassicUO.Game.Managers
             {
                 progressBarGump = new ProgressBarGump("Auto looting...", 0)
                 {
-                    Y = (ProfileManager.CurrentProfile.GameWindowPosition.Y + ProfileManager.CurrentProfile.GameWindowSize.Y) - 150
+                    Y = (ProfileManager.CurrentProfile.GameWindowPosition.Y + ProfileManager.CurrentProfile.GameWindowSize.Y) - 150,
+                    ForegrouneColor = Color.DarkOrange
                 };
                 progressBarGump.CenterXInViewPort();
                 UIManager.Add(progressBarGump);
@@ -200,7 +262,7 @@ namespace ClassicUO.Game.Managers
             {
                 if (!File.Exists(savePath))
                 {
-                    autoLootItems = new List<AutoLootItem>();
+                    autoLootItems = new List<AutoLootConfigEntry>();
                     loaded = true;
                 }
                 else
@@ -208,8 +270,8 @@ namespace ClassicUO.Game.Managers
                     try
                     {
                         string data = File.ReadAllText(savePath);
-                        AutoLootItem[] tItem = JsonSerializer.Deserialize<AutoLootItem[]>(data);
-                        autoLootItems = tItem.ToList<AutoLootItem>();
+                        AutoLootConfigEntry[] tItem = JsonSerializer.Deserialize<AutoLootConfigEntry[]>(data);
+                        autoLootItems = tItem.ToList<AutoLootConfigEntry>();
                         loaded = true;
                     }
                     catch
@@ -237,13 +299,13 @@ namespace ClassicUO.Game.Managers
             }
         }
 
-        public class AutoLootItem
+        public class AutoLootConfigEntry
         {
             public string Name { get; set; } = "";
-            public ushort Graphic { get; set; } = 0;
+            public short Graphic { get; set; } = 0;
             public ushort Hue { get; set; } = ushort.MaxValue;
             public string RegexSearch { get; set; } = string.Empty;
-            private bool RegexMatch => RegexSearch != string.Empty;
+            private bool RegexMatch => !string.IsNullOrEmpty(RegexSearch);
             /// <summary>
             /// Do not set this manually.
             /// </summary>
@@ -251,7 +313,7 @@ namespace ClassicUO.Game.Managers
 
             public bool Match(Item compareTo)
             {
-                if (Graphic != compareTo.Graphic) return false;
+                if (Graphic != -1 && Graphic != compareTo.Graphic) return false;
 
                 if (!HueCheck(compareTo.Hue)) return false;
 
@@ -287,7 +349,7 @@ namespace ClassicUO.Game.Managers
                 return System.Text.RegularExpressions.Regex.IsMatch(search, RegexSearch, System.Text.RegularExpressions.RegexOptions.Multiline);
             }
 
-            public bool Equals(AutoLootItem other)
+            public bool Equals(AutoLootConfigEntry other)
             {
                 return other.Graphic == Graphic && other.Hue == Hue;
             }

@@ -253,7 +253,6 @@ namespace ClassicUO.Assets
                         if (resourceName.IndexOf(path) == 0 && resourceName.EndsWith(".png"))
                         {
                             var fName = resourceName.Substring(path.Length);
-                            Console.WriteLine(fName);
                             try
                             {
                                 Stream stream = assembly.GetManifestResourceStream(resourceName);
