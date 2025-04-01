@@ -65,7 +65,7 @@ namespace ClassicUO.LegionScripting
 
                 foreach (ScriptFile f in LoadedScripts)
                 {
-                    if (f.FileName == a[1])
+                    if (f.FileName == string.Join(" ", a.Skip(1)))
                     {
                         PlayScript(f);
                         return;
@@ -612,6 +612,9 @@ namespace ClassicUO.LegionScripting
         {
             get
             {
+                if(ScriptType == ScriptType.LegionScript && GetScript != null)
+                    return GetScript.IsPlaying;
+
                 return PythonThread != null;
             }
         }

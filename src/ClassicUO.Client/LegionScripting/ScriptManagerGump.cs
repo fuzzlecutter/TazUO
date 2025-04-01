@@ -445,10 +445,7 @@ while True:
                     if (Script == null)
                         return "Play";
 
-                    if (Script.ScriptType == ScriptType.LegionScript && Script.GetScript?.IsPlaying == true)
-                        return "Stop";
-
-                    if (Script.ScriptType == ScriptType.Python && Script.PythonThread != null)
+                    if (Script.IsPlaying)
                         return "Stop";
 
                     return "Play";
