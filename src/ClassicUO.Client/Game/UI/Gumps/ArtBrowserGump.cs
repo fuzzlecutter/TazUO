@@ -117,7 +117,6 @@ internal class ArtBrowserGump : Gump
                 var c = resizableStaticPics[count];
                 c.Graphic = index;
                 c.SetTooltip($"Graphic: {index}\nDouble click to copy.");
-                dataBox.Add(c);
                 count++;
             }
             index++;

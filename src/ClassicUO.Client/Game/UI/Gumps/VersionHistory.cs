@@ -13,7 +13,8 @@ namespace ClassicUO.Game.UI.Gumps
                 "- Added Python scripting language support to legion scripting\n" +
                 "- Added graphic replacement option\n" +
                 "- Better item stacking in original containers while using grid containers \n" +
-                "- Added a hotkeys page in options\n",
+                "- Added a hotkeys page in options\n" +
+                "- Improved autolooting\n",
 
             "/c[white][3.27.0]/cd\n" +
                 "- Added forced tooltip option for pre-tooltip servers\n" +
