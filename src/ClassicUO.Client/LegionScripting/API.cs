@@ -923,6 +923,15 @@ namespace ClassicUO.LegionScripting
         });
 
         /// <summary>
+        /// Get the nearest corpse within a distance
+        /// </summary>
+        /// <param name="distance"></param>
+        /// <returns></returns>
+        public Item NearestCorpse(int distance = 3) => InvokeOnMainThread(() =>
+            Utility.FindNearestCorpsePython(distance, this)
+        );
+
+        /// <summary>
         /// Get a mobile from its serial
         /// </summary>
         /// <param name="serial"></param>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
@@ -222,7 +223,15 @@ namespace ClassicUO.LegionScripting
                 default: return Direction.NONE;
             }
         }
-    
+
+        public static Item FindNearestCorpsePython(int distance, API api)
+        {
+            return World.Items.Values
+                .Where(c => c.IsCorpse && c.Distance <= distance && !api.OnIgnoreList(c))
+                .OrderBy(c => c.Distance)
+                .FirstOrDefault();
+        }
+
         public static uint FindNearestCheckPythonIgnore(ScanTypeObject scanType, API api)
         {
             int distance = int.MaxValue;
