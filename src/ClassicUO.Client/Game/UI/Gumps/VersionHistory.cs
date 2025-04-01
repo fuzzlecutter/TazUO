@@ -8,6 +8,9 @@ namespace ClassicUO.Game.UI.Gumps
     internal class VersionHistory : Gump
     {
         private static string[] updateTexts = {
+            "/c[white][3.29.0]/cd\n" +
+                "- Moved tooltip override options into main menu",
+
             "/c[white][3.28.0]/cd\n" +
                 "- Added auto buy and sell agents\n" +
                 "- Added Python scripting language support to legion scripting\n" +
@@ -241,16 +244,6 @@ namespace ClassicUO.Game.UI.Gumps
                 "- Fix for some SOS messages\n" +
                 "- Fix for text not being clickable\n" +
                 "- Added yellow highlighting for overhead text",
-
-            "/c[white][3.7.0]/cd\n" +
-                "- Updated some default font sizes, slightly larger (New installs only)\n" +
-                "- Added item count to grid containers\n" +
-                "- Changed health lines back to blue\n" +
-                "- Added boat control gump\n" +
-                "- Fixed + symbol issue with tooltip overrides\n" +
-                "- Fixed an issue with having zero tooltip overrides\n" +
-                "- Fixed journal width issue when timestamps are disabled\n" +
-                "- Added {3} to tooltip overrides, inserting the original tooltip property",
 
             "\n\n/c[white]For further history please visit our discord."
         };

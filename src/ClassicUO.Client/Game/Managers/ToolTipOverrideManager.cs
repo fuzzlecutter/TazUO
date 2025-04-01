@@ -210,8 +210,6 @@ namespace ClassicUO.Game.Managers
                                         //GameActions.Print(importedData.searchText);
                                         new ToolTipOverrideData(ProfileManager.CurrentProfile.ToolTipOverride_SearchText.Count, importedData.SearchText, importedData.FormattedText, importedData.Min1, importedData.Max1, importedData.Min2, importedData.Max2, (byte)importedData.ItemLayer).Save();
 
-                                    ToolTipOverideMenu.Reopen = true;
-
                                 }
                                 catch (System.Exception e)
                                 {
