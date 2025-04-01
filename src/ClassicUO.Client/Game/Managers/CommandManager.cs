@@ -275,7 +275,7 @@ namespace ClassicUO.Game.Managers
 
                     if (!c.IsDisposed)
                     {
-                        c.SetInScreen();   
+                        c.SetInScreen();
                     }
                 }
             });
@@ -284,6 +284,8 @@ namespace ClassicUO.Game.Managers
             {
                 UIManager.Add(new UI.Gumps.UpdateTimerViewer());
             });
+
+            Register("artbrowser", (s) => { UIManager.Add(new ArtBrowserGump()); });
         }
 
 

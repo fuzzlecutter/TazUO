@@ -31,6 +31,8 @@
 #endregion
 
 
+using System;
+
 namespace ClassicUO.Game.UI.Controls
 {
     internal class DataBox : Control
@@ -47,6 +49,40 @@ namespace ClassicUO.Game.UI.Controls
         }
 
         public bool ContainsByBounds { get; set; }
+
+        public void ReArrangeChildrenGridStyle(int vspacing = 0, int hspacing = 0)
+        {
+            // Grid layout: left to right, top to bottom
+            int currentX = 0;
+            int currentY = 0;
+            int rowHeight = 0;
+
+            for (int i = 0; i < Children.Count; ++i)
+            {
+                Control c = Children[i];
+
+                if (!c.IsVisible || c.IsDisposed)
+                    continue;
+
+                // If adding this control would exceed the width, move to next row
+                if (currentX + c.Width > Width && currentX > 0)
+                {
+                    currentX = 0;
+                    currentY += rowHeight + vspacing;
+                    rowHeight = 0;
+                }
+
+                // Position the control
+                c.X = currentX;
+                c.Y = currentY;
+
+                // Update position for next control
+                currentX += c.Width + hspacing;
+
+                // Keep track of tallest control in this row to determine next row's Y position
+                rowHeight = Math.Max(rowHeight, c.Height);
+            }
+        }
 
         public void ReArrangeChildren(int vspacing = 0)
         {

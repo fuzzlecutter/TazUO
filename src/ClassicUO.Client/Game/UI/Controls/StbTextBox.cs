@@ -245,7 +245,25 @@ namespace ClassicUO.Game.UI.Controls
                 return h;
             }
         }
+        public string SetTextInternally
+        {
+            set
+            {
+                if (_maxCharCount > 0)
+                {
+                    if (NumbersOnly)
+                    {
 
+                    }
+                    if (value != null && value.Length > _maxCharCount)
+                    {
+                        value = value.Substring(0, _maxCharCount);
+                    }
+                }
+            
+                _rendererText.Text = value;
+            }
+        }
         public string Text
         {
             get => _rendererText.Text;
@@ -932,7 +950,7 @@ namespace ClassicUO.Game.UI.Controls
                 base.Draw(batcher, x, y);
                 if (!IsFocused && string.IsNullOrEmpty(_rendererText.Text) && _rendererPlaceholder != null)
                 {
-                    _rendererPlaceholder.Draw(batcher, X, y, 0.7f);
+                    _rendererPlaceholder.Draw(batcher, x, y, 0.7f);
                 }
                 else
                 {
