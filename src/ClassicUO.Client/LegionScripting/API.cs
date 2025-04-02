@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using ClassicUO.Assets;
 using ClassicUO.Configuration;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
@@ -79,6 +80,18 @@ namespace ClassicUO.LegionScripting
             Followers,
             Objects,
             Mobiles
+        }
+
+        public enum Notoriety : byte
+        {
+            Unknown = 0x00,
+            Innocent = 0x01,
+            Ally = 0x02,
+            Gray = 0x03,
+            Criminal = 0x04,
+            Enemy = 0x05,
+            Murderer = 0x06,
+            Invulnerable = 0x07
         }
         #endregion
 
@@ -360,6 +373,20 @@ namespace ClassicUO.LegionScripting
             });
 
         /// <summary>
+        /// Return a list of items matching the parameters set
+        /// </summary>
+        /// <param name="graphic">Graphic/Type of item to find</param>
+        /// <param name="container">Container to search</param>
+        /// <param name="range">Max range of item(if on ground)</param>
+        /// <param name="hue">Hue of item</param>
+        /// <param name="minamount">Only match if item stack is at lease this much</param>
+        /// <returns></returns>
+        public Item[] FindTypeAll(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
+            InvokeOnMainThread(() =>
+                Utility.FindItems(graphic, uint.MaxValue, uint.MaxValue, container, hue, range).Where(i=>!OnIgnoreList(i) && i.Amount >= minamount).ToArray()
+            );
+
+        /// <summary>
         /// Attempt to find an item on a layer
         /// </summary>
         /// <param name="layer">The layer to check, see https://github.com/bittiez/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Layers.cs</param>
@@ -596,6 +623,25 @@ namespace ClassicUO.LegionScripting
         public void Target(uint serial) => InvokeOnMainThread(() => TargetManager.Target(serial));
 
         /// <summary>
+        /// Target a location. Include graphic if targeting a static.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <param name="graphic"></param>
+        public void Target(ushort x, ushort y, short z, ushort graphic = ushort.MaxValue) => InvokeOnMainThread(() =>
+        {
+            if (graphic == ushort.MaxValue)
+            {
+                TargetManager.Target(0, x, y, z);
+            }
+            else
+            {
+                TargetManager.Target(graphic, x, y, z);
+            }
+        });
+
+        /// <summary>
         /// Request the player to target something
         /// </summary>
         /// <param name="timeout"></param>
@@ -698,15 +744,30 @@ namespace ClassicUO.LegionScripting
         /// Gets item name and properties
         /// </summary>
         /// <param name="serial"></param>
+        /// <param name="wait">True or false to wait for name and props</param>
+        /// <param name="timeout">Timeout in seconds</param>
         /// <returns>Item name and properties, or empty if we don't have them.</returns>
-        public string ItemNameAndProps(uint serial) => InvokeOnMainThread(() =>
+        public string ItemNameAndProps(uint serial, bool wait = false, int timeout = 10)
         {
-            if (World.OPL.TryGetNameAndData(serial, out string n, out string d))
+            if (wait)
             {
-                return n + "\n" + d;
+                long expire = DateTime.UtcNow.Second + timeout;
+
+                while (!InvokeOnMainThread(() => World.OPL.Contains(serial)) && DateTime.UtcNow.Second < expire)
+                {
+                    Thread.Sleep(100);
+                }
             }
-            return string.Empty;
-        });
+
+            return InvokeOnMainThread(() =>
+            {
+                if (World.OPL.TryGetNameAndData(serial, out string n, out string d))
+                {
+                    return n + "\n" + d;
+                }
+                return string.Empty;
+            });
+        }
 
         /// <summary>
         /// Check if a player has a server gump
@@ -847,6 +908,22 @@ namespace ClassicUO.LegionScripting
         }
 
         /// <summary>
+        /// Check if the journal contains *any* of the strings in this list
+        /// </summary>
+        /// <param name="msgs"></param>
+        /// <returns></returns>
+        public bool InJournalAny(string[] msgs)
+        {
+            foreach (var je in JournalEntries.ToArray())
+            {
+                foreach (var msg in msgs)
+                    if (je.Text.Contains(msg)) return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Clear your journal(This is specific for each script)
         /// </summary>
         public void ClearJournal()
@@ -923,6 +1000,21 @@ namespace ClassicUO.LegionScripting
         });
 
         /// <summary>
+        /// Get the nearest mobile by Notoriety
+        /// </summary>
+        /// <param name="notoriety">List of notorieties</param>
+        /// <param name="maxDistance"></param>
+        /// <returns></returns>
+        public Mobile NearestMobile(Notoriety[] notoriety, int maxDistance = 10) => InvokeOnMainThread(() =>
+        {
+            return World.Mobiles.Values.Where(m => !m.IsDestroyed
+                && !m.IsDead
+                && notoriety.Contains((Notoriety)(byte)m.NotorietyFlag)
+                && m.Distance <= maxDistance
+                && !OnIgnoreList(m)).OrderBy(m => m.Distance).FirstOrDefault();
+        });
+
+        /// <summary>
         /// Get the nearest corpse within a distance
         /// </summary>
         /// <param name="distance"></param>
@@ -937,6 +1029,23 @@ namespace ClassicUO.LegionScripting
         /// <param name="serial"></param>
         /// <returns>The mobile or null</returns>
         public Mobile FindMobile(uint serial) => InvokeOnMainThread(() => World.Mobiles.Get(serial));
+
+        /// <summary>
+        /// Return a list of all mobiles the client is aware of.
+        /// </summary>
+        /// <returns></returns>
+        public Mobile[] GetAllMobiles() => InvokeOnMainThread(() => { return World.Mobiles.Values.ToArray(); });
+
+        /// <summary>
+        /// Get the tile at a location
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns>A GameObject of that location.</returns>
+        public GameObject GetTile(int x, int y) => InvokeOnMainThread(() =>
+        {
+            return World.Map.GetTile(x, y);
+        });
 
         /// <summary>
         /// Get a blank gump
@@ -1049,6 +1158,21 @@ namespace ClassicUO.LegionScripting
             RadioButton rb = new RadioButton(group, inactive, active, text, color: hue);
             return rb;
         }
+
+        /// <summary>
+        /// Get a skill from the player. See the Skill class for what properties are available: https://github.com/bittiez/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Skill.cs
+        /// </summary>
+        /// <param name="skill">Skill name, case sensitive</param>
+        /// <returns></returns>
+        public Skill GetSkill(string skill) => InvokeOnMainThread(() =>
+        {
+            foreach (Skill s in World.Player.Skills)
+            {
+                if (s.Name.Contains(skill))
+                    return s;
+            }
+            return null;
+        });
         #endregion
     }
 }

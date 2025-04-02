@@ -48,7 +48,9 @@ namespace ClassicUO.LegionScripting
                 if (hue != ushort.MaxValue && item.Hue != hue)
                     continue;
 
-                if (groundRange != int.MaxValue && item.Distance > groundRange)
+                var root = World.Items.Get(item.RootContainer);
+
+                if (groundRange != int.MaxValue && ((item.Distance > groundRange && root == null) || root.Distance > groundRange))
                     continue;
 
                 if (!skipIgnoreCheck && Interpreter.InIgnoreList(item))

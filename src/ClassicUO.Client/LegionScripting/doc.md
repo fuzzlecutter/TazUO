@@ -3,7 +3,7 @@ All methods, properties, enums, etc need to pre prefaced with `API.` for example
 If you download the [API.py](API.py) file, put it in the same folder as your python scripts and add `import API` to your script, that will enable some mild form of autocomplete in an editor like VS Code.  
 
 
-This was generated on `4/1/2025`.
+This was generated on `4/2/2025`.
 # API  
 
 ## Class Description
@@ -29,6 +29,18 @@ This was generated on `4/1/2025`.
 - Followers
 - Objects
 - Mobiles
+
+### Notoriety
+
+**Values:**
+- Unknown
+- Innocent
+- Ally
+- Gray
+- Criminal
+- Enemy
+- Murderer
+- Invulnerable
 
 
 ## Methods
@@ -438,6 +450,26 @@ This was generated on `4/1/2025`.
 
 
 <details>
+<summary><h3>FindTypeAll(graphic, container, range, hue, minamount)</h3></summary>
+
+*Return a list of items matching the parameters set*
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| graphic | uint | No | Graphic/Type of item to find |
+| container | uint | Yes | Container to search |
+| range | ushort | Yes | Max range of item(if on ground) |
+| hue | ushort | Yes | Hue of item |
+| minamount | ushort | Yes | Only match if item stack is at lease this much |
+#### Return Type: *Item[]*
+
+</details>
+
+***
+
+
+<details>
 <summary><h3>FindLayer(layer, serial)</h3></summary>
 
 *Attempt to find an item on a layer*
@@ -766,6 +798,25 @@ This was generated on `4/1/2025`.
 
 
 <details>
+<summary><h3>Target(x, y, z, graphic)</h3></summary>
+
+*Target a location. Include graphic if targeting a static.*
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| x | ushort | No |  |
+| y | ushort | No |  |
+| z | short | No |  |
+| graphic | ushort | Yes |  |
+#### Does not return anything
+
+</details>
+
+***
+
+
+<details>
 <summary><h3>RequestTarget(timeout)</h3></summary>
 
 *Request the player to target something*
@@ -870,7 +921,7 @@ This was generated on `4/1/2025`.
 
 
 <details>
-<summary><h3>ItemNameAndProps(serial)</h3></summary>
+<summary><h3>ItemNameAndProps(serial, wait, timeout)</h3></summary>
 
 *Gets item name and properties*
 
@@ -878,6 +929,8 @@ This was generated on `4/1/2025`.
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
 | serial | uint | No |  |
+| wait | bool | Yes | True or false to wait for name and props |
+| timeout | int | Yes | Timeout in seconds |
 #### Return Type: *string*
 
 </details>
@@ -1020,6 +1073,22 @@ This was generated on `4/1/2025`.
 
 
 <details>
+<summary><h3>InJournalAny(msgs)</h3></summary>
+
+*Check if the journal contains *any* of the strings in this list*
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| msgs | string[] | No |  |
+#### Return Type: *bool*
+
+</details>
+
+***
+
+
+<details>
 <summary><h3>ClearJournal()</h3></summary>
 
 *Clear your journal(This is specific for each script)*
@@ -1105,6 +1174,23 @@ This was generated on `4/1/2025`.
 
 
 <details>
+<summary><h3>NearestMobile(notoriety, maxDistance)</h3></summary>
+
+*Get the nearest mobile by Notoriety*
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| notoriety | Notoriety[] | No | List of notorieties |
+| maxDistance | int | Yes |  |
+#### Return Type: *Mobile*
+
+</details>
+
+***
+
+
+<details>
 <summary><h3>NearestCorpse(distance)</h3></summary>
 
 *Get the nearest corpse within a distance*
@@ -1130,6 +1216,35 @@ This was generated on `4/1/2025`.
 | --- | --- | --- | --- |
 | serial | uint | No |  |
 #### Return Type: *Mobile*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>GetAllMobiles()</h3></summary>
+
+*Return a list of all mobiles the client is aware of.*
+
+#### Return Type: *Mobile[]*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>GetTile(x, y)</h3></summary>
+
+*Get the tile at a location*
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| x | int | No |  |
+| y | int | No |  |
+#### Return Type: *GameObject*
 
 </details>
 
@@ -1272,6 +1387,22 @@ This was generated on `4/1/2025`.
 | active | ushort | Yes | Checked graphic |
 | hue | ushort | Yes | Text color |
 #### Return Type: *RadioButton*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>GetSkill(skill)</h3></summary>
+
+*Get a skill from the player. See the Skill class for what properties are available: https://github.com/bittiez/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Skill.cs*
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| skill | string | No | Skill name, case sensitive |
+#### Return Type: *Skill*
 
 </details>
 

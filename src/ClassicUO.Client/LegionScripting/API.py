@@ -9,6 +9,16 @@ class ScanType:
     Followers = 2
     Objects = 3
     Mobiles = 4
+
+class Notoriety:
+    Unknown = 1
+    Innocent = 1
+    Ally = 1
+    Gray = 1
+    Criminal = 1
+    Enemy = 1
+    Murderer = 1
+    Invulnerable = 1
 def Attack(serial):
     pass
 
@@ -84,6 +94,9 @@ def FindItem(serial):
 def FindType(graphic, container, range, hue, minamount):
     pass
 
+def FindTypeAll(graphic, container, range, hue, minamount):
+    pass
+
 def FindLayer(layer, serial):
     pass
 
@@ -147,6 +160,9 @@ def WaitForTarget(targetType, timeout):
 def Target(serial):
     pass
 
+def Target(x, y, z, graphic):
+    pass
+
 def RequestTarget(timeout):
     pass
 
@@ -168,7 +184,7 @@ def SetSkillLock(skill, up_down_locked):
 def Logout():
     pass
 
-def ItemNameAndProps(serial):
+def ItemNameAndProps(serial, wait, timeout):
     pass
 
 def HasGump(ID):
@@ -198,6 +214,9 @@ def SecondaryAbilityActive():
 def InJournal(msg):
     pass
 
+def InJournalAny(msgs):
+    pass
+
 def ClearJournal():
     pass
 
@@ -216,10 +235,19 @@ def Virtue(virtue):
 def NearestEntity(scanType, maxDistance):
     pass
 
+def NearestMobile(notoriety, maxDistance):
+    pass
+
 def NearestCorpse(distance):
     pass
 
 def FindMobile(serial):
+    pass
+
+def GetAllMobiles():
+    pass
+
+def GetTile(x, y):
     pass
 
 def CreateGump(acceptMouseInput, canMove):
@@ -244,5 +272,8 @@ def CreateGumpButton(text, hue, normal, pressed, hover):
     pass
 
 def CreateGumpRadioButton(text, group, inactive, active, hue):
+    pass
+
+def GetSkill(skill):
     pass
 
