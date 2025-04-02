@@ -356,7 +356,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="container">Container to search</param>
         /// <param name="range">Max range of item(if on ground)</param>
         /// <param name="hue">Hue of item</param>
-        /// <param name="minamount">Only match if item stack is at lease this much</param>
+        /// <param name="minamount">Only match if item stack is at least this much</param>
         /// <returns>Returns the first item found that matches</returns>
         public Item FindType(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
             InvokeOnMainThread(() =>
@@ -914,6 +914,8 @@ namespace ClassicUO.LegionScripting
         /// <returns></returns>
         public bool InJournalAny(string[] msgs)
         {
+            if(msgs == null || msgs.Length == 0) return false;
+
             foreach (var je in JournalEntries.ToArray())
             {
                 foreach (var msg in msgs)
@@ -1007,6 +1009,8 @@ namespace ClassicUO.LegionScripting
         /// <returns></returns>
         public Mobile NearestMobile(Notoriety[] notoriety, int maxDistance = 10) => InvokeOnMainThread(() =>
         {
+            if(notoriety == null || notoriety.Length == 0) return null;
+
             return World.Mobiles.Values.Where(m => !m.IsDestroyed
                 && !m.IsDead
                 && notoriety.Contains((Notoriety)(byte)m.NotorietyFlag)
@@ -1166,6 +1170,8 @@ namespace ClassicUO.LegionScripting
         /// <returns></returns>
         public Skill GetSkill(string skill) => InvokeOnMainThread(() =>
         {
+            if(string.IsNullOrEmpty(skill)) return null;
+            
             foreach (Skill s in World.Player.Skills)
             {
                 if (s.Name.Contains(skill))
