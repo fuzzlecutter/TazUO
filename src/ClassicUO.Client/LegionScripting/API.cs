@@ -751,9 +751,9 @@ namespace ClassicUO.LegionScripting
         {
             if (wait)
             {
-                long expire = DateTime.UtcNow.Second + timeout;
+                var expire = DateTime.UtcNow.AddSeconds(timeout);
 
-                while (!InvokeOnMainThread(() => World.OPL.Contains(serial)) && DateTime.UtcNow.Second < expire)
+                while (!InvokeOnMainThread(() => World.OPL.Contains(serial)) && DateTime.UtcNow < expire)
                 {
                     Thread.Sleep(100);
                 }
