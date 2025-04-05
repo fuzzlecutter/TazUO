@@ -96,22 +96,44 @@ namespace ClassicUO.LegionScripting
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Attack a mobile
-        /// </summary>
-        /// <param name="serial"></param>
+/// <summary>
+/// Attack a mobile  
+/// Example:  
+/// ```py
+/// enemy = API.NearestEntity([API.Notoriety.Gray, API.Notoriety.Criminal], 7)
+/// if enemy:
+///   API.Attack(enemy)
+/// ```  
+/// </summary>
+/// <param name="serial"></param>
         public void Attack(uint serial) => InvokeOnMainThread(() => GameActions.Attack(serial));
 
-        /// <summary>
-        /// Attempt to bandage yourself. Older clients this will not work, you will need to find a bandage, use it, and target yourself.
-        /// </summary>
-        /// <returns>True if bandages found and used</returns>
+/// <summary>
+/// Attempt to bandage yourself. Older clients this will not work, you will need to find a bandage, use it, and target yourself.  
+/// Example:  
+/// ```py
+/// if player.HitsMax - player.Hits > 10 or player.IsPoisoned:
+///   if API.BandageSelf():
+///     API.CreateCooldownBar(delay, "Bandaging...", 21)
+///     API.Pause(8)
+///   else:
+///     API.SysMsg("WARNING: No bandages!", 32)
+///     break
+/// ```  
+/// </summary>
+/// <returns>True if bandages found and used</returns>
         public bool BandageSelf() => InvokeOnMainThread(GameActions.BandageSelf);
 
-        /// <summary>
-        /// If you have an item in your left hand, move it to your backpack
-        /// </summary>
-        /// <returns>The item that was in your hand</returns>
+/// <summary>
+/// If you have an item in your left hand, move it to your backpack  
+/// Example:  
+/// ```py
+/// leftHand = API.ClearLeftHand()
+/// if leftHand:
+///   API.SysMsg("Cleared left hand: " + leftHand.Name)
+/// ```  
+/// </summary>
+/// <returns>The item that was in your hand</returns>
         public Item ClearLeftHand() => InvokeOnMainThread(() =>
         {
             Item i = World.Player.FindItemByLayer(Game.Data.Layer.OneHanded);
@@ -123,10 +145,16 @@ namespace ClassicUO.LegionScripting
             return null;
         });
 
-        /// <summary>
-        /// If you have an item in your right hand, move it to your backpack
-        /// </summary>
-        /// <returns>The item that was in your hand</returns>
+/// <summary>
+/// If you have an item in your right hand, move it to your backpack  
+/// Example:  
+/// ```py  
+/// rightHand = API.ClearRightHand()
+/// if rightHand:
+///   API.SysMsg("Cleared right hand: " + rightHand.Name)
+///  ```  
+/// </summary>
+/// <returns>The item that was in your hand</returns>
         public Item ClearRightHand() => InvokeOnMainThread(() =>
         {
             Item i = World.Player.FindItemByLayer(Game.Data.Layer.TwoHanded);
@@ -138,24 +166,38 @@ namespace ClassicUO.LegionScripting
             return null;
         });
 
-        /// <summary>
-        /// Single click an object
-        /// </summary>
-        /// <param name="serial"></param>
+/// <summary>
+/// Single click an object  
+/// Example:  
+/// ```py
+/// API.ClickObject(API.Player)
+/// ```
+/// </summary>
+/// <param name="serial">Serial, or item/mobile reference</param>
         public void ClickObject(uint serial) => InvokeOnMainThread(() => GameActions.SingleClick(serial));
 
-        /// <summary>
-        /// Attempt to use(double click) an object.
-        /// </summary>
-        /// <param name="serial">The serial</param>
-        /// <param name="skipQueue">Defaults true, set to false to use a double click queue</param>
+/// <summary>
+/// Attempt to use(double click) an object.  
+/// Example:  
+/// ```py
+/// API.UseObject(API.Backpack)
+/// ```  
+/// </summary>
+/// <param name="serial">The serial</param>
+/// <param name="skipQueue">Defaults true, set to false to use a double click queue</param>
         public void UseObject(uint serial, bool skipQueue = true) => InvokeOnMainThread(() => { if (skipQueue) GameActions.DoubleClick(serial); else GameActions.DoubleClickQueued(serial); });
 
-        /// <summary>
-        /// Get an item count for the contents of a container
-        /// </summary>
-        /// <param name="serial"></param>
-        /// <returns></returns>
+/// <summary>
+/// Get an item count for the contents of a container  
+/// Example:  
+/// ```py
+/// count = API.Contents(API.Backpack)
+/// if count > 0:
+///   API.SysMsg(f"You have {count} items in your backpack")
+/// ```  
+/// </summary>
+/// <param name="serial"></param>
+/// <returns>The amount of items in a container. Does **not** include sub-containers, or item amounts. (100 Gold = 1 item if it's in a single stack)</returns>
         public int Contents(uint serial) => InvokeOnMainThread<int>(() =>
         {
             Item i = World.Items.Get(serial);
@@ -163,11 +205,16 @@ namespace ClassicUO.LegionScripting
             return 0;
         });
 
-        /// <summary>
-        /// Send a context menu(right click menu) response.
-        /// </summary>
-        /// <param name="serial"></param>
-        /// <param name="entry"></param>
+/// <summary>
+/// Send a context menu(right click menu) response.  
+/// This does not open the menu, you do not need to open the menu first. This handles both in one action.  
+/// Example:  
+/// ```py
+/// API.ContextMenu(API.Player, 1)
+/// ```  
+/// </summary>
+/// <param name="serial"></param>
+/// <param name="entry">Entries start at 0, the top entry will be 0, then 1, 2, etc. (Usually)</param>
         public void ContextMenu(uint serial, ushort entry) => InvokeOnMainThread(() =>
         {
             PopupMenuGump.CloseNext = serial;
@@ -175,10 +222,16 @@ namespace ClassicUO.LegionScripting
             NetClient.Socket.Send_PopupMenuSelection(serial, entry);
         });
 
-        /// <summary>
-        /// Attempt to equip an item. Layer is automatically detected.
-        /// </summary>
-        /// <param name="serial"></param>
+/// <summary>
+/// Attempt to equip an item. Layer is automatically detected.
+/// Example:  
+/// ```py
+/// lefthand = API.ClearLeftHand()
+/// API.Pause(2)
+/// API.EquipItem(lefthand)
+/// ```  
+/// </summary>
+/// <param name="serial"></param>
         public void EquipItem(uint serial) => InvokeOnMainThread(() =>
         {
             if (GameActions.PickUp(serial, 0, 0, 1))
@@ -1171,7 +1224,7 @@ namespace ClassicUO.LegionScripting
         public Skill GetSkill(string skill) => InvokeOnMainThread(() =>
         {
             if(string.IsNullOrEmpty(skill)) return null;
-            
+
             foreach (Skill s in World.Player.Skills)
             {
                 if (s.Name.Contains(skill))
