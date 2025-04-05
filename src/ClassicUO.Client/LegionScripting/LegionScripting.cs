@@ -55,12 +55,57 @@ namespace ClassicUO.LegionScripting
             AutoPlayChar();
             _enabled = true;
 
-            CommandManager.Register("lscriptfile", a =>
+            CommandManager.Register("playlscript", a =>
             {
                 if (a.Length < 2)
                 {
-                    GameActions.Print("Usage: lscriptfile <filename>");
+                    GameActions.Print("Usage: playlscript <filename>");
                     return;
+                }
+
+                foreach (ScriptFile f in LoadedScripts)
+                {
+                    if (f.FileName == string.Join(" ", a.Skip(1)))
+                    {
+                        PlayScript(f);
+                        return;
+                    }
+                }
+            });
+
+            CommandManager.Register("stoplscript", a =>
+            {
+                if (a.Length < 2)
+                {
+                    GameActions.Print("Usage: stoplscript <filename>");
+                    return;
+                }
+
+                foreach(ScriptFile sf in runningScripts)
+                {
+                    if (sf.FileName == string.Join(" ", a.Skip(1)))
+                    {
+                        StopScript(sf);
+                        return;
+                    }
+                }
+            });
+
+            CommandManager.Register("togglelscript", a =>
+            {
+                if (a.Length < 2)
+                {
+                    GameActions.Print("Usage: togglelscript <filename>");
+                    return;
+                }
+
+                foreach(ScriptFile sf in runningScripts)
+                {
+                    if (sf.FileName == string.Join(" ", a.Skip(1)))
+                    {
+                        StopScript(sf);
+                        return;
+                    }
                 }
 
                 foreach (ScriptFile f in LoadedScripts)
