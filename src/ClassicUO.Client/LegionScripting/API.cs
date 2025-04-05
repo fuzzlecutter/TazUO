@@ -238,28 +238,51 @@ namespace ClassicUO.LegionScripting
                 GameActions.Equip(serial);
         });
 
-        /// <summary>
-        /// Move an item to another container
-        /// </summary>
-        /// <param name="serial"></param>
-        /// <param name="destination"></param>
-        /// <param name="amt">Amount to move</param>
-        /// <param name="x">X coordinate inside a container</param>
-        /// <param name="y">Y coordinate inside a container</param>
+/// <summary>
+/// Move an item to another container.  
+/// Use x, and y if you don't want items stacking in the desination container.  
+/// Example:  
+/// ```py
+/// items = API.ItemsInContainer(API.Backpack)
+///
+/// API.SysMsg("Target your fish barrel", 32)
+/// barrel = API.RequestTarget()
+///
+///
+/// if len(items) > 0 and barrel:
+///     for item in items:
+///         data = API.ItemNameAndProps(item)
+///         if data and "An Exotic Fish" in data:
+///             API.MoveItem(item, barrel)
+///             API.Pause(0.75)
+/// ```  
+/// </summary>
+/// <param name="serial"></param>
+/// <param name="destination"></param>
+/// <param name="amt">Amount to move</param>
+/// <param name="x">X coordinate inside a container</param>
+/// <param name="y">Y coordinate inside a container</param>
         public void MoveItem(uint serial, uint destination, int amt = 0, int x = 0xFFFF, int y = 0xFFFF) => InvokeOnMainThread(() =>
         {
             if (GameActions.PickUp(serial, 0, 0, amt))
                 GameActions.DropItem(serial, x, y, 0, destination);
         });
 
-        /// <summary>
-        /// Move an item to the ground near you
-        /// </summary>
-        /// <param name="serial"></param>
-        /// <param name="amt">0 to grab entire stack</param>
-        /// <param name="x">Offset from your location</param>
-        /// <param name="y">Offset from your location</param>
-        /// <param name="z">Offset from your location</param>
+/// <summary>
+/// Move an item to the ground near you.  
+/// Example:  
+/// ```py
+/// items = API.ItemsInContainer(API.Backpack)
+/// for item in items:
+///   API.MoveItemOffset(item, 0, 1, 0, 0)
+///   API.Pause(0.75)
+/// ```  
+/// </summary>
+/// <param name="serial"></param>
+/// <param name="amt">0 to grab entire stack</param>
+/// <param name="x">Offset from your location</param>
+/// <param name="y">Offset from your location</param>
+/// <param name="z">Offset from your location</param>
         public void MoveItemOffset(uint serial, int amt = 0, int x = 0, int y = 0, int z = 0) => InvokeOnMainThread(() =>
         {
             if (GameActions.PickUp(serial, 0, 0, amt))
@@ -272,10 +295,15 @@ namespace ClassicUO.LegionScripting
                 );
         });
 
-        /// <summary>
-        /// Use a skill
-        /// </summary>
-        /// <param name="skillName"></param>
+/// <summary>
+/// Use a skill.  
+/// Example:  
+/// ```py
+/// API.UseSkill("Hiding")
+/// API.Pause(11)
+/// ```
+/// </summary>
+/// <param name="skillName">Can be a partial match. Will match the first skill containing this text.</param>
         public void UseSkill(string skillName) => InvokeOnMainThread(() =>
         {
             if (skillName.Length > 0)
@@ -291,17 +319,28 @@ namespace ClassicUO.LegionScripting
             }
         });
 
-        /// <summary>
-        /// Attempt to cast a spell by its name
-        /// </summary>
-        /// <param name="spellName">This can be a partial match. Fireba will cast Fireball.</param>
+/// <summary>
+/// Attempt to cast a spell by its name.  
+/// Example:  
+/// ```py
+/// API.CastSpell("Fireball")
+/// API.WaitForTarget()
+/// API.Target(API.Player)
+/// ```  
+/// </summary>
+/// <param name="spellName">This can be a partial match. Fireba will cast Fireball.</param>
         public void CastSpell(string spellName) => InvokeOnMainThread(() => { GameActions.CastSpellByName(spellName); });
 
-        /// <summary>
-        /// Check if a buff is active
-        /// </summary>
-        /// <param name="buffName">The name/title of the buff</param>
-        /// <returns></returns>
+/// <summary>
+/// Check if a buff is active.  
+/// Example:  
+/// ```py
+/// if API.BuffExists("Bless"):
+///   API.SysMsg("You are blessed!")
+/// ```
+/// </summary>
+/// <param name="buffName">The name/title of the buff</param>
+/// <returns></returns>
         public bool BuffExists(string buffName) => InvokeOnMainThread(() =>
         {
             foreach (BuffIcon buff in World.Player.BuffIcons.Values)
@@ -313,27 +352,39 @@ namespace ClassicUO.LegionScripting
             return false;
         });
 
-        /// <summary>
-        /// Show a system message(Left side of screen)
-        /// </summary>
-        /// <param name="message">Message</param>
-        /// <param name="hue">Color of the message</param>
+/// <summary>
+/// Show a system message(Left side of screen).  
+/// Example:  
+/// ```py
+/// API.SysMsg("Script started!")
+/// ```
+/// </summary>
+/// <param name="message">Message</param>
+/// <param name="hue">Color of the message</param>
         public void SysMsg(string message, ushort hue = 946) => InvokeOnMainThread(() => GameActions.Print(message, hue));
 
-        /// <summary>
-        /// Say a message.
-        /// </summary>
-        /// <param name="message">The message to say</param>
+/// <summary>
+/// Say a message outloud.  
+/// Example:  
+/// ```py
+/// API.Say("Hello friend!")
+/// ```  
+/// </summary>
+/// <param name="message">The message to say</param>
         public void Msg(string message) => InvokeOnMainThread(() =>
         {
             GameActions.Say(message, ProfileManager.CurrentProfile.SpeechHue);
         });
 
-        /// <summary>
-        /// Show a message above a mobile or item, this is only visible to you
-        /// </summary>
-        /// <param name="message">The message</param>
-        /// <param name="serial">The item or mobile</param>
+/// <summary>
+/// Show a message above a mobile or item, this is only visible to you.  
+/// Example:  
+/// ```py
+/// API.HeadMsg("Only I can see this!", API.Player)
+/// ```  
+/// </summary>
+/// <param name="message">The message</param>
+/// <param name="serial">The item or mobile</param>
         public void HeadMsg(string message, uint serial) => InvokeOnMainThread(() =>
         {
             Entity e = World.Get(serial);
@@ -341,76 +392,115 @@ namespace ClassicUO.LegionScripting
             MessageManager.HandleMessage(e, message, "", ProfileManager.CurrentProfile.SpeechHue, MessageType.Label, 3, TextType.OBJECT);
         });
 
-        /// <summary>
-        /// Send a message to your party
-        /// </summary>
-        /// <param name="message">The message</param>
+/// <summary>
+/// Send a message to your party.  
+/// Example:  
+/// ```py
+/// API.PartyMsg("The raid begins in 30 second! Wait... we don't have raids, wrong game..")
+/// ```  
+/// </summary>
+/// <param name="message">The message</param>
         public void PartyMsg(string message) => InvokeOnMainThread(() =>
         {
             GameActions.SayParty(message);
         });
 
-        /// <summary>
-        /// Send your guild a message
-        /// </summary>
-        /// <param name="message"></param>
+/// <summary>
+/// Send your guild a message.  
+/// Example:  
+/// ```py
+/// API.GuildMsg("Hey guildies, just restocked my vendor, fresh valorite suits available!")
+/// ```  
+/// </summary>
+/// <param name="message"></param>
         public void GuildMsg(string message) => InvokeOnMainThread(() =>
         {
             GameActions.Say(message, ProfileManager.CurrentProfile.GuildMessageHue, MessageType.Guild);
         });
 
-        /// <summary>
-        /// Send a message to your alliance
-        /// </summary>
-        /// <param name="message"></param>
+/// <summary>
+/// Send a message to your alliance.  
+/// Example:  
+/// ```py
+/// API.AllyMsg("Hey allies, just restocked my vendor, fresh valorite suits available!")
+/// ```  
+/// </summary>
+/// <param name="message"></param>
         public void AllyMsg(string message) => InvokeOnMainThread(() =>
         {
             GameActions.Say(message, ProfileManager.CurrentProfile.AllyMessageHue, MessageType.Alliance);
         });
 
-        /// <summary>
-        /// Whisper a message
-        /// </summary>
-        /// <param name="message"></param>
+/// <summary>
+/// Whisper a message.  
+/// Example:  
+/// ```py
+/// API.WhisperMsg("Psst, bet you didn't see me here..")
+/// ```
+/// </summary>
+/// <param name="message"></param>
         public void WhisperMsg(string message) => InvokeOnMainThread(() =>
         {
             GameActions.Say(message, ProfileManager.CurrentProfile.WhisperHue, MessageType.Whisper);
         });
 
-        /// <summary>
-        /// Yell a message
-        /// </summary>
-        /// <param name="message"></param>
+/// <summary>
+/// Yell a message.  
+/// Example:  
+/// ```py
+/// API.YellMsg("Vendor restocked, get your fresh feathers!")
+/// ```  
+/// </summary>
+/// <param name="message"></param>
         public void YellMsg(string message) => InvokeOnMainThread(() =>
         {
             GameActions.Say(message, ProfileManager.CurrentProfile.YellHue, MessageType.Yell);
         });
 
-        /// <summary>
-        /// Emote a message
-        /// </summary>
-        /// <param name="message"></param>
+/// <summary>
+/// Emote a message.  
+/// Example:  
+/// ```py
+/// API.EmoteMsg("laughing")
+/// ```
+/// </summary>
+/// <param name="message"></param>
         public void EmoteMsg(string message) => InvokeOnMainThread(() =>
         {
             GameActions.Say(message, ProfileManager.CurrentProfile.EmoteHue, MessageType.Emote);
         });
 
-        /// <summary>
-        /// Try to get an item by its serial
-        /// </summary>
-        /// <param name="serial">The serial</param>
-        /// <returns></returns>
+/// <summary>
+/// Try to get an item by its serial.  
+/// Example:  
+/// ```py
+/// donkey = API.RequestTarget()
+/// item = API.FindItem(donkey)
+/// if item:
+///   API.SysMsg("Found the donkey!")
+///   API.UseObject(item)
+/// ```  
+/// </summary>
+/// <param name="serial">The serial</param>
+/// <returns></returns>
         public Item FindItem(uint serial) => InvokeOnMainThread(() => World.Items.Get(serial));
 
-        /// <summary>
-        /// Attempt to find an item by type(graphic)
-        /// </summary>
-        /// <param name="graphic">Graphic/Type of item to find</param>
-        /// <param name="container">Container to search</param>
-        /// <param name="range">Max range of item(if on ground)</param>
-        /// <param name="hue">Hue of item</param>
-        /// <param name="minamount">Only match if item stack is at least this much</param>
-        /// <returns>Returns the first item found that matches</returns>
+/// <summary>
+/// Attempt to find an item by type(graphic).  
+/// Example:  
+/// ```py
+/// item = API.FindType(0x0EED, API.Backpack)
+/// if item:
+///   API.SysMsg("Found the item!")
+///   API.UseObject(item)
+/// ```  
+/// </summary>
+/// <param name="graphic">Graphic/Type of item to find</param>
+/// <param name="container">Container to search</param>
+/// <param name="range">Max range of item</param>
+/// <param name="hue">Hue of item</param>
+/// <param name="minamount">Only match if item stack is at least this much</param>
+/// <returns>Returns the first item found that matches</returns>
         public Item FindType(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
             InvokeOnMainThread(() =>
             {
@@ -425,15 +515,21 @@ namespace ClassicUO.LegionScripting
                 return null;
             });
 
-        /// <summary>
-        /// Return a list of items matching the parameters set
-        /// </summary>
-        /// <param name="graphic">Graphic/Type of item to find</param>
-        /// <param name="container">Container to search</param>
-        /// <param name="range">Max range of item(if on ground)</param>
-        /// <param name="hue">Hue of item</param>
-        /// <param name="minamount">Only match if item stack is at lease this much</param>
-        /// <returns></returns>
+/// <summary>
+/// Return a list of items matching the parameters set.  
+/// Example:  
+/// ```py
+/// items = API.FindTypeAll(0x0EED, API.Backpack)
+/// if items:
+///   API.SysMsg("Found " + str(len(items)) + " items!")
+/// ```   
+/// </summary>
+/// <param name="graphic">Graphic/Type of item to find</param>
+/// <param name="container">Container to search</param>
+/// <param name="range">Max range of item(if on ground)</param>
+/// <param name="hue">Hue of item</param>
+/// <param name="minamount">Only match if item stack is at least this much</param>
+/// <returns></returns>
         public Item[] FindTypeAll(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
             InvokeOnMainThread(() =>
                 Utility.FindItems(graphic, uint.MaxValue, uint.MaxValue, container, hue, range).Where(i=>!OnIgnoreList(i) && i.Amount >= minamount).ToArray()
