@@ -3,22 +3,26 @@ All methods, properties, enums, etc need to pre prefaced with `API.` for example
 If you download the [API.py](API.py) file, put it in the same folder as your python scripts and add `import API` to your script, that will enable some mild form of autocomplete in an editor like VS Code.  
 
 
-This was generated on `4/4/2025`.
+This was generated on `4/5/2025`.
 # API  
 
 ## Class Description
-Python scripting access point
+ Python scripting access point
+
 
 ## Properties
 - **JournalEntries** (*ConcurrentQueue<JournalEntry>*)
 - **Backpack** (*Item*)
-  - Get the players backpack
+  -  Get the players backpack
+
 - **Player** (*PlayerMobile*)
-  - Returns the player character
+  -  Returns the player character
+
 - **Random** (*Random*)
-  - Can be used for random numbers.
-         `API.Random.Next(1, 100)` will return a number between 1 and 100.
-         `API.Random.Next(100)` will return a number between 0 and 100.
+  -  Can be used for random numbers.
+ `API.Random.Next(1, 100)` will return a number between 1 and 100.
+ `API.Random.Next(100)` will return a number between 0 and 100.
+
 
 ## Enums
 ### ScanType
@@ -48,13 +52,14 @@ Python scripting access point
 <details>
 <summary><h3>Attack(serial)</h3></summary>
 
-Attack a mobile  
+ Attack a mobile  
  Example:  
  ```py
- enemy = API.NearestEntity([API.Notoriety.Gray, API.Notoriety.Criminal], 7)
+ enemy = API.NearestMobile([API.Notoriety.Gray, API.Notoriety.Criminal], 7)
  if enemy:
    API.Attack(enemy)
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -70,7 +75,7 @@ Attack a mobile
 <details>
 <summary><h3>BandageSelf()</h3></summary>
 
-Attempt to bandage yourself. Older clients this will not work, you will need to find a bandage, use it, and target yourself.  
+ Attempt to bandage yourself. Older clients this will not work, you will need to find a bandage, use it, and target yourself.  
  Example:  
  ```py
  if player.HitsMax - player.Hits > 10 or player.IsPoisoned:
@@ -80,7 +85,8 @@ Attempt to bandage yourself. Older clients this will not work, you will need to 
    else:
      API.SysMsg("WARNING: No bandages!", 32)
      break
- ```
+ ```  
+
 
 #### Return Type: *bool*
 
@@ -92,13 +98,14 @@ Attempt to bandage yourself. Older clients this will not work, you will need to 
 <details>
 <summary><h3>ClearLeftHand()</h3></summary>
 
-If you have an item in your left hand, move it to your backpack  
+ If you have an item in your left hand, move it to your backpack  
  Example:  
  ```py
  leftHand = API.ClearLeftHand()
  if leftHand:
    API.SysMsg("Cleared left hand: " + leftHand.Name)
- ```
+ ```  
+
 
 #### Return Type: *Item*
 
@@ -110,13 +117,14 @@ If you have an item in your left hand, move it to your backpack
 <details>
 <summary><h3>ClearRightHand()</h3></summary>
 
-If you have an item in your right hand, move it to your backpack  
+ If you have an item in your right hand, move it to your backpack  
  Example:  
  ```py  
  rightHand = API.ClearRightHand()
  if rightHand:
    API.SysMsg("Cleared right hand: " + rightHand.Name)
-  ```
+  ```  
+
 
 #### Return Type: *Item*
 
@@ -128,11 +136,12 @@ If you have an item in your right hand, move it to your backpack
 <details>
 <summary><h3>ClickObject(serial)</h3></summary>
 
-Single click an object  
+ Single click an object  
  Example:  
  ```py
  API.ClickObject(API.Player)
  ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -148,11 +157,12 @@ Single click an object
 <details>
 <summary><h3>UseObject(serial, skipQueue)</h3></summary>
 
-Attempt to use(double click) an object.  
+ Attempt to use(double click) an object.  
  Example:  
  ```py
  API.UseObject(API.Backpack)
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -169,13 +179,14 @@ Attempt to use(double click) an object.
 <details>
 <summary><h3>Contents(serial)</h3></summary>
 
-Get an item count for the contents of a container  
+ Get an item count for the contents of a container  
  Example:  
  ```py
  count = API.Contents(API.Backpack)
  if count > 0:
    API.SysMsg(f"You have {count} items in your backpack")
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -191,12 +202,13 @@ Get an item count for the contents of a container
 <details>
 <summary><h3>ContextMenu(serial, entry)</h3></summary>
 
-Send a context menu(right click menu) response.  
+ Send a context menu(right click menu) response.  
  This does not open the menu, you do not need to open the menu first. This handles both in one action.  
  Example:  
  ```py
  API.ContextMenu(API.Player, 1)
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -213,13 +225,14 @@ Send a context menu(right click menu) response.
 <details>
 <summary><h3>EquipItem(serial)</h3></summary>
 
-Attempt to equip an item. Layer is automatically detected.
+ Attempt to equip an item. Layer is automatically detected.
  Example:  
  ```py
  lefthand = API.ClearLeftHand()
  API.Pause(2)
  API.EquipItem(lefthand)
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -235,7 +248,7 @@ Attempt to equip an item. Layer is automatically detected.
 <details>
 <summary><h3>MoveItem(serial, destination, amt, x, y)</h3></summary>
 
-Move an item to another container.  
+ Move an item to another container.  
  Use x, and y if you don't want items stacking in the desination container.  
  Example:  
  ```py
@@ -251,7 +264,8 @@ Move an item to another container.
          if data and "An Exotic Fish" in data:
              API.MoveItem(item, barrel)
              API.Pause(0.75)
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -271,14 +285,15 @@ Move an item to another container.
 <details>
 <summary><h3>MoveItemOffset(serial, amt, x, y, z)</h3></summary>
 
-Move an item to the ground near you.  
+ Move an item to the ground near you.  
  Example:  
  ```py
  items = API.ItemsInContainer(API.Backpack)
  for item in items:
    API.MoveItemOffset(item, 0, 1, 0, 0)
    API.Pause(0.75)
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -298,12 +313,13 @@ Move an item to the ground near you.
 <details>
 <summary><h3>UseSkill(skillName)</h3></summary>
 
-Use a skill.  
+ Use a skill.  
  Example:  
  ```py
  API.UseSkill("Hiding")
  API.Pause(11)
  ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -319,13 +335,14 @@ Use a skill.
 <details>
 <summary><h3>CastSpell(spellName)</h3></summary>
 
-Attempt to cast a spell by its name.  
+ Attempt to cast a spell by its name.  
  Example:  
  ```py
  API.CastSpell("Fireball")
  API.WaitForTarget()
  API.Target(API.Player)
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -341,12 +358,13 @@ Attempt to cast a spell by its name.
 <details>
 <summary><h3>BuffExists(buffName)</h3></summary>
 
-Check if a buff is active.  
+ Check if a buff is active.  
  Example:  
  ```py
  if API.BuffExists("Bless"):
    API.SysMsg("You are blessed!")
  ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -362,11 +380,12 @@ Check if a buff is active.
 <details>
 <summary><h3>SysMsg(message, hue)</h3></summary>
 
-Show a system message(Left side of screen).  
+ Show a system message(Left side of screen).  
  Example:  
  ```py
  API.SysMsg("Script started!")
  ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -383,11 +402,12 @@ Show a system message(Left side of screen).
 <details>
 <summary><h3>Msg(message)</h3></summary>
 
-Say a message outloud.  
+ Say a message outloud.  
  Example:  
  ```py
  API.Say("Hello friend!")
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -403,11 +423,12 @@ Say a message outloud.
 <details>
 <summary><h3>HeadMsg(message, serial)</h3></summary>
 
-Show a message above a mobile or item, this is only visible to you.  
+ Show a message above a mobile or item, this is only visible to you.  
  Example:  
  ```py
  API.HeadMsg("Only I can see this!", API.Player)
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -424,11 +445,12 @@ Show a message above a mobile or item, this is only visible to you.
 <details>
 <summary><h3>PartyMsg(message)</h3></summary>
 
-Send a message to your party.  
+ Send a message to your party.  
  Example:  
  ```py
  API.PartyMsg("The raid begins in 30 second! Wait... we don't have raids, wrong game..")
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -444,11 +466,12 @@ Send a message to your party.
 <details>
 <summary><h3>GuildMsg(message)</h3></summary>
 
-Send your guild a message.  
+ Send your guild a message.  
  Example:  
  ```py
  API.GuildMsg("Hey guildies, just restocked my vendor, fresh valorite suits available!")
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -464,11 +487,12 @@ Send your guild a message.
 <details>
 <summary><h3>AllyMsg(message)</h3></summary>
 
-Send a message to your alliance.  
+ Send a message to your alliance.  
  Example:  
  ```py
  API.AllyMsg("Hey allies, just restocked my vendor, fresh valorite suits available!")
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -484,11 +508,12 @@ Send a message to your alliance.
 <details>
 <summary><h3>WhisperMsg(message)</h3></summary>
 
-Whisper a message.  
+ Whisper a message.  
  Example:  
  ```py
  API.WhisperMsg("Psst, bet you didn't see me here..")
  ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -504,11 +529,12 @@ Whisper a message.
 <details>
 <summary><h3>YellMsg(message)</h3></summary>
 
-Yell a message.  
+ Yell a message.  
  Example:  
  ```py
  API.YellMsg("Vendor restocked, get your fresh feathers!")
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -524,11 +550,12 @@ Yell a message.
 <details>
 <summary><h3>EmoteMsg(message)</h3></summary>
 
-Emote a message.  
+ Emote a message.  
  Example:  
  ```py
  API.EmoteMsg("laughing")
  ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -544,7 +571,7 @@ Emote a message.
 <details>
 <summary><h3>FindItem(serial)</h3></summary>
 
-Try to get an item by its serial.  
+ Try to get an item by its serial.  
  Example:  
  ```py
  donkey = API.RequestTarget()
@@ -552,7 +579,8 @@ Try to get an item by its serial.
  if item:
    API.SysMsg("Found the donkey!")
    API.UseObject(item)
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -568,14 +596,15 @@ Try to get an item by its serial.
 <details>
 <summary><h3>FindType(graphic, container, range, hue, minamount)</h3></summary>
 
-Attempt to find an item by type(graphic).  
+ Attempt to find an item by type(graphic).  
  Example:  
  ```py
  item = API.FindType(0x0EED, API.Backpack)
  if item:
    API.SysMsg("Found the item!")
    API.UseObject(item)
- ```
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -595,13 +624,14 @@ Attempt to find an item by type(graphic).
 <details>
 <summary><h3>FindTypeAll(graphic, container, range, hue, minamount)</h3></summary>
 
-Return a list of items matching the parameters set.  
+ Return a list of items matching the parameters set.  
  Example:  
  ```py
  items = API.FindTypeAll(0x0EED, API.Backpack)
  if items:
    API.SysMsg("Found " + str(len(items)) + " items!")
- ```
+ ```   
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -621,7 +651,14 @@ Return a list of items matching the parameters set.
 <details>
 <summary><h3>FindLayer(layer, serial)</h3></summary>
 
-Attempt to find an item on a layer
+ Attempt to find an item on a layer.  
+ Example:  
+ ```py
+ item = API.FindLayer("Helmet")
+ if item:
+   API.SysMsg("Wearing a helmet!")
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -638,7 +675,17 @@ Attempt to find an item on a layer
 <details>
 <summary><h3>ItemsInContainer(container)</h3></summary>
 
-Get all items in a container
+ Get all items in a container.  
+ Example:  
+ ```py
+ items = API.ItemsInContainer(API.Backpack)
+ if items:
+   API.SysMsg("Found " + str(len(items)) + " items!")
+   for item in items:
+     API.SysMsg(item.Name)
+     API.Pause(0.5)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -654,7 +701,14 @@ Get all items in a container
 <details>
 <summary><h3>UseType(graphic, hue, container, skipQueue)</h3></summary>
 
-Attempt to use the first item found by graphic(type)
+ Attempt to use the first item found by graphic(type).
+ Example:  
+ ```py
+ API.UseType(0x3434, API.Backpack)
+ API.WaitForTarget()
+ API.Target(API.Player)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -673,7 +727,12 @@ Attempt to use the first item found by graphic(type)
 <details>
 <summary><h3>CreateCooldownBar(seconds, text, hue)</h3></summary>
 
-Create a cooldown bar
+ Create a cooldown bar.  
+ Example:  
+ ```py
+ API.CreateCooldownBar(5, "Healing", 21)
+ ```  
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -691,7 +750,15 @@ Create a cooldown bar
 <details>
 <summary><h3>IgnoreObject(serial)</h3></summary>
 
-Adds an item or mobile to your ignore list.
+ Adds an item or mobile to your ignore list.
+ These are unique lists per script. Ignoring an item in one script, will not affect other running scripts.
+ Example:  
+ ```py
+ for item in ItemsInContainer(API.Backpack):
+   if item.Name == "Dagger":
+   API.IgnoreObject(item)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -707,7 +774,12 @@ Adds an item or mobile to your ignore list.
 <details>
 <summary><h3>ClearIgnoreList()</h3></summary>
 
-Clears the ignore list
+ Clears the ignore list. Allowing functions to see those items again.
+ Example:  
+ ```py
+ API.ClearIgnoreList()
+ ```
+
 
 #### Does not return anything
 
@@ -719,7 +791,13 @@ Clears the ignore list
 <details>
 <summary><h3>OnIgnoreList(serial)</h3></summary>
 
-Check if a serial is on the ignore list
+ Check if a serial is on the ignore list.  
+ Example:  
+ ```py
+ if API.OnIgnoreList(API.Backpack):
+   API.SysMsg("Currently ignoring backpack")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -735,7 +813,12 @@ Check if a serial is on the ignore list
 <details>
 <summary><h3>Pathfind(x, y, z, distance)</h3></summary>
 
-Attempt to pathfind to a location
+ Attempt to pathfind to a location.  This will fail with large distances.  
+ Example:
+ ```py
+ API.Pathfind(1414, 1515)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -754,7 +837,14 @@ Attempt to pathfind to a location
 <details>
 <summary><h3>Pathfind(entity, distance)</h3></summary>
 
-Attempt to pathfind to a mobile or item
+ Attempt to pathfind to a mobile or item.  
+ Example:
+ ```py
+ mob = API.NearestMobile([API.Notoriety.Gray, API.Notoriety.Criminal], 7)
+ if mob:
+   API.Pathfind(mob)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -771,7 +861,14 @@ Attempt to pathfind to a mobile or item
 <details>
 <summary><h3>Pathfinding()</h3></summary>
 
-Check if you are already pathfinding.
+ Check if you are already pathfinding.
+ Example:  
+ ```py
+ if API.Pathfinding():
+   API.SysMsg("Pathfinding...!")
+   API.Pause(0.25)
+ ```
+
 
 #### Return Type: *bool*
 
@@ -783,7 +880,13 @@ Check if you are already pathfinding.
 <details>
 <summary><h3>CancelPathfinding()</h3></summary>
 
-Cancel pathfinding.
+ Cancel pathfinding.
+ Example:  
+ ```py
+ if API.Pathfinding():
+   API.CancelPathfinding()
+ ```
+
 
 #### Does not return anything
 
@@ -795,7 +898,14 @@ Cancel pathfinding.
 <details>
 <summary><h3>AutoFollow(mobile)</h3></summary>
 
-Automatically follow a mobile
+ Automatically follow a mobile. This is different than pathfinding. This will continune to follow the mobile.
+ Example:
+ ```py
+ mob = API.NearestMobile([API.Notoriety.Gray, API.Notoriety.Criminal], 7)
+ if mob:
+   API.AutoFollow(mob)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -811,7 +921,13 @@ Automatically follow a mobile
 <details>
 <summary><h3>CancelAutoFollow()</h3></summary>
 
-Cancel auto follow mode
+ Cancel auto follow mode.
+ Example:
+ ```py
+ if API.Pathfinding():
+   API.CancelAutoFollow()
+ ```
+
 
 #### Does not return anything
 
@@ -823,7 +939,12 @@ Cancel auto follow mode
 <details>
 <summary><h3>Run(direction)</h3></summary>
 
-Run in a direction
+ Run in a direction.  
+ Example:  
+ ```py
+ API.Run("north")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -839,7 +960,12 @@ Run in a direction
 <details>
 <summary><h3>Walk(direction)</h3></summary>
 
-Walk in a direction
+ Walk in a direction.  
+ Example:  
+ ```py
+ API.Walk("north")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -855,7 +981,12 @@ Walk in a direction
 <details>
 <summary><h3>Turn(direction)</h3></summary>
 
-Turn your character a specific direction
+ Turn your character a specific direction.  
+ Example:  
+ ```py
+ API.Turn("north")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -871,7 +1002,12 @@ Turn your character a specific direction
 <details>
 <summary><h3>Rename(serial, name)</h3></summary>
 
-Attempt to rename something like a pet
+ Attempt to rename something like a pet.  
+ Example:  
+ ```py
+ API.Rename(0x12345678, "My Handsome Pet")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -888,9 +1024,16 @@ Attempt to rename something like a pet
 <details>
 <summary><h3>Dismount()</h3></summary>
 
-Attempt to dismount if mounted
+ Attempt to dismount if mounted.  
+ Example:  
+ ```py
+ mount = API.Dismount()
+ if mount:
+   API.useObject(mount)
+ ```
 
-#### Return Type: *uint*
+
+#### Return Type: *Item*
 
 </details>
 
@@ -900,7 +1043,12 @@ Attempt to dismount if mounted
 <details>
 <summary><h3>Mount(serial)</h3></summary>
 
-Attempt to mount(double click)
+ Attempt to mount(double click)  
+ Example:  
+ ```py
+ API.Mount(0x12345678)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -916,13 +1064,18 @@ Attempt to mount(double click)
 <details>
 <summary><h3>WaitForTarget(targetType, timeout)</h3></summary>
 
-Wait for a target cursor
+ Wait for a target cursor.  
+ Example:  
+ ```py
+ API.WaitForTarget()
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
 | targetType | string | Yes | Neutral/Harmful/Beneficial |
-| timeout | double | Yes | Duration in seconds to wait |
+| timeout | double | Yes | Max duration in seconds to wait |
 #### Return Type: *bool*
 
 </details>
@@ -933,7 +1086,13 @@ Wait for a target cursor
 <details>
 <summary><h3>Target(serial)</h3></summary>
 
-Target an item or mobile
+ Target an item or mobile.  
+ Example:  
+ ```py
+ if API.WaitForTarget():
+   API.Target(0x12345678)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -949,7 +1108,13 @@ Target an item or mobile
 <details>
 <summary><h3>Target(x, y, z, graphic)</h3></summary>
 
-Target a location. Include graphic if targeting a static.
+ Target a location. Include graphic if targeting a static.  
+ Example:  
+ ```py
+ if API.WaitForTarget():
+   API.Target(1243, 1337, 0)
+  ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -957,7 +1122,7 @@ Target a location. Include graphic if targeting a static.
 | x | ushort | No |  |
 | y | ushort | No |  |
 | z | short | No |  |
-| graphic | ushort | Yes |  |
+| graphic | ushort | Yes | Graphic of the static to target |
 #### Does not return anything
 
 </details>
@@ -968,12 +1133,19 @@ Target a location. Include graphic if targeting a static.
 <details>
 <summary><h3>RequestTarget(timeout)</h3></summary>
 
-Request the player to target something
+ Request the player to target something.  
+ Example:  
+ ```py
+ target = API.RequestTarget()
+ if target:
+   API.SysMsg("Targeted: " + str(target.Name))
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
-| timeout | double | Yes |  |
+| timeout | double | Yes | Mac duration to wait for them to target something. |
 #### Return Type: *uint*
 
 </details>
@@ -984,7 +1156,12 @@ Request the player to target something
 <details>
 <summary><h3>TargetSelf()</h3></summary>
 
-Target yourself
+ Target yourself.  
+ Example:  
+ ```py
+ API.TargetSelf()
+ ```
+
 
 #### Does not return anything
 
@@ -996,7 +1173,12 @@ Target yourself
 <details>
 <summary><h3>TargetLandRel(xOffset, yOffset)</h3></summary>
 
-Target a land tile
+ Target a land tile relative to your position.  
+ Example:  
+ ```py
+ API.TargetLand(1, 1)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1013,7 +1195,12 @@ Target a land tile
 <details>
 <summary><h3>TargetTileRel(xOffset, yOffset, graphic)</h3></summary>
 
-Target a tile relative to your location
+ Target a tile relative to your location.  
+ Example:  
+ ```py
+ API.TargetTileRel(1, 1)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1031,7 +1218,14 @@ Target a tile relative to your location
 <details>
 <summary><h3>CancelTarget()</h3></summary>
 
-Cancel targeting
+ Cancel targeting.  
+ Example:  
+ ```py
+ if API.WaitForTarget():
+   API.CancelTarget()
+   API.SysMsg("Targeting cancelled, april fools made you target something!")
+ ```
+
 
 #### Does not return anything
 
@@ -1043,7 +1237,12 @@ Cancel targeting
 <details>
 <summary><h3>SetSkillLock(skill, up_down_locked)</h3></summary>
 
-Set a skills lock status
+ Set a skills lock status.  
+ Example:  
+ ```py
+ API.SetSkillLock("Hiding", "locked")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1060,7 +1259,12 @@ Set a skills lock status
 <details>
 <summary><h3>Logout()</h3></summary>
 
-Logout of the game
+ Logout of the game.  
+ Example:  
+ ```py
+ API.Logout()
+ ```
+
 
 #### Does not return anything
 
@@ -1072,7 +1276,17 @@ Logout of the game
 <details>
 <summary><h3>ItemNameAndProps(serial, wait, timeout)</h3></summary>
 
-Gets item name and properties
+ Gets item name and properties.  
+ This returns the name and properties in a single string. You can split it by new line if you want to separate them.  
+ Example:  
+ ```py
+ data = API.ItemNameAndProps(0x12345678, True)
+ if data:
+   API.SysMsg("Item data: " + data)
+   if "An Exotic Fish" in data:
+     API.SysMsg("Found an exotic fish!")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1090,7 +1304,13 @@ Gets item name and properties
 <details>
 <summary><h3>HasGump(ID)</h3></summary>
 
-Check if a player has a server gump
+ Check if a player has a server gump. Leave blank to check if they have any server gump.  
+ Example:  
+ ```py
+ if API.HasGump(0x12345678):
+   API.SysMsg("Found a gump!")
+```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1106,7 +1326,12 @@ Check if a player has a server gump
 <details>
 <summary><h3>ReplyGump(button, gump)</h3></summary>
 
-Reply to a gump
+ Reply to a gump.  
+ Example:  
+ ```py
+ API.ReplyGump(21)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1123,7 +1348,12 @@ Reply to a gump
 <details>
 <summary><h3>CloseGump(ID)</h3></summary>
 
-Close the last gump open, or a specific gump
+ Close the last gump open, or a specific gump.  
+ Example:  
+ ```py
+ API.CloseGump()
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1139,7 +1369,13 @@ Close the last gump open, or a specific gump
 <details>
 <summary><h3>GumpContains(text, ID)</h3></summary>
 
-Check if a gump contains a specific text.
+ Check if a gump contains a specific text.  
+ Example:  
+ ```py
+ if API.GumpContains("Hello"):
+   API.SysMsg("Found the text!")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1156,7 +1392,12 @@ Check if a gump contains a specific text.
 <details>
 <summary><h3>ToggleFly()</h3></summary>
 
-Toggle flying if you are a gargoyle
+ Toggle flying if you are a gargoyle.  
+ Example:  
+ ```py
+ API.ToggleFly()
+ ```
+
 
 #### Does not return anything
 
@@ -1168,7 +1409,13 @@ Toggle flying if you are a gargoyle
 <details>
 <summary><h3>ToggleAbility(ability)</h3></summary>
 
-Toggle an ability
+ Toggle an ability.  
+ Example:
+ ```py
+ if not API.PrimaryAbilityActive():
+   API.ToggleAbility("primary")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1184,7 +1431,13 @@ Toggle an ability
 <details>
 <summary><h3>PrimaryAbilityActive()</h3></summary>
 
-Check if your primary ability is active
+ Check if your primary ability is active.  
+ Example:
+ ```py
+ if API.PrimaryAbilityActive():
+   API.SysMsg("Primary ability is active!")
+ ```
+
 
 #### Return Type: *bool*
 
@@ -1196,7 +1449,13 @@ Check if your primary ability is active
 <details>
 <summary><h3>SecondaryAbilityActive()</h3></summary>
 
-Check if your secondary ability is active
+ Check if your secondary ability is active.  
+ Example:  
+ ```py
+ if API.SecondaryAbilityActive():
+   API.SysMsg("Secondary ability is active!")
+ ```
+
 
 #### Return Type: *bool*
 
@@ -1208,7 +1467,13 @@ Check if your secondary ability is active
 <details>
 <summary><h3>InJournal(msg)</h3></summary>
 
-Check if your journal contains a message
+ Check if your journal contains a message.  
+ Example:  
+ ```py
+ if API.InJournal("You have been slain"):
+   API.SysMsg("You have been slain!")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1224,7 +1489,13 @@ Check if your journal contains a message
 <details>
 <summary><h3>InJournalAny(msgs)</h3></summary>
 
-Check if the journal contains *any* of the strings in this list
+ Check if the journal contains *any* of the strings in this list.  
+ Example:  
+ ```py
+ if API.InJournalAny(["You have been slain", "You are dead"]):
+   API.SysMsg("You have been slain or dead!")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1240,7 +1511,12 @@ Check if the journal contains *any* of the strings in this list
 <details>
 <summary><h3>ClearJournal()</h3></summary>
 
-Clear your journal(This is specific for each script)
+ Clear your journal(This is specific for each script).  
+ Example:  
+ ```py
+ API.ClearJournal()
+ ```
+
 
 #### Does not return anything
 
@@ -1252,7 +1528,12 @@ Clear your journal(This is specific for each script)
 <details>
 <summary><h3>Pause(seconds)</h3></summary>
 
-Pause the script
+ Pause the script.  
+ Example:  
+ ```py
+ API.Pause(5)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1268,7 +1549,12 @@ Pause the script
 <details>
 <summary><h3>Stop()</h3></summary>
 
-Stops the current script
+ Stops the current script.  
+ Example:  
+ ```py
+ API.Stop()
+ ```
+
 
 #### Does not return anything
 
@@ -1280,7 +1566,12 @@ Stops the current script
 <details>
 <summary><h3>ToggleAutoLoot()</h3></summary>
 
-Toggle autolooting on or off
+ Toggle autolooting on or off.  
+ Example:  
+ ```py
+ API.ToggleAutoLoot()
+ ```
+
 
 #### Does not return anything
 
@@ -1292,7 +1583,12 @@ Toggle autolooting on or off
 <details>
 <summary><h3>Virtue(virtue)</h3></summary>
 
-Use a virtue
+ Use a virtue.  
+ Example:
+ ```py
+ API.Virtue("honor")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1308,7 +1604,16 @@ Use a virtue
 <details>
 <summary><h3>NearestEntity(scanType, maxDistance)</h3></summary>
 
-Find the nearest item/mobile based on scan type
+ Find the nearest item/mobile based on scan type.  
+ Example:  
+ ```py
+ item = API.NearestEntity(API.ScanType.Item, 5)
+ if item:
+   API.SysMsg("Found an item!")
+   API.UseObject(item)
+   # You can use API.FindItem or API.FindMobile(item.Serial) to determine if it's an item or mobile
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1325,7 +1630,16 @@ Find the nearest item/mobile based on scan type
 <details>
 <summary><h3>NearestMobile(notoriety, maxDistance)</h3></summary>
 
-Get the nearest mobile by Notoriety
+ Get the nearest mobile by Notoriety.  
+ Example:  
+ ```py
+ mob = API.NearestMobile([API.Notoriety.Murderer, API.Notoriety.Criminal], 7)
+ if mob:
+   API.SysMsg("Found a criminal!")
+   API.Msg("Guards!)
+   API.Attack(mob)
+   ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1342,7 +1656,15 @@ Get the nearest mobile by Notoriety
 <details>
 <summary><h3>NearestCorpse(distance)</h3></summary>
 
-Get the nearest corpse within a distance
+ Get the nearest corpse within a distance.  
+ Example:  
+ ```py
+ corpse = API.NearestCorpse()
+ if corpse:
+   API.SysMsg("Found a corpse!")
+   API.UseObject(corpse)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1358,7 +1680,15 @@ Get the nearest corpse within a distance
 <details>
 <summary><h3>FindMobile(serial)</h3></summary>
 
-Get a mobile from its serial
+ Get a mobile from its serial.  
+ Example:  
+ ```py
+ mob = API.FindMobile(0x12345678)
+ if mob:
+   API.SysMsg("Found the mobile!")
+   API.UseObject(mob)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1374,7 +1704,17 @@ Get a mobile from its serial
 <details>
 <summary><h3>GetAllMobiles()</h3></summary>
 
-Return a list of all mobiles the client is aware of.
+ Return a list of all mobiles the client is aware of.  
+ Example:  
+ ```py
+ mobiles = API.GetAllMobiles()
+ if mobiles:
+   API.SysMsg("Found " + str(len(mobiles)) + " mobiles!")
+   for mob in mobiles:
+     API.SysMsg(mob.Name)
+     API.Pause(0.5)
+ ```
+
 
 #### Return Type: *Mobile[]*
 
@@ -1386,7 +1726,14 @@ Return a list of all mobiles the client is aware of.
 <details>
 <summary><h3>GetTile(x, y)</h3></summary>
 
-Get the tile at a location
+ Get the tile at a location.  
+ Example:  
+ ```py
+ tile = API.GetTile(1414, 1515)
+ if tile:
+   API.SysMsg(f"Found a tile with graphic: {tile.Graphic}")
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1403,13 +1750,24 @@ Get the tile at a location
 <details>
 <summary><h3>CreateGump(acceptMouseInput, canMove)</h3></summary>
 
-Get a blank gump
+ Get a blank gump.  
+ Example:  
+ ```py
+ g = API.CreateGump()
+ g.SetX(100)
+ g.SetY(100)
+ g.SetWidth(200)
+ g.SetHeight(200)
+ g.AddControl(API.CreateGumpLabel("Hello World!"))
+ API.AddGump(g)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
 | acceptMouseInput | bool | Yes | Allow clicking the gump |
-| canMove | bool | Yes | Allow the play to move this gump |
+| canMove | bool | Yes | Allow the player to move this gump |
 #### Return Type: *Gump*
 
 </details>
@@ -1420,7 +1778,18 @@ Get a blank gump
 <details>
 <summary><h3>AddGump(g)</h3></summary>
 
-Add a gump to the players screen
+ Add a gump to the players screen.  
+ Example:  
+ ```py
+ g = API.CreateGump()
+ g.SetX(100)
+ g.SetY(100)
+ g.SetWidth(200)
+ g.SetHeight(200)
+ g.AddControl(API.CreateGumpLabel("Hello World!"))
+ API.AddGump(g)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1436,7 +1805,21 @@ Add a gump to the players screen
 <details>
 <summary><h3>CreateGumpCheckbox(text, hue)</h3></summary>
 
-Create a checkbox for gumps
+ Create a checkbox for gumps.  
+  Example:
+ ```py
+ g = API.CreateGump()
+ g.SetX(100)
+ g.SetY(100)
+ g.SetWidth(200)
+ g.SetHeight(200)
+ cb = API.CreateGumpCheckbox("Check me?!")
+ g.AddControl(cb)
+ API.AddGump(g)
+ 
+ API.SysMsg("Checkbox checked: " + str(cb.IsChecked))
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1453,7 +1836,18 @@ Create a checkbox for gumps
 <details>
 <summary><h3>CreateGumpLabel(text, hue)</h3></summary>
 
-Create a label for a gump
+ Create a label for a gump.  
+ Example:  
+ ```py
+ g = API.CreateGump()
+ g.SetX(100)
+ g.SetY(100)
+ g.SetWidth(200)
+ g.SetHeight(200)
+ g.AddControl(API.CreateGumpLabel("Hello World!"))
+ API.AddGump(g)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1470,7 +1864,21 @@ Create a label for a gump
 <details>
 <summary><h3>CreateGumpColorBox(opacity, color)</h3></summary>
 
-Get a transparent color box for gumps
+ Get a transparent color box for gumps.  
+ Example:  
+ ```py
+ g = API.CreateGump()
+ g.SetX(100)
+ g.SetY(100)
+ g.SetWidth(200)
+ g.SetHeight(200)
+ cb = API.CreateGumpColorBox(0.5, "#000000")
+ cb.SetWidth(200)
+ cb.SetHeight(200)
+ g.AddControl(cb)
+ API.AddGump(g)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1487,7 +1895,18 @@ Get a transparent color box for gumps
 <details>
 <summary><h3>CreateGumpItemPic(graphic, width, height)</h3></summary>
 
-Create a picture of an item
+ Create a picture of an item.  
+ Example:  
+ ```py
+ g = API.CreateGump()
+ g.SetX(100)
+ g.SetY(100)
+ g.SetWidth(200)
+ g.SetHeight(200)
+ g.AddControl(API.CreateGumpItemPic(0x0E78, 50, 50))
+ API.AddGump(g)
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1505,7 +1924,20 @@ Create a picture of an item
 <details>
 <summary><h3>CreateGumpButton(text, hue, normal, pressed, hover)</h3></summary>
 
-Create a button for gumps
+ Create a button for gumps.  
+ Example:  
+ ```py
+ g = API.CreateGump()
+ g.SetX(100)
+ g.SetY(100)
+ g.SetWidth(200)
+ g.SetHeight(200)
+ button = API.CreateGumpButton("Click Me!")
+ g.AddControl(button)
+ API.AddGump(g)
+ API.SysMsg("Button clicked?: " + str(button.IsPressed))
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1525,7 +1957,20 @@ Create a button for gumps
 <details>
 <summary><h3>CreateGumpRadioButton(text, group, inactive, active, hue)</h3></summary>
 
-Create a radio button for gumps, use group numbers to only allow one item to be checked at a time
+ Create a radio button for gumps, use group numbers to only allow one item to be checked at a time.  
+ Example:  
+ ```py
+ g = API.CreateGump()
+ g.SetX(100)
+ g.SetY(100)
+ g.SetWidth(200)
+ g.SetHeight(200)
+ rb = API.CreateGumpRadioButton("Click Me!", 1)
+ g.AddControl(rb)
+ API.AddGump(g)
+ API.SysMsg("Radio button checked?: " + str(rb.IsChecked))
+ ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |
@@ -1545,7 +1990,17 @@ Create a radio button for gumps, use group numbers to only allow one item to be 
 <details>
 <summary><h3>GetSkill(skill)</h3></summary>
 
-Get a skill from the player. See the Skill class for what properties are available: https://github.com/bittiez/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Skill.cs
+ Get a skill from the player. See the Skill class for what properties are available: https://github.com/bittiez/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Skill.cs  
+ Example:  
+ ```py
+ skill = API.GetSkill("Hiding")
+ if skill:
+   API.SysMsg("Skill: " + skill.Name)
+   API.SysMsg("Skill Value: " + str(skill.Value))
+   API.SysMsg("Skill Cap: " + str(skill.Cap))
+   API.SysMsg("Skill Lock: " + str(skill.Lock))
+   ```
+
 
 **Parameters**  
 | Name | Type | Optional | Description |

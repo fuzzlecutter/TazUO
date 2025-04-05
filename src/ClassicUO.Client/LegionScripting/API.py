@@ -19,6 +19,7 @@ class Notoriety:
     Enemy = 1
     Murderer = 1
     Invulnerable = 1
+
 def Attack(serial: int):
     pass
 
@@ -34,7 +35,7 @@ def ClearRightHand():
 def ClickObject(serial: int):
     pass
 
-def UseObject(serial: int, skipQueue: bool):
+def UseObject(serial: int, skipQueue: bool = True):
     pass
 
 def Contents(serial: int):
@@ -46,10 +47,10 @@ def ContextMenu(serial: int, entry: int):
 def EquipItem(serial: int):
     pass
 
-def MoveItem(serial: int, destination: int, amt: int, x: int, y: int):
+def MoveItem(serial: int, destination: int, amt: int = 0, x: int = 0xFFFF, y: int = 0xFFFF):
     pass
 
-def MoveItemOffset(serial: int, amt: int, x: int, y: int, z: int):
+def MoveItemOffset(serial: int, amt: int = 0, x: int = 0, y: int = 0, z: int = 0):
     pass
 
 def UseSkill(skillName: str):
@@ -61,7 +62,7 @@ def CastSpell(spellName: str):
 def BuffExists(buffName: str):
     pass
 
-def SysMsg(message: str, hue: int):
+def SysMsg(message: str, hue: int = 946):
     pass
 
 def Msg(message: str):
@@ -91,19 +92,19 @@ def EmoteMsg(message: str):
 def FindItem(serial: int):
     pass
 
-def FindType(graphic: int, container: int, range: int, hue: int, minamount: int):
+def FindType(graphic: int, container: int = 1337, range: int = 1337, hue: int = 1337, minamount: int = 0):
     pass
 
-def FindTypeAll(graphic: int, container: int, range: int, hue: int, minamount: int):
+def FindTypeAll(graphic: int, container: int = 1337, range: int = 1337, hue: int = 1337, minamount: int = 0):
     pass
 
-def FindLayer(layer: str, serial: int):
+def FindLayer(layer: str, serial: int = 1337):
     pass
 
 def ItemsInContainer(container: int):
     pass
 
-def UseType(graphic: int, hue: int, container: int, skipQueue: bool):
+def UseType(graphic: int, hue: int = 1337, container: int = 1337, skipQueue: bool = True):
     pass
 
 def CreateCooldownBar(seconds: float, text: str, hue: int):
@@ -118,10 +119,10 @@ def ClearIgnoreList():
 def OnIgnoreList(serial: int):
     pass
 
-def Pathfind(x: int, y: int, z: int, distance: int):
+def Pathfind(x: int, y: int, z: int = 1337, distance: int = 0):
     pass
 
-def Pathfind(entity: int, distance: int):
+def Pathfind(entity: int, distance: int = 0):
     pass
 
 def Pathfinding():
@@ -154,16 +155,16 @@ def Dismount():
 def Mount(serial: int):
     pass
 
-def WaitForTarget(targetType: str, timeout: float):
+def WaitForTarget(targetType: str = "Neutral", timeout: float = 5):
     pass
 
 def Target(serial: int):
     pass
 
-def Target(x: int, y: int, z: Any, graphic: int):
+def Target(x: int, y: int, z: int, graphic: int = 1337):
     pass
 
-def RequestTarget(timeout: float):
+def RequestTarget(timeout: float = 5):
     pass
 
 def TargetSelf():
@@ -172,7 +173,7 @@ def TargetSelf():
 def TargetLandRel(xOffset: int, yOffset: int):
     pass
 
-def TargetTileRel(xOffset: int, yOffset: int, graphic: int):
+def TargetTileRel(xOffset: int, yOffset: int, graphic: int = 1337):
     pass
 
 def CancelTarget():
@@ -184,19 +185,19 @@ def SetSkillLock(skill: str, up_down_locked: str):
 def Logout():
     pass
 
-def ItemNameAndProps(serial: int, wait: bool, timeout: int):
+def ItemNameAndProps(serial: int, wait: bool = False, timeout: int = 10):
     pass
 
-def HasGump(ID: int):
+def HasGump(ID: int = 1337):
     pass
 
-def ReplyGump(button: int, gump: int):
+def ReplyGump(button: int, gump: int = 1337):
     pass
 
-def CloseGump(ID: int):
+def CloseGump(ID: int = 1337):
     pass
 
-def GumpContains(text: str, ID: int):
+def GumpContains(text: str, ID: int = 1337):
     pass
 
 def ToggleFly():
@@ -214,7 +215,7 @@ def SecondaryAbilityActive():
 def InJournal(msg: str):
     pass
 
-def InJournalAny(msgs: Any):
+def InJournalAny(msgs: list[str]):
     pass
 
 def ClearJournal():
@@ -232,13 +233,13 @@ def ToggleAutoLoot():
 def Virtue(virtue: str):
     pass
 
-def NearestEntity(scanType: Any, maxDistance: int):
+def NearestEntity(scanType: Any, maxDistance: int = 10):
     pass
 
-def NearestMobile(notoriety: Any, maxDistance: int):
+def NearestMobile(notoriety: list[Any], maxDistance: int = 10):
     pass
 
-def NearestCorpse(distance: int):
+def NearestCorpse(distance: int = 3):
     pass
 
 def FindMobile(serial: int):
@@ -250,28 +251,28 @@ def GetAllMobiles():
 def GetTile(x: int, y: int):
     pass
 
-def CreateGump(acceptMouseInput: bool, canMove: bool):
+def CreateGump(acceptMouseInput: bool = True, canMove: bool = True):
     pass
 
 def AddGump(g: Any):
     pass
 
-def CreateGumpCheckbox(text: str, hue: int):
+def CreateGumpCheckbox(text: str = "", hue: int = 0):
     pass
 
-def CreateGumpLabel(text: str, hue: int):
+def CreateGumpLabel(text: str, hue: int = 996):
     pass
 
-def CreateGumpColorBox(opacity: float, color: str):
+def CreateGumpColorBox(opacity: float = 0.7, color: str = "#000000"):
     pass
 
 def CreateGumpItemPic(graphic: int, width: int, height: int):
     pass
 
-def CreateGumpButton(text: str, hue: int, normal: int, pressed: int, hover: int):
+def CreateGumpButton(text: str = "", hue: int = 996, normal: int = 0x00EF, pressed: int = 0x00F0, hover: int = 0x00EE):
     pass
 
-def CreateGumpRadioButton(text: str, group: int, inactive: int, active: int, hue: int):
+def CreateGumpRadioButton(text: str = "", group: int = 0, inactive: int = 0x00D0, active: int = 0x00D1, hue: int = 0xFFFF):
     pass
 
 def GetSkill(skill: str):
