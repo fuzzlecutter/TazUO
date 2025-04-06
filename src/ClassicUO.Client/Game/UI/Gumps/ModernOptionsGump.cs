@@ -4638,7 +4638,7 @@ namespace ClassicUO.Game.UI.Gumps
                                 if (Hue != _selectedHue)
                                 {
                                     Hue = _selectedHue;
-                                    _label.Fontcolor = Hue;
+                                    _label.FontColor = Hue;
                                 }
                             }
                             else if (MouseIsOver || ForceHover)
@@ -4646,13 +4646,13 @@ namespace ClassicUO.Game.UI.Gumps
                                 if (Hue != _overHue)
                                 {
                                     Hue = _overHue;
-                                    _label.Fontcolor = Hue;
+                                    _label.FontColor = Hue;
                                 }
                             }
                             else if (Hue != _normalHue)
                             {
                                 Hue = _normalHue;
-                                _label.Fontcolor = Hue;
+                                _label.FontColor = Hue;
                             }
                             base.Update();
                         }
