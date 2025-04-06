@@ -474,14 +474,22 @@ namespace ClassicUO.Game.UI.Gumps.Login
 
             TextBox _;
             HitBox _hit;
-            Add(_ = new TextBox("TazUO Wiki", TrueTypeLoader.EMBEDDED_FONT, 15, 200, Color.Orange, strokeEffect: false) { X = 30, Y = 420, AcceptMouseInput = true });
+            var options = TextBox.RTLOptions.Default();
+            options.Width = 200;
+            Add(_ = TextBox.GetOne("TazUO Wiki", TrueTypeLoader.EMBEDDED_FONT, 15, Color.Orange, options));
+            _.X = 30;
+            _.Y = 420;
+            _.AcceptMouseInput = true;
             Add(_hit = new HitBox(_.X, _.Y, _.MeasuredSize.X, _.MeasuredSize.Y));
             _hit.MouseUp += (s, e) =>
             {
                 Utility.Platforms.PlatformHelper.LaunchBrowser("https://github.com/bittiez/TazUO/wiki");
             };
 
-            Add(_ = new TextBox("TazUO Discord", TrueTypeLoader.EMBEDDED_FONT, 15, 200, Color.Orange, strokeEffect: false) { X = 30, Y = 440, AcceptMouseInput = true });
+            Add(_ = TextBox.GetOne("TazUO Discord", TrueTypeLoader.EMBEDDED_FONT, 15, Color.Orange, options));
+            _.X = 30;
+            _.Y = 440;
+            _.AcceptMouseInput = true;
             Add(_hit = new HitBox(_.X, _.Y, _.MeasuredSize.X, _.MeasuredSize.Y));
             _hit.MouseUp += (s, e) =>
             {
@@ -546,33 +554,6 @@ namespace ClassicUO.Game.UI.Gumps.Login
             {
                 _textboxAccount.SetKeyboardFocus();
             }
-
-            _ = new TextBox("A new version of TazUO is available!\n Click to open the download page.", TrueTypeLoader.EMBEDDED_FONT, 20, 300, Color.Yellow, strokeEffect: false) { X = 10, Y = 10, AcceptMouseInput = false };
-            Add(_hit = new HitBox(_.X, _.Y, _.MeasuredSize.X, _.MeasuredSize.Y));
-            _hit.MouseUp += (s, e) =>
-            {
-                Utility.Platforms.PlatformHelper.LaunchBrowser("https://github.com/bittiez/TazUO/releases/latest");
-            };
-            _hit.Add(new AlphaBlendControl() { Width = _hit.Width, Height = _hit.Height });
-            Add(_);
-            if (!UpdateManager.HasUpdate)
-            {
-                _.IsVisible = false;
-                _hit.IsVisible = false;
-            }
-
-            if (!UpdateManager.SkipUpdateCheck)
-            {
-                UpdateManager.UpdateStatusChanged += (s, e) =>
-                {
-                    if (UpdateManager.HasUpdate)
-                    {
-                        _.IsVisible = true;
-                        _hit.IsVisible = true;
-                    }
-                };
-            }
-
         }
 
         protected override void OnControllerButtonUp(SDL.SDL_GameControllerButton button)

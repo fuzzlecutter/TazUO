@@ -41,16 +41,12 @@ namespace ClassicUO.Game.UI.Gumps
             hoverReference = null;
         }
 
+        private static TextBox.RTLOptions ToolTipOptions => new TextBox.RTLOptions() { Align = ProfileManager.CurrentProfile.LeftAlignToolTips ? FontStashSharp.RichText.TextHorizontalAlignment.Left : FontStashSharp.RichText.TextHorizontalAlignment.Center };
+
         private void BuildGump()
         {
-            text = new TextBox(
-                "Loading item data...",
-                ProfileManager.CurrentProfile.SelectedToolTipFont,
-                ProfileManager.CurrentProfile.SelectedToolTipFontSize,
-                150,
-                (int)hue,
-                align: ProfileManager.CurrentProfile.LeftAlignToolTips ? FontStashSharp.RichText.TextHorizontalAlignment.Left : FontStashSharp.RichText.TextHorizontalAlignment.Center
-                );
+            text = TextBox.GetOne("Loading item data...", ProfileManager.CurrentProfile.SelectedToolTipFont, ProfileManager.CurrentProfile.SelectedToolTipFontSize, (int)hue, ToolTipOptions);
+            text.Width = 150;
 
             Height = text.Height;
             Width = text.Width;
@@ -81,14 +77,14 @@ namespace ClassicUO.Game.UI.Gumps
                     }
 
                     text?.Dispose();
-                    text = new TextBox(
+                    text = TextBox.GetOne(
                         TextBox.ConvertHtmlToFontStashSharpCommand(finalString).Trim(),
                         ProfileManager.CurrentProfile.SelectedToolTipFont,
                         ProfileManager.CurrentProfile.SelectedToolTipFontSize,
-                        600,
                         (int)hue,
-                        align: ProfileManager.CurrentProfile.LeftAlignToolTips ? FontStashSharp.RichText.TextHorizontalAlignment.Left : FontStashSharp.RichText.TextHorizontalAlignment.Center
+                        ToolTipOptions
                         );
+                    text.Width = 600;
 
                     if (text.MeasuredSize.X + 10 < 600)
                         text.Width = text.MeasuredSize.X + 10;

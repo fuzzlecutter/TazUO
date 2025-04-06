@@ -77,10 +77,14 @@ namespace ClassicUO.Game.UI.Gumps
 
             Add(new ColorBox(Width, 40, Theme.SEARCH_BACKGROUND) { AcceptMouseInput = true, CanMove = true, Alpha = 0.85f });
 
-            Add(new TextBox(lang.OptionsTitle, Theme.FONT, 30, null, Color.White, strokeEffect: false) { X = 10, Y = 7, AcceptMouseInput = false });
+            TextBox tempTextBox = TextBox.GetOne(lang.OptionsTitle, Theme.FONT, 30, Color.White, TextBox.RTLOptions.Default());
+            tempTextBox.X = 10;
+            tempTextBox.Y = 7;
+            Add(tempTextBox);
 
-            Control c;
-            Add(c = new TextBox(lang.Search, Theme.FONT, 30, null, Color.White, strokeEffect: false) { Y = 7, AcceptMouseInput = false });
+            Control c = TextBox.GetOne(lang.Search, Theme.FONT, 30, Color.White, TextBox.RTLOptions.Default());
+            c.Y = 7;
+            Add(c);
 
             InputField search;
             Add(search = new InputField(400, 30) { X = Width - 405, Y = 5 });
@@ -912,9 +916,9 @@ namespace ClassicUO.Game.UI.Gumps
                 content.ForceSizeUpdate();
             };
             content.BlankLine();
-            content.AddToLeftText(new TextBox(lang.GetInfoBars.Label, Theme.FONT, Theme.STANDARD_TEXT_SIZE, 100, Theme.TEXT_FONT_COLOR, FontStashSharp.RichText.TextHorizontalAlignment.Center, false), 0, 135);
-            content.AddToLeftText(new TextBox(lang.GetInfoBars.Color, Theme.FONT, Theme.STANDARD_TEXT_SIZE, 100, Theme.TEXT_FONT_COLOR, FontStashSharp.RichText.TextHorizontalAlignment.Center, false), 120, 135);
-            content.AddToLeftText(new TextBox(lang.GetInfoBars.Data, Theme.FONT, Theme.STANDARD_TEXT_SIZE, 100, Theme.TEXT_FONT_COLOR, FontStashSharp.RichText.TextHorizontalAlignment.Center, false), 180, 135);
+            content.AddToLeftText(TextBox.GetOne(lang.GetInfoBars.Label, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.DefaultCentered(100).MouseInput()), 0, 135);
+            content.AddToLeftText(TextBox.GetOne(lang.GetInfoBars.Color, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.DefaultCentered(100).MouseInput()), 120, 135);
+            content.AddToLeftText(TextBox.GetOne(lang.GetInfoBars.Data, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.DefaultCentered(100).MouseInput()), 180, 135);
             content.AddToLine(new Line(0, 10, content.LeftWidth, 1, Color.Gray.PackedValue), 0, 160);
             content.BlankLine();
             InfoBarManager ibmanager = Client.Game.GetScene<GameScene>().InfoBars;
@@ -2641,14 +2645,12 @@ namespace ClassicUO.Game.UI.Gumps
                 }
             }
 
-            content.AddToRight(new TextBox(
+            content.AddToRight(TextBox.GetOne(
                 string.Format(lang.GetTazUO.SettingsWarning, locations.Count),
                 Theme.FONT,
                 Theme.STANDARD_TEXT_SIZE,
-                content.RightWidth - 20,
                 Theme.TEXT_FONT_COLOR,
-                FontStashSharp.RichText.TextHorizontalAlignment.Center,
-                false), true, page);
+                TextBox.RTLOptions.DefaultCentered(content.RightWidth - 20)), true, page);
 
             content.AddToRight(c = new ModernButton(0, 0, content.RightWidth - 20, 40, ButtonAction.Activate, string.Format(lang.GetTazUO.OverrideAll, locations.Count - 1), Theme.BUTTON_FONT_COLOR) { IsSelectable = true, IsSelected = true }, true, page);
             c.MouseUp += (s, e) =>
@@ -2689,7 +2691,12 @@ namespace ClassicUO.Game.UI.Gumps
             content.AddToRight(new HttpClickableLink("Scaling Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Global-Scaling", Theme.TEXT_FONT_COLOR), true, page);
             content.BlankLine();
 
-            content.AddToRight(new TextBox(lang.GetTazUO.ScalingInfo, Theme.FONT, Theme.STANDARD_TEXT_SIZE, content.RightWidth - 20, Theme.TEXT_FONT_COLOR, FontStashSharp.RichText.TextHorizontalAlignment.Center, false), true, page);
+            content.AddToRight(TextBox.GetOne(
+                            lang.GetTazUO.ScalingInfo,
+                            Theme.FONT,
+                            Theme.STANDARD_TEXT_SIZE,
+                            Theme.TEXT_FONT_COLOR,
+                            TextBox.RTLOptions.DefaultCentered(content.RightWidth - 20)), true, page);
 
             content.BlankLine();
 
@@ -2725,7 +2732,12 @@ namespace ClassicUO.Game.UI.Gumps
             page = ((int)PAGE.TUOOptions + 1011);
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.VisibleLayers, page, content.LeftWidth));
             content.ResetRightSide();
-            content.AddToRight(new TextBox(lang.GetTazUO.VisLayersInfo, Theme.FONT, Theme.STANDARD_TEXT_SIZE, content.RightWidth - 20, Theme.TEXT_FONT_COLOR, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { AcceptMouseInput = false }, true, page);
+            content.AddToRight(TextBox.GetOne(
+                lang.GetTazUO.VisLayersInfo,
+                Theme.FONT,
+                Theme.STANDARD_TEXT_SIZE,
+                Theme.TEXT_FONT_COLOR,
+                TextBox.RTLOptions.DefaultCentered(content.RightWidth - 20)), true, page);
             content.BlankLine();
             content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.OnlyForYourself, 0, profile.HideLayersForSelf, (b) =>
             {
@@ -2814,7 +2826,12 @@ namespace ClassicUO.Game.UI.Gumps
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.Hotkeys, page, content.LeftWidth));
             content.ResetRightSide();
 
-            content.AddToRight(new TextBox("These are not configurable here, this is a list of hotkeys built into the client.\nThere may be missing hotkeys, please report them on our Discord.", Theme.FONT, Theme.STANDARD_TEXT_SIZE, content.RightWidth - 15, Theme.TEXT_FONT_COLOR, strokeEffect: false), true, page);
+            content.AddToRight(TextBox.GetOne(
+                "These are not configurable here, this is a list of hotkeys built into the client.\nThere may be missing hotkeys, please report them on our Discord.",
+                Theme.FONT,
+                Theme.STANDARD_TEXT_SIZE,
+                Theme.TEXT_FONT_COLOR,
+                TextBox.RTLOptions.Default(content.RightWidth - 15)), true, page);
             content.BlankLine();
 
             int ewidth = content.RightWidth - 15;
@@ -2999,7 +3016,7 @@ namespace ClassicUO.Game.UI.Gumps
             main.Add(_delete);
 
 
-            TextBox _hueLabel = new TextBox("Hue:", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.BUTTON_FONT_COLOR, strokeEffect: false);
+            TextBox _hueLabel = TextBox.GetOne("Hue:", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.BUTTON_FONT_COLOR, TextBox.RTLOptions.Default());
             _hueLabel.X = _delete.X + _delete.Width + 5;
             _hueLabel.Y = 10;
             main.Add(_hueLabel);
@@ -3007,12 +3024,10 @@ namespace ClassicUO.Game.UI.Gumps
             ModernColorPickerWithLabel _hueSelector = new ModernColorPickerWithLabel(string.Empty, data.hue) { X = _hueLabel.X + _hueLabel.Width + 5, Y = 10 };
             main.Add(_hueSelector);
 
-
             InputField _name = new InputField(140, 40, text: data.label) { X = _hueSelector.X + _hueSelector.Width + 10, Y = 1 };
             main.Add(_name);
 
-
-            TextBox _cooldownLabel = new TextBox("Cooldown:", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.BUTTON_FONT_COLOR, strokeEffect: false);
+            TextBox _cooldownLabel = TextBox.GetOne("Cooldown:", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.BUTTON_FONT_COLOR, TextBox.RTLOptions.Default());
             _cooldownLabel.X = _name.X + _name.Width + 10;
             _cooldownLabel.Y = 10;
             main.Add(_cooldownLabel);
@@ -3064,9 +3079,9 @@ namespace ClassicUO.Game.UI.Gumps
         public Control GenHotKeyDisplay(string text, string hotkey, int width, bool enabled = true)
         {
             Area d = new Area(false);
-            d.Add(new TextBox(text, Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false));
+            d.Add(TextBox.GetOne(text, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default()));
 
-            var hk = new TextBox(hotkey, Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false);
+            var hk = TextBox.GetOne(hotkey, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default());
             hk.X = width - hk.MeasuredSize.X;
 
             d.Add(new AlphaBlendControl() { Width = hk.MeasuredSize.X, Height = hk.MeasuredSize.Y, X = width - hk.MeasuredSize.X });
@@ -3388,9 +3403,13 @@ namespace ClassicUO.Game.UI.Gumps
                 };
 
                 Area titles = new Area(false);
-                titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 0 });
-                titles.Add(new TextBox("New Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 5) / 3) + 5 });
-                titles.Add(new TextBox("New Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = (((width - 90 - 5) / 3) * 2) + 10 });
+
+                Control c;
+                titles.Add(TextBox.GetOne("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default()));
+                titles.Add(c = TextBox.GetOne("New Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default()));
+                c.X = ((width - 90 - 5) / 3) + 5;
+                titles.Add(c = TextBox.GetOne("New Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default()));
+                c.X = (((width - 90 - 5) / 3) * 2) + 10;
                 titles.ForceSizeUpdate();
                 _dataBox.Add(titles);
 
@@ -3519,9 +3538,19 @@ namespace ClassicUO.Game.UI.Gumps
                 };
 
                 Area titles = new Area(false);
-                titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 50 });
-                titles.Add(new TextBox("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 60) / 3) + 55 });
-                titles.Add(new TextBox("Max Amount", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = (((width - 90 - 60) / 3) * 2) + 60 });
+
+                TextBox tempTextBox1 = TextBox.GetOne("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(null));
+                tempTextBox1.X = 50;
+                titles.Add(tempTextBox1);
+
+                tempTextBox1 = TextBox.GetOne("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(null));
+                tempTextBox1.X = ((width - 90 - 60) / 3) + 55;
+                titles.Add(tempTextBox1);
+
+                tempTextBox1 = TextBox.GetOne("Max Amount", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(null));
+                tempTextBox1.X = (((width - 90 - 60) / 3) * 2) + 60;
+                titles.Add(tempTextBox1);
+
                 titles.ForceSizeUpdate();
                 _dataBox.Add(titles);
 
@@ -3663,9 +3692,19 @@ namespace ClassicUO.Game.UI.Gumps
                 };
 
                 Area titles = new Area(false);
-                titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 50 });
-                titles.Add(new TextBox("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 60) / 3) + 55 });
-                titles.Add(new TextBox("Max Amount", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = (((width - 90 - 60) / 3) * 2) + 60 });
+
+                TextBox tempTextBox1 = TextBox.GetOne("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default());
+                tempTextBox1.X = 50;
+                titles.Add(tempTextBox1);
+
+                tempTextBox1 = TextBox.GetOne("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default());
+                tempTextBox1.X = ((width - 90 - 60) / 3) + 55;
+                titles.Add(tempTextBox1);
+
+                tempTextBox1 = TextBox.GetOne("Max Amount", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default());
+                tempTextBox1.X = (((width - 90 - 60) / 3) * 2) + 60;
+                titles.Add(tempTextBox1);
+
                 titles.ForceSizeUpdate();
                 _dataBox.Add(titles);
 
@@ -3810,8 +3849,14 @@ namespace ClassicUO.Game.UI.Gumps
                 };
 
                 Area titles = new Area(false);
-                titles.Add(new TextBox("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = 55 });
-                titles.Add(new TextBox("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = ((width - 90 - 50) >> 1) + 60 });
+                TextBox tempTextBox1 = TextBox.GetOne("Graphic", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default());
+                tempTextBox1.X = 55;
+                titles.Add(tempTextBox1);
+
+                tempTextBox1 = TextBox.GetOne("Hue", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default());
+                tempTextBox1.X = ((width - 90 - 50) >> 1) + 60;
+                titles.Add(tempTextBox1);
+
                 titles.ForceSizeUpdate();
                 _dataBox.Add(titles);
 
@@ -3918,7 +3963,9 @@ namespace ClassicUO.Game.UI.Gumps
 
                 Add(_colorPicker = new ModernColorPicker.HueDisplay(hue, hueSelected, true));
 
-                Add(_label = new TextBox(text, Theme.FONT, Theme.STANDARD_TEXT_SIZE, maxWidth > 0 ? maxWidth : null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = _colorPicker.Width + 5 });
+                _label = TextBox.GetOne(text, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(maxWidth > 0 ? maxWidth : null));
+                _label.X = _colorPicker.Width + 5;
+                Add(_label);
 
                 Width = _label.Width + _colorPicker.Width + 5;
                 Height = Math.Max(_colorPicker.Height, _label.MeasuredSize.Y);
@@ -3977,7 +4024,8 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 _isChecked = isChecked;
                 ValueChanged = valueChanged;
-                _text = new TextBox(text, Theme.FONT, Theme.STANDARD_TEXT_SIZE, maxWidth == 0 ? null : maxWidth, Theme.TEXT_FONT_COLOR, strokeEffect: false) { X = Theme.CHECKBOX_SIZE + 5, AcceptMouseInput = false };
+                _text = TextBox.GetOne(text, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(maxWidth == 0 ? null : maxWidth));
+                _text.X = Theme.CHECKBOX_SIZE + 5;
 
                 Width = Theme.CHECKBOX_SIZE + 5 + _text.Width;
                 Height = Math.Max(Theme.CHECKBOX_SIZE, _text.MeasuredSize.Y);
@@ -4097,7 +4145,9 @@ namespace ClassicUO.Game.UI.Gumps
                 AcceptMouseInput = true;
                 CanMove = true;
 
-                Add(_label = new TextBox(label, Theme.FONT, Theme.STANDARD_TEXT_SIZE, textWidth > 0 ? textWidth : null, Theme.TEXT_FONT_COLOR, strokeEffect: false));
+                _label = TextBox.GetOne(label, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(textWidth > 0 ? textWidth : null));
+                Add(_label);
+
                 Add(_slider = new Slider(barWidth, min, max, value, valueChanged) { X = _label.X + _label.Width + 5 });
 
                 Width = textWidth + barWidth + 5;
@@ -4153,7 +4203,7 @@ namespace ClassicUO.Game.UI.Gumps
                     Action<int> valueChanged = null
                 )
                 {
-                    _text = new TextBox(string.Empty, Theme.FONT, Theme.STANDARD_TEXT_SIZE, barWidth, Theme.TEXT_FONT_COLOR, strokeEffect: false);
+                    _text = TextBox.GetOne(string.Empty, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(barWidth));
 
                     MinValue = min;
                     MaxValue = max;
@@ -4360,7 +4410,8 @@ namespace ClassicUO.Game.UI.Gumps
                 AcceptMouseInput = true;
                 CanMove = true;
 
-                Add(_label = new TextBox(label, Theme.FONT, Theme.STANDARD_TEXT_SIZE, labelWidth > 0 ? labelWidth : null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { AcceptMouseInput = false });
+                _label = TextBox.GetOne(label, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(labelWidth > 0 ? labelWidth : null));
+                Add(_label);
                 Add(_comboBox = new Combobox(comboWidth, options, selectedIndex, onOptionSelected: onOptionSelected) { X = _label.MeasuredSize.X + _label.X + 5 });
 
                 Width = labelWidth + comboWidth + 5;
@@ -4443,14 +4494,10 @@ namespace ClassicUO.Game.UI.Gumps
 
                     Add(new ColorBox(Width, Height, Theme.SEARCH_BACKGROUND));
 
-                    Add
-                    (
-                        _label = new TextBox(initialText, Theme.FONT, Theme.STANDARD_TEXT_SIZE, width, Theme.TEXT_FONT_COLOR, strokeEffect: false)
-                        {
-                            X = 2
-                        }
-                    );
+                    _label = TextBox.GetOne(initialText, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(width));
+                    _label.X = 2;
                     _label.Y = (Height >> 1) - (_label.Height >> 1);
+                    Add(_label);
                 }
 
                 public int SelectedIndex
@@ -4619,7 +4666,7 @@ namespace ClassicUO.Game.UI.Gumps
                             _selectedHue = selectedHue;
                             AcceptMouseInput = true;
 
-                            _label = new TextBox(text, Theme.FONT, Theme.STANDARD_TEXT_SIZE, maxwidth > 0 ? maxwidth : null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { AcceptMouseInput = true };
+                            _label = TextBox.GetOne(text, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(maxwidth > 0 ? maxwidth : null).MouseInput());
                             Height = _label.MeasuredSize.Y;
                             Width = Math.Max(_label.MeasuredSize.X, maxwidth);
 
@@ -4696,7 +4743,8 @@ namespace ClassicUO.Game.UI.Gumps
                 AcceptMouseInput = true;
                 CanMove = true;
 
-                Add(_label = new TextBox(label, Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { AcceptMouseInput = false });
+                _label = TextBox.GetOne(label, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default());
+                Add(_label);
 
                 Add(_inputField = new InputField(inputWidth, 40, 0, -1, inputText, numbersonly, onTextChange) { X = _label.Width + _label.X + 5 });
 
@@ -4858,8 +4906,8 @@ namespace ClassicUO.Game.UI.Gumps
                     Stb = new TextEdit(this);
                     Stb.SingleLine = true;
 
-                    _rendererText = new TextBox(string.Empty, Theme.FONT, FONT_SIZE, maxWidth > 0 ? maxWidth : null, Theme.TEXT_FONT_COLOR, strokeEffect: false, supportsCommands: false, ignoreColorCommands: true, calculateGlyphs: true);
-                    _rendererCaret = new TextBox("_", Theme.FONT, FONT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false, supportsCommands: false, ignoreColorCommands: true);
+                    _rendererText = TextBox.GetOne(string.Empty, Theme.FONT, FONT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(maxWidth > 0 ? maxWidth : null).MouseInput().EnableGlyphCalculation());
+                    _rendererCaret = TextBox.GetOne("_", Theme.FONT, FONT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default().MouseInput().EnableGlyphCalculation());
 
                     Height = _rendererCaret.Height;
                     LoseFocusOnEscapeKey = true;
@@ -6016,10 +6064,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 _action = action;
 
-                Add
-                (
-                    TextLabel = new TextBox(text, Theme.FONT, 20, w, fontColor, align, false)
-                );
+                Add(TextLabel = TextBox.GetOne(text, Theme.FONT, 20, fontColor, TextBox.RTLOptions.Default(w).Alignment(align)));
 
                 TextLabel.Y = (h - TextLabel.Height) >> 1;
                 _groupnumber = groupnumber;
@@ -6506,7 +6551,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 CanMove = true;
                 TextBox _keyBinding;
-                Add(_keyBinding = new TextBox("Hotkey", Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false));
+                Add(_keyBinding = TextBox.GetOne("Hotkey", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default()));
 
                 _hotkeyBox = new HotkeyBox();
                 _hotkeyBox.HotkeyChanged += BoxOnHotkeyChanged;
@@ -7011,7 +7056,7 @@ namespace ClassicUO.Game.UI.Gumps
                 Add(bg);
                 bg.MouseUp += LabelOnMouseUp;
 
-                Add(_label = new TextBox("None", Theme.FONT, Theme.STANDARD_TEXT_SIZE, 150, Theme.TEXT_FONT_COLOR, align: FontStashSharp.RichText.TextHorizontalAlignment.Center, strokeEffect: false));
+                Add(_label = TextBox.GetOne("None", Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.DefaultCentered(150)));
                 _label.Y = (bg.Height >> 1) - (_label.Height >> 1);
 
                 _label.MouseUp += LabelOnMouseUp;
@@ -7340,8 +7385,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             private TextBox AddLabel(string name)
             {
-                var label = new TextBox(name, Theme.FONT, Theme.STANDARD_TEXT_SIZE, null, Theme.TEXT_FONT_COLOR, strokeEffect: false);
-
+                var label = TextBox.GetOne(name, Theme.FONT, Theme.STANDARD_TEXT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default());
                 Add(label);
 
                 return label;
@@ -7496,7 +7540,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 if (!string.IsNullOrEmpty(OptionLabel))
                 {
-                    Control labelTextBox = new TextBox(OptionLabel, Theme.FONT, 20, null, Theme.TEXT_FONT_COLOR, strokeEffect: false) { AcceptMouseInput = false };
+                    Control labelTextBox = TextBox.GetOne(OptionLabel, Theme.FONT, 20, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default());
                     FullControl.Add(labelTextBox, (int)optionsPage);
 
                     if (labelTextBox.Width > maxTotalWidth)

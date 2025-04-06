@@ -87,11 +87,11 @@ namespace ClassicUO.Game.UI.Gumps
             if (entity == null)
             {
                 Dispose();
-
                 return;
             }
 
-            _text = new TextBox(string.Empty, ProfileManager.CurrentProfile.NamePlateFont, ProfileManager.CurrentProfile.NamePlateFontSize, 100, entity is Mobile m ? Notoriety.GetHue(m.NotorietyFlag) : (ushort)0x0481, FontStashSharp.RichText.TextHorizontalAlignment.Center);
+            _text = TextBox.GetOne(string.Empty, ProfileManager.CurrentProfile.NamePlateFont, ProfileManager.CurrentProfile.NamePlateFontSize, entity is Mobile m ? Notoriety.GetHue(m.NotorietyFlag) : (ushort)0x0481, TextBox.RTLOptions.DefaultCenterStroked());
+            _text.Width = 100;
 
             SetTooltip(entity);
 
@@ -142,7 +142,7 @@ namespace ClassicUO.Game.UI.Gumps
                     return false;
                 }
 
-                _text.UpdateText(t);
+                _text.Text = t;
 
                 Width = _background.Width = Math.Max(60, _text.Width) + 4;
                 Height = _background.Height = CurrentHeight = Math.Max(Constants.OBJECT_HANDLES_GUMP_HEIGHT, _text.Height) + 4;
@@ -157,7 +157,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 string t = entity.Name;
 
-                _text.UpdateText(t);
+                _text.Text = t;
 
                 Width = _background.Width = Math.Max(60, _text.Width) + 4;
                 Height = _background.Height = Math.Max(Constants.OBJECT_HANDLES_GUMP_HEIGHT, _text.Height) + 4;

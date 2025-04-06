@@ -54,7 +54,7 @@ namespace ClassicUO.LegionScripting
             if (lastPath.Length > 0)
             {
                 lastP = Path.GetDirectoryName(lastPath);
-                scrollArea.Add(new ItemControl(new GHFileObject() { type = "dir", name = $"<- Back{(string.IsNullOrEmpty(lastP)? "" : $" ({lastP})")}", path = lastP }, this));
+                scrollArea.Add(new ItemControl(new GHFileObject() { type = "dir", name = $"<- Back{(string.IsNullOrEmpty(lastP) ? "" : $" ({lastP})")}", path = lastP }, this));
 
             }
 
@@ -169,7 +169,7 @@ namespace ClassicUO.LegionScripting
             private TextBox GenTextBox(string text, int fontsize, int x = 0, int y = 0)
             {
 
-                TextBox tb = new TextBox(text, TrueTypeLoader.EMBEDDED_FONT, fontsize, null, Microsoft.Xna.Framework.Color.White, strokeEffect: false);
+                TextBox tb = TextBox.GetOne(text, TrueTypeLoader.EMBEDDED_FONT, fontsize, Microsoft.Xna.Framework.Color.White, TextBox.RTLOptions.Default());
                 tb.X = x;
                 tb.Y = y;
                 tb.AcceptMouseInput = false;

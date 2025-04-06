@@ -117,25 +117,27 @@ namespace ClassicUO.Game.UI
                 if (string.IsNullOrEmpty(finalString) && !string.IsNullOrEmpty(_textHTML)) //Fix for vendor search
                     finalString = Managers.ToolTipOverrideData.ProcessTooltipText(_textHTML);
 
-                string font = TrueTypeLoader.EMBEDDED_FONT;
-                int fontSize = 15;
-
-                if (ProfileManager.CurrentProfile != null)
+                if (_textBox == null || _textBox.IsDisposed)
                 {
-                    font = ProfileManager.CurrentProfile.SelectedToolTipFont;
-                    fontSize = ProfileManager.CurrentProfile.SelectedToolTipFontSize;
+                    string font = TrueTypeLoader.EMBEDDED_FONT;
+                    int fontSize = 15;
+
+                    if (ProfileManager.CurrentProfile != null)
+                    {
+                        font = ProfileManager.CurrentProfile.SelectedToolTipFont;
+                        fontSize = ProfileManager.CurrentProfile.SelectedToolTipFontSize;
+                    }
+                    TextBox.RTLOptions tooltipOptions = new() { Align = align, StrokeEffect = true };
+                    _textBox = TextBox.GetOne(TextBox.ConvertHtmlToFontStashSharpCommand(finalString).Trim(), font, fontSize, hue, tooltipOptions);
+
+                    _textBox.Width = _textBox.MeasuredSize.X + 10;
+                }
+                else
+                {
+                    _textBox.Text = TextBox.ConvertHtmlToFontStashSharpCommand(finalString).Trim();
+                    _textBox.Update(); //For recreating the text to check size below
                 }
 
-                _textBox = new TextBox(
-                    TextBox.ConvertHtmlToFontStashSharpCommand(finalString).Trim(),
-                    font,
-                    fontSize,
-                    600,
-                    hue,
-                    align,
-                    true
-                );
-                _textBox.Width = _textBox.MeasuredSize.X + 10;
                 if (_textBox.Width > 600)
                     _textBox.Width = 600;
 
@@ -305,14 +307,18 @@ namespace ClassicUO.Game.UI
             }
 
             Serial = 0;
-            Text = _textHTML = text;
+            if (Text != text)
+            {
+                Text = _textHTML = text;
 
-            _dirty = true;
+                _dirty = true;
 
+
+                //_textBox?.Dispose();
+                //_textBox = null;
+            }
             _lastHoverTime = (uint)(Time.Ticks + (ProfileManager.CurrentProfile != null ? ProfileManager.CurrentProfile.TooltipDelayBeforeDisplay : 250));
 
-            _textBox?.Dispose();
-            _textBox = null;
         }
     }
 }

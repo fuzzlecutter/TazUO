@@ -1,5 +1,6 @@
 ﻿using ClassicUO.Assets;
 using ClassicUO.Game.UI.Controls;
+using Microsoft.Xna.Framework;
 using System;
 using static ClassicUO.Game.UI.Gumps.OptionsGump;
 
@@ -16,7 +17,9 @@ namespace ClassicUO.Game.UI.Gumps
             Add(bg = new AlphaBlendControl(0.75f));
 
             Control _;
-            Add(_ = new TextBox(message, TrueTypeLoader.EMBEDDED_FONT, 25, Width, Microsoft.Xna.Framework.Color.White, FontStashSharp.RichText.TextHorizontalAlignment.Center, false));
+            var options = TextBox.RTLOptions.DefaultCentered();
+            options.Width = Width;
+            Add(_ = TextBox.GetOne(message, TrueTypeLoader.EMBEDDED_FONT, 25, Color.White, options));
             Height += _.Height;
 
             InputField input = new InputField

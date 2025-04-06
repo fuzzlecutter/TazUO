@@ -202,20 +202,6 @@ namespace ClassicUO.Game.Scenes
             SpellDefinition.LoadCustomSpells();
             SpellVisualRangeManager.Instance.OnSceneLoad();
             AutoLootManager.Instance.OnSceneLoad();
-            if (!UpdateManager.SkipUpdateCheck && UpdateManager.HasUpdate)
-            {
-                UpdateManager.SendDelayedUpdateMessage();
-            }
-            else if (!UpdateManager.SkipUpdateCheck)
-            {
-                UpdateManager.UpdateStatusChanged += (s, e) =>
-                {
-                    if (UpdateManager.HasUpdate)
-                    {
-                        UpdateManager.SendDelayedUpdateMessage();
-                    }
-                };
-            }
 
             foreach (var xml in ProfileManager.CurrentProfile.AutoOpenXmlGumps)
             {

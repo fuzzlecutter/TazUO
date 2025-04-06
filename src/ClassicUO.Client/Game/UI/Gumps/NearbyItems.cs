@@ -119,7 +119,7 @@ namespace ClassicUO.Game.UI.Gumps
             itemSpriteInfo = Client.Game.Arts.GetArt((uint)(item.DisplayedGraphic));
 
             HitBox loot = new HitBox(0, 0, Width, Height / 2);
-            loot.Add(new TextBox("Loot", TrueTypeLoader.EMBEDDED_FONT, 16, Width, Color.White, FontStashSharp.RichText.TextHorizontalAlignment.Center, false));
+            loot.Add(TextBox.GetOne("Loot", TrueTypeLoader.EMBEDDED_FONT, 16, Color.White, TextBox.RTLOptions.DefaultCentered(Width)));
             loot.MouseDown += (s, e) =>
             {
                 if(e.Button != MouseButtonType.Left) return;
@@ -131,7 +131,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             HitBox use = new HitBox(0, Height / 2, Width, Height / 2);
             TextBox tb;
-            use.Add(tb = new TextBox("Use", TrueTypeLoader.EMBEDDED_FONT, 16, Width, Color.White, FontStashSharp.RichText.TextHorizontalAlignment.Center, false));
+            use.Add(tb = TextBox.GetOne("Use", TrueTypeLoader.EMBEDDED_FONT, 16, Color.White, TextBox.RTLOptions.DefaultCentered(Width)));
             tb.Y = use.Height - tb.MeasuredSize.Y;
             use.MouseDown += (s, e) =>
             {

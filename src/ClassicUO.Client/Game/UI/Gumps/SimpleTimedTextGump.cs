@@ -14,7 +14,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             expireAt = DateTime.Now.Add(duration);
             TextBox t;
-            Add(t=new TextBox(text, TrueTypeLoader.EMBEDDED_FONT, 20, null, color));
+            Add(t = TextBox.GetOne(text, TrueTypeLoader.EMBEDDED_FONT, 20, color, TextBox.RTLOptions.Default()));
             Height = t.MeasuredSize.Y;
             Width = t.MeasuredSize.X;
             WantUpdateSize = true;
@@ -24,7 +24,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             expireAt = DateTime.Now.Add(duration);
             TextBox t;
-            Add(t=new TextBox(text, TrueTypeLoader.EMBEDDED_FONT, 20, null, (int)hue));
+            Add(t = TextBox.GetOne(text, TrueTypeLoader.EMBEDDED_FONT, 20, (int)hue, TextBox.RTLOptions.Default()));
             Height = t.MeasuredSize.Y;
             Width = t.MeasuredSize.X;
             WantUpdateSize = true;
@@ -34,7 +34,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             expireAt = DateTime.Now.Add(duration);
             TextBox t;
-            Add(t = new TextBox(text, TrueTypeLoader.EMBEDDED_FONT, 20, width, (int)hue));
+            Add(t = TextBox.GetOne(text, TrueTypeLoader.EMBEDDED_FONT, 20, (int)hue, new TextBox.RTLOptions() { Width = width }));
             Height = t.MeasuredSize.Y;
             Width = t.MeasuredSize.X;
             WantUpdateSize = true;

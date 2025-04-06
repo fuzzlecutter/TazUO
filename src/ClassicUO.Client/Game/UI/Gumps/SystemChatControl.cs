@@ -889,10 +889,10 @@ namespace ClassicUO.Game.UI.Gumps
         {
             private uint _createdTime;
             private TextBox textBox;
-
+            private static TextBox.RTLOptions TextBoxOptions = new() { Width = 320, StrokeEffect = true };
             public ChatLineTime(string text, byte font, bool isunicode, ushort hue)
             {
-                textBox = new TextBox(text, ProfileManager.CurrentProfile.GameWindowSideChatFont, ProfileManager.CurrentProfile.GameWindowSideChatFontSize, 320, hue, strokeEffect: true);
+                textBox = TextBox.GetOne(text, ProfileManager.CurrentProfile.GameWindowSideChatFont, ProfileManager.CurrentProfile.GameWindowSideChatFontSize, hue, TextBoxOptions);
                 _createdTime = Time.Ticks + Constants.TIME_DISPLAY_SYSTEM_MESSAGE_TEXT;
             }
 

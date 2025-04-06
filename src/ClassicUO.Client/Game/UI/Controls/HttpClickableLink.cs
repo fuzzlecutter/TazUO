@@ -20,7 +20,8 @@ namespace ClassicUO.Game.UI.Controls
             this.url = url;
             AcceptMouseInput = true;
             CanMove = true;
-            Add(new TextBox("/tu" + title, TrueTypeLoader.EMBEDDED_FONT, fontsize, null, color, strokeEffect: false) { AcceptMouseInput = false });
+            var tb = TextBox.GetOne("/tu" + title, TrueTypeLoader.EMBEDDED_FONT, fontsize, color, TextBox.RTLOptions.Default());
+            tb.AcceptMouseInput = false;
             SetTooltip(url);
             ForceSizeUpdate();
         }

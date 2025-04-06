@@ -259,6 +259,13 @@ namespace ClassicUO.Game.UI.Controls
             }
         }
 
+        public void SetDisposed(bool status){
+            if(status)
+                Dispose();
+            else
+                IsDisposed = false;
+        }
+
         public bool WantUpdateSize { get; set; } = true;
 
         public bool AllowedToDraw { get; set; }

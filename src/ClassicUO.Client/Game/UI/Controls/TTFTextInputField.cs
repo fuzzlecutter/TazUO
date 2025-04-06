@@ -109,7 +109,7 @@ namespace ClassicUO.Game.UI.Controls
             private const int FONT_SIZE = 20;
             private readonly int _maxCharCount = -1;
 
-            public bool ConvertHtmlColors { get { return _rendererText.ConvertHtmlColors; } set { _rendererText.ConvertHtmlColors = value; } }
+            public bool ConvertHtmlColors { get { return _rendererText.Options.ConvertHtmlColors; } set { _rendererText.Options.ConvertHtmlColors = value; } }
 
             public StbTextBox
             (
@@ -127,29 +127,10 @@ namespace ClassicUO.Game.UI.Controls
 
                 Stb = new TextEdit(this);
                 Stb.SingleLine = !multiline;
+                _rendererText = Controls.TextBox.GetOne(string.Empty, TrueTypeLoader.EMBEDDED_FONT, FONT_SIZE, Color.White,
+                    new TextBox.RTLOptions() { Width = maxWidth > 0 ? maxWidth : null, SupportsCommands = false, IgnoreColorCommands = true, CalculateGlyphs = true, MultiLine = true });
 
-                _rendererText = new TextBox(
-                    string.Empty,
-                    TrueTypeLoader.EMBEDDED_FONT,
-                    FONT_SIZE,
-                    maxWidth > 0 ? maxWidth : null,
-                    Color.White,
-                    strokeEffect: false,
-                    supportsCommands: false,
-                    ignoreColorCommands: true,
-                    calculateGlyphs: true
-                    )
-                { MultiLine = multiline };
-                _rendererCaret = new TextBox(
-                    "_",
-                    TrueTypeLoader.EMBEDDED_FONT,
-                    FONT_SIZE,
-                    null,
-                    Color.White,
-                    strokeEffect: false,
-                    supportsCommands: false,
-                    ignoreColorCommands: true,
-                    calculateGlyphs: true);
+                _rendererCaret = Controls.TextBox.GetOne("_", TrueTypeLoader.EMBEDDED_FONT, FONT_SIZE, Color.White, new TextBox.RTLOptions(){SupportsCommands = false, IgnoreColorCommands = true, CalculateGlyphs = true});
 
                 Height = _rendererCaret.Height;
                 LoseFocusOnEscapeKey = true;
@@ -159,7 +140,7 @@ namespace ClassicUO.Game.UI.Controls
 
             public void UpdateSize(int width, int height)
             {
-                Width = width; 
+                Width = width;
                 Height = height;
                 _rendererText.Width = Width;
                 _rendererText.Height = Height;
@@ -354,7 +335,8 @@ namespace ClassicUO.Game.UI.Controls
                         {
                             return (int)index + line.TextStartIndex;
                         }
-                    } else
+                    }
+                    else
                     {
                         return Text.Length;
                     }
@@ -841,7 +823,7 @@ namespace ClassicUO.Game.UI.Controls
                         while (_rendererText.RTL.Lines[line].Count + _rendererText.RTL.Lines[line].TextStartIndex < selectEnd)
                             line++;
 
-                        if(startline == line)
+                        if (startline == line)
                         {
                             DrawSectionOfSelection(batcher, x + start.X, y + start.Y, end.X - start.X, _rendererCaret.Height);
                             return;
