@@ -840,9 +840,10 @@ namespace ClassicUO.LegionScripting
 /// API.WaitForTarget()
 /// ```
 /// </summary>
-/// <param name="targetType">Neutral/Harmful/Beneficial</param>
+/// <param name="targetType">Neutral/Harmful/Beneficial/Any</param>
 /// <param name="timeout">Max duration in seconds to wait</param>
-        public bool WaitForTarget(string targetType = "Neutral", double timeout = 5)
+/// <returns>True if target was matching the type, or false if not/timed out</returns>
+        public bool WaitForTarget(string targetType = "Any", double timeout = 5)
         {
             //Can't use Time.Ticks due to threading concerns
             var expire = DateTime.UtcNow.AddSeconds(timeout);
@@ -859,7 +860,7 @@ namespace ClassicUO.LegionScripting
                     break;
             }
 
-            while (!InvokeOnMainThread(() => { return TargetManager.IsTargeting && TargetManager.TargetingType == targetT; }))
+            while (!InvokeOnMainThread(() => { return TargetManager.IsTargeting && (TargetManager.TargetingType == targetT || targetType == "Any"); }))
             {
                 if (DateTime.UtcNow > expire)
                     return false;
