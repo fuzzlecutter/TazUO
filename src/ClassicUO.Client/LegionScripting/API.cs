@@ -1262,9 +1262,9 @@ namespace ClassicUO.LegionScripting
 /// </summary>
 /// <param name="msgs"></param>
 /// <returns></returns>
-        public bool InJournalAny(string[] msgs)
+        public bool InJournalAny(IList<string> msgs)
         {
-            if (msgs == null || msgs.Length == 0) return false;
+            if (msgs == null || msgs.Count == 0) return false;
 
             foreach (var je in JournalEntries.ToArray())
             {
@@ -1396,12 +1396,13 @@ namespace ClassicUO.LegionScripting
 /// <param name="notoriety">List of notorieties</param>
 /// <param name="maxDistance"></param>
 /// <returns></returns>
-        public Mobile NearestMobile(Notoriety[] notoriety, int maxDistance = 10) => InvokeOnMainThread(() =>
+        public Mobile NearestMobile(IList<Notoriety> notoriety, int maxDistance = 10) => InvokeOnMainThread(() =>
         {
-            if (notoriety == null || notoriety.Length == 0) return null;
+            if (notoriety == null || notoriety.Count == 0) return null;
 
             return World.Mobiles.Values.Where(m => !m.IsDestroyed
                 && !m.IsDead
+                && m.Serial != World.Player.Serial
                 && notoriety.Contains((Notoriety)(byte)m.NotorietyFlag)
                 && m.Distance <= maxDistance
                 && !OnIgnoreList(m)).OrderBy(m => m.Distance).FirstOrDefault();
