@@ -1561,7 +1561,7 @@ namespace ClassicUO.Network
                         }
 
 
-                        if (ProfileManager.CurrentProfile.UseGridLayoutContainerGumps)
+                        if (ProfileManager.CurrentProfile.UseGridLayoutContainerGumps && graphic != 0x091A)
                         {
                             GridContainer gridContainer = UIManager.GetGump<GridContainer>(serial);
                             if (gridContainer != null)
@@ -6481,7 +6481,7 @@ namespace ClassicUO.Network
                 item.Direction = direction;
                 item.CheckGraphicChange(item.AnimIndex);
 
-                if(created)
+                if (created)
                     EventSink.InvokeOnItemCreated(item);
                 else
                     EventSink.InvokeOnItemUpdated(item);
