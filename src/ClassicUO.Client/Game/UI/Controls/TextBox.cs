@@ -170,8 +170,14 @@ namespace ClassicUO.Game.UI.Controls
             {
                 if (base.Width > 0)
                     return base.Width;
+                
+                if(Options != null && Options.Width.HasValue)
+                    return Options.Width.Value;
 
-                return Options.Width ?? _rtl?.Size.X ?? 0; //Prefer options width, then RTL width, then 0
+                if(_rtl != null && _rtl.Size != null)
+                    return _rtl.Size.X;
+                
+                return 0;
             }
 
             set
