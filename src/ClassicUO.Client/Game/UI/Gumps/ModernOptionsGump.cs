@@ -4906,7 +4906,7 @@ namespace ClassicUO.Game.UI.Gumps
                     Stb = new TextEdit(this);
                     Stb.SingleLine = true;
 
-                    _rendererText = TextBox.GetOne(string.Empty, Theme.FONT, FONT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(maxWidth > 0 ? maxWidth : null).MouseInput().EnableGlyphCalculation());
+                    _rendererText = TextBox.GetOne(string.Empty, Theme.FONT, FONT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(maxWidth > 0 ? maxWidth : null).MouseInput().EnableGlyphCalculation().IgnoreColors().DisableCommands());
                     _rendererCaret = TextBox.GetOne("_", Theme.FONT, FONT_SIZE, Theme.TEXT_FONT_COLOR, TextBox.RTLOptions.Default().MouseInput().EnableGlyphCalculation());
 
                     Height = _rendererCaret.Height;

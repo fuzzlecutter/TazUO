@@ -79,7 +79,8 @@ namespace ClassicUO.Game.UI.Controls
                 tb.AcceptMouseInput = options.AcceptMouseInput;
                 tb.CreateRichTextLayout(text);
                 totalTBUsed++;
-                Log.Trace($"TextBox Pool Status: [Created: {totalTBCreated}] [Reused: {totalTBUsed}] (Total: {totalTBCreated + totalTBUsed}) [Available: {_pool.Count}]");
+                if (CUOEnviroment.Debug)
+                    Log.Debug($"TextBox Pool Status: [Created: {totalTBCreated}] [Reused: {totalTBUsed}] (Total: {totalTBCreated + totalTBUsed}) [Available: {_pool.Count}]");
                 return tb;
             }
 
@@ -117,7 +118,7 @@ namespace ClassicUO.Game.UI.Controls
             if (Options.StrokeEffect && !text.StartsWith("/es"))
                 text = $"/es[{getStrokeSize}]" + text;
 
-            if(_rtl == null || _rtl.Text != text || _rtl.Width != Options.Width)
+            if (_rtl == null || _rtl.Text != text || _rtl.Width != Options.Width)
                 _rtl = new RichTextLayout
                 {
                     Font = TrueTypeLoader.Instance.GetFont(_font, _size),
@@ -407,7 +408,16 @@ namespace ClassicUO.Game.UI.Controls
             public bool MultiLine { get; set; }
             public bool AcceptMouseInput { get; set; }
 
-            public RTLOptions EnableGlyphCalculation(){
+            public RTLOptions DisableCommands() {
+                SupportsCommands = false;
+                return this;
+            }
+            public RTLOptions IgnoreColors(){
+                IgnoreColorCommands = true;
+                return this;
+            }
+            public RTLOptions EnableGlyphCalculation()
+            {
                 CalculateGlyphs = true;
                 return this;
             }

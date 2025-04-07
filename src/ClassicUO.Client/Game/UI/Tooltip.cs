@@ -307,16 +307,15 @@ namespace ClassicUO.Game.UI
             }
 
             Serial = 0;
-            if (Text != text)
-            {
-                Text = _textHTML = text;
 
-                _dirty = true;
+            Text = _textHTML = text;
+
+            _dirty = true;
 
 
-                //_textBox?.Dispose();
-                //_textBox = null;
-            }
+            _textBox?.Dispose();
+            _textBox = null;
+
             _lastHoverTime = (uint)(Time.Ticks + (ProfileManager.CurrentProfile != null ? ProfileManager.CurrentProfile.TooltipDelayBeforeDisplay : 250));
 
         }

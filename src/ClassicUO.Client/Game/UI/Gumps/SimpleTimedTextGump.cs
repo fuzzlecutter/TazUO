@@ -1,4 +1,5 @@
 ﻿using ClassicUO.Assets;
+using ClassicUO.Configuration;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Renderer;
 using Microsoft.Xna.Framework;
@@ -14,17 +15,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             expireAt = DateTime.Now.Add(duration);
             TextBox t;
-            Add(t = TextBox.GetOne(text, TrueTypeLoader.EMBEDDED_FONT, 20, color, TextBox.RTLOptions.Default()));
-            Height = t.MeasuredSize.Y;
-            Width = t.MeasuredSize.X;
-            WantUpdateSize = true;
-        }
-
-        public SimpleTimedTextGump(string text, uint hue, TimeSpan duration) : base(0, 0)
-        {
-            expireAt = DateTime.Now.Add(duration);
-            TextBox t;
-            Add(t = TextBox.GetOne(text, TrueTypeLoader.EMBEDDED_FONT, 20, (int)hue, TextBox.RTLOptions.Default()));
+            Add(t = TextBox.GetOne(text, ProfileManager.CurrentProfile.OverheadChatFont, ProfileManager.CurrentProfile.OverheadChatFontSize, color, TextBox.RTLOptions.DefaultCentered()));
             Height = t.MeasuredSize.Y;
             Width = t.MeasuredSize.X;
             WantUpdateSize = true;
@@ -34,7 +25,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             expireAt = DateTime.Now.Add(duration);
             TextBox t;
-            Add(t = TextBox.GetOne(text, TrueTypeLoader.EMBEDDED_FONT, 20, (int)hue, new TextBox.RTLOptions() { Width = width }));
+            Add(t = TextBox.GetOne(text, ProfileManager.CurrentProfile.OverheadChatFont, ProfileManager.CurrentProfile.OverheadChatFontSize, (int)hue, TextBox.RTLOptions.DefaultCentered(width)));
             Height = t.MeasuredSize.Y;
             Width = t.MeasuredSize.X;
             WantUpdateSize = true;
