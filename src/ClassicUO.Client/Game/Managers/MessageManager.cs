@@ -349,11 +349,9 @@ namespace ClassicUO.Game.Managers
             }
 
             //Ignored the fixedColor in the textbox creation because it seems to interfere with correct colors, but if issues arrise I left the fixColor code here
-            var options = TextBox.RTLOptions.DefaultCenterStroked();
-            options.Width = ProfileManager.CurrentProfile.OverheadChatWidth;
+            var options = TextBox.RTLOptions.DefaultCenterStroked(ProfileManager.CurrentProfile.OverheadChatWidth).MouseInput(!ProfileManager.CurrentProfile.DisableMouseInteractionOverheadText);
 
             textObject.TextBox = TextBox.GetOne(msg, ProfileManager.CurrentProfile.OverheadChatFont, ProfileManager.CurrentProfile.OverheadChatFontSize, hue, options);
-            textObject.TextBox.AcceptMouseInput = !ProfileManager.CurrentProfile.DisableMouseInteractionOverheadText;
             textObject.Time = CalculateTimeToLive(textObject.TextBox);
 
             return textObject;

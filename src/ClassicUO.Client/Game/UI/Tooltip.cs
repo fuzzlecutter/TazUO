@@ -130,7 +130,7 @@ namespace ClassicUO.Game.UI
                     TextBox.RTLOptions tooltipOptions = new() { Align = align, StrokeEffect = true };
                     _textBox = TextBox.GetOne(TextBox.ConvertHtmlToFontStashSharpCommand(finalString).Trim(), font, fontSize, hue, tooltipOptions);
 
-                    _textBox.Width = _textBox.MeasuredSize.X + 10;
+                    //_textBox.Width = _textBox.MeasuredSize.X + 10;
                 }
                 else
                 {
