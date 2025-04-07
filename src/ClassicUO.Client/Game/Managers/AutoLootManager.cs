@@ -198,7 +198,7 @@ namespace ClassicUO.Game.Managers
 
         public void Update()
         {
-            if (!loaded || !IsEnabled) return;
+            if (!loaded || !IsEnabled || !World.InGame) return;
 
             if (lootItems.Count == 0)
             {
