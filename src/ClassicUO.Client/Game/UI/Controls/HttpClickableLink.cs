@@ -21,7 +21,7 @@ namespace ClassicUO.Game.UI.Controls
             AcceptMouseInput = true;
             CanMove = true;
             var tb = TextBox.GetOne("/tu" + title, TrueTypeLoader.EMBEDDED_FONT, fontsize, color, TextBox.RTLOptions.Default());
-            tb.AcceptMouseInput = false;
+            Add(tb);
             SetTooltip(url);
             ForceSizeUpdate();
         }
