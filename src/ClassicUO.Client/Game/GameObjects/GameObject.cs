@@ -38,7 +38,6 @@ using ClassicUO.Game.Map;
 using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace ClassicUO.Game.GameObjects
@@ -287,12 +286,8 @@ namespace ClassicUO.Game.GameObjects
                 item = (TextObject)item.Next
             )
             {
-                if (item.TextBox == null)
+                if (item.TextBox == null || item.TextBox.IsDisposed || item.Time < Time.Ticks)
                 {
-                    if (item.TextBox.IsDisposed || item.Time < Time.Ticks)
-                    {
-                        item.Destroy();
-                    }
                     continue;
                 }
 
