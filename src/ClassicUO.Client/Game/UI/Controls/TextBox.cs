@@ -64,6 +64,11 @@ namespace ClassicUO.Game.UI.Controls
 
         public bool MultiLine { get { return Options.MultiLine; } set { Options.MultiLine = value; } }
 
+        public static TextBox CreateNew(string text, string font, float size, int hue, RTLOptions options)
+        {
+            return new TextBox(text, font, size, ConvertHueToColor(hue), options);
+        }
+
         public static TextBox GetOne(string text, string font, float size, int hue, RTLOptions options) => GetOne(text, font, size, ConvertHueToColor(hue), options);
 
         public static TextBox GetOne(string text, string font, float size, Color hue, RTLOptions options)
@@ -79,8 +84,10 @@ namespace ClassicUO.Game.UI.Controls
                 tb.AcceptMouseInput = options.AcceptMouseInput;
                 tb.CreateRichTextLayout(text);
                 totalTBUsed++;
+#if DEBUG
                 if (CUOEnviroment.Debug)
                     Log.Debug($"TextBox Pool Status: [Created: {totalTBCreated}] [Reused: {totalTBUsed}] (Total: {totalTBCreated + totalTBUsed}) [Available: {_pool.Count}]");
+#endif
                 return tb;
             }
 
@@ -170,13 +177,13 @@ namespace ClassicUO.Game.UI.Controls
             {
                 if (base.Width > 0)
                     return base.Width;
-                
-                if(Options != null && Options.Width.HasValue)
+
+                if (Options != null && Options.Width.HasValue)
                     return Options.Width.Value;
 
-                if(_rtl != null && _rtl.Size != null)
+                if (_rtl != null && _rtl.Size != null)
                     return _rtl.Size.X;
-                
+
                 return 0;
             }
 
@@ -366,6 +373,10 @@ namespace ClassicUO.Game.UI.Controls
         public override void Dispose()
         {
             base.Dispose();
+#if DEBUG
+            if (CUOEnviroment.Debug)
+                Log.Debug($"Returned to pool: [{Text}]");
+#endif
             Reset();
             _pool.Enqueue(this);
         }
@@ -414,11 +425,13 @@ namespace ClassicUO.Game.UI.Controls
             public bool MultiLine { get; set; }
             public bool AcceptMouseInput { get; set; }
 
-            public RTLOptions DisableCommands() {
+            public RTLOptions DisableCommands()
+            {
                 SupportsCommands = false;
                 return this;
             }
-            public RTLOptions IgnoreColors(){
+            public RTLOptions IgnoreColors()
+            {
                 IgnoreColorCommands = true;
                 return this;
             }

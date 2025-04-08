@@ -37,6 +37,7 @@ using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Renderer;
 using ClassicUO.Utility;
+using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.UI
@@ -146,6 +147,7 @@ namespace ClassicUO.Game.UI
 
             if (_textBox == null || _textBox.IsDisposed)
             {
+                Log.Warn("Textbox should not be null/disposed, but it is.");
                 return false;
             }
 
@@ -232,6 +234,7 @@ namespace ClassicUO.Game.UI
                     _hash = revision2;
                     Text = ReadProperties(serial, out _textHTML);
                     _textBox?.Dispose();
+                    _textBox = null;
                     _dirty = true;
 
                     _lastHoverTime = (uint)(Time.Ticks + (ProfileManager.CurrentProfile != null ? ProfileManager.CurrentProfile.TooltipDelayBeforeDisplay : 250));
