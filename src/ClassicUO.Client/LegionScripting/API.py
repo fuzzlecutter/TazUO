@@ -155,7 +155,7 @@ def Dismount():
 def Mount(serial: int):
     pass
 
-def WaitForTarget(targetType: str = "Neutral", timeout: float = 5):
+def WaitForTarget(targetType: str = "Any", timeout: float = 5):
     pass
 
 def Target(serial: int):
@@ -273,6 +273,9 @@ def CreateGumpButton(text: str = "", hue: int = 996, normal: int = 0x00EF, press
     pass
 
 def CreateGumpRadioButton(text: str = "", group: int = 0, inactive: int = 0x00D0, active: int = 0x00D1, hue: int = 0xFFFF):
+    pass
+
+def CreateGumpTextBox(text: str = "", width: int = 200, height: int = 30, multiline: bool = False):
     pass
 
 def GetSkill(skill: str):

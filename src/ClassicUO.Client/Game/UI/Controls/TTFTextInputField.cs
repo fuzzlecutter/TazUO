@@ -11,7 +11,7 @@ using StbTextEditSharp;
 
 namespace ClassicUO.Game.UI.Controls
 {
-    internal class TTFTextInputField : Control
+    public class TTFTextInputField : Control
     {
         public readonly StbTextBox TextBox;
         private AlphaBlendControl _background;
@@ -103,7 +103,7 @@ namespace ClassicUO.Game.UI.Controls
             TextBox.SetText(text);
         }
 
-        internal class StbTextBox : Control, ITextEditHandler
+        public class StbTextBox : Control, ITextEditHandler
         {
             protected static readonly Color SELECTION_COLOR = new Color() { PackedValue = 0x80a06020 };
             private const int FONT_SIZE = 20;

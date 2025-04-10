@@ -1674,6 +1674,42 @@ namespace ClassicUO.LegionScripting
         }
 
         /// <summary>
+        /// Create a text area control.  
+        /// Example:  
+        /// ```py
+        /// w = 500
+        /// h = 600
+        /// 
+        /// gump = API.CreateGump(True, True)
+        /// gump.SetWidth(w)
+        /// gump.SetHeight(h)
+        /// gump.CenterXInViewPort()
+        /// gump.CenterYInViewPort()
+        ///
+        /// bg = API.CreateGumpColorBox(0.7, "#D4202020")
+        /// bg.SetWidth(w)
+        /// bg.SetHeight(h)
+        /// 
+        /// gump.Add(bg)
+        /// 
+        /// textbox = API.CreateGumpTextBox("Text example", w, h, True)
+        /// 
+        /// gump.Add(textbox)
+        /// 
+        /// API.AddGump(gump)
+        /// ```
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="multiline"></param>
+        /// <returns></returns>
+        public TTFTextInputField CreateGumpTextBox(string text = "", int width = 200, int height = 30, bool multiline = false)
+        {
+            return new TTFTextInputField(width, height, text: text, multiline: multiline, convertHtmlColors: false) { CanMove = true };
+        }
+
+        /// <summary>
         /// Get a skill from the player. See the Skill class for what properties are available: https://github.com/bittiez/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Skill.cs  
         /// Example:  
         /// ```py

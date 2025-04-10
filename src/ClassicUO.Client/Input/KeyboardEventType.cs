@@ -32,7 +32,7 @@
 
 namespace ClassicUO.Input
 {
-    internal enum KeyboardEventType
+    public enum KeyboardEventType
     {
         Down,
         Up,

@@ -3,7 +3,7 @@ All methods, properties, enums, etc need to pre prefaced with `API.` for example
 If you download the [API.py](API.py) file, put it in the same folder as your python scripts and add `import API` to your script, that will enable some mild form of autocomplete in an editor like VS Code.  
 
 
-This was generated on `4/5/2025`.
+This was generated on `4/9/2025`.
 # API  
 
 ## Class Description
@@ -1029,7 +1029,7 @@ This was generated on `4/5/2025`.
  ```py
  mount = API.Dismount()
  if mount:
-   API.useObject(mount)
+   API.UseObject(mount)
  ```
 
 
@@ -1074,7 +1074,7 @@ This was generated on `4/5/2025`.
 **Parameters**  
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
-| targetType | string | Yes | Neutral/Harmful/Beneficial |
+| targetType | string | Yes | Neutral/Harmful/Beneficial/Any |
 | timeout | double | Yes | Max duration in seconds to wait |
 #### Return Type: *bool*
 
@@ -1500,7 +1500,7 @@ This was generated on `4/5/2025`.
 **Parameters**  
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
-| msgs | string[] | No |  |
+| msgs | IList<string> | No |  |
 #### Return Type: *bool*
 
 </details>
@@ -1636,7 +1636,7 @@ This was generated on `4/5/2025`.
  mob = API.NearestMobile([API.Notoriety.Murderer, API.Notoriety.Criminal], 7)
  if mob:
    API.SysMsg("Found a criminal!")
-   API.Msg("Guards!)
+   API.Msg("Guards!")
    API.Attack(mob)
    ```
 
@@ -1644,7 +1644,7 @@ This was generated on `4/5/2025`.
 **Parameters**  
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
-| notoriety | Notoriety[] | No | List of notorieties |
+| notoriety | IList<Notoriety> | No | List of notorieties |
 | maxDistance | int | Yes |  |
 #### Return Type: *Mobile*
 
@@ -1981,6 +1981,49 @@ This was generated on `4/5/2025`.
 | active | ushort | Yes | Checked graphic |
 | hue | ushort | Yes | Text color |
 #### Return Type: *RadioButton*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>CreateGumpTextBox(text, width, height, multiline)</h3></summary>
+
+ Create a text area control.  
+ Example:  
+ ```py
+ w = 500
+ h = 600
+ 
+ gump = API.CreateGump(True, True)
+ gump.SetWidth(w)
+ gump.SetHeight(h)
+ gump.CenterXInViewPort()
+ gump.CenterYInViewPort()
+
+ bg = API.CreateGumpColorBox(0.7, "#D4202020")
+ bg.SetWidth(w)
+ bg.SetHeight(h)
+ 
+ gump.Add(bg)
+ 
+ textbox = API.CreateGumpTextBox("Text example", w, h, True)
+ 
+ gump.Add(textbox)
+ 
+ API.AddGump(gump)
+ ```
+
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| text | string | Yes |  |
+| width | int | Yes |  |
+| height | int | Yes |  |
+| multiline | bool | Yes |  |
+#### Return Type: *TTFTextInputField*
 
 </details>
 
