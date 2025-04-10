@@ -91,7 +91,6 @@ namespace ClassicUO.Game.UI.Gumps
             }
 
             _text = TextBox.GetOne(string.Empty, ProfileManager.CurrentProfile.NamePlateFont, ProfileManager.CurrentProfile.NamePlateFontSize, entity is Mobile m ? Notoriety.GetHue(m.NotorietyFlag) : (ushort)0x0481, TextBox.RTLOptions.DefaultCenterStroked());
-            _text.Width = 100;
 
             SetTooltip(entity);
 
