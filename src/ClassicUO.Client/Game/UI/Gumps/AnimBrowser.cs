@@ -92,7 +92,7 @@ internal class AnimBrowser : Gump
 
     private void OnDoubleClick(object sender, MouseDoubleClickEventArgs e)
     {
-        if (sender is ResizableStaticPic rsp)
+        if (sender is AnimationDisplay rsp)
         {
             SDL.SDL_SetClipboardText(rsp.Graphic.ToString());
             GameActions.Print($"Copied {rsp.Graphic} to clipboard.");

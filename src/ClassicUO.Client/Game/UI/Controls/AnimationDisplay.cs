@@ -8,6 +8,7 @@ namespace ClassicUO.Game.UI.Controls;
 public class AnimationDisplay : Control
 {
     private ushort _graphic;
+    public ushort Graphic => _graphic;
 
     private readonly uint _playspeedMs;
 
