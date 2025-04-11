@@ -286,6 +286,8 @@ namespace ClassicUO.Game.Managers
             });
 
             Register("artbrowser", (s) => { UIManager.Add(new ArtBrowserGump()); });
+            
+            Register("animbrowser", (s) => { UIManager.Add(new AnimBrowser()); });
         }
 
 
