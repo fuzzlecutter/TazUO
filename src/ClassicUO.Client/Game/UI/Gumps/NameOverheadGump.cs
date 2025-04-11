@@ -111,6 +111,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 if (!World.OPL.TryGetNameAndData(item, out string t, out _))
                 {
+                    t = string.Empty;
                     _needsNameUpdate = true;
                     if (!item.IsCorpse && item.Amount > 1)
                     {
@@ -154,9 +155,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             if (!string.IsNullOrEmpty(entity.Name))
             {
-                string t = entity.Name;
-
-                _text.Text = t;
+                _text.Text = entity.Name;
 
                 Width = _background.Width = Math.Max(60, _text.Width) + 4;
                 Height = _background.Height = Math.Max(Constants.OBJECT_HANDLES_GUMP_HEIGHT, _text.Height) + 4;
