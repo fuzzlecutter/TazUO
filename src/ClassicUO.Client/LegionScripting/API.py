@@ -281,3 +281,6 @@ def CreateGumpTextBox(text: str = "", width: int = 200, height: int = 30, multil
 def GetSkill(skill: str):
     pass
 
+def DisplayRange(distance: int, hue: int = 22):
+    pass
+

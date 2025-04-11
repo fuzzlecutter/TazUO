@@ -1721,7 +1721,7 @@ namespace ClassicUO.LegionScripting
         ///   API.SysMsg("Skill Lock: " + str(skill.Lock))
         ///   ```
         /// </summary>
-        /// <param name="skill">Skill name, case sensitive</param>
+        /// <param name="skill">Skill name, case-sensitive</param>
         /// <returns></returns>
         public Skill GetSkill(string skill) => InvokeOnMainThread(() =>
         {
@@ -1733,6 +1733,26 @@ namespace ClassicUO.LegionScripting
                     return s;
             }
             return null;
+        });
+        
+        /// <summary>
+        /// Show a radius around the player.  
+        /// Example:  
+        /// ```py
+        /// API.DisplayRange(7, 32)
+        /// ```
+        /// </summary>
+        /// <param name="distance">Distance from the player</param>
+        /// <param name="hue">The color to change the tiles at that distance</param>
+        public void DisplayRange(ushort distance, ushort hue = 22) => InvokeOnMainThread(()=>{
+            if(distance == 0){
+                ProfileManager.CurrentProfile.DisplayRadius = false;
+                return;
+            }
+
+            ProfileManager.CurrentProfile.DisplayRadius = true;
+            ProfileManager.CurrentProfile.DisplayRadiusDistance = distance;
+            ProfileManager.CurrentProfile.DisplayRadiusHue = hue;
         });
         #endregion
     }

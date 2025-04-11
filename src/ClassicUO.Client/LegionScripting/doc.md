@@ -3,7 +3,7 @@ All methods, properties, enums, etc need to pre prefaced with `API.` for example
 If you download the [API.py](API.py) file, put it in the same folder as your python scripts and add `import API` to your script, that will enable some mild form of autocomplete in an editor like VS Code.  
 
 
-This was generated on `4/9/2025`.
+This was generated on `4/10/2025`.
 # API  
 
 ## Class Description
@@ -2048,8 +2048,30 @@ This was generated on `4/9/2025`.
 **Parameters**  
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
-| skill | string | No | Skill name, case sensitive |
+| skill | string | No | Skill name, case-sensitive |
 #### Return Type: *Skill*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>DisplayRange(distance, hue)</h3></summary>
+
+ Show a radius around the player.  
+ Example:  
+ ```py
+ API.DisplayRange(7, 32)
+ ```
+
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| distance | ushort | No | Distance from the player |
+| hue | ushort | Yes | The color to change the tiles at that distance |
+#### Does not return anything
 
 </details>
 
