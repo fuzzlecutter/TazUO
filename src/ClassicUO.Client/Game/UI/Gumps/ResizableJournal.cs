@@ -490,7 +490,7 @@ namespace ClassicUO.Game.UI.Gumps
                 {
                     foreach (JournalData journalEntry in journalDatas)
                     {
-                        if (journalEntry == null || string.IsNullOrEmpty(journalEntry.EntryText.Text))
+                        if (journalEntry == null || journalEntry.EntryText == null || journalEntry.TimeStamp == null)
                             continue;
 
                         if (!CanBeDrawn(journalEntry.TextType, journalEntry.MessageType))
