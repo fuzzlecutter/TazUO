@@ -965,7 +965,7 @@ namespace ClassicUO.Game.UI.Gumps
                                 UIManager.Add(new InspectorGump(_item));
                             }
                         }
-                        else
+                        else if (!ProfileManager.CurrentProfile.DisableTargetingGridContainers)
                             TargetManager.Target(container);
                         Mouse.CancelDoubleClick = true;
                     }

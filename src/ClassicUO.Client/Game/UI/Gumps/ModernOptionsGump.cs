@@ -837,9 +837,6 @@ namespace ClassicUO.Game.UI.Gumps
                 ));
         }
 
-
-
-
         private void BuildInfoBar()
         {
             mainScrollArea content = new mainScrollArea(mainContent.RightWidth, mainContent.Height, (int)(mainContent.RightWidth * 1.0));
@@ -964,8 +961,6 @@ namespace ClassicUO.Game.UI.Gumps
                     PAGE.InfoBar
                 ));
         }
-
-
 
         private void BuildTooltips()
         {
@@ -1182,198 +1177,98 @@ namespace ClassicUO.Game.UI.Gumps
 
         private void BuildCombatSpells()
         {
-            SettingsOption s;
+            //SettingsOption s;
             PositionHelper.Reset();
 
-            options.Add(s = new SettingsOption(
-                    "",
-                    new CheckboxWithLabel(lang.GetCombatSpells.HoldTabForCombat, 0, profile.HoldDownKeyTab, (b) => { profile.HoldDownKeyTab = b; }),
-                    mainContent.RightWidth,
-                    PAGE.CombatSpells
-                ));
-            PositionHelper.PositionControl(s.FullControl);
-
-            PositionHelper.BlankLine();
-
-            options.Add(s = new SettingsOption(
-                    "",
-                    new CheckboxWithLabel(lang.GetCombatSpells.QueryBeforeAttack, 0, profile.EnabledCriminalActionQuery, (b) => { profile.EnabledCriminalActionQuery = b; }),
-                    mainContent.RightWidth,
-                    PAGE.CombatSpells
-                ));
-            PositionHelper.PositionControl(s.FullControl);
-
-            PositionHelper.BlankLine();
-
-            options.Add(s = new SettingsOption(
-                    "",
-                    new CheckboxWithLabel(lang.GetCombatSpells.QueryBeforeBeneficial, 0, profile.EnabledBeneficialCriminalActionQuery, (b) => { profile.EnabledBeneficialCriminalActionQuery = b; }),
-                    mainContent.RightWidth,
-                    PAGE.CombatSpells
-                ));
-            PositionHelper.PositionControl(s.FullControl);
-
-            PositionHelper.BlankLine();
-
-            options.Add(s = new SettingsOption(
-                    "",
-                    new CheckboxWithLabel(lang.GetCombatSpells.EnableOverheadSpellFormat, 0, profile.EnabledSpellFormat, (b) => { profile.EnabledSpellFormat = b; }),
-                    mainContent.RightWidth,
-                    PAGE.CombatSpells
-                ));
-            PositionHelper.PositionControl(s.FullControl);
-
-            PositionHelper.BlankLine();
-
-            options.Add(s = new SettingsOption(
-                    "",
-                    new CheckboxWithLabel(lang.GetCombatSpells.EnableOverheadSpellHue, 0, profile.EnabledSpellHue, (b) => { profile.EnabledSpellHue = b; }),
-                    mainContent.RightWidth,
-                    PAGE.CombatSpells
-                ));
-            PositionHelper.PositionControl(s.FullControl);
-
-            PositionHelper.BlankLine();
-
-            options.Add(s = new SettingsOption(
-                    "",
-                    new CheckboxWithLabel(lang.GetCombatSpells.SingleClickForSpellIcons, 0, profile.CastSpellsByOneClick, (b) => { profile.CastSpellsByOneClick = b; }),
-                    mainContent.RightWidth,
-                    PAGE.CombatSpells
-                ));
-            PositionHelper.PositionControl(s.FullControl);
-
-            PositionHelper.BlankLine();
-
-            options.Add(s = new SettingsOption(
-                    "",
-                    new CheckboxWithLabel(lang.GetCombatSpells.ShowBuffDurationOnOldStyleBuffBar, 0, profile.BuffBarTime, (b) => { profile.BuffBarTime = b; }),
-                    mainContent.RightWidth,
-                    PAGE.CombatSpells
-                ));
-            PositionHelper.PositionControl(s.FullControl);
-
-            PositionHelper.BlankLine();
+            ScrollArea scroll = new ScrollArea(0, 0, mainContent.RightWidth, mainContent.Height);
+            options.Add(new SettingsOption("", scroll, mainContent.RightWidth, PAGE.CombatSpells));
 
             Control c;
-            options.Add(s = new SettingsOption(
-                    "",
-                    c = new CheckboxWithLabel(lang.GetCombatSpells.EnableFastSpellHotkeyAssigning, 0, profile.FastSpellsAssign, (b) => { profile.FastSpellsAssign = b; }),
-                    mainContent.RightWidth,
-                    PAGE.CombatSpells
-                ));
-            PositionHelper.PositionControl(s.FullControl);
+            scroll.Add(c = new CheckboxWithLabel(lang.GetCombatSpells.HoldTabForCombat, 0, profile.HoldDownKeyTab, (b) => { profile.HoldDownKeyTab = b; }));
+            PositionHelper.PositionControl(c);
+
+            PositionHelper.BlankLine();
+
+            scroll.Add(c = new CheckboxWithLabel(lang.GetCombatSpells.QueryBeforeAttack, 0, profile.EnabledCriminalActionQuery, (b) => { profile.EnabledCriminalActionQuery = b; }));
+            PositionHelper.PositionControl(c);
+
+            PositionHelper.BlankLine();
+
+            scroll.Add(c = new CheckboxWithLabel(lang.GetCombatSpells.QueryBeforeBeneficial, 0, profile.EnabledBeneficialCriminalActionQuery, (b) => { profile.EnabledBeneficialCriminalActionQuery = b; }));
+            PositionHelper.PositionControl(c);
+
+            PositionHelper.BlankLine();
+
+            scroll.Add(c = new CheckboxWithLabel(lang.GetCombatSpells.EnableOverheadSpellFormat, 0, profile.EnabledSpellFormat, (b) => { profile.EnabledSpellFormat = b; }));
+            PositionHelper.PositionControl(c);
+
+            PositionHelper.BlankLine();
+
+            scroll.Add(c = new CheckboxWithLabel(lang.GetCombatSpells.EnableOverheadSpellHue, 0, profile.EnabledSpellHue, (b) => { profile.EnabledSpellHue = b; }));
+            PositionHelper.PositionControl(c);
+
+            PositionHelper.BlankLine();
+
+            scroll.Add(c = new CheckboxWithLabel(lang.GetCombatSpells.SingleClickForSpellIcons, 0, profile.CastSpellsByOneClick, (b) => { profile.CastSpellsByOneClick = b; }));
+            PositionHelper.PositionControl(c);
+
+            PositionHelper.BlankLine();
+
+            scroll.Add(c = new CheckboxWithLabel(lang.GetCombatSpells.ShowBuffDurationOnOldStyleBuffBar, 0, profile.BuffBarTime, (b) => { profile.BuffBarTime = b; }));
+            PositionHelper.PositionControl(c);
+
+            PositionHelper.BlankLine();
+
+            scroll.Add(c = new CheckboxWithLabel(lang.GetCombatSpells.EnableFastSpellHotkeyAssigning, 0, profile.FastSpellsAssign, (b) => { profile.FastSpellsAssign = b; }));
+
+            PositionHelper.PositionControl(c);
             c.SetTooltip(lang.GetCombatSpells.TooltipFastSpellAssign);
 
             PositionHelper.BlankLine();
 
-            options.Add(s = new SettingsOption(
-                "",
-                new CheckboxWithLabel(lang.GetCombatSpells.EnableDPSCounter, 0, profile.ShowDPS, (b) => { profile.ShowDPS = b; }),
-                mainContent.RightWidth,
-                PAGE.CombatSpells
-            ));
-            PositionHelper.PositionControl(s.FullControl);
+            scroll.Add(c = new CheckboxWithLabel(lang.GetCombatSpells.EnableDPSCounter, 0, profile.ShowDPS, (b) => { profile.ShowDPS = b; }));
+            PositionHelper.PositionControl(c);
 
             PositionHelper.BlankLine();
 
-            SettingsOption ss;
-            options.Add(s = new SettingsOption(
-                "",
-                new ModernColorPickerWithLabel(lang.GetCombatSpells.InnocentColor, profile.InnocentHue, (h) => { profile.InnocentHue = h; }),
-                mainContent.RightWidth,
-                PAGE.CombatSpells
-            ));
-            PositionHelper.PositionControl(s.FullControl);
-            ss = s;
+            scroll.Add(c = new ModernColorPickerWithLabel(lang.GetCombatSpells.InnocentColor, profile.InnocentHue, (h) => { profile.InnocentHue = h; }));
 
-            options.Add(s = new SettingsOption(
-                "",
-                new ModernColorPickerWithLabel(lang.GetCombatSpells.BeneficialSpell, profile.BeneficHue, (h) => { profile.BeneficHue = h; }),
-                mainContent.RightWidth,
-                PAGE.CombatSpells
-            ));
-            PositionHelper.PositionExact(s.FullControl, 200, ss.FullControl.Y);
-            ss = s;
+            PositionHelper.PositionControl(c);
 
-            options.Add(s = new SettingsOption(
-                "",
-                new ModernColorPickerWithLabel(lang.GetCombatSpells.FriendColor, profile.FriendHue, (h) => { profile.FriendHue = h; }),
-                mainContent.RightWidth,
-                PAGE.CombatSpells
-            ));
-            PositionHelper.PositionControl(s.FullControl);
-            ss = s;
+            Control clast = c;
+            scroll.Add(c = new ModernColorPickerWithLabel(lang.GetCombatSpells.BeneficialSpell, profile.BeneficHue, (h) => { profile.BeneficHue = h; }));
+            PositionHelper.PositionExact(c, 200, clast.Y);
 
-            options.Add(s = new SettingsOption(
-                "",
-                new ModernColorPickerWithLabel(lang.GetCombatSpells.HarmfulSpell, profile.HarmfulHue, (h) => { profile.HarmfulHue = h; }),
-                mainContent.RightWidth,
-                PAGE.CombatSpells
-            ));
-            PositionHelper.PositionExact(s.FullControl, 200, ss.FullControl.Y);
-            ss = s;
+            scroll.Add(c = new ModernColorPickerWithLabel(lang.GetCombatSpells.FriendColor, profile.FriendHue, (h) => { profile.FriendHue = h; }));
+            PositionHelper.PositionControl(c);
+            clast = c;
 
-            options.Add(s = new SettingsOption(
-                "",
-                new ModernColorPickerWithLabel(lang.GetCombatSpells.Criminal, profile.CriminalHue, (h) => { profile.CriminalHue = h; }),
-                mainContent.RightWidth,
-                PAGE.CombatSpells
-            ));
-            PositionHelper.PositionControl(s.FullControl);
-            ss = s;
+            scroll.Add(c = new ModernColorPickerWithLabel(lang.GetCombatSpells.HarmfulSpell, profile.HarmfulHue, (h) => { profile.HarmfulHue = h; }));
+            PositionHelper.PositionExact(c, 200, clast.Y);
 
-            options.Add(s = new SettingsOption(
-                "",
-                new ModernColorPickerWithLabel(lang.GetCombatSpells.NeutralSpell, profile.NeutralHue, (h) => { profile.NeutralHue = h; }),
-                mainContent.RightWidth,
-                PAGE.CombatSpells
-            ));
-            PositionHelper.PositionExact(s.FullControl, 200, ss.FullControl.Y);
-            ss = s;
+            scroll.Add(c = new ModernColorPickerWithLabel(lang.GetCombatSpells.Criminal, profile.CriminalHue, (h) => { profile.CriminalHue = h; }));
+            PositionHelper.PositionControl(c);
+            clast = c;
 
-            options.Add(s = new SettingsOption(
-                "",
-                new ModernColorPickerWithLabel(lang.GetCombatSpells.CanBeAttackedHue, profile.CanAttackHue, (h) => { profile.CanAttackHue = h; }),
-                mainContent.RightWidth,
-                PAGE.CombatSpells
-            ));
-            PositionHelper.PositionControl(s.FullControl);
-            ss = s;
+            scroll.Add(c = new ModernColorPickerWithLabel(lang.GetCombatSpells.NeutralSpell, profile.NeutralHue, (h) => { profile.NeutralHue = h; }));
+            PositionHelper.PositionExact(c, 200, clast.Y);
 
-            options.Add(s = new SettingsOption(
-                "",
-                new ModernColorPickerWithLabel(lang.GetCombatSpells.Murderer, profile.MurdererHue, (h) => { profile.MurdererHue = h; }),
-                mainContent.RightWidth,
-                PAGE.CombatSpells
-            ));
-            PositionHelper.PositionExact(s.FullControl, 200, ss.FullControl.Y);
-            ss = s;
+            scroll.Add(c = new ModernColorPickerWithLabel(lang.GetCombatSpells.CanBeAttackedHue, profile.CanAttackHue, (h) => { profile.CanAttackHue = h; }));
+            PositionHelper.PositionControl(c);
+            clast = c;
 
-            options.Add(s = new SettingsOption(
-                "",
-                new ModernColorPickerWithLabel(lang.GetCombatSpells.Enemy, profile.EnemyHue, (h) => { profile.EnemyHue = h; }),
-                mainContent.RightWidth,
-                PAGE.CombatSpells
-            ));
-            PositionHelper.PositionControl(s.FullControl);
+            scroll.Add(c = new ModernColorPickerWithLabel(lang.GetCombatSpells.Murderer, profile.MurdererHue, (h) => { profile.MurdererHue = h; }));
+            PositionHelper.PositionExact(c, 200, clast.Y);
+
+            scroll.Add(c = new ModernColorPickerWithLabel(lang.GetCombatSpells.Enemy, profile.EnemyHue, (h) => { profile.EnemyHue = h; }));
+            PositionHelper.PositionControl(c);
 
             PositionHelper.BlankLine();
 
-            InputField spellFormat;
-            options.Add(s = new SettingsOption(
-                    lang.GetCombatSpells.SpellOverheadFormat,
-                    spellFormat = new InputField(200, 40),
-                    mainContent.RightWidth,
-                    PAGE.CombatSpells
-                    ));
-            spellFormat.SetText(profile.SpellDisplayFormat);
-            spellFormat.TextChanged += (s, e) =>
-            {
-                profile.SpellDisplayFormat = spellFormat.Text;
-            };
-            PositionHelper.PositionControl(s.FullControl);
-            s.FullControl.SetTooltip(lang.GetCombatSpells.TooltipSpellFormat);
+            InputFieldWithLabel spellFormat = spellFormat = new InputFieldWithLabel(lang.GetCombatSpells.SpellOverheadFormat, 200, profile.SpellDisplayFormat, onTextChange: (s, e) => { profile.SpellDisplayFormat = ((InputField.StbTextBox)s).Text; });
+            scroll.Add(spellFormat);
+            PositionHelper.PositionControl(spellFormat);
+            spellFormat.SetTooltip(lang.GetCombatSpells.TooltipSpellFormat);
         }
 
         private void BuildCounters()
