@@ -3267,28 +3267,36 @@ namespace ClassicUO.Network
             MapGump gump = new MapGump(serial, gumpid, width, height);
             SpriteInfo multiMapInfo;
 
-            if (p[0] == 0xF5 || Client.Version >= Utility.ClientVersion.CV_308Z)
+            try
             {
-                ushort facet = 0;
-
-                if (p[0] == 0xF5)
+                if (p[0] == 0xF5 || Client.Version >= Utility.ClientVersion.CV_308Z)
                 {
-                    facet = p.ReadUInt16BE();
+                    ushort facet = 0;
+
+                    if (p[0] == 0xF5)
+                    {
+                        facet = p.ReadUInt16BE();
+                    }
+
+                    multiMapInfo = Client.Game.MultiMaps.GetMap(facet, width, height, startX, startY, endX, endY);
+
+                    gump.MapInfos(startX, startY, endX, endY, facet);
+                }
+                else
+                {
+                    multiMapInfo = Client.Game.MultiMaps.GetMap(null, width, height, startX, startY, endX, endY);
+
+                    gump.MapInfos(startX, startY, endX, endY);
                 }
 
-                multiMapInfo = Client.Game.MultiMaps.GetMap(facet, width, height, startX, startY, endX, endY);
-
-                gump.MapInfos(startX, startY, endX, endY, facet);
+                if (multiMapInfo.Texture != null)
+                    gump.SetMapTexture(multiMapInfo.Texture);
             }
-            else
+            catch (Exception e)
             {
-                multiMapInfo = Client.Game.MultiMaps.GetMap(null, width, height, startX, startY, endX, endY);
-
-                gump.MapInfos(startX, startY, endX, endY);
+                Log.Error("Failed to create map texture: ");
+                Console.WriteLine(e);
             }
-
-            if (multiMapInfo.Texture != null)
-                gump.SetMapTexture(multiMapInfo.Texture);
 
             UIManager.Add(gump);
 
