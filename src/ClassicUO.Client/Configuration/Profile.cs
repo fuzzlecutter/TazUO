@@ -375,7 +375,7 @@ namespace ClassicUO.Configuration
         public byte GridContainersScale { get; set; } = 100;
         public bool GridContainerScaleItems { get; set; } = true;
         public bool GridEnableContPreview { get; set; } = true;
-        public int Grid_BorderStyle { get; set; } = 8;
+        public int Grid_BorderStyle { get; set; } = 0;
         public int Grid_DefaultColumns { get; set; } = 5;
         public int Grid_DefaultRows { get; set; } = 5;
         public bool Grid_UseContainerHue { get; set; } = false;

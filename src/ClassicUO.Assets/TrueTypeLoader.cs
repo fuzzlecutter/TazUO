@@ -90,6 +90,23 @@ namespace ClassicUO.Assets
                 }
             }
 
+            if (!_fonts.ContainsKey("avadonian"))
+            {
+                var assembly = this.GetType().Assembly;
+                var resourceName = assembly.GetName().Name + ".avadonian.ttf";
+                System.Console.WriteLine(resourceName);
+                Stream stream = assembly.GetManifestResourceStream(resourceName);
+                if (stream != null)
+                {
+                    var memoryStream = new MemoryStream();
+
+                    stream.CopyTo(memoryStream);
+                    var fontSystem = new FontSystem(settings);
+                    fontSystem.AddFont(memoryStream.ToArray());
+                    _fonts["avadonian"] = fontSystem;
+                }
+            }
+
             return Task.CompletedTask;
         }
 

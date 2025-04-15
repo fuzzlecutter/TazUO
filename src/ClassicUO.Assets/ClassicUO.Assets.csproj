@@ -17,6 +17,7 @@
     <None Remove="gumpartassets\40312.png" />
     <None Remove="gumpartassets\modern-paperdollgump.png" />
     <None Remove="Roboto-Regular.ttf" />
+    <None Remove="avadonian.ttf" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,6 +33,7 @@
     <EmbeddedResource Include="gumpartassets\40312.png" />
     <EmbeddedResource Include="gumpartassets\modern-paperdollgump.png" />
     <EmbeddedResource Include="Roboto-Regular.ttf" />
+    <EmbeddedResource Include="avadonian.ttf" />
   </ItemGroup>
 
   <ItemGroup>
