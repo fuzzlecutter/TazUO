@@ -2300,7 +2300,7 @@ namespace ClassicUO.Game.UI.Gumps
                 profile.PlayerConstantAlpha = i;
             }), true, page);
             content.BlankLine();
-            content.AddToRight(new SliderWithLabel(lang.GetTazUO.AutoFollowDistance, 0, Theme.SLIDER_WIDTH, 0, 10, profile.AutoFollowDistance, (i) =>
+            content.AddToRight(new SliderWithLabel(lang.GetTazUO.AutoFollowDistance, 0, Theme.SLIDER_WIDTH, 1, 10, profile.AutoFollowDistance, (i) =>
             {
                 profile.AutoFollowDistance = i;
             }), true, page);
