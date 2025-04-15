@@ -2092,6 +2092,13 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 profile.GridHightlightSize = i;
             }), true, page);
+
+            content.BlankLine();
+
+            content.AddToRight(c = new CheckboxWithLabel(lang.GetTazUO.GridDisableTargeting, 0, profile.DisableTargetingGridContainers, (b) =>
+            {
+                profile.DisableTargetingGridContainers = b;
+            }), true, page);
             #endregion
 
             #region Journal

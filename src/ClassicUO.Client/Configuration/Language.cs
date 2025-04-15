@@ -438,6 +438,7 @@ namespace ClassicUO.Configuration
             public string DefaultGridColumns { get; set; } = "Default grid columns";
             public string GridHighlightSettings { get; set; } = "Grid highlight settings";
             public string GridHighlightSize { get; set; } = "Grid highlight size";
+            public string GridDisableTargeting { get; set; } = "Disable Targeting Grid Containers";
             #endregion
 
             #region Journal

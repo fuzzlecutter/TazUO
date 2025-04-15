@@ -588,18 +588,19 @@ namespace ClassicUO.Configuration
 
         public uint SOSGumpID { get; set; } = 1915258020;
 
-        public bool ModernPaperdollAnchorEnabled { get; set; } = false;
+        public bool ModernPaperdollAnchorEnabled { get; set; }
         public bool JournalAnchorEnabled { get; set; } = false;
         public bool EnableAutoLootProgressBar { get; set; } = true;
-        public bool UseWASDInsteadArrowKeys { get; set; } = false;
+        public bool UseWASDInsteadArrowKeys { get; set; }
         public int NearbyLootGumpHeight { get; set; } = 550;
         public bool ForceTooltipsOnOldClients { get; set; } = true;
-        public bool NearbyLootOpensHumanCorpses { get; set; } = false;
+        public bool NearbyLootOpensHumanCorpses { get; set; }
         public bool GlobalScaling { get; set; } = false;
-        public float GlobalScale {  get; set; } = 1.5f;
+        public float GlobalScale { get; set; } = 1.5f;
         public ushort TurnDelay { get; set; } = 100;
-        public bool SellAgentEnabled { get; set; } = false;
-        public bool BuyAgentEnabled { get; set; } = false;
+        public bool SellAgentEnabled { get; set; }
+        public bool BuyAgentEnabled { get; set; }
+        public bool DisableTargetingGridContainers { get; set; }
 
         public void Save(string path, bool saveGumps = true)
         {

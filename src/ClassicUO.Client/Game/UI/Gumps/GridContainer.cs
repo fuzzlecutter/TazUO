@@ -393,7 +393,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 if (Client.Game.GameCursor.ItemHold.Enabled)
                     GameActions.DropItem(Client.Game.GameCursor.ItemHold.Serial, 0xFFFF, 0xFFFF, 0, LocalSerial);
-                else if (TargetManager.IsTargeting)
+                else if (TargetManager.IsTargeting && !ProfileManager.CurrentProfile.DisableTargetingGridContainers)
                     TargetManager.Target(LocalSerial);
             }
             else if (e.Button == MouseButtonType.Right)
