@@ -213,7 +213,7 @@ namespace ClassicUO.Game.Managers
             if (moveItem != 0)
             {
                 if (lootItems.Count == 0) //Que emptied out                
-                    currentLootTotalCount = 0;                
+                    currentLootTotalCount = 0;
 
                 quickContainsLookup.Remove(moveItem);
 
@@ -228,12 +228,12 @@ namespace ClassicUO.Game.Managers
 
                 if (m != null)
                 {
-                    if(m.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
-                        {
-                            Item rc = World.Items.Get(m.RootContainer);
-                            if(rc.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
-                                return;
-                        }
+                    if (m.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
+                    {
+                        Item rc = World.Items.Get(m.RootContainer);
+                        if (rc != null && rc.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
+                            return;
+                    }
                     GameActions.GrabItem(m, m.Amount);
                     nextLootTime = Time.Ticks + ProfileManager.CurrentProfile.MoveMultiObjectDelay;
                 }
