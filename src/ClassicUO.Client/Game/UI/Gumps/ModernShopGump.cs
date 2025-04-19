@@ -225,7 +225,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 #region ITEM INFO
                 TextBox _;
-                itemInfo.Add(textBoxName = TextBox.GetOne(Name, TrueTypeLoader.EMBEDDED_FONT, 25, Color.White, TextBox.RTLOptions.Default(ITEM_DESCPTION_WIDTH - Height)));
+                itemInfo.Add(textBoxName = TextBox.GetOne(TextBox.ConvertHtmlToFontStashSharpCommand(Name), TrueTypeLoader.EMBEDDED_FONT, 25, Color.White, TextBox.RTLOptions.Default(ITEM_DESCPTION_WIDTH - Height)));
                 textBoxName.Y = (itemInfo.Height - textBoxName.MeasuredSize.Y) / 2;
                 textBoxName.AcceptMouseInput = false;
 

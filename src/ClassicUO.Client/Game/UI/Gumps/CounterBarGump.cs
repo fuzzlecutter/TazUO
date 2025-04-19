@@ -415,6 +415,7 @@ namespace ClassicUO.Game.UI.Gumps
                 _image?.ChangeGraphic(0, 0);
                 _amount = 0;
                 Graphic = 0;
+                SpellID = default;
             }
 
             public void Use()
