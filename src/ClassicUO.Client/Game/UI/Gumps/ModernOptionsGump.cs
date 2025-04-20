@@ -674,7 +674,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             LeftSideMenuRightSideContent content = new LeftSideMenuRightSideContent(mainContent.RightWidth, mainContent.Height, (int)(mainContent.RightWidth * 0.3));
             int page = ((int)PAGE.Macros + 1000);
-
+            int bParam = page + 1;
             #region New Macro
             ModernButton b;
             content.AddToLeft(b = new ModernButton(0, 0, content.LeftWidth, 40, ButtonAction.Activate, lang.GetMacros.NewMacro, Theme.BUTTON_FONT_COLOR) { ButtonParameter = page, IsSelectable = false });
@@ -704,7 +704,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                         MacroControl macroControl = new MacroControl(name);
 
-                        content.AddToLeft(nb = new ModernButton(0, 0, content.LeftWidth, 40, ButtonAction.SwitchPage, name, Theme.BUTTON_FONT_COLOR) { ButtonParameter = page + 1 + content.LeftArea.Children.Count, Tag = macroControl.Macro });
+                        content.AddToLeft(nb = new ModernButton(0, 0, content.LeftWidth, 40, ButtonAction.SwitchPage, name, Theme.BUTTON_FONT_COLOR) { ButtonParameter = bParam++, Tag = macroControl.Macro });
                         content.ResetRightSide();
                         content.AddToRight(macroControl, true, nb.ButtonParameter);
 
@@ -774,7 +774,15 @@ namespace ClassicUO.Game.UI.Gumps
                             {
                                 UIManager.Gumps.OfType<MacroButtonGump>().FirstOrDefault(s => s.TheMacro == macro)?.Dispose();
                                 Client.Game.GetScene<GameScene>().Macros.Remove(macro);
+
+                                foreach(var c in content.RightArea.Children){
+                                    if(c.Page == nb.ButtonParameter){
+                                        c.Dispose();
+                                    }
+                                }
+
                                 nb.Dispose();
+                                content.RepositionLeftMenuChildren();
                             }
                         }
                     );
@@ -791,35 +799,7 @@ namespace ClassicUO.Game.UI.Gumps
             MacroManager macroManager = Client.Game.GetScene<GameScene>().Macros;
             for (Macro macro = (Macro)macroManager.Items; macro != null; macro = (Macro)macro.Next)
             {
-                content.AddToLeft(b = new ModernButton(0, 0, content.LeftWidth, 40, ButtonAction.SwitchPage, macro.Name, Theme.BUTTON_FONT_COLOR) { ButtonParameter = page + 1 + content.LeftArea.Children.Count, Tag = macro });
-
-                b.DragBegin += (sss, eee) =>
-                {
-                    ModernButton mupNiceButton = (ModernButton)sss;
-
-                    Macro m = mupNiceButton.Tag as Macro;
-
-                    if (m == null)
-                    {
-                        return;
-                    }
-
-                    if (UIManager.DraggingControl != this || UIManager.MouseOverControl != sss)
-                    {
-                        return;
-                    }
-
-                    UIManager.Gumps.OfType<MacroButtonGump>().FirstOrDefault(s => s.TheMacro == m)?.Dispose();
-
-                    MacroButtonGump macroButtonGump = new MacroButtonGump(m, Mouse.Position.X, Mouse.Position.Y);
-
-                    macroButtonGump.X = Mouse.Position.X - (macroButtonGump.Width >> 1);
-                    macroButtonGump.Y = Mouse.Position.Y - (macroButtonGump.Height >> 1);
-
-                    UIManager.Add(macroButtonGump);
-
-                    UIManager.AttemptDragControl(macroButtonGump, true);
-                };
+                content.AddToLeft(b = new ModernButton(0, 0, content.LeftWidth, 40, ButtonAction.SwitchPage, macro.Name, Theme.BUTTON_FONT_COLOR) { ButtonParameter = bParam++, Tag = macro });
 
                 content.ResetRightSide();
                 content.AddToRight(new MacroControl(macro.Name), true, b.ButtonParameter);
@@ -5888,6 +5868,19 @@ namespace ClassicUO.Game.UI.Gumps
                 }
 
                 left.Add(c, page);
+            }
+
+            public void RepositionLeftMenuChildren(){
+                leftY = 0;
+                leftX = 0;
+                foreach(var c in left.Children)
+                {
+                    if(c == null || c.IsDisposed || c is not ModernButton) continue;
+
+                    c.Y = leftY;
+                    c.X = leftX;
+                    leftY += c.Height;
+                }
             }
 
             public void AddToRight(Control c, bool autoPosition = true, int page = 0)
