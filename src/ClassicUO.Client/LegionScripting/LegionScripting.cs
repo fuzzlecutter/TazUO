@@ -391,11 +391,29 @@ namespace ClassicUO.LegionScripting
         }
         private static void ExecutePythonScript(ScriptFile script)
         {
-            script.pythonEngine ??= Python.CreateEngine();
+            if(script.pythonEngine == null){
+                script.pythonEngine = Python.CreateEngine();
+
+                string dir = Path.GetDirectoryName(script.FullPath);                       
+                ICollection<string> paths = script.pythonEngine.GetSearchPaths();
+
+                if (!string.IsNullOrWhiteSpace(dir))
+                {
+                    paths.Add(dir);
+                }
+                else
+                {
+                    paths.Add(Environment.CurrentDirectory);
+                }
+
+                script.pythonEngine.SetSearchPaths(paths);
+            }
+
             script.pythonScope = script.pythonEngine.CreateScope();
             var api = new API();
             script.scopedAPI = api;
-            script.pythonScope.SetVariable("API", api);
+            //script.pythonScope.SetVariable("API", api);
+            script.pythonEngine.GetBuiltinModule().SetVariable("API", api);
             try
             {
                 script.pythonEngine.Execute(script.FileContentsJoined, script.pythonScope);
