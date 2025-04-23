@@ -554,6 +554,7 @@ namespace ClassicUO.Configuration
             #region Controller
             public string Controller { get; set; } = "Controller";
             public string MouseSesitivity { get; set; } = "Mouse Sensitivity";
+            public string EnableController { get; set; } = "Enable controller input";
             #endregion
 
             #region SettingsTransfer

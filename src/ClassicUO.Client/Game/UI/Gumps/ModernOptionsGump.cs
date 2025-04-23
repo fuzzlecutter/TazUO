@@ -2483,6 +2483,9 @@ namespace ClassicUO.Game.UI.Gumps
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.Controller, page, content.LeftWidth));
             content.ResetRightSide();
 
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.EnableController, 0, profile.ControllerEnabled, (b) => profile.ControllerEnabled = b), true, page);
+            content.BlankLine();
+
             content.AddToRight(new HttpClickableLink("Controller Support Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Controller-Support", Theme.TEXT_FONT_COLOR), true, page);
             content.BlankLine();
 

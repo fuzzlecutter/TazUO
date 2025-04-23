@@ -16,7 +16,10 @@ namespace ClassicUO.Game.UI.Gumps
                 "- Fixed a bug in tooltips, likely not noticable but should be a significant performance boost while a tooltip is shown.\n"+
                 "- Added -artbrowser and -animbrowser commands\n"+
                 "- Added option to disable targeting grid containers directly\n"+
-                "- Added Avadonian font back in\n",
+                "- Added Avadonian font back in\n" +
+                "- Added option to disable controller\n" +
+                
+                "- Various bug fixes\n",
 
             "/c[white][3.28.0]/cd\n" +
                 "- Added auto buy and sell agents\n" +

@@ -601,6 +601,7 @@ namespace ClassicUO.Configuration
         public bool SellAgentEnabled { get; set; }
         public bool BuyAgentEnabled { get; set; }
         public bool DisableTargetingGridContainers { get; set; }
+        public bool ControllerEnabled { get; set; } = true;
 
         public void Save(string path, bool saveGumps = true)
         {
