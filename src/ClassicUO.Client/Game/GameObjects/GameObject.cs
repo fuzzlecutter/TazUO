@@ -98,11 +98,19 @@ namespace ClassicUO.Game.GameObjects
         {
             get => graphic; set
             {
-                GraphicsReplacement.Replace(ref value, ref Hue);
+                GraphicsReplacement.Replace(ref value, ref hue);
                 graphic = value;
             }
         }
-        public ushort Hue;
+        public ushort Hue
+        {
+            get => hue;
+            set
+            {
+                hue = value;
+                GraphicsReplacement.Replace(ref graphic, ref hue);
+            }
+        }
         public Vector3 Offset;
         public short PriorityZ;
         public GameObject TNext;
@@ -111,7 +119,7 @@ namespace ClassicUO.Game.GameObjects
             Y;
         public sbyte Z;
         public GameObject RenderListNext;
-        private ushort graphic;
+        private ushort graphic, hue;
 
         public void AddDamage(int damage)
         {
