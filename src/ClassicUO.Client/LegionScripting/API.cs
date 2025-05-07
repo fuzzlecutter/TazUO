@@ -1426,6 +1426,32 @@ namespace ClassicUO.LegionScripting
         );
 
         /// <summary>
+        /// Get all mobiles matching Notoriety and distance.  
+        /// Example:  
+        /// ```py
+        /// mob = API.NearestMobiles([API.Notoriety.Murderer, API.Notoriety.Criminal], 7)
+        /// if len(mob) > 0:
+        ///   API.SysMsg("Found enemies!")
+        ///   API.Msg("Guards!")
+        ///   API.Attack(mob[0])
+        ///   ```
+        /// </summary>
+        /// <param name="notoriety">List of notorieties</param>
+        /// <param name="maxDistance"></param>
+        /// <returns></returns>
+        public Mobile[] NearestMobiles(IList<Notoriety> notoriety, int maxDistance = 10) => InvokeOnMainThread<Mobile[]>(() =>
+        {
+            if (notoriety == null || notoriety.Count == 0) return null;
+
+            return World.Mobiles.Values.Where(m => !m.IsDestroyed
+                && !m.IsDead
+                && m.Serial != World.Player.Serial
+                && notoriety.Contains((Notoriety)(byte)m.NotorietyFlag)
+                && m.Distance <= maxDistance
+                && !OnIgnoreList(m)).OrderBy(m => m.Distance).ToArray();
+        });
+
+        /// <summary>
         /// Get a mobile from its serial.  
         /// Example:  
         /// ```py

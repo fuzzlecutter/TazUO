@@ -242,6 +242,9 @@ def NearestMobile(notoriety: list[Any], maxDistance: int = 10):
 def NearestCorpse(distance: int = 3):
     pass
 
+def NearestMobiles(notoriety: list[Any], maxDistance: int = 10):
+    pass
+
 def FindMobile(serial: int):
     pass
 
