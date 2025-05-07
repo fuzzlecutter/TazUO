@@ -940,11 +940,13 @@ namespace ClassicUO.Game.UI.Gumps
                         {
                             GameActions.DropItem(Client.Game.GameCursor.ItemHold.Serial, 0xFFFF, 0xFFFF, 0, _item.Serial);
                             Mouse.CancelDoubleClick = true;
+                            mousePressedWhenEntered = false; //Fix for not needing to move mouse out of grid box to re-drag item
                         }
                         else if (_item != null && _item.ItemData.IsStackable && _item.Graphic == Client.Game.GameCursor.ItemHold.Graphic)
                         {
                             GameActions.DropItem(Client.Game.GameCursor.ItemHold.Serial, _item.X, _item.Y, 0, _item.Serial);
                             Mouse.CancelDoubleClick = true;
+                            mousePressedWhenEntered = false; //Fix for not needing to move mouse out of grid box to re-drag item                        
                         }
                         else
                         {
@@ -953,6 +955,7 @@ namespace ClassicUO.Game.UI.Gumps
                             var pos = GetBoxPosition(slot, Client.Game.GameCursor.ItemHold.Graphic, containerBounds.Width, containerBounds.Height);
                             GameActions.DropItem(Client.Game.GameCursor.ItemHold.Serial, pos.X, pos.Y, 0, container.Serial);
                             Mouse.CancelDoubleClick = true;
+                            mousePressedWhenEntered = false; //Fix for not needing to move mouse out of grid box to re-drag item                        
                         }
                     }
                     else if (TargetManager.IsTargeting)
