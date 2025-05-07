@@ -305,7 +305,7 @@ namespace ClassicUO.Game.GameObjects
 
             if (layerObject != null)
             {
-                equippedGraphic = layerObject.Graphic;
+                equippedGraphic = layerObject.OriginalGraphic;
             }
             else
             {
@@ -313,7 +313,7 @@ namespace ClassicUO.Game.GameObjects
 
                 if (layerObject != null)
                 {
-                    equippedGraphic = layerObject.Graphic;
+                    equippedGraphic = layerObject.OriginalGraphic;
                 }
             }
 

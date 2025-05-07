@@ -94,10 +94,13 @@ namespace ClassicUO.Game.GameObjects
 
         // FIXME: remove it
         public sbyte FoliageIndex = -1;
+        public ushort OriginalGraphic => originalGraphic;
         public ushort Graphic
         {
             get => graphic; set
             {
+                if (originalGraphic == default)
+                    originalGraphic = value;
                 GraphicsReplacement.Replace(ref value, ref hue);
                 graphic = value;
             }
@@ -108,7 +111,7 @@ namespace ClassicUO.Game.GameObjects
             set
             {
                 hue = value;
-                GraphicsReplacement.Replace(ref graphic, ref hue);
+                GraphicsReplacement.Replace(ref originalGraphic, ref hue);
             }
         }
         public Vector3 Offset;
@@ -119,7 +122,7 @@ namespace ClassicUO.Game.GameObjects
             Y;
         public sbyte Z;
         public GameObject RenderListNext;
-        private ushort graphic, hue;
+        private ushort graphic, originalGraphic, hue;
 
         public void AddDamage(int damage)
         {
