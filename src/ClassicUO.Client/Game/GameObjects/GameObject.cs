@@ -94,7 +94,7 @@ namespace ClassicUO.Game.GameObjects
 
         // FIXME: remove it
         public sbyte FoliageIndex = -1;
-        public ushort OriginalGraphic => originalGraphic;
+        public ushort OriginalGraphic => originalGraphic == default ? Graphic : originalGraphic;
         public ushort Graphic
         {
             get => graphic; set
@@ -102,6 +102,7 @@ namespace ClassicUO.Game.GameObjects
                 if (originalGraphic == default)
                     originalGraphic = value;
                 GraphicsReplacement.Replace(ref value, ref hue);
+                Hue = hue; //Workaround for making sure hues are replaced as-well
                 graphic = value;
             }
         }
@@ -110,7 +111,7 @@ namespace ClassicUO.Game.GameObjects
             get => hue;
             set
             {
-                GraphicsReplacement.Replace(ref originalGraphic, ref value);
+                GraphicsReplacement.ReplaceHue(OriginalGraphic, ref value);
                 hue = value;
             }
         }

@@ -60,6 +60,16 @@ namespace ClassicUO.Game.Managers
             }
         }
 
+        public static void ReplaceHue(ushort graphic, ref ushort hue)
+        {
+            if (quickLookup.Contains(graphic))
+            {
+                var filter = graphicChangeFilters[graphic];
+                if (filter.NewHue != ushort.MaxValue)
+                    hue = filter.NewHue;
+            }
+        }
+
         public static void ResetLists()
         {
             Dictionary<ushort, GraphicChangeFilter> newList = new Dictionary<ushort, GraphicChangeFilter>();
