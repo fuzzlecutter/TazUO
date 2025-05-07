@@ -110,8 +110,8 @@ namespace ClassicUO.Game.GameObjects
             get => hue;
             set
             {
+                GraphicsReplacement.Replace(ref originalGraphic, ref value);
                 hue = value;
-                GraphicsReplacement.Replace(ref originalGraphic, ref hue);
             }
         }
         public Vector3 Offset;
