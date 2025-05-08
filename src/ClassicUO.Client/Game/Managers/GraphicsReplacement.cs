@@ -49,12 +49,12 @@ namespace ClassicUO.Game.Managers
             }
         }
 
-        public static void Replace(ref ushort graphic, ref ushort hue)
+        public static void Replace(ushort graphic, ref ushort newgraphic, ref ushort hue)
         {
             if (quickLookup.Contains(graphic))
             {
                 var filter = graphicChangeFilters[graphic];
-                graphic = filter.ReplacementGraphic;
+                newgraphic = filter.ReplacementGraphic;
                 if (filter.NewHue != ushort.MaxValue)
                     hue = filter.NewHue;
             }
