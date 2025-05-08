@@ -409,6 +409,7 @@ namespace ClassicUO.Game.GameObjects
             Offset = Vector3.Zero;
             RealScreenPosition = Point.Zero;
             IsFlipped = false;
+            originalGraphic = 0;
             Graphic = 0;
             ObjectHandlesStatus = ObjectHandlesStatus.NONE;
             FrameInfo = Rectangle.Empty;

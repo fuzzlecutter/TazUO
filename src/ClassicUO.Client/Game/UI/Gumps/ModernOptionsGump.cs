@@ -3277,7 +3277,9 @@ namespace ClassicUO.Game.UI.Gumps
                 {
                     TargetHelper.TargetObject((e) =>
                     {
-                        if (e == null || !SerialHelper.IsMobile(e)) return;
+                        if (e == null)
+                            return;
+                        // if (e == null || !SerialHelper.IsMobile(e)) return;
                         var sc = GraphicsReplacement.NewFilter(e.Graphic, e.Graphic, e.Hue);
                         if (sc != null && _dataBox != null)
                         {
