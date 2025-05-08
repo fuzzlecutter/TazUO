@@ -120,12 +120,16 @@ namespace ClassicUO.LegionScripting
         }
         private static void EventSink_JournalEntryAdded(object sender, JournalEntry e)
         {
+            if(e is null) return;
+
             foreach (ScriptFile script in runningScripts)
             {
+                if(script is null) continue;
+
                 if (script.ScriptType == ScriptType.LegionScript)
-                    script.GetScript.JournalEntryAdded(e);
+                    script.GetScript?.JournalEntryAdded(e);
                 else
-                    script.scopedAPI.JournalEntries.Enqueue(e);
+                    script.scopedAPI?.JournalEntries.Enqueue(e);
             }
         }
         public static void LoadScriptsFromFile()

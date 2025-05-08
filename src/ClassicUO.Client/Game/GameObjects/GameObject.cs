@@ -94,12 +94,12 @@ namespace ClassicUO.Game.GameObjects
 
         // FIXME: remove it
         public sbyte FoliageIndex = -1;
-        public ushort OriginalGraphic => originalGraphic == default ? Graphic : originalGraphic;
+        public ushort OriginalGraphic => originalGraphic == 0 ? Graphic : originalGraphic;
         public ushort Graphic
         {
             get => graphic; set
             {
-                if (originalGraphic == default)
+                if (originalGraphic == 0)
                     originalGraphic = value;
                 GraphicsReplacement.Replace(ref value, ref hue);
                 Hue = hue; //Workaround for making sure hues are replaced as-well
