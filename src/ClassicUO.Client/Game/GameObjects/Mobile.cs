@@ -216,7 +216,7 @@ namespace ClassicUO.Game.GameObjects
             }
         }
 
-        protected virtual bool IsWalking => LastStepTime > Time.Ticks - Constants.WALKING_DELAY;
+        public virtual bool IsWalking => LastStepTime > Time.Ticks - Constants.WALKING_DELAY;
 
         public byte AnimationFrameCount;
         public bool AnimationFromServer;
