@@ -400,6 +400,8 @@ namespace ClassicUO.LegionScripting
 
                 string dir = Path.GetDirectoryName(script.FullPath);                       
                 ICollection<string> paths = script.pythonEngine.GetSearchPaths();
+                string path = Path.Combine(CUOEnviroment.ExecutablePath, "iplib");
+                paths.Add(path);
 
                 if (!string.IsNullOrWhiteSpace(dir))
                 {

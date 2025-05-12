@@ -5,8 +5,8 @@
     <ApplicationIcon>cuoicon.ico</ApplicationIcon>
     <AssemblyName>ClassicUO</AssemblyName>
     <RootNamespace>ClassicUO</RootNamespace>
-    <AssemblyVersion>3.28.37</AssemblyVersion>
-    <FileVersion>3.28.37</FileVersion>
+    <AssemblyVersion>3.28.38</AssemblyVersion>
+    <FileVersion>3.28.38</FileVersion>
     <PackageProjectUrl>https://github.com/bittiez/TazUO</PackageProjectUrl>
   </PropertyGroup>
 
@@ -80,6 +80,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <DataFiles_iplib Include="$(ProjectDir)..\..\external\iplib\**\*.*" />
     <DataFiles_x64 Include="$(ProjectDir)..\..\external\x64\*.*" />
     <DataFiles_lib64 Include="$(ProjectDir)..\..\external\lib64\*.*" />
     <DataFiles_osx Include="$(ProjectDir)..\..\external\osx\*.*" />
@@ -110,6 +111,9 @@
       <MonockickstartPath Include="$(ProjectDir)..\..\tools\monokickstart\*.*" />
     </ItemGroup>
 
+    <Copy SourceFiles="@(DataFiles_iplib)"
+          DestinationFiles="@(DataFiles_iplib -> '$(TargetDir)\iplib\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(DataFiles_x64)" DestinationFolder="$(TargetDir)\x64\" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(DataFiles_lib64)" DestinationFolder="$(TargetDir)\lib64\" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(DataFiles_osx)" DestinationFolder="$(TargetDir)\osx\" SkipUnchangedFiles="true" />
@@ -123,6 +127,9 @@
       <MonockickstartPath Include="$(ProjectDir)..\..\tools\monokickstart\*.*" />
     </ItemGroup>
 
+    <Copy SourceFiles="@(DataFiles_iplib)"
+          DestinationFiles="@(DataFiles_iplib -> '$(PublishDir)\iplib\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(DataFiles_x64)" DestinationFolder="$(PublishDir)\x64\" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(DataFiles_lib64)" DestinationFolder="$(PublishDir)\lib64\" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(DataFiles_osx)" DestinationFolder="$(PublishDir)\osx\" SkipUnchangedFiles="true" />
