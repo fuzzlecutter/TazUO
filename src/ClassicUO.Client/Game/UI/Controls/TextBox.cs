@@ -88,20 +88,11 @@ namespace ClassicUO.Game.UI.Controls
                 tb.Options = options;
                 tb.AcceptMouseInput = options.AcceptMouseInput;
                 tb.CreateRichTextLayout(text);
-#if DEBUG
-                totalTBUsed++;
-
-                if (CUOEnviroment.Debug)
-                    Log.Debug($"TextBox Pool Status: [Created: {totalTBCreated}] [Reused: {totalTBUsed}] (Total: {totalTBCreated + totalTBUsed}) [Available: {_pool.Count}]");
-#endif
                 return tb;
             }
 
             return new TextBox(text, font, size, hue, options);
         }
-
-        private static int totalTBCreated = 0;
-        private static int totalTBUsed = 0;
 
         private TextBox(string text, string font, float size, Color hue, RTLOptions options)
         {
@@ -111,9 +102,6 @@ namespace ClassicUO.Game.UI.Controls
             Options = options;
             AcceptMouseInput = options.AcceptMouseInput;
             CreateRichTextLayout(text);
-#if DEBUG
-            totalTBCreated++;
-#endif
         }
 
         /// <summary>
@@ -124,9 +112,16 @@ namespace ClassicUO.Game.UI.Controls
         /// <param name="applyTextFormatting">True will add a stroke, and convert html colors if those are true. Set to false to keep text as is.</param>
         private void CreateRichTextLayout(string text)
         {
+            text ??= string.Empty;  //Prevent null ref error while still updating everything else
             _dirty = false;         //Reset these because we're creating a new text object
             WantUpdateSize = false; //Not resetting them causes this to happen twice from the constructor setting _font and what not.
 
+            if (Options == null)
+            {
+                Log.Error("Options was null when creating rich text layout(TextBox.cs)"); //Avoid a bad textbox object by using default options
+                Options = RTLOptions.Default();
+            }
+            
             if (Options.ConvertHtmlColors)
                 text = ConvertHTMLColorsToFSS(text);
 
