@@ -3,7 +3,7 @@ All methods, properties, enums, etc need to pre prefaced with `API.` for example
 If you download the [API.py](API.py) file, put it in the same folder as your python scripts and add `import API` to your script, that will enable some mild form of autocomplete in an editor like VS Code.  
 
 
-This was generated on `5/7/2025`.
+This was generated on `5/13/2025`.
 # API  
 
 ## Class Description
@@ -23,6 +23,9 @@ This was generated on `5/7/2025`.
  `API.Random.Next(1, 100)` will return a number between 1 and 100.
  `API.Random.Next(100)` will return a number between 0 and 100.
 
+- **LastTargetSerial** (*uint*)
+- **LastTargetPos** (*Vector3*)
+- **LastTargetGraphic** (*ushort*)
 
 ## Enums
 ### ScanType

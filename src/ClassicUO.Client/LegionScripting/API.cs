@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using ClassicUO.Assets;
 using ClassicUO.Configuration;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
@@ -12,8 +11,11 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Network;
-using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
+using Button = ClassicUO.Game.UI.Controls.Button;
+using Control = ClassicUO.Game.UI.Controls.Control;
+using Label = ClassicUO.Game.UI.Controls.Label;
+using RadioButton = ClassicUO.Game.UI.Controls.RadioButton;
 
 namespace ClassicUO.LegionScripting
 {
@@ -87,6 +89,10 @@ namespace ClassicUO.LegionScripting
         /// `API.Random.Next(100)` will return a number between 0 and 100.
         /// </summary>
         public Random Random { get; set; } = new();
+        
+        public uint LastTargetSerial => InvokeOnMainThread(() => TargetManager.LastTargetInfo.Serial);
+        public Vector3 LastTargetPos => InvokeOnMainThread(() => TargetManager.LastTargetInfo.Position);
+        public ushort LastTargetGraphic => InvokeOnMainThread(()=>TargetManager.LastTargetInfo.Graphic);
 
         #endregion
 
@@ -1247,23 +1253,24 @@ namespace ClassicUO.LegionScripting
             {
                 Gump g = UIManager.GetGumpServer(ID == uint.MaxValue ? World.Player.LastGumpID : ID);
 
-                if (g != null)
+                if (g == null)
+                    return false;
+                
+
+                bool regex = text.StartsWith("$");
+
+                if (regex)
+                    text = text.Substring(1);
+
+                foreach (Control c in g.Children)
                 {
-                    bool regex = text.StartsWith("$");
-
-                    if (regex)
-                        text = text.Substring(1);
-
-                    foreach (Control c in g.Children)
+                    if (c is Label l && (l.Text.Contains(text) || (regex && System.Text.RegularExpressions.Regex.IsMatch(l.Text, text))))
                     {
-                        if (c is Label l && (l.Text.Contains(text) || (regex && System.Text.RegularExpressions.Regex.IsMatch(l.Text, text))))
-                        {
-                            return true;
-                        }
-                        else if (c is HtmlControl ht && (ht.Text.Contains(text) || (regex && System.Text.RegularExpressions.Regex.IsMatch(ht.Text, text))))
-                        {
-                            return true;
-                        }
+                        return true;
+                    }
+                    else if (c is HtmlControl ht && (ht.Text.Contains(text) || (regex && System.Text.RegularExpressions.Regex.IsMatch(ht.Text, text))))
+                    {
+                        return true;
                     }
                 }
 

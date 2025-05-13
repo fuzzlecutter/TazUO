@@ -2,6 +2,9 @@ JournalEntries = None
 Backpack = None
 Player = None
 Random = None
+LastTargetSerial = None
+LastTargetPos = None
+LastTargetGraphic = None
 
 class ScanType:
     Hostile = 0
