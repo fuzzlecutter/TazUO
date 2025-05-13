@@ -88,6 +88,7 @@ namespace ClassicUO.Game.UI.Controls
                 tb.Options = options;
                 tb.AcceptMouseInput = options.AcceptMouseInput;
                 tb.CreateRichTextLayout(text);
+
                 return tb;
             }
 
@@ -121,7 +122,7 @@ namespace ClassicUO.Game.UI.Controls
                 Log.Error("Options was null when creating rich text layout(TextBox.cs)"); //Avoid a bad textbox object by using default options
                 Options = RTLOptions.Default();
             }
-            
+
             if (Options.ConvertHtmlColors)
                 text = ConvertHTMLColorsToFSS(text);
 
@@ -376,11 +377,11 @@ namespace ClassicUO.Game.UI.Controls
 
         public override void Dispose()
         {
+            if (IsDisposed)
+                return;
+
             base.Dispose();
-#if DEBUG
-            if (CUOEnviroment.Debug)
-                Log.Debug($"Returned to pool: [{Text}]");
-#endif
+
             Reset();
             _pool.Enqueue(this);
         }
