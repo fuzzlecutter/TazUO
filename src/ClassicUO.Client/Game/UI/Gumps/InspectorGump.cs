@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.UI.Controls;
+using ClassicUO.Input;
 using ClassicUO.Renderer;
 using ClassicUO.Resources;
 using ClassicUO.Utility;
@@ -245,11 +246,11 @@ namespace ClassicUO.Game.UI.Gumps
             }
         }
 
-        private void OnLabelClick(object sender, EventArgs e)
+        private void OnLabelClick(object sender, MouseEventArgs e)
         {
             Label l = (Label) sender;
 
-            if (l != null)
+            if (e.Button == MouseButtonType.Left && l != null)
             {
                 SDL.SDL_SetClipboardText(l.Text);
                 GameActions.Print($"Copied to clipboard: {l.Text}");

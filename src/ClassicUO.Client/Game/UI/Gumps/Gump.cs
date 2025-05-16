@@ -32,6 +32,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Xml;
 using ClassicUO.Configuration;
 using ClassicUO.Game.GameObjects;
@@ -54,6 +55,8 @@ namespace ClassicUO.Game.UI.Gumps
             AcceptMouseInput = false;
             AcceptKeyboardInput = false;
         }
+
+        public string PacketGumpText { get; set; } = string.Empty;
 
         public bool CanBeSaved => GumpType != Gumps.GumpType.None || ServerSerial != 0;
 

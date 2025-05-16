@@ -59,6 +59,8 @@ namespace ClassicUO.LegionScripting
 
         private ConcurrentBag<uint> ignoreList = new();
         private ConcurrentQueue<JournalEntry> journalEntries = new();
+        private Item backpack;
+        private PlayerMobile player;
 
         public ConcurrentQueue<JournalEntry> JournalEntries
         {
@@ -72,15 +74,28 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         public Item Backpack
         {
-            get { return InvokeOnMainThread(() => World.Player.FindItemByLayer(Game.Data.Layer.Backpack)); }
+            get
+            {
+                if (backpack == null)
+                    backpack = InvokeOnMainThread(() => World.Player.FindItemByLayer(Game.Data.Layer.Backpack));
+
+                return backpack;
+            }
         }
+
 
         /// <summary>
         /// Returns the player character
         /// </summary>
         public PlayerMobile Player
         {
-            get { return InvokeOnMainThread(() => World.Player); }
+            get
+            {
+                if (player == null)
+                    player = InvokeOnMainThread(() => World.Player);
+
+                return player;
+            }
         }
 
         /// <summary>
@@ -89,10 +104,21 @@ namespace ClassicUO.LegionScripting
         /// `API.Random.Next(100)` will return a number between 0 and 100.
         /// </summary>
         public Random Random { get; set; } = new();
-        
+
+        /// <summary>
+        /// The serial of the last target, if it has a serial.
+        /// </summary>
         public uint LastTargetSerial => InvokeOnMainThread(() => TargetManager.LastTargetInfo.Serial);
+
+        /// <summary>
+        /// The last target's position
+        /// </summary>
         public Vector3 LastTargetPos => InvokeOnMainThread(() => TargetManager.LastTargetInfo.Position);
-        public ushort LastTargetGraphic => InvokeOnMainThread(()=>TargetManager.LastTargetInfo.Graphic);
+
+        /// <summary>
+        /// The graphic of the last targeting object
+        /// </summary>
+        public ushort LastTargetGraphic => InvokeOnMainThread(() => TargetManager.LastTargetInfo.Graphic);
 
         #endregion
 
@@ -162,8 +188,7 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <returns>The item that was in your hand</returns>
         public Item ClearLeftHand() => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 Item i = World.Player.FindItemByLayer(Layer.OneHanded);
 
@@ -189,8 +214,7 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <returns>The item that was in your hand</returns>
         public Item ClearRightHand() => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 Item i = World.Player.FindItemByLayer(Layer.TwoHanded);
 
@@ -225,8 +249,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="serial">The serial</param>
         /// <param name="skipQueue">Defaults true, set to false to use a double click queue</param>
         public void UseObject(uint serial, bool skipQueue = true) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (skipQueue)
                     GameActions.DoubleClick(serial);
@@ -247,8 +270,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="serial"></param>
         /// <returns>The amount of items in a container. Does **not** include sub-containers, or item amounts. (100 Gold = 1 item if it's in a single stack)</returns>
         public int Contents(uint serial) => InvokeOnMainThread<int>
-        (
-            () =>
+        (() =>
             {
                 Item i = World.Items.Get(serial);
 
@@ -270,8 +292,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="serial"></param>
         /// <param name="entry">Entries start at 0, the top entry will be 0, then 1, 2, etc. (Usually)</param>
         public void ContextMenu(uint serial, ushort entry) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 PopupMenuGump.CloseNext = serial;
                 NetClient.Socket.Send_RequestPopupMenu(serial);
@@ -290,8 +311,7 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="serial"></param>
         public void EquipItem(uint serial) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (GameActions.PickUp(serial, 0, 0, 1))
                     GameActions.Equip(serial);
@@ -323,8 +343,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="x">X coordinate inside a container</param>
         /// <param name="y">Y coordinate inside a container</param>
         public void MoveItem(uint serial, uint destination, int amt = 0, int x = 0xFFFF, int y = 0xFFFF) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (GameActions.PickUp(serial, 0, 0, amt))
                     GameActions.DropItem(serial, x, y, 0, destination);
@@ -347,8 +366,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="y">Offset from your location</param>
         /// <param name="z">Offset from your location</param>
         public void MoveItemOffset(uint serial, int amt = 0, int x = 0, int y = 0, int z = 0) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (GameActions.PickUp(serial, 0, 0, amt))
                     GameActions.DropItem(serial, World.Player.X + x, World.Player.Y + y, World.Player.Z + z, 0);
@@ -365,8 +383,7 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="skillName">Can be a partial match. Will match the first skill containing this text.</param>
         public void UseSkill(string skillName) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (skillName.Length > 0)
                 {
@@ -406,8 +423,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="buffName">The name/title of the buff</param>
         /// <returns></returns>
         public bool BuffExists(string buffName) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 foreach (BuffIcon buff in World.Player.BuffIcons.Values)
                 {
@@ -450,8 +466,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="message">The message</param>
         /// <param name="serial">The item or mobile</param>
         public void HeadMsg(string message, uint serial) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 Entity e = World.Get(serial);
 
@@ -555,8 +570,7 @@ namespace ClassicUO.LegionScripting
         /// <returns>Returns the first item found that matches</returns>
         public Item FindType(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
             InvokeOnMainThread
-            (
-                () =>
+            (() =>
                 {
                     List<Item> result = Utility.FindItems(graphic, uint.MaxValue, uint.MaxValue, container, hue, range);
 
@@ -604,8 +618,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="serial">Optional, if not set it will check yourself, otherwise it will check the mobile requested</param>
         /// <returns>The item if it exists</returns>
         public Item FindLayer(string layer, uint serial = uint.MaxValue) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 Mobile m = serial == uint.MaxValue ? World.Player : World.Mobiles.Get(serial);
 
@@ -652,8 +665,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="container">Parent container</param>
         /// <param name="skipQueue">Defaults to true, set to false to queue the double click</param>
         public void UseType(uint graphic, ushort hue = ushort.MaxValue, uint container = uint.MaxValue, bool skipQueue = true) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 var result = Utility.FindItems(graphic, hue: hue, parentContainer: container);
 
@@ -731,8 +743,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="z"></param>
         /// <param name="distance">Distance away from goal to stop.</param>
         public void Pathfind(int x, int y, int z = int.MinValue, int distance = 0) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (z == int.MinValue)
                     z = World.Player.Z;
@@ -753,8 +764,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="entity">The mobile or item</param>
         /// <param name="distance">Distance to stop from goal</param>
         public void Pathfind(uint entity, int distance = 0) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 var mob = World.Get(entity);
 
@@ -801,8 +811,7 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="mobile">The mobile</param>
         public void AutoFollow(uint mobile) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 ProfileManager.CurrentProfile.FollowingMode = true;
                 ProfileManager.CurrentProfile.FollowingTarget = mobile;
@@ -856,8 +865,7 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="direction">north, northeast, etc</param>
         public void Turn(string direction) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 Direction d = Utility.GetDirection(direction);
 
@@ -888,8 +896,7 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <returns>Returns your mount</returns>
         public Item Dismount() => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 Item mount = World.Player.FindItemByLayer(Layer.Mount);
 
@@ -971,8 +978,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="z"></param>
         /// <param name="graphic">Graphic of the static to target</param>
         public void Target(ushort x, ushort y, short z, ushort graphic = ushort.MaxValue) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (graphic == ushort.MaxValue)
                 {
@@ -1029,8 +1035,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="xOffset">X from your position</param>
         /// <param name="yOffset">Y from your position</param>
         public void TargetLandRel(int xOffset, int yOffset) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (!TargetManager.IsTargeting)
                     return;
@@ -1054,8 +1059,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="yOffset">Y Offset from your position</param>
         /// <param name="graphic">Optional graphic, will only target if tile matches this</param>
         public void TargetTileRel(int xOffset, int yOffset, uint graphic = uint.MaxValue) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (!TargetManager.IsTargeting)
                     return;
@@ -1093,8 +1097,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="skill">The skill name, can be partia;</param>
         /// <param name="up_down_locked">up/down/locked</param>
         public void SetSkillLock(string skill, string up_down_locked) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 skill = skill.ToLower();
                 Lock status = Lock.Up;
@@ -1155,8 +1158,7 @@ namespace ClassicUO.LegionScripting
             }
 
             return InvokeOnMainThread
-            (
-                () =>
+            (() =>
                 {
                     if (World.OPL.TryGetNameAndData(serial, out string n, out string d))
                     {
@@ -1179,8 +1181,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="ID">Skip to check if player has any gump from server.</param>
         /// <returns>Returns gump id if found</returns>
         public uint HasGump(uint ID = uint.MaxValue) => InvokeOnMainThread<uint>
-        (
-            () =>
+        (() =>
             {
                 if (World.Player.HasGump && (World.Player.LastGumpID == ID || ID == uint.MaxValue))
                 {
@@ -1202,8 +1203,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="gump">Gump ID, leave blank to reply to last gump</param>
         /// <returns>True if gump was found, false if not</returns>
         public bool ReplyGump(int button, uint gump = uint.MaxValue) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 Gump g = UIManager.GetGumpServer(gump == uint.MaxValue ? World.Player.LastGumpID : gump);
 
@@ -1228,8 +1228,7 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="ID">Gump ID</param>
         public void CloseGump(uint ID = uint.MaxValue) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 uint gump = ID != uint.MaxValue ? ID : World.Player.LastGumpID;
                 UIManager.GetGumpServer(gump)?.Dispose();
@@ -1248,14 +1247,13 @@ namespace ClassicUO.LegionScripting
         /// <param name="ID">Gump ID, blank to use the last gump.</param>
         /// <returns></returns>
         public bool GumpContains(string text, uint ID = uint.MaxValue) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 Gump g = UIManager.GetGumpServer(ID == uint.MaxValue ? World.Player.LastGumpID : ID);
 
                 if (g == null)
                     return false;
-                
+
 
                 bool regex = text.StartsWith("$");
 
@@ -1278,6 +1276,27 @@ namespace ClassicUO.LegionScripting
             }
         );
 
+/// <summary>
+/// Get a gump by ID.  
+/// Example:  
+/// ```py
+/// gump = API.GetGump()
+/// if gump:
+///   API.SysMsg("Found the gump!")
+///   API.CloseGump(gump)
+/// ```
+/// </summary>
+/// <param name="ID">Leabe blank to use last gump opened from server</param>
+/// <returns></returns>
+        public Gump GetGump(uint ID = uint.MaxValue) => InvokeOnMainThread
+        (() =>
+            {
+                Gump g = UIManager.GetGumpServer(ID == uint.MaxValue ? World.Player.LastGumpID : ID);
+
+                return g;
+            }
+        );
+
         /// <summary>
         /// Toggle flying if you are a gargoyle.  
         /// Example:  
@@ -1286,8 +1305,7 @@ namespace ClassicUO.LegionScripting
         /// ```
         /// </summary>
         public void ToggleFly() => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (World.Player.Race == RaceType.GARGOYLE)
                     NetClient.Socket.Send_ToggleGargoyleFlying();
@@ -1305,8 +1323,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="ability">primary/secondary/stun/disarm</param>
         public void ToggleAbility(string ability) =>
             InvokeOnMainThread
-            (
-                () =>
+            (() =>
                 {
                     switch (ability.ToLower())
                     {
@@ -1434,8 +1451,7 @@ namespace ClassicUO.LegionScripting
             int t = Thread.CurrentThread.ManagedThreadId;
 
             InvokeOnMainThread
-            (
-                () =>
+            (() =>
                 {
                     if (LegionScripting.PyThreads.TryGetValue(t, out var s))
                         LegionScripting.StopScript(s);
@@ -1485,8 +1501,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="maxDistance"></param>
         /// <returns></returns>
         public Entity NearestEntity(ScanType scanType, int maxDistance = 10) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 uint m = Utility.FindNearestCheckPythonIgnore((ScanTypeObject)scanType, this);
 
@@ -1514,16 +1529,14 @@ namespace ClassicUO.LegionScripting
         /// <param name="maxDistance"></param>
         /// <returns></returns>
         public Mobile NearestMobile(IList<Notoriety> notoriety, int maxDistance = 10) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (notoriety == null || notoriety.Count == 0)
                     return null;
 
                 return World.Mobiles.Values.Where
-                (
-                    m => !m.IsDestroyed && !m.IsDead && m.Serial != World.Player.Serial && notoriety.Contains
-                        ((Notoriety)(byte)m.NotorietyFlag) && m.Distance <= maxDistance && !OnIgnoreList(m)
+                (m => !m.IsDestroyed && !m.IsDead && m.Serial != World.Player.Serial && notoriety.Contains
+                     ((Notoriety)(byte)m.NotorietyFlag) && m.Distance <= maxDistance && !OnIgnoreList(m)
                 ).OrderBy(m => m.Distance).FirstOrDefault();
             }
         );
@@ -1557,16 +1570,14 @@ namespace ClassicUO.LegionScripting
         /// <param name="maxDistance"></param>
         /// <returns></returns>
         public Mobile[] NearestMobiles(IList<Notoriety> notoriety, int maxDistance = 10) => InvokeOnMainThread<Mobile[]>
-        (
-            () =>
+        (() =>
             {
                 if (notoriety == null || notoriety.Count == 0)
                     return null;
 
                 return World.Mobiles.Values.Where
-                (
-                    m => !m.IsDestroyed && !m.IsDead && m.Serial != World.Player.Serial && notoriety.Contains
-                        ((Notoriety)(byte)m.NotorietyFlag) && m.Distance <= maxDistance && !OnIgnoreList(m)
+                (m => !m.IsDestroyed && !m.IsDead && m.Serial != World.Player.Serial && notoriety.Contains
+                     ((Notoriety)(byte)m.NotorietyFlag) && m.Distance <= maxDistance && !OnIgnoreList(m)
                 ).OrderBy(m => m.Distance).ToArray();
             }
         );
@@ -1878,8 +1889,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="skill">Skill name, case-sensitive</param>
         /// <returns></returns>
         public Skill GetSkill(string skill) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (string.IsNullOrEmpty(skill))
                     return null;
@@ -1904,8 +1914,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="distance">Distance from the player</param>
         /// <param name="hue">The color to change the tiles at that distance</param>
         public void DisplayRange(ushort distance, ushort hue = 22) => InvokeOnMainThread
-        (
-            () =>
+        (() =>
             {
                 if (distance == 0)
                 {
