@@ -1276,18 +1276,18 @@ namespace ClassicUO.LegionScripting
             }
         );
 
-/// <summary>
-/// Get a gump by ID.  
-/// Example:  
-/// ```py
-/// gump = API.GetGump()
-/// if gump:
-///   API.SysMsg("Found the gump!")
-///   API.CloseGump(gump)
-/// ```
-/// </summary>
-/// <param name="ID">Leabe blank to use last gump opened from server</param>
-/// <returns></returns>
+        /// <summary>
+        /// Get a gump by ID.  
+        /// Example:  
+        /// ```py
+        /// gump = API.GetGump()
+        /// if gump:
+        ///   API.SysMsg("Found the gump!")
+        ///   API.CloseGump(gump)
+        /// ```
+        /// </summary>
+        /// <param name="ID">Leabe blank to use last gump opened from server</param>
+        /// <returns></returns>
         public Gump GetGump(uint ID = uint.MaxValue) => InvokeOnMainThread
         (() =>
             {
