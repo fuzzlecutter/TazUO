@@ -302,7 +302,7 @@ namespace ClassicUO.Game.Managers
         public class AutoLootConfigEntry
         {
             public string Name { get; set; } = "";
-            public short Graphic { get; set; } = 0;
+            public int Graphic { get; set; } = 0;
             public ushort Hue { get; set; } = ushort.MaxValue;
             public string RegexSearch { get; set; } = string.Empty;
             private bool RegexMatch => !string.IsNullOrEmpty(RegexSearch);
