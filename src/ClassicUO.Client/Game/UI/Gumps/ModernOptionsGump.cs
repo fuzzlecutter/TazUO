@@ -3777,7 +3777,7 @@ namespace ClassicUO.Game.UI.Gumps
                     {
                         autoLootItem.Graphic = ngh;
                     }
-                    else if (short.TryParse(graphicInput.Text, out var ng))
+                    else if (int.TryParse(graphicInput.Text, out var ng))
                     {
                         autoLootItem.Graphic = ng;
                     }
