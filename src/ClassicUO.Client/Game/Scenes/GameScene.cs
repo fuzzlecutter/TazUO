@@ -95,11 +95,13 @@ namespace ClassicUO.Game.Scenes
         private uint _timeToPlaceMultiInHouseCustomization;
         private readonly bool _use_render_target = false;
         private UseItemQueue _useItemQueue = new UseItemQueue();
+        private MoveItemQueue _moveItemQueue = new MoveItemQueue();
         private bool _useObjectHandles;
         private RenderTarget2D _world_render_target,
             _lightRenderTarget;
         private AnimatedStaticsManager _animatedStaticsManager;
 
+        public MoveItemQueue MoveItemQueue => _moveItemQueue;
         public bool UpdateDrawPosition { get; set; }
         public HotkeysManager Hotkeys { get; private set; }
         public MacroManager Macros { get; private set; }
@@ -349,6 +351,8 @@ namespace ClassicUO.Game.Scenes
             {
                 return;
             }
+            
+            _moveItemQueue.Clear();
 
             GraphicsReplacement.Save();
             BuySellAgent.Unload();
@@ -841,6 +845,7 @@ namespace ClassicUO.Game.Scenes
             Pathfinder.ProcessAutoWalk();
             DelayedObjectClickManager.Update();
             AutoLootManager.Instance.Update();
+            _moveItemQueue.ProcessQueue();
 
             if (!MoveCharacterByMouseInput() && !currentProfile.DisableArrowBtn && !MoveCharByController())
             {

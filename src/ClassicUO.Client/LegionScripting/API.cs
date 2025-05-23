@@ -8,6 +8,7 @@ using ClassicUO.Game;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
+using ClassicUO.Game.Scenes;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Network;
@@ -319,6 +320,41 @@ namespace ClassicUO.LegionScripting
         );
 
         /// <summary>
+        /// Clear the move item que of all items.
+        /// </summary>
+        public void ClearMoveQueue() => InvokeOnMainThread(() => Client.Game.GetScene<GameScene>()?.MoveItemQueue.Clear());
+        
+        /// <summary>
+        /// Move an item to another container.  
+        /// Use x, and y if you don't want items stacking in the desination container.  
+        /// Example:  
+        /// ```py
+        /// items = API.ItemsInContainer(API.Backpack)
+        ///
+        /// API.SysMsg("Target your fish barrel", 32)
+        /// barrel = API.RequestTarget()
+        ///
+        ///
+        /// if len(items) > 0 and barrel:
+        ///     for item in items:
+        ///         data = API.ItemNameAndProps(item)
+        ///         if data and "An Exotic Fish" in data:
+        ///             API.QueMoveItem(item, barrel)
+        /// ```  
+        /// </summary>
+        /// <param name="serial"></param>
+        /// <param name="destination"></param>
+        /// <param name="amt">Amount to move</param>
+        /// <param name="x">X coordinate inside a container</param>
+        /// <param name="y">Y coordinate inside a container</param>
+        public void QueMoveItem(uint serial, uint destination, ushort amt = 0, int x = 0xFFFF, int y = 0xFFFF) => InvokeOnMainThread
+        (() =>
+            {
+                Client.Game.GetScene<GameScene>()?.MoveItemQueue.Enqueue(serial, destination, amt, x, y);
+            }
+        );
+        
+        /// <summary>
         /// Move an item to another container.  
         /// Use x, and y if you don't want items stacking in the desination container.  
         /// Example:  
@@ -350,6 +386,27 @@ namespace ClassicUO.LegionScripting
             }
         );
 
+        /// <summary>
+        /// Move an item to the ground near you.  
+        /// Example:  
+        /// ```py
+        /// items = API.ItemsInContainer(API.Backpack)
+        /// for item in items:
+        ///   API.QueMoveItemOffset(item, 0, 1, 0, 0)
+        /// ```  
+        /// </summary>
+        /// <param name="serial"></param>
+        /// <param name="amt">0 to grab entire stack</param>
+        /// <param name="x">Offset from your location</param>
+        /// <param name="y">Offset from your location</param>
+        /// <param name="z">Offset from your location</param>
+        public void QueMoveItemOffset(uint serial, ushort amt = 0, int x = 0, int y = 0, int z = 0) => InvokeOnMainThread
+        (() =>
+            {
+                Client.Game.GetScene<GameScene>()?.MoveItemQueue.Enqueue(serial, 0, amt, World.Player.X + x, World.Player.Y + y, World.Player.Z + z);
+            }
+        );
+        
         /// <summary>
         /// Move an item to the ground near you.  
         /// Example:  
