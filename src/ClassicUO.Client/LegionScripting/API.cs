@@ -314,8 +314,8 @@ namespace ClassicUO.LegionScripting
         public void EquipItem(uint serial) => InvokeOnMainThread
         (() =>
             {
-                if (GameActions.PickUp(serial, 0, 0, 1))
-                    GameActions.Equip(serial);
+                GameActions.PickUp(serial, 0, 0, 1);
+                GameActions.Equip(serial);
             }
         );
 
@@ -381,8 +381,8 @@ namespace ClassicUO.LegionScripting
         public void MoveItem(uint serial, uint destination, int amt = 0, int x = 0xFFFF, int y = 0xFFFF) => InvokeOnMainThread
         (() =>
             {
-                if (GameActions.PickUp(serial, 0, 0, amt))
-                    GameActions.DropItem(serial, x, y, 0, destination);
+                GameActions.PickUp(serial, 0, 0, amt);
+                GameActions.DropItem(serial, x, y, 0, destination);
             }
         );
 
@@ -425,8 +425,8 @@ namespace ClassicUO.LegionScripting
         public void MoveItemOffset(uint serial, int amt = 0, int x = 0, int y = 0, int z = 0) => InvokeOnMainThread
         (() =>
             {
-                if (GameActions.PickUp(serial, 0, 0, amt))
-                    GameActions.DropItem(serial, World.Player.X + x, World.Player.Y + y, World.Player.Z + z, 0);
+                GameActions.PickUp(serial, 0, 0, amt);
+                GameActions.DropItem(serial, World.Player.X + x, World.Player.Y + y, World.Player.Z + z, 0);
             }
         );
 
