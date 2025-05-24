@@ -56,15 +56,19 @@ namespace ClassicUO.Game.UI.Gumps
             Add(new AlphaBlendControl(0.65f) { Width = Width, Height = 75, Hue = 997 });
 
             TextBox _;
-            Add(_ = new TextBox(isPurchaseGump ? "Shop Inventory" : "Your Inventory", TrueTypeLoader.EMBEDDED_FONT, 30, Width, Color.LightBlue, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { AcceptMouseInput = false });
+            Add(_ = TextBox.GetOne(isPurchaseGump ? "Shop Inventory" : "Your Inventory", TrueTypeLoader.EMBEDDED_FONT, 30, Color.LightBlue, TextBox.RTLOptions.DefaultCentered(Width)));
             _.Y = (50 - _.MeasuredSize.Y) / 2;
+            _.AcceptMouseInput = false;
 
-            Add(_ = new TextBox("Item", TrueTypeLoader.EMBEDDED_FONT, 20, 75, Color.White, strokeEffect: false) { X = 5, AcceptMouseInput = false });
+            Add(_ = TextBox.GetOne("Item", TrueTypeLoader.EMBEDDED_FONT, 20, Color.White, TextBox.RTLOptions.Default(75)));
             _.Y = 55 - _.Height;
+            _.X = 5;
+            _.AcceptMouseInput = false;
 
-            Add(_ = new TextBox("/c[white]Avail.\n/cdPrice per item", TrueTypeLoader.EMBEDDED_FONT, 20, 150, Color.Gold, FontStashSharp.RichText.TextHorizontalAlignment.Right, false) { AcceptMouseInput = false });
+            Add(_ = TextBox.GetOne("/c[white]Avail.\n/cdPrice per item", TrueTypeLoader.EMBEDDED_FONT, 20, Color.Gold, TextBox.RTLOptions.DefaultRightAligned(150)));
             _.Y = 55 - _.Height;
             _.X = Width - 1 - _.Width - 5;
+            _.AcceptMouseInput = false;
 
             searchBox = new StbTextBox(0xFF, 20, 150, true, FontStyle.None, 0x0481)
             {
@@ -221,20 +225,25 @@ namespace ClassicUO.Game.UI.Gumps
 
                 #region ITEM INFO
                 TextBox _;
-                itemInfo.Add(textBoxName = new TextBox(Name, TrueTypeLoader.EMBEDDED_FONT, 25, ITEM_DESCPTION_WIDTH - Height, Color.White, strokeEffect: false) { AcceptMouseInput = false });
+                itemInfo.Add(textBoxName = TextBox.GetOne(TextBox.ConvertHtmlToFontStashSharpCommand(Name), TrueTypeLoader.EMBEDDED_FONT, 25, Color.White, TextBox.RTLOptions.Default(ITEM_DESCPTION_WIDTH - Height)));
                 textBoxName.Y = (itemInfo.Height - textBoxName.MeasuredSize.Y) / 2;
+                textBoxName.AcceptMouseInput = false;
 
                 TextBox countTB;
-                itemInfo.Add(countTB = new TextBox($"x{count}", TrueTypeLoader.EMBEDDED_FONT, 20, ITEM_DESCPTION_WIDTH - Height, Color.WhiteSmoke, FontStashSharp.RichText.TextHorizontalAlignment.Right, false) { Y = 3, AcceptMouseInput = false });
+                itemInfo.Add(countTB = TextBox.GetOne($"x{count}", TrueTypeLoader.EMBEDDED_FONT, 20, Color.WhiteSmoke, TextBox.RTLOptions.DefaultRightAligned(ITEM_DESCPTION_WIDTH - Height)));
+                countTB.Y = 3;
                 countTB.X = itemInfo.Width - countTB.Width - 3;
+                countTB.AcceptMouseInput = false;
 
-                itemInfo.Add(_ = new TextBox($"{price}gp", TrueTypeLoader.EMBEDDED_FONT, 25, ITEM_DESCPTION_WIDTH - Height, Color.Gold, FontStashSharp.RichText.TextHorizontalAlignment.Right, false) { AcceptMouseInput = false });
+                itemInfo.Add(_ = TextBox.GetOne($"{price}gp", TrueTypeLoader.EMBEDDED_FONT, 25, Color.Gold, TextBox.RTLOptions.DefaultRightAligned(ITEM_DESCPTION_WIDTH - Height)));
                 _.Y = itemInfo.Height - _.Height - 3;
                 _.X = itemInfo.Width - _.Width - 3;
+                _.AcceptMouseInput = false;
                 #endregion
 
                 #region PURCHASE OR SELL
-                purchaseSell.Add(new TextBox($"How many would you like to {(isPurchase ? "buy" : "sell")} at /c[gold]{price}gp /cdeach?", TrueTypeLoader.EMBEDDED_FONT, 18, purchaseSell.Width - 76, Color.White, strokeEffect: false) { AcceptMouseInput = false });
+                purchaseSell.Add(_ = TextBox.GetOne($"How many would you like to {(isPurchase ? "buy" : "sell")} at /c[gold]{price}gp /cdeach?", TrueTypeLoader.EMBEDDED_FONT, 18, Color.White, TextBox.RTLOptions.Default(purchaseSell.Width - 76)));
+                _.AcceptMouseInput = false;
 
                 AlphaBlendControl sliderBG;
                 purchaseSell.Add(sliderBG = new AlphaBlendControl(0.5f) { Width = purchaseSell.Width - 78, Height = 5, Hue = 148, BaseColor = Color.White });
@@ -483,7 +492,8 @@ namespace ClassicUO.Game.UI.Gumps
                 {
                     if (text == null)
                     {
-                        text = new TextBox($"{(isPurchase ? "Buy" : "Sell")}\n{quantity}\n/c[Gold]{price * quantity}", TrueTypeLoader.EMBEDDED_FONT, 17, Width, Color.White, FontStashSharp.RichText.TextHorizontalAlignment.Center, true) { AcceptMouseInput = false };
+                        text = TextBox.GetOne($"{(isPurchase ? "Buy" : "Sell")}\n{quantity}\n/c[Gold]{price * quantity}", TrueTypeLoader.EMBEDDED_FONT, 17, Color.White, TextBox.RTLOptions.DefaultCentered(Width));
+                        text.AcceptMouseInput = false;
                         Add(text);
                     }
                     else

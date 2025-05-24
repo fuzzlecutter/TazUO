@@ -67,7 +67,9 @@ namespace ClassicUO.Game.UI
             Add(alphaBG = new AlphaBlendControl() { Width = Width, Height = Height });
 
             Control c;
-            Add(c = new TextBox("Nearby corpse loot", Assets.TrueTypeLoader.EMBEDDED_FONT, 24, WIDTH, Color.OrangeRed, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { AcceptMouseInput = false });
+            c = TextBox.GetOne("Nearby corpse loot", Assets.TrueTypeLoader.EMBEDDED_FONT, 24, Color.OrangeRed, TextBox.RTLOptions.DefaultCentered(WIDTH));
+            c.AcceptMouseInput = false;
+            Add(c);
 
             Add(c = new NiceButton(Width - 20, 0, 20, 20, ButtonAction.Default, "+"));
             c.SetTooltip("Options");

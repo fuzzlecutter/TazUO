@@ -38,7 +38,6 @@ using ClassicUO.Game.Map;
 using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace ClassicUO.Game.GameObjects
@@ -95,15 +94,27 @@ namespace ClassicUO.Game.GameObjects
 
         // FIXME: remove it
         public sbyte FoliageIndex = -1;
+        public ushort OriginalGraphic => originalGraphic == 0 ? Graphic : originalGraphic;
         public ushort Graphic
         {
             get => graphic; set
             {
-                GraphicsReplacement.Replace(ref value, ref Hue);
+                if (originalGraphic == 0)
+                    originalGraphic = value;
+                GraphicsReplacement.Replace(originalGraphic, ref value, ref hue);
+                Hue = hue; //Workaround for making sure hues are replaced as-well
                 graphic = value;
             }
         }
-        public ushort Hue;
+        public ushort Hue
+        {
+            get => hue;
+            set
+            {
+                GraphicsReplacement.ReplaceHue(OriginalGraphic, ref value);
+                hue = value;
+            }
+        }
         public Vector3 Offset;
         public short PriorityZ;
         public GameObject TNext;
@@ -112,7 +123,7 @@ namespace ClassicUO.Game.GameObjects
             Y;
         public sbyte Z;
         public GameObject RenderListNext;
-        private ushort graphic;
+        private ushort graphic, originalGraphic, hue;
 
         public void AddDamage(int damage)
         {
@@ -398,6 +409,7 @@ namespace ClassicUO.Game.GameObjects
             Offset = Vector3.Zero;
             RealScreenPosition = Point.Zero;
             IsFlipped = false;
+            originalGraphic = 0;
             Graphic = 0;
             ObjectHandlesStatus = ObjectHandlesStatus.NONE;
             FrameInfo = Rectangle.Empty;

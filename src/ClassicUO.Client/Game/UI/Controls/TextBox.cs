@@ -33,19 +33,23 @@
 using ClassicUO.Assets;
 using ClassicUO.Configuration;
 using ClassicUO.Renderer;
+using ClassicUO.Utility.Logging;
 using FontStashSharp.RichText;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ClassicUO.Game.UI.Controls
 {
     public class TextBox : Control
     {
+        private static Queue<TextBox> _pool = new();
         private RichTextLayout _rtl;
         private string _font;
         private float _size;
         private Color _color;
-        private TextHorizontalAlignment _align;
         private bool _dirty = false;
 
         private int getStrokeSize
@@ -54,72 +58,90 @@ namespace ClassicUO.Game.UI.Controls
             {
                 if (ProfileManager.CurrentProfile != null)
                     return ProfileManager.CurrentProfile.TextBorderSize;
+
                 return 1;
             }
         }
 
-        public bool MultiLine { get; set; }
-
-        public TextBox
-        (
-            string text,
-            string font,
-            float size,
-            int? width,
-            int hue = 2996,
-            TextHorizontalAlignment align = TextHorizontalAlignment.Left,
-            bool strokeEffect = true,
-            bool supportsCommands = true,
-            bool ignoreColorCommands = false,
-            bool calculateGlyphs = false,
-            bool converthtmlcolors = true
-        ) : this(text, font, size, width, ConvertHueToColor(hue), align, strokeEffect, supportsCommands, ignoreColorCommands, calculateGlyphs, converthtmlcolors) { }
-
-        public TextBox
-            (
-                string text,
-                string font,
-                float size,
-                int? width,
-                Color color,
-                TextHorizontalAlignment align = TextHorizontalAlignment.Left,
-                bool strokeEffect = true,
-                bool supportsCommands = true,
-                bool ignoreColorCommands = false,
-                bool calculateGlyphs = false,
-                bool converthtmlcolors = true
-            )
+        public bool MultiLine
         {
-            if (strokeEffect)
+            get { return Options.MultiLine; }
+            set { Options.MultiLine = value; }
+        }
+
+        public static TextBox CreateNew(string text, string font, float size, int hue, RTLOptions options)
+        {
+            return new TextBox(text, font, size, ConvertHueToColor(hue), options);
+        }
+
+        public static TextBox GetOne(string text, string font, float size, int hue, RTLOptions options) => GetOne(text, font, size, ConvertHueToColor(hue), options);
+
+        public static TextBox GetOne(string text, string font, float size, Color hue, RTLOptions options)
+        {
+            if (_pool.Count > 0)
             {
-                text = $"/es[{getStrokeSize}]" + text;
+                TextBox tb = _pool.Dequeue();
+                tb.SetDisposed(false);
+                tb._font = font;
+                tb._size = size;
+                tb._color = hue;
+                tb.Options = options;
+                tb.AcceptMouseInput = options.AcceptMouseInput;
+                tb.CreateRichTextLayout(text);
+
+                return tb;
             }
 
-            if (converthtmlcolors)
-            {
-                text = ConvertHTMLColorsToFSS(text);
-            }
+            return new TextBox(text, font, size, hue, options);
+        }
 
-            _rtl = new RichTextLayout
-            {
-                Font = TrueTypeLoader.Instance.GetFont(font, size),
-                Text = text,
-                IgnoreColorCommand = ignoreColorCommands,
-                SupportsCommands = supportsCommands,
-                CalculateGlyphs = calculateGlyphs,
-            };
-            if (width != null)
-                _rtl.Width = width;
-
+        private TextBox(string text, string font, float size, Color hue, RTLOptions options)
+        {
             _font = font;
             _size = size;
-            _color = color;
+            _color = hue;
+            Options = options;
+            AcceptMouseInput = options.AcceptMouseInput;
+            CreateRichTextLayout(text);
+        }
 
-            _align = align;
-            ConvertHtmlColors = converthtmlcolors;
-            AcceptMouseInput = true;
-            Width = _rtl.Width == null ? _rtl.Size.X : (int)_rtl.Width;
-            base.Height = _rtl.Size.Y;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="width">Leave null to make width fit the text.</param>
+        /// <param name="applyTextFormatting">True will add a stroke, and convert html colors if those are true. Set to false to keep text as is.</param>
+        private void CreateRichTextLayout(string text)
+        {
+            text ??= string.Empty;  //Prevent null ref error while still updating everything else
+            _dirty = false;         //Reset these because we're creating a new text object
+            WantUpdateSize = false; //Not resetting them causes this to happen twice from the constructor setting _font and what not.
+
+            if (Options == null)
+            {
+                Log.Error("Options was null when creating rich text layout(TextBox.cs)"); //Avoid a bad textbox object by using default options
+                Options = RTLOptions.Default();
+            }
+
+            if (Options.ConvertHtmlColors)
+                text = ConvertHTMLColorsToFSS(text);
+
+            if (Options.StrokeEffect && !text.StartsWith("/es"))
+                text = $"/es[{getStrokeSize}]" + text;
+
+            if (_rtl == null || _rtl.Text != text || _rtl.Width != Options.Width)
+                _rtl = new RichTextLayout
+                {
+                    Font = TrueTypeLoader.Instance.GetFont(_font, _size),
+                    Text = text,
+                    IgnoreColorCommand = Options.IgnoreColorCommands,
+                    SupportsCommands = Options.SupportsCommands,
+                    CalculateGlyphs = Options.CalculateGlyphs,
+                    Width = Options.Width
+                };
+
+            base.Width = Options.Width ?? _rtl.Size.X;
+            base.Height = Height;
         }
 
         public static Color ConvertHueToColor(int hue)
@@ -132,7 +154,10 @@ namespace ClassicUO.Game.UI.Controls
             if (hue == 0)
                 hue = 946; //Change black text to standard gray
 
-            return new Color() { PackedValue = HuesLoader.Instance.GetHueColorRgba8888(31, (ushort)hue) };
+            return new Color()
+            {
+                PackedValue = HuesLoader.Instance.GetHueColorRgba8888(31, (ushort)hue)
+            };
         }
 
         public bool PixelCheck(int x, int y)
@@ -155,20 +180,42 @@ namespace ClassicUO.Game.UI.Controls
             return true;
         }
 
+        public new int Width
+        {
+            get
+            {
+                if (base.Width > 0)
+                    return base.Width;
+
+                if (Options != null && Options.Width.HasValue)
+                    return Options.Width.Value;
+
+                if (_rtl != null && _rtl.Size != null)
+                    return _rtl.Size.X;
+
+                return 0;
+            }
+
+            set
+            {
+                Options ??= new RTLOptions();
+
+                Options.Width = base.Width = value;
+                _dirty = true;
+            }
+        }
+
         public new int Height
         {
             get
             {
                 if (_rtl == null)
-                    return 0;
+                    return base.Height;
 
                 return _rtl.Size.Y;
             }
 
-            set
-            {
-                base.Height = value;
-            }
+            set { base.Height = value; }
         }
 
         public Point MeasuredSize
@@ -177,6 +224,7 @@ namespace ClassicUO.Game.UI.Controls
             {
                 if (_rtl == null)
                     return Point.Zero;
+
                 return _rtl.Size;
             }
         }
@@ -186,19 +234,23 @@ namespace ClassicUO.Game.UI.Controls
             get => _rtl.Text;
             set
             {
-                if (_rtl.Text != value)
+                if (_rtl == null)
                 {
-                    if (ConvertHtmlColors)
-                    {
-                        _rtl.Text = ConvertHTMLColorsToFSS(value);
-                    }
-                    else
-                    {
-                        _rtl.Text = value;
-                    }
+                    CreateRichTextLayout(value);
 
-                    _dirty = true;
+                    return;
                 }
+
+                if (_rtl.Text == value)
+                    return;
+
+
+                if (Options.ConvertHtmlColors)
+                    _rtl.Text = ConvertHTMLColorsToFSS(value);
+                else
+                    _rtl.Text = value;
+
+                _dirty = true;
             }
         }
 
@@ -208,6 +260,7 @@ namespace ClassicUO.Game.UI.Controls
             set
             {
                 var newVal = HuesLoader.Instance.GetHueColorRgba8888(31, (ushort)value);
+
                 if (_color.PackedValue != newVal)
                 {
                     _color.PackedValue = newVal;
@@ -216,7 +269,7 @@ namespace ClassicUO.Game.UI.Controls
             }
         }
 
-        public Color Fontcolor
+        public Color FontColor
         {
             get => _color;
             set
@@ -226,6 +279,7 @@ namespace ClassicUO.Game.UI.Controls
             }
         }
 
+        public RTLOptions Options { get; set; }
         public RichTextLayout RTL => _rtl;
 
         public string Font
@@ -236,10 +290,9 @@ namespace ClassicUO.Game.UI.Controls
                 _font = value;
                 _dirty = true;
             }
-
         }
 
-        public float Size
+        public float FontSize
         {
             get => _size;
             set
@@ -249,108 +302,88 @@ namespace ClassicUO.Game.UI.Controls
             }
         }
 
-        public bool ConvertHtmlColors { get; set; }
-
-        /// <summary>
-        /// Update the text of the TextBox
-        /// </summary>
-        /// <param name="text">New string</param>
-        /// <param name="width">Set to null to ignore width, taking as much width as needed.</param>
-        public void UpdateText(string text, int? width = null, bool converthtmlcolors = true)
+        public void Reset()
         {
-            if (converthtmlcolors)
-            {
-                text = ConvertHTMLColorsToFSS(text);
-            }
-
-            if (width != null && width > 0)
-            {
-                _rtl = new RichTextLayout
-                {
-                    Font = TrueTypeLoader.Instance.GetFont(_font, _size),
-                    Text = text,
-                    Width = width
-                };
-            }
-            else
-            {
-                _rtl = new RichTextLayout
-                {
-                    Font = TrueTypeLoader.Instance.GetFont(_font, _size),
-                    Text = text,
-                };
-                Width = _rtl.Size.X;
-            }
+            X = 0;
+            Y = 0;
+            _font = string.Empty;
+            _color = Color.White;
+            _size = 0;
+            base.Width = 0;
+            base.Height = 0;
+            _rtl = null;
+            Options = null;
+            Alpha = 1f;
+            _dirty = false;
+            WantUpdateSize = false;
         }
+
+        private static readonly Regex _baseFontColorRegex = new Regex("<basefont color=\"?'?(?<color>.*?)\"?'?>", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+        private static readonly Regex _bodyTextColorRegex = new Regex("<Bodytextcolor\"?'?(?<color>.*?)\"?'?>", RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
         public static string ConvertHTMLColorsToFSS(string text)
         {
-            string finalString;
-
             if (string.IsNullOrEmpty(text))
-                return "";
+                return string.Empty;
 
-            finalString = Regex.Replace(text, "<basefont color=\"?'?(?<color>.*?)\"?'?>", " /c[${color}]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-            finalString = Regex.Replace(finalString, "<Bodytextcolor\"?'?(?<color>.*?)\"?'?>", " /c[${color}]", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            string finalString = _baseFontColorRegex.Replace(text, " /c[${color}]");
+            finalString = _bodyTextColorRegex.Replace(finalString, " /c[${color}]");
             finalString = finalString.Replace("</basefont>", "/cd").Replace("</BASEFONT>", "/cd").Replace("\n", "\n/cd");
 
             return finalString;
         }
 
-        public static string ConvertHtmlToFontStashSharpCommand(string text)
+        public static string ConvertHtmlToFontStashSharpCommand(string text, bool converthtmlcolors = true)
         {
-            string finalString;
-
             if (string.IsNullOrEmpty(text))
-                return "";
+                return string.Empty;
 
-            finalString = ConvertHTMLColorsToFSS(text);
+            string finalString = text;
 
-            finalString = finalString.Replace("<br>", "\n").Replace("<BR>", "\n");
-            finalString = finalString.Replace("<left>", "").Replace("</left>", "");
-            finalString = finalString.Replace("<b>", "").Replace("</b>", "");
-            finalString = finalString.Replace("</font>", "").Replace("<h2>", "");
-            finalString = finalString.Replace("<BODY>", "").Replace("<body>", "");
-            finalString = finalString.Replace("</BODY>", "").Replace("</body>", "");
-            finalString = finalString.Replace("</p>", "").Replace("<p>", "");
-            finalString = finalString.Replace("</BIG>", "").Replace("<BIG>", "");
-            finalString = finalString.Replace("</big>", "").Replace("<big>", "");
-            finalString = finalString.Replace("<basefont>", "").Replace("<BASEFONT>", "");
-            return finalString;
+            if (converthtmlcolors)
+                finalString = ConvertHTMLColorsToFSS(text);
+
+            string[] replacements = new string[]
+            {
+                "<br>", "\n", "<BR>", "\n", "<left>", string.Empty, "</left>", string.Empty, "<b>", string.Empty, "</b>", string.Empty, "</font>", string.Empty, "<font>",
+                string.Empty, "<h2>", string.Empty, "<BODY>", string.Empty, "<body>", string.Empty, "</BODY>", string.Empty, "</body>", string.Empty, "</p>", string.Empty,
+                "<p>", string.Empty, "</BIG>", string.Empty, "<BIG>", string.Empty, "</big>", string.Empty, "<big>", string.Empty, "<basefont>", string.Empty, "<BASEFONT>",
+                string.Empty
+            };
+
+            StringBuilder sb = new StringBuilder(finalString);
+
+            for (int i = 0; i < replacements.Length; i += 2)
+                sb.Replace(replacements[i], replacements[i + 1]);
+
+            return sb.ToString();
         }
 
         public override void Update()
         {
-            if (Width != _rtl.Width || _dirty || WantUpdateSize)
+            if (_dirty || WantUpdateSize)
             {
-                var text = _rtl.Text;
+                var text = _rtl.Text ?? string.Empty;
 
-                if (WantUpdateSize)
-                {
-                    _rtl = new RichTextLayout
-                    {
-                        Font = TrueTypeLoader.Instance.GetFont(_font, _size),
-                        Text = text,
-                    };
-                }
-                else
-                {
-                    _rtl = new RichTextLayout
-                    {
-                        Font = TrueTypeLoader.Instance.GetFont(_font, _size),
-                        Text = text,
-                        Width = Width,
-                    };
-                }
+                if (WantUpdateSize && Options != null)
+                    Options.Width = null;
 
-                if (MultiLine)
-                {
-                    base.Height = _rtl.Size.Y;
-                }
+                CreateRichTextLayout(text);
 
                 WantUpdateSize = false;
                 _dirty = false;
             }
+        }
+
+        public override void Dispose()
+        {
+            if (IsDisposed)
+                return;
+
+            base.Dispose();
+
+            Reset();
+            _pool.Enqueue(this);
         }
 
         public override bool Draw(UltimaBatcher2D batcher, int x, int y)
@@ -367,18 +400,90 @@ namespace ClassicUO.Game.UI.Controls
                 return false;
             }
 
-            if (_align == TextHorizontalAlignment.Center)
+            if (Options.Align == TextHorizontalAlignment.Center)
             {
                 x += Width / 2;
             }
-            else if (_align == TextHorizontalAlignment.Right)
+            else if (Options.Align == TextHorizontalAlignment.Right)
             {
                 x += Width;
             }
 
-            _rtl.Draw(batcher, new Vector2(x, y), color * Alpha, horizontalAlignment: _align);
+            _rtl.Draw(batcher, new Vector2(x, y), color * Alpha, horizontalAlignment: Options.Align);
 
             return true;
+        }
+
+        public class RTLOptions
+        {
+            public static RTLOptions Default(int? width = null) => new RTLOptions()
+            {
+                Width = width
+            };
+
+            public static RTLOptions DefaultCentered(int? width = null) => new RTLOptions()
+            {
+                Align = TextHorizontalAlignment.Center,
+                Width = width
+            };
+
+            public static RTLOptions DefaultRightAligned(int? width = null) => new RTLOptions()
+            {
+                Align = TextHorizontalAlignment.Right,
+                Width = width
+            };
+
+            public static RTLOptions DefaultCenterStroked(int? width = null) => new RTLOptions()
+            {
+                Align = TextHorizontalAlignment.Center,
+                StrokeEffect = true,
+                Width = width
+            };
+
+            public bool IgnoreColorCommands { get; set; }
+            public bool SupportsCommands { get; set; } = true;
+            public bool CalculateGlyphs { get; set; }
+            public bool StrokeEffect { get; set; }
+            public bool ConvertHtmlColors { get; set; } = true;
+            public TextHorizontalAlignment Align { get; set; } = TextHorizontalAlignment.Left;
+            public int? Width { get; set; } = null;
+            public bool MultiLine { get; set; }
+            public bool AcceptMouseInput { get; set; }
+
+            public RTLOptions DisableCommands()
+            {
+                SupportsCommands = false;
+
+                return this;
+            }
+
+            public RTLOptions IgnoreColors()
+            {
+                IgnoreColorCommands = true;
+
+                return this;
+            }
+
+            public RTLOptions EnableGlyphCalculation()
+            {
+                CalculateGlyphs = true;
+
+                return this;
+            }
+
+            public RTLOptions Alignment(TextHorizontalAlignment align)
+            {
+                Align = align;
+
+                return this;
+            }
+
+            public RTLOptions MouseInput(bool accept = true)
+            {
+                AcceptMouseInput = accept;
+
+                return this;
+            }
         }
     }
 }

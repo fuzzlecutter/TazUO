@@ -90,7 +90,7 @@ namespace ClassicUO.Game.Managers
         /// <returns></returns>
         public AutoLootConfigEntry AddAutoLootEntry(ushort graphic = 0, ushort hue = ushort.MaxValue, string name = "")
         {
-            AutoLootConfigEntry item = new AutoLootConfigEntry() { Graphic = (short)graphic, Hue = hue, Name = name };
+            AutoLootConfigEntry item = new AutoLootConfigEntry() { Graphic = graphic, Hue = hue, Name = name };
 
             foreach (AutoLootConfigEntry entry in autoLootItems)
             {
@@ -198,7 +198,7 @@ namespace ClassicUO.Game.Managers
 
         public void Update()
         {
-            if (!loaded || !IsEnabled) return;
+            if (!loaded || !IsEnabled || !World.InGame) return;
 
             if (lootItems.Count == 0)
             {
@@ -213,7 +213,7 @@ namespace ClassicUO.Game.Managers
             if (moveItem != 0)
             {
                 if (lootItems.Count == 0) //Que emptied out                
-                    currentLootTotalCount = 0;                
+                    currentLootTotalCount = 0;
 
                 quickContainsLookup.Remove(moveItem);
 
@@ -228,12 +228,12 @@ namespace ClassicUO.Game.Managers
 
                 if (m != null)
                 {
-                    if(m.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
-                        {
-                            Item rc = World.Items.Get(m.RootContainer);
-                            if(rc.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
-                                return;
-                        }
+                    if (m.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
+                    {
+                        Item rc = World.Items.Get(m.RootContainer);
+                        if (rc != null && rc.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
+                            return;
+                    }
                     GameActions.GrabItem(m, m.Amount);
                     nextLootTime = Time.Ticks + ProfileManager.CurrentProfile.MoveMultiObjectDelay;
                 }
@@ -302,7 +302,7 @@ namespace ClassicUO.Game.Managers
         public class AutoLootConfigEntry
         {
             public string Name { get; set; } = "";
-            public short Graphic { get; set; } = 0;
+            public int Graphic { get; set; } = 0;
             public ushort Hue { get; set; } = ushort.MaxValue;
             public string RegexSearch { get; set; } = string.Empty;
             private bool RegexMatch => !string.IsNullOrEmpty(RegexSearch);

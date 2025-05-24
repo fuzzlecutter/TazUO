@@ -27,7 +27,9 @@ namespace ClassicUO.LegionScripting
 
             Add(background = new AlphaBlendControl());
 
-            Add(title = new TextBox(scriptFile.FileName, TrueTypeLoader.EMBEDDED_FONT, 24, Width - 100, color: Color.White, strokeEffect: false) { AcceptMouseInput = false });
+            title = TextBox.GetOne(scriptFile.FileName, TrueTypeLoader.EMBEDDED_FONT, 24, Color.White, TextBox.RTLOptions.Default(Width - 100));
+            title.AcceptMouseInput = false;
+            Add(title);
 
             Add(save = new NiceButton(Width - 50, 0, 50, 50, ButtonAction.Default, "Save"));
             save.MouseUp += Save_MouseUp;

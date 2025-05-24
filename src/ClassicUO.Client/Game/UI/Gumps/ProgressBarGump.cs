@@ -26,8 +26,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             if (!string.IsNullOrEmpty(title))
             {
-                TextBox t = new TextBox(title, TrueTypeLoader.EMBEDDED_FONT, 20, width, Color.White, FontStashSharp.RichText.TextHorizontalAlignment.Center, false);
-                Add(t);
+                Add(TextBox.GetOne(title, TrueTypeLoader.EMBEDDED_FONT, 20, Color.White, TextBox.RTLOptions.DefaultCentered(width)));
             }
         }
 

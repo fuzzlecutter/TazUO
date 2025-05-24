@@ -99,7 +99,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         public static void UpdateAllOptions()
         {
-            foreach(InfoBarGump g in UIManager.Gumps.OfType<InfoBarGump>())
+            foreach (InfoBarGump g in UIManager.Gumps.OfType<InfoBarGump>())
             {
                 g.UpdateOptions();
             }
@@ -169,14 +169,8 @@ namespace ClassicUO.Game.UI.Gumps
             CanMove = false;
             Hue = hue;
 
-            _label = new TextBox(
-                label,
-                ProfileManager.CurrentProfile.InfoBarFont,
-                ProfileManager.CurrentProfile.InfoBarFontSize,
-                null,
-                hue,
-                strokeEffect: false
-                );
+            _label = TextBox.GetOne(label, ProfileManager.CurrentProfile.InfoBarFont, ProfileManager.CurrentProfile.InfoBarFontSize, hue, TextBox.RTLOptions.Default());
+
             if (label.StartsWith(@"\"))
             {
                 if (ushort.TryParse(label.Substring(1), out ushort gphc))
@@ -187,16 +181,8 @@ namespace ClassicUO.Game.UI.Gumps
             }
 
             Var = var;
-
-            _data = new TextBox(
-                "",
-                ProfileManager.CurrentProfile.InfoBarFont,
-                ProfileManager.CurrentProfile.InfoBarFontSize,
-                null,
-                0x0481,
-                strokeEffect: false
-                )
-            { X = _label.IsVisible ? _label.Width + 3 : _pic.Width };
+            _data = TextBox.GetOne(string.Empty, ProfileManager.CurrentProfile.InfoBarFont, ProfileManager.CurrentProfile.InfoBarFontSize, 0x0481, TextBox.RTLOptions.Default());
+            _data.X = _label.IsVisible ? _label.Width + 3 : _pic.Width;
 
             Add(_label);
             Add(_data);
@@ -222,7 +208,7 @@ namespace ClassicUO.Game.UI.Gumps
                 string newData = GetVarData(Var) ?? string.Empty;
                 if (!newData.Equals(_data.Text))
                 {
-                    _data.UpdateText(newData);
+                    _data.Text = newData;
                     _data.WantUpdateSize = true;
                     WantUpdateSize = true;
                 }

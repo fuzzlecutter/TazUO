@@ -31,10 +31,14 @@ namespace ClassicUO.Game.UI.Gumps
 
             Add(bc);
 
-            TextBox t;
-            Add(t = new TextBox(Language.Instance.CommandGump, TrueTypeLoader.EMBEDDED_FONT, 28, Width, Color.Gold, FontStashSharp.RichText.TextHorizontalAlignment.Center) { Y = 5 });
+            var options = TextBox.RTLOptions.DefaultCentered();
+            options.Width = Width;
 
-            ScrollArea scroll = new ScrollArea(10, 10 + t.Height, Width - 20, Height - t.Height - 40, true) { ScrollbarBehaviour = ScrollbarBehaviour.ShowAlways };
+            TextBox title;
+            Add(title = TextBox.GetOne(Language.Instance.CommandGump, TrueTypeLoader.EMBEDDED_FONT, 28, Color.Gold, options));
+            title.Y = 5;
+
+            ScrollArea scroll = new ScrollArea(10, 10 + title.Height, Width - 20, Height - title.Height - 40, true) { ScrollbarBehaviour = ScrollbarBehaviour.ShowAlways };
 
             Add(new AlphaBlendControl(0.45f) { Width = scroll.Width, Height = scroll.Height, X = scroll.X, Y = scroll.Y });
 
@@ -48,9 +52,10 @@ namespace ClassicUO.Game.UI.Gumps
             int y = 0;
             foreach (var command in CommandManager.Commands)
             {
-                TextBox t = new TextBox(command.Key, TrueTypeLoader.EMBEDDED_FONT, 18, scroll.Width, Color.White) { Y = y, AcceptMouseInput = false };
+                TextBox t = TextBox.GetOne(command.Key, TrueTypeLoader.EMBEDDED_FONT, 18, Color.White, TextBox.RTLOptions.Default(scroll.Width));
+                t.Y = y;
                 scroll.Add(t);
-                y += t.Height + 10;
+                y += t.Height + 5;
             }
         }
     }

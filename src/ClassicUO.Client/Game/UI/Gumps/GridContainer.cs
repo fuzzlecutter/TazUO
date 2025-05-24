@@ -393,7 +393,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 if (Client.Game.GameCursor.ItemHold.Enabled)
                     GameActions.DropItem(Client.Game.GameCursor.ItemHold.Serial, 0xFFFF, 0xFFFF, 0, LocalSerial);
-                else if (TargetManager.IsTargeting)
+                else if (TargetManager.IsTargeting && !ProfileManager.CurrentProfile.DisableTargetingGridContainers)
                     TargetManager.Target(LocalSerial);
             }
             else if (e.Button == MouseButtonType.Right)
@@ -728,6 +728,13 @@ namespace ClassicUO.Game.UI.Gumps
             scrollArea.Height = adjustedHeight - TOP_BAR_HEIGHT;
         }
 
+        public override bool Draw(UltimaBatcher2D batcher, int x, int y)
+        {
+            if(CUOEnviroment.Debug)
+                batcher.DrawString(Renderer.Fonts.Bold, LocalSerial.ToString(), x, y - 40, ShaderHueTranslator.GetHueVector(32));
+            return base.Draw(batcher, x, y);
+        }
+
         public enum BorderStyle
         {
             Default,
@@ -940,11 +947,13 @@ namespace ClassicUO.Game.UI.Gumps
                         {
                             GameActions.DropItem(Client.Game.GameCursor.ItemHold.Serial, 0xFFFF, 0xFFFF, 0, _item.Serial);
                             Mouse.CancelDoubleClick = true;
+                            mousePressedWhenEntered = false; //Fix for not needing to move mouse out of grid box to re-drag item
                         }
                         else if (_item != null && _item.ItemData.IsStackable && _item.Graphic == Client.Game.GameCursor.ItemHold.Graphic)
                         {
                             GameActions.DropItem(Client.Game.GameCursor.ItemHold.Serial, _item.X, _item.Y, 0, _item.Serial);
                             Mouse.CancelDoubleClick = true;
+                            mousePressedWhenEntered = false; //Fix for not needing to move mouse out of grid box to re-drag item                        
                         }
                         else
                         {
@@ -953,6 +962,7 @@ namespace ClassicUO.Game.UI.Gumps
                             var pos = GetBoxPosition(slot, Client.Game.GameCursor.ItemHold.Graphic, containerBounds.Width, containerBounds.Height);
                             GameActions.DropItem(Client.Game.GameCursor.ItemHold.Serial, pos.X, pos.Y, 0, container.Serial);
                             Mouse.CancelDoubleClick = true;
+                            mousePressedWhenEntered = false; //Fix for not needing to move mouse out of grid box to re-drag item                        
                         }
                     }
                     else if (TargetManager.IsTargeting)
@@ -965,7 +975,7 @@ namespace ClassicUO.Game.UI.Gumps
                                 UIManager.Add(new InspectorGump(_item));
                             }
                         }
-                        else
+                        else if (!ProfileManager.CurrentProfile.DisableTargetingGridContainers)
                             TargetManager.Target(container);
                         Mouse.CancelDoubleClick = true;
                     }

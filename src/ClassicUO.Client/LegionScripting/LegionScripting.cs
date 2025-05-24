@@ -55,17 +55,62 @@ namespace ClassicUO.LegionScripting
             AutoPlayChar();
             _enabled = true;
 
-            CommandManager.Register("lscriptfile", a =>
+            CommandManager.Register("playlscript", a =>
             {
                 if (a.Length < 2)
                 {
-                    GameActions.Print("Usage: lscriptfile <filename>");
+                    GameActions.Print("Usage: playlscript <filename>");
                     return;
                 }
 
                 foreach (ScriptFile f in LoadedScripts)
                 {
-                    if (f.FileName == a[1])
+                    if (f.FileName == string.Join(" ", a.Skip(1)))
+                    {
+                        PlayScript(f);
+                        return;
+                    }
+                }
+            });
+
+            CommandManager.Register("stoplscript", a =>
+            {
+                if (a.Length < 2)
+                {
+                    GameActions.Print("Usage: stoplscript <filename>");
+                    return;
+                }
+
+                foreach(ScriptFile sf in runningScripts)
+                {
+                    if (sf.FileName == string.Join(" ", a.Skip(1)))
+                    {
+                        StopScript(sf);
+                        return;
+                    }
+                }
+            });
+
+            CommandManager.Register("togglelscript", a =>
+            {
+                if (a.Length < 2)
+                {
+                    GameActions.Print("Usage: togglelscript <filename>");
+                    return;
+                }
+
+                foreach(ScriptFile sf in runningScripts)
+                {
+                    if (sf.FileName == string.Join(" ", a.Skip(1)))
+                    {
+                        StopScript(sf);
+                        return;
+                    }
+                }
+
+                foreach (ScriptFile f in LoadedScripts)
+                {
+                    if (f.FileName == string.Join(" ", a.Skip(1)))
                     {
                         PlayScript(f);
                         return;
@@ -75,12 +120,16 @@ namespace ClassicUO.LegionScripting
         }
         private static void EventSink_JournalEntryAdded(object sender, JournalEntry e)
         {
+            if(e is null) return;
+
             foreach (ScriptFile script in runningScripts)
             {
+                if(script is null) continue;
+
                 if (script.ScriptType == ScriptType.LegionScript)
-                    script.GetScript.JournalEntryAdded(e);
+                    script.GetScript?.JournalEntryAdded(e);
                 else
-                    script.scopedAPI.JournalEntries.Enqueue(e);
+                    script.scopedAPI?.JournalEntries.Enqueue(e);
             }
         }
         public static void LoadScriptsFromFile()
@@ -346,11 +395,31 @@ namespace ClassicUO.LegionScripting
         }
         private static void ExecutePythonScript(ScriptFile script)
         {
-            script.pythonEngine ??= Python.CreateEngine();
+            if(script.pythonEngine == null){
+                script.pythonEngine = Python.CreateEngine();
+
+                string dir = Path.GetDirectoryName(script.FullPath);                       
+                ICollection<string> paths = script.pythonEngine.GetSearchPaths();
+                string path = Path.Combine(CUOEnviroment.ExecutablePath, "iplib");
+                paths.Add(path);
+
+                if (!string.IsNullOrWhiteSpace(dir))
+                {
+                    paths.Add(dir);
+                }
+                else
+                {
+                    paths.Add(Environment.CurrentDirectory);
+                }
+
+                script.pythonEngine.SetSearchPaths(paths);
+            }
+
             script.pythonScope = script.pythonEngine.CreateScope();
             var api = new API();
             script.scopedAPI = api;
-            script.pythonScope.SetVariable("API", api);
+            //script.pythonScope.SetVariable("API", api);
+            script.pythonEngine.GetBuiltinModule().SetVariable("API", api);
             try
             {
                 script.pythonEngine.Execute(script.FileContentsJoined, script.pythonScope);
@@ -612,6 +681,9 @@ namespace ClassicUO.LegionScripting
         {
             get
             {
+                if(ScriptType == ScriptType.LegionScript && GetScript != null)
+                    return GetScript.IsPlaying;
+
                 return PythonThread != null;
             }
         }

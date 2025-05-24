@@ -937,7 +937,7 @@ namespace ClassicUO
                     }
 
                 case SDL_EventType.SDL_CONTROLLERBUTTONDOWN:
-                    if (!IsActive)
+                    if (!IsActive || ProfileManager.CurrentProfile == null || !ProfileManager.CurrentProfile.ControllerEnabled)
                     {
                         break;
                     }

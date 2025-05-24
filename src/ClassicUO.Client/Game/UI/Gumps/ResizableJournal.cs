@@ -451,6 +451,7 @@ namespace ClassicUO.Game.UI.Gumps
         public override void Dispose()
         {
             EventSink.JournalEntryAdded -= EventSink_EntryAdded;
+            _journalArea.Dispose();
             base.Dispose();
         }
 
@@ -489,7 +490,7 @@ namespace ClassicUO.Game.UI.Gumps
                 {
                     foreach (JournalData journalEntry in journalDatas)
                     {
-                        if (journalEntry == null || string.IsNullOrEmpty(journalEntry.EntryText.Text))
+                        if (journalEntry == null || journalEntry.EntryText == null || journalEntry.TimeStamp == null)
                             continue;
 
                         if (!CanBeDrawn(journalEntry.TextType, journalEntry.MessageType))
@@ -524,8 +525,10 @@ namespace ClassicUO.Game.UI.Gumps
 
                     foreach (JournalData _ in journalDatas)
                     {
+                        if (_ is null)
+                            continue;
                         _.EntryText.Width = Width - BORDER_WIDTH - (ProfileManager.CurrentProfile.HideJournalTimestamp ? 0 : _.TimeStamp.Width);
-                        _.EntryText.Update();
+                        _.EntryText.Update(); //Because this control isn't a child of any gump, it doesn't get updated
                     }
 
                     CalculateScrollBarMaxValue();
@@ -571,11 +574,13 @@ namespace ClassicUO.Game.UI.Gumps
                 while (journalDatas.Count > (ProfileManager.CurrentProfile == null ? 200 : ProfileManager.CurrentProfile.MaxJournalEntries))
                     journalDatas.RemoveFromFront().Destroy();
 
-                TextBox timeS = new TextBox($"{time:t}", ProfileManager.CurrentProfile.SelectedTTFJournalFont, ProfileManager.CurrentProfile.SelectedJournalFontSize - 2, null, 1150, strokeEffect: false);
+                TextBox timeS = TextBox.GetOne($"{time:t}", ProfileManager.CurrentProfile.SelectedTTFJournalFont, ProfileManager.CurrentProfile.SelectedJournalFontSize - 2, 1150, TextBox.RTLOptions.Default());
+                TextBox je = TextBox.GetOne(text, ProfileManager.CurrentProfile.SelectedTTFJournalFont, ProfileManager.CurrentProfile.SelectedJournalFontSize, hue,
+                    new TextBox.RTLOptions() { Width = Width - (ProfileManager.CurrentProfile.HideJournalTimestamp ? 0 : timeS.Width) });
 
                 journalDatas.AddToBack(
                     new JournalData(
-                        new TextBox(text, ProfileManager.CurrentProfile.SelectedTTFJournalFont, ProfileManager.CurrentProfile.SelectedJournalFontSize, Width - (ProfileManager.CurrentProfile.HideJournalTimestamp ? 0 : timeS.Width), hue, strokeEffect: false),
+                        je,
                         timeS,
                         text_type,
                         messageType

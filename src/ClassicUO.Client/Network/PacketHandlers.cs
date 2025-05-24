@@ -49,6 +49,7 @@ using ClassicUO.Utility.Platforms;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -1561,7 +1562,7 @@ namespace ClassicUO.Network
                         }
 
 
-                        if (ProfileManager.CurrentProfile.UseGridLayoutContainerGumps)
+                        if (ProfileManager.CurrentProfile.UseGridLayoutContainerGumps && graphic != 0x091A)
                         {
                             GridContainer gridContainer = UIManager.GetGump<GridContainer>(serial);
                             if (gridContainer != null)
@@ -3267,28 +3268,36 @@ namespace ClassicUO.Network
             MapGump gump = new MapGump(serial, gumpid, width, height);
             SpriteInfo multiMapInfo;
 
-            if (p[0] == 0xF5 || Client.Version >= Utility.ClientVersion.CV_308Z)
+            try
             {
-                ushort facet = 0;
-
-                if (p[0] == 0xF5)
+                if (p[0] == 0xF5 || Client.Version >= Utility.ClientVersion.CV_308Z)
                 {
-                    facet = p.ReadUInt16BE();
+                    ushort facet = 0;
+
+                    if (p[0] == 0xF5)
+                    {
+                        facet = p.ReadUInt16BE();
+                    }
+
+                    multiMapInfo = Client.Game.MultiMaps.GetMap(facet, width, height, startX, startY, endX, endY);
+
+                    gump.MapInfos(startX, startY, endX, endY, facet);
+                }
+                else
+                {
+                    multiMapInfo = Client.Game.MultiMaps.GetMap(null, width, height, startX, startY, endX, endY);
+
+                    gump.MapInfos(startX, startY, endX, endY);
                 }
 
-                multiMapInfo = Client.Game.MultiMaps.GetMap(facet, width, height, startX, startY, endX, endY);
-
-                gump.MapInfos(startX, startY, endX, endY, facet);
+                if (multiMapInfo.Texture != null)
+                    gump.SetMapTexture(multiMapInfo.Texture);
             }
-            else
+            catch (Exception e)
             {
-                multiMapInfo = Client.Game.MultiMaps.GetMap(null, width, height, startX, startY, endX, endY);
-
-                gump.MapInfos(startX, startY, endX, endY);
+                Log.Error("Failed to create map texture: ");
+                Console.WriteLine(e);
             }
-
-            if (multiMapInfo.Texture != null)
-                gump.SetMapTexture(multiMapInfo.Texture);
 
             UIManager.Add(gump);
 
@@ -6481,7 +6490,7 @@ namespace ClassicUO.Network
                 item.Direction = direction;
                 item.CheckGraphicChange(item.AnimIndex);
 
-                if(created)
+                if (created)
                     EventSink.InvokeOnItemCreated(item);
                 else
                     EventSink.InvokeOnItemUpdated(item);
@@ -6763,6 +6772,7 @@ namespace ClassicUO.Network
                 }
 
                 string entry = gparams[0];
+                gump.PacketGumpText += string.Join(" ", gparams) + "\n";
 
                 if (string.Equals(entry, "button", StringComparison.InvariantCultureIgnoreCase))
                 {

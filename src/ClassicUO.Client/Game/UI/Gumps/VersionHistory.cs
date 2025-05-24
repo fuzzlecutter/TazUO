@@ -8,6 +8,20 @@ namespace ClassicUO.Game.UI.Gumps
     internal class VersionHistory : Gump
     {
         private static string[] updateTexts = {
+            "/c[white][3.29.0]/cd\n" +
+                "- Moved tooltip override options into main menu\n"+
+                "- Expanded Python API\n"+
+                "- Prevent moving gumps outside the client window\n"+
+                "- Reworked internal TTF fonts for better performance\n"+
+                "- Fixed a bug in tooltips, likely not noticable but should be a significant performance boost while a tooltip is shown.\n"+
+                "- Added -artbrowser and -animbrowser commands\n"+
+                "- Added option to disable targeting grid containers directly\n"+
+                "- Added some new fonts in\n" +
+                "- Added option to disable controller\n" +
+                "- Added some standard python libs in for python scripting\n" +
+                
+                "- Various bug fixes\n",
+
             "/c[white][3.28.0]/cd\n" +
                 "- Added auto buy and sell agents\n" +
                 "- Added Python scripting language support to legion scripting\n" +
@@ -242,16 +256,6 @@ namespace ClassicUO.Game.UI.Gumps
                 "- Fix for text not being clickable\n" +
                 "- Added yellow highlighting for overhead text",
 
-            "/c[white][3.7.0]/cd\n" +
-                "- Updated some default font sizes, slightly larger (New installs only)\n" +
-                "- Added item count to grid containers\n" +
-                "- Changed health lines back to blue\n" +
-                "- Added boat control gump\n" +
-                "- Fixed + symbol issue with tooltip overrides\n" +
-                "- Fixed an issue with having zero tooltip overrides\n" +
-                "- Fixed journal width issue when timestamps are disabled\n" +
-                "- Added {3} to tooltip overrides, inserting the original tooltip property",
-
             "\n\n/c[white]For further history please visit our discord."
         };
 
@@ -277,17 +281,23 @@ namespace ClassicUO.Game.UI.Gumps
             Add(bc);
 
             TextBox _;
-            Add(_ = new TextBox(Language.Instance.TazuoVersionHistory, TrueTypeLoader.EMBEDDED_FONT, 30, Width, Color.White, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { Y = 10, AcceptMouseInput = false });
-            Add(_ = new TextBox(Language.Instance.CurrentVersion + CUOEnviroment.Version.ToString(), TrueTypeLoader.EMBEDDED_FONT, 20, Width, Color.Orange, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { Y = _.Y + _.Height + 5, AcceptMouseInput = false });
+            Add(_ = TextBox.GetOne(Language.Instance.TazuoVersionHistory, TrueTypeLoader.EMBEDDED_FONT, 30, Color.White, TextBox.RTLOptions.DefaultCentered(Width)));
+            _.Y = 5;
+
+            int y = _.Y + _.Height + 5;
+            Add(_ = TextBox.GetOne(Language.Instance.CurrentVersion + CUOEnviroment.Version.ToString(), TrueTypeLoader.EMBEDDED_FONT, 20, Color.Orange, TextBox.RTLOptions.DefaultCentered(Width)));
+            _.Y = y;
 
             ScrollArea scroll = new ScrollArea(10, _.Y + _.Height, Width - 20, Height - (_.Y + _.Height) - 20, true) { ScrollbarBehaviour = ScrollbarBehaviour.ShowAlways };
 
             Add(new AlphaBlendControl(0.45f) { Width = scroll.Width, Height = scroll.Height, X = scroll.X, Y = scroll.Y });
 
-            int y = 0;
+            y = 0;
             foreach (string s in updateTexts)
             {
-                scroll.Add(_ = new TextBox(s, TrueTypeLoader.EMBEDDED_FONT, 15, scroll.Width - scroll.ScrollBarWidth(), Color.Orange, FontStashSharp.RichText.TextHorizontalAlignment.Left, false) { Y = y, AcceptMouseInput = false });
+                scroll.Add(_ = TextBox.GetOne(s, TrueTypeLoader.EMBEDDED_FONT, 15, Color.Orange, TextBox.RTLOptions.Default(scroll.Width - scroll.ScrollBarWidth())));
+                _.Y = y;
+                _.AcceptMouseInput = false;
                 y += _.Height + 10;
             }
 
@@ -295,14 +305,22 @@ namespace ClassicUO.Game.UI.Gumps
 
 
             HitBox _hit;
-            Add(_ = new TextBox(Language.Instance.TazUOWiki, TrueTypeLoader.EMBEDDED_FONT, 15, 200, Color.Orange, strokeEffect: false) { X = 25, Y = Height - 20 });
+            _ = TextBox.GetOne(Language.Instance.TazUOWiki, TrueTypeLoader.EMBEDDED_FONT, 15, Color.Orange, TextBox.RTLOptions.Default(200));
+            _.X = 25;
+            _.Y = Height - 20;
+            Add(_);
+            
             Add(_hit = new HitBox(_.X, _.Y, _.MeasuredSize.X, _.MeasuredSize.Y));
             _hit.MouseUp += (s, e) =>
             {
                 Utility.Platforms.PlatformHelper.LaunchBrowser("https://github.com/bittiez/TazUO/wiki");
             };
+            
+            _ = TextBox.GetOne(Language.Instance.TazUODiscord, TrueTypeLoader.EMBEDDED_FONT, 15, Color.Orange, TextBox.RTLOptions.Default(200));
+            _.X = 280;
+            _.Y = Height - 20;
+            Add(_);
 
-            Add(_ = new TextBox(Language.Instance.TazUODiscord, TrueTypeLoader.EMBEDDED_FONT, 15, 200, Color.Orange, strokeEffect: false) { X = 280, Y = Height - 20 });
             Add(_hit = new HitBox(_.X, _.Y, _.MeasuredSize.X, _.MeasuredSize.Y));
             _hit.MouseUp += (s, e) =>
             {

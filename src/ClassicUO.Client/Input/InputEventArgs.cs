@@ -91,7 +91,7 @@ namespace ClassicUO.Input
         public MouseEventType Direction { get; }
     }
 
-    internal sealed class KeyboardEventArgs : EventArgs
+    public sealed class KeyboardEventArgs : EventArgs
     {
         public KeyboardEventArgs(SDL_Keycode key, SDL_Keymod mod, KeyboardEventType state)
         {

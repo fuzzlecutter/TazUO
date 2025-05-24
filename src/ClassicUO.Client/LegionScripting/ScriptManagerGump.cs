@@ -40,7 +40,10 @@ namespace ClassicUO.LegionScripting
 
             Add(background = new AlphaBlendControl(0.77f) { X = BorderControl.BorderSize, Y = BorderControl.BorderSize });
 
-            Add(title = new TextBox("Script Manager", TrueTypeLoader.EMBEDDED_FONT, 18, Width, Color.DarkOrange, FontStashSharp.RichText.TextHorizontalAlignment.Center, false) { Y = BorderControl.BorderSize, AcceptMouseInput = false });
+            title = TextBox.GetOne("Script Manager", TrueTypeLoader.EMBEDDED_FONT, 18, Color.DarkOrange, TextBox.RTLOptions.DefaultCentered(Width));
+            title.Y = BorderControl.BorderSize;
+            title.AcceptMouseInput = false;
+            Add(title);
 
             Add(refresh = new NiceButton(Width - 75 - BorderControl.BorderSize, BorderControl.BorderSize, 75, 25, ButtonAction.Default, "Refresh")
             {
@@ -243,7 +246,9 @@ while True:
                 expand = new NiceButton(0, 0, 25, HEIGHT, ButtonAction.Default, expandShrink) { IsSelectable = false };
                 expand.MouseDown += Expand_MouseDown;
 
-                label = new TextBox(group + "  ", TrueTypeLoader.EMBEDDED_FONT, 16, null, Color.White) { AcceptMouseInput = false };
+                label = TextBox.GetOne(group + "  ", TrueTypeLoader.EMBEDDED_FONT, 16, Color.White, TextBox.RTLOptions.Default());
+                label.AcceptMouseInput = false;
+                Add(label);
                 label.X = expand.X + expand.Width;
                 label.Y = (HEIGHT - label.Height) / 2;
 
@@ -445,10 +450,7 @@ while True:
                     if (Script == null)
                         return "Play";
 
-                    if (Script.ScriptType == ScriptType.LegionScript && Script.GetScript?.IsPlaying == true)
-                        return "Stop";
-
-                    if (Script.ScriptType == ScriptType.Python && Script.PythonThread != null)
+                    if (Script.IsPlaying)
                         return "Stop";
 
                     return "Play";
@@ -466,7 +468,9 @@ while True:
 
                 Add(background = new AlphaBlendControl(0.35f) { Height = Height, Width = Width });
 
-                Add(label = new TextBox(ScriptDisplayName, TrueTypeLoader.EMBEDDED_FONT, 16, w - 130, Color.White, strokeEffect: false) { AcceptMouseInput = false });
+                label = TextBox.GetOne(ScriptDisplayName, TrueTypeLoader.EMBEDDED_FONT, 16, Color.White, TextBox.RTLOptions.Default(w - 130));
+                label.AcceptMouseInput = false;
+                Add(label);
                 label.Y = 5;
                 label.X = 5;
 
@@ -596,17 +600,19 @@ while True:
             {
                 Width = w;
                 background.Width = w;
-                label.UpdateText(ScriptDisplayName, w - 80);
+                label.Text = ScriptDisplayName;
                 label.Width = w - 80;
+                label.Update(); //Force RTL to recreate the label so we can determine if we need to redo it..
                 if (label.RTL.Lines.Count > 1)
                 {
                     var msize = label.RTL.Lines[0].Count;
                     if (msize >= 3)
-                        label.UpdateText(ScriptDisplayName.Substring(0, msize - 3) + "...", w - 80);
+                        label.Text = ScriptDisplayName.Substring(0, msize - 3) + "...";
                 }
-                playstop.X = label.X + label.Width + 5;
-                menu.X = playstop.X + playstop.Width;
+                menu.X = w - menu.Width;
+                playstop.X = w - menu.Width - playstop.Width;
             }
+
         }
     }
 }

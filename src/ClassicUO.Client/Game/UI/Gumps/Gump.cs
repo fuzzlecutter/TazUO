@@ -2,7 +2,7 @@
 
 // Copyright (c) 2021, andreakarasho
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
 // 1. Redistributions of source code must retain the above copyright
@@ -16,7 +16,7 @@
 // 4. Neither the name of the copyright holder nor the
 //    names of its contributors may be used to endorse or promote products
 //    derived from this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -32,6 +32,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Xml;
 using ClassicUO.Configuration;
 using ClassicUO.Game.GameObjects;
@@ -54,6 +55,8 @@ namespace ClassicUO.Game.UI.Gumps
             AcceptMouseInput = false;
             AcceptKeyboardInput = false;
         }
+
+        public string PacketGumpText { get; set; } = string.Empty;
 
         public bool CanBeSaved => GumpType != Gumps.GumpType.None || ServerSerial != 0;
 
@@ -216,7 +219,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 float scale = ProfileManager.CurrentProfile.GlobalScale;
                 float logicalCenterY = (camera.Bounds.Y + camera.Bounds.Height / 2f);
-                Y = (int)(logicalCenterY - ((Height/scale) / 2f));
+                Y = (int)(logicalCenterY - ((Height / scale) / 2f));
             }
             else
             {
@@ -236,8 +239,8 @@ namespace ClassicUO.Game.UI.Gumps
                 return;
             }
 
-            X = 0;
-            Y = 0;
+            X = (int)MathHelper.Clamp(bounds.X, 0, windowBounds.Width - Width);
+            Y = (int)MathHelper.Clamp(bounds.Y, 0, windowBounds.Height - Height);
         }
 
         public virtual void Restore(XmlElement xml)
@@ -289,6 +292,13 @@ namespace ClassicUO.Game.UI.Gumps
             }
 
             Location = position;
+        }
+
+        protected override void OnMove(int x, int y)
+        {
+            base.OnMove(x, y);
+
+            SetInScreen();
         }
 
         public override bool Draw(UltimaBatcher2D batcher, int x, int y)
