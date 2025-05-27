@@ -301,7 +301,13 @@ public class DiscordManager
         activity.SetType(ActivityTypes.Playing);
 
         var sec = new ActivitySecrets();
-        sec.SetJoin(JsonSerializer.Serialize(new ServerInfo(Settings.GlobalSettings.IP, Settings.GlobalSettings.Port.ToString(), World.ServerName), ServerInfoJsonContext.Default.ServerInfo));
+
+        sec.SetJoin
+        (
+            JsonSerializer.Serialize
+                (new ServerInfo(Settings.GlobalSettings.IP, Settings.GlobalSettings.Port.ToString(), World.ServerName), ServerInfoJsonContext.Default.ServerInfo)
+        );
+
         activity.SetSecrets(sec);
 
         var ts = new ActivityTimestamps();
@@ -348,10 +354,18 @@ public class DiscordManager
             return;
 
         SetStatusText("Attempting to reconnect...");
-        var rtoken = Crypter.Decrypt(File.ReadAllText(rpath));
 
-        client.RefreshToken(clientId, rtoken, OnTokenExchangeCallback);
-        authBegan = true;
+        try
+        {
+            var rtoken = Crypter.Decrypt(File.ReadAllText(rpath));
+
+            client.RefreshToken(clientId, rtoken, OnTokenExchangeCallback);
+            authBegan = true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 
     private void OnTokenExchangeCallback(ClientResult result, string token, string refreshToken, AuthorizationTokenType tokenType, int expiresIn, string scopes)
@@ -401,7 +415,7 @@ public class DiscordManager
 
     private void OnReceivedToken(string token, string refresh)
     {
-        Log.Debug("Token received(DO NOT SHARE THIS): " + token);
+        Log.Debug("Token received");
         SetStatusText("Almost done...");
 
         try

@@ -255,5 +255,7 @@ public class DiscordGump : Gump
         base.Dispose();
         DiscordManager.Instance.OnStatusTextUpdated -= OnStatusTextUpdated;
         DiscordManager.Instance.OnUserUpdated -= OnUserUpdated;
+        DiscordManager.Instance.OnMessageReceived -= OnMessageReceived;
+        _chatInput.EnterPressed -= ChatInputOnEnterPressed;
     }
 }
