@@ -53,6 +53,8 @@ namespace ClassicUO.Game.Managers
         };
 
         public List<DurabiltyProp> Durabilities => _itemLayerSlots.Values.ToList();
+        
+        public static bool HasDurabilityData { get; private set; }
 
         public DurabilityManager()
         {
@@ -79,6 +81,7 @@ namespace ClassicUO.Game.Managers
                             {
                                 var durability = ParseDurability((int)item.Serial, e.Data);
                                 _itemLayerSlots.AddOrUpdate(item.Serial, durability, (_, _) => durability);
+                                HasDurabilityData = true;
                             }
                             else
                             {
