@@ -69,11 +69,11 @@ public class DiscordUserPopupGump : Gump
             y += c.Height + 5;
             Add(c);
 
-            var activitys = presence.Secrets();
+            var activitys = presence.Party();
 
             if (activitys != null)
             {
-                ServerInfo data = JsonSerializer.Deserialize(activitys.Join(), ServerInfoJsonContext.Default.ServerInfo);
+                ServerInfo data = ServerInfo.FromJson(activitys.Id());
 
                 c = TextBox.GetOne(data.Name, TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.Instance.GetUserhue(userId), TextBox.RTLOptions.DefaultCentered(Width));
                 c.Y = y;

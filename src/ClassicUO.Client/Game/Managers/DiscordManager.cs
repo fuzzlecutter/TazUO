@@ -301,15 +301,9 @@ public class DiscordManager
         activity.SetName("Ultima Online");
         activity.SetType(ActivityTypes.Playing);
 
-        var sec = new ActivitySecrets();
-
-        sec.SetJoin
-        (
-            JsonSerializer.Serialize
-                (new ServerInfo(Settings.GlobalSettings.IP, Settings.GlobalSettings.Port.ToString(), World.ServerName), ServerInfoJsonContext.Default.ServerInfo)
-        );
-
-        activity.SetSecrets(sec);
+        var party = new ActivityParty();
+        party.SetId(new ServerInfo(Settings.GlobalSettings.IP, Settings.GlobalSettings.Port.ToString(), World.ServerName).ToJson());
+        activity.SetParty(party);
 
         var ts = new ActivityTimestamps();
         ts.SetStart(0);
@@ -447,6 +441,17 @@ public struct ServerInfo(string ip, string port, string name)
     public string Ip { get; set; } = ip;
     public string Port { get; set; } = port;
     public string Name { get; set; } = name;
+
+    public string ToJson()
+    {
+        return JsonSerializer.Serialize
+            (new ServerInfo(Ip, Port, Name), ServerInfoJsonContext.Default.ServerInfo);
+    }
+    
+    public static ServerInfo FromJson(string json)
+    {
+        return JsonSerializer.Deserialize(json, ServerInfoJsonContext.Default.ServerInfo);
+    }
 }
 
 [JsonSourceGenerationOptions(WriteIndented = true)]

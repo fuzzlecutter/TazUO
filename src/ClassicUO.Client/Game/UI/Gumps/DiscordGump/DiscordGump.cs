@@ -141,7 +141,7 @@ public class DiscordGump : Gump
 
     private void BuildChatArea()
     {
-        _discordChatArea = new DiscordChatAreaControl(WIDTH - LEFT_WIDTH - 5, HEIGHT - 20, LEFT_WIDTH + 5, 20);
+        _discordChatArea = new DiscordChatAreaControl(WIDTH - LEFT_WIDTH - 5, HEIGHT, LEFT_WIDTH + 5, 0);
         Add(_discordChatArea);
     }
 
