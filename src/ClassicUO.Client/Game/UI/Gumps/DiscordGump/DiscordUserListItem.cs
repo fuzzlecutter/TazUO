@@ -100,6 +100,12 @@ public class DiscordUserListItem : Control
         name.X = 5;
         Add(name);
 
+        if(user.GameActivity() != null) //In TUO
+        {
+            var tuo = new EmbeddedGumpPic(Width - 79, 0, PNGLoader.Instance.EmbeddedArt["TazUOSM.png"]);
+            Add(tuo);
+        }
+        
         if (user.IsOnline())
             shue = ShaderHueTranslator.GetHueVector(72, false, 1f);
         else

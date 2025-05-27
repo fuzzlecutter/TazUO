@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace ClassicUO.Game.UI.Controls
         private Texture2D _texture;
         private bool _loading;
         private Vector3 _hue;
+        private static Dictionary<string, Texture2D> _cache = new();
 
         public ExternalUrlImage(string url, int width = 100, int height = 100)
         {
@@ -31,6 +33,18 @@ namespace ClassicUO.Game.UI.Controls
 
         private void LoadImage(string url)
         {
+            if (_cache.ContainsKey(url))
+            {
+                _texture = _cache[url];
+
+                if (_texture != null)
+                {
+                    _loading = false;
+
+                    return;
+                }
+            }
+
             try
             {
                 using var client = new WebClient();
@@ -39,7 +53,9 @@ namespace ClassicUO.Game.UI.Controls
                 using var ms = new MemoryStream(data);
                 var texture = Texture2D.FromStream(Client.Game.GraphicsDevice, ms);
 
-                _texture?.Dispose();
+                if (!_cache.ContainsKey(url))
+                    _cache.Add(url, texture);
+
                 _texture = texture;
             }
             catch (Exception ex)
@@ -50,12 +66,6 @@ namespace ClassicUO.Game.UI.Controls
             {
                 _loading = false;
             }
-        }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-            _texture?.Dispose();
         }
 
         public override bool Draw(UltimaBatcher2D batcher, int x, int y)
