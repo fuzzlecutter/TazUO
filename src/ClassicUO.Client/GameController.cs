@@ -211,6 +211,7 @@ namespace ClassicUO
             loadResourceAssets.Wait(10000);
             SetScene(new LoginScene());
             SetWindowPositionBySettings();
+            DiscordManager.Instance.FromSavedToken();
         }
 
         protected override void UnloadContent()
@@ -506,6 +507,8 @@ namespace ClassicUO
 
             GameCursor?.Update();
             Audio?.Update();
+            
+            DiscordManager.Instance.Update();
 
             base.Update(gameTime);
         }

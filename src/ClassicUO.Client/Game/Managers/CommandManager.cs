@@ -39,7 +39,7 @@ using ClassicUO.Resources;
 using ClassicUO.Utility.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ClassicUO.Game.Managers
@@ -52,6 +52,23 @@ namespace ClassicUO.Game.Managers
 
         public static void Initialize()
         {
+            Register("dis", (s)=>UIManager.Add(new DiscordGump()));
+            
+            Register("dm", (a) =>
+            {
+                if (a.Length < 3)
+                {
+                    GameActions.Print("Usage: -dm userID msg");
+
+                    return;
+                }
+
+                if (ulong.TryParse(a[1], out ulong id))
+                {
+                    DiscordManager.Instance.SendDM(id, string.Join(" ", a.Skip(2)));
+                }
+            });
+            
             Register
             (
                 "info",
