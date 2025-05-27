@@ -55,9 +55,8 @@ public class DiscordUserPopupGump : Gump
         y += avatar.Height + 5;
         Add(avatar);
 
-        var name = TextBox.GetOne(userHandle.DisplayName(), TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.Instance.GetUserhue(userId), TextBox.RTLOptions.Default(Width));
+        var name = TextBox.GetOne(userHandle.DisplayName(), TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.Instance.GetUserhue(userId), TextBox.RTLOptions.DefaultCentered(Width));
         name.Y = y;
-        name.X = (Width - name.Width) / 2;
         Add(name);
         y += name.Height + 5;
 
@@ -65,9 +64,8 @@ public class DiscordUserPopupGump : Gump
 
         if (presence != null)
         {
-            var c = TextBox.GetOne(presence.Name(), TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.Instance.GetUserhue(userId), TextBox.RTLOptions.Default(Width));
+            var c = TextBox.GetOne(presence.Name(), TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.Instance.GetUserhue(userId), TextBox.RTLOptions.DefaultCentered(Width));
             c.Y = y;
-            c.X = (Width - c.Width) / 2;
             y += c.Height + 5;
             Add(c);
 
@@ -77,8 +75,7 @@ public class DiscordUserPopupGump : Gump
             {
                 ServerInfo data = JsonSerializer.Deserialize(activitys.Join(), ServerInfoJsonContext.Default.ServerInfo);
 
-                c = TextBox.GetOne(data.Name, TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.Instance.GetUserhue(userId), TextBox.RTLOptions.Default(Width));
-                c.X = (Width - c.Width) / 2;
+                c = TextBox.GetOne(data.Name, TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.Instance.GetUserhue(userId), TextBox.RTLOptions.DefaultCentered(Width));
                 c.Y = y;
                 y += c.Height + 5;
                 Add(c);

@@ -12,7 +12,7 @@ namespace ClassicUO.Game.UI.Gumps;
 
 public class DiscordGump : Gump
 {
-    public ulong ActiveChannel => _selectedChannel;
+    public ulong ActiveChannel => _discordChatArea == null ? 0 : _discordChatArea.ActiveChannel;
 
     private const int WIDTH = 800, LEFT_WIDTH = 200;
     private const int HEIGHT = 700;
@@ -20,13 +20,9 @@ public class DiscordGump : Gump
     private NiceButton _connect;
     private EmbeddedGumpPic _discordLogo;
     private TextBox _statusText;
-    private DataBox _chatDataBox;
-    private ModernOptionsGump.InputField _chatInput;
-    private ScrollArea _chatScroll;
     private DiscordFriendListControl _discordFriendList;
     private DiscordChannelListControl _discordChannelList;
-    private ulong _selectedChannel;
-    private bool isDM;
+    private DiscordChatAreaControl _discordChatArea;
 
     public DiscordGump() : base(0, 0)
     {
@@ -51,21 +47,21 @@ public class DiscordGump : Gump
 
         if (msg == null)
             return;
-        
-        
+
+
         if (msg.Channel()?.Type() == ChannelType.Dm)
         {
             OnDMReceived(msg);
 
             return;
         }
-        
+
         _discordChannelList.OnChannelActivity(msg.ChannelId());
 
-        if (_selectedChannel != msg.ChannelId())
+        if (ActiveChannel != msg.ChannelId())
             return;
 
-        AddMessageToChatBox(msg);
+        _discordChatArea.AddMessageToChatBox(msg);
     }
 
     private void OnDMReceived(MessageHandle msg)
@@ -74,14 +70,13 @@ public class DiscordGump : Gump
 
         if (id == DiscordManager.Instance.UserID) //Message was sent by us
             id = msg.RecipientId();               //Put this into the dmg history for this user
-        
+
         _discordChannelList.OnChannelActivity(id);
 
-        if (_selectedChannel != id)
+        if (ActiveChannel != id)
             return;
 
-        //TODO: Use real timestamp from discord
-        AddMessageToChatBox(msg);
+        _discordChatArea.AddMessageToChatBox(msg);
     }
 
     private void OnUserUpdated()
@@ -128,7 +123,7 @@ public class DiscordGump : Gump
                 Y = 20
             }
         );
-        
+
         Add(new Line(0, _discordChannelList.Height + _discordChannelList.Y, LEFT_WIDTH, 1, 0xFF383838));
 
         _discordChannelList.BuildChannelList();
@@ -146,90 +141,16 @@ public class DiscordGump : Gump
 
     private void BuildChatArea()
     {
-        AlphaBlendControl c;
-
-        Add
-        (
-            c = new AlphaBlendControl(0.75f)
-            {
-                X = LEFT_WIDTH + 5,
-                Width = WIDTH - LEFT_WIDTH - 5,
-                Height = HEIGHT,
-            }
-        );
-
-        c.BaseColor = new(31, 31, 31);
-
-        _chatScroll = new(c.X, 0, c.Width, HEIGHT - 20, true)
-        {
-            ScrollbarBehaviour = ScrollbarBehaviour.ShowAlways
-        };
-
-        Add(_chatScroll);
-
-        _chatScroll.Add(_chatDataBox = new DataBox(0, 0, _chatScroll.Width, 0));
-
-        _chatInput = new(c.Width, 20)
-        {
-            X = c.X,
-            Y = c.Height - 20
-        };
-        
-        _chatInput.EnterPressed += ChatInputOnEnterPressed;
-        Add(_chatInput);
+        _discordChatArea = new DiscordChatAreaControl(WIDTH - LEFT_WIDTH - 5, HEIGHT - 20, LEFT_WIDTH + 5, 20);
+        Add(_discordChatArea);
     }
 
-    private void AddMessageToChatBox(MessageHandle msg, bool rearrange = true)
+    public void SetActiveChatChannel(ulong channelId, bool isDm)
     {
-        _chatDataBox.Add(new DiscordMessageControl(msg, _chatScroll.Width));
-
-        if (rearrange)
-            _chatDataBox.ReArrangeChildren();
-    }
-
-    private void AddMessageToChatBox(string text, Color hue, bool rearrange = true)
-    {
-        _chatDataBox.Add(TextBox.GetOne(text, TrueTypeLoader.EMBEDDED_FONT, 20f, hue, TextBox.RTLOptions.Default(_chatScroll.Width - 20)));
-
-        if (rearrange)
-            _chatDataBox.ReArrangeChildren();
-    }
-
-    public void SetActiveChatChannel(ulong channelId, bool isDM)
-    {
-        _selectedChannel = channelId;
-        this.isDM = isDM;
-
-        _chatDataBox.Clear();
-
-        if (DiscordManager.Instance.MessageHistory.ContainsKey(channelId))
-            foreach (var m in DiscordManager.Instance.MessageHistory[channelId])
-                AddMessageToChatBox(m, false);
-        else
-            AddMessageToChatBox("No messages yet..", Color.Gray, false);
-
-        _chatDataBox.ReArrangeChildren();
+        _discordChatArea.SetActiveChatChannel(channelId, isDm);
 
         _discordFriendList.UpdateSelectedFriend();
         _discordChannelList.UpdateSelectedChannel();
-    }
-
-    private void ChatInputOnEnterPressed(object sender, EventArgs e)
-    {
-        if (_selectedChannel == 0)
-            return;
-
-        string txt = _chatInput.Text;
-
-        if (string.IsNullOrEmpty(txt))
-            return;
-
-        _chatInput.SetText(string.Empty);
-
-        if (isDM)
-            DiscordManager.Instance.SendDM(_selectedChannel, txt);
-        else
-            DiscordManager.Instance.SendChannelMsg(_selectedChannel, txt);
     }
 
     private void OnStatusTextUpdated()
@@ -256,6 +177,5 @@ public class DiscordGump : Gump
         DiscordManager.Instance.OnStatusTextUpdated -= OnStatusTextUpdated;
         DiscordManager.Instance.OnUserUpdated -= OnUserUpdated;
         DiscordManager.Instance.OnMessageReceived -= OnMessageReceived;
-        _chatInput.EnterPressed -= ChatInputOnEnterPressed;
     }
 }

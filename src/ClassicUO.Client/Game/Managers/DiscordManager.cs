@@ -114,6 +114,7 @@ public class DiscordManager
     }
 
     public ChannelHandle GetChannel(ulong channelId) => client.GetChannelHandle(channelId);
+    public LobbyHandle GetLobby(ulong lobbyId) => client.GetLobbyHandle(lobbyId);
 
     public UserHandle GetUser(ulong userId) => client.GetUser(userId);
 
