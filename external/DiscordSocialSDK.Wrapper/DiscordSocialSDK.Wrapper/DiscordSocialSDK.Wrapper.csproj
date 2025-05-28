@@ -25,6 +25,11 @@
 			<Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
 			<Pack>True</Pack>
 		</None>
+    <None Include="DiscordSocialSdk-UnityPlugin/package/Runtime/Plugins/*.dylib" CopyToOutputDirectory="PreserveNewest" >
+      <PackagePath>runtimes/linux/native</PackagePath>
+      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
+      <Pack>True</Pack>
+    </None>
 		<!--TODO: IOS-->
 	</ItemGroup>
 	

@@ -50,7 +50,7 @@ public class DiscordManager
 
     private DClient client;
     private string codeVerifier;
-    private bool authBegan, connected;
+    private bool authBegan, connected, noreconnect;
     private string statusText = "Ready to connect...";
 
     private Dictionary<ulong, List<MessageHandle>> messageHistory = new();
@@ -74,6 +74,12 @@ public class DiscordManager
         {
             Discord.Sdk.NativeMethods.Discord_RunCallbacks();
         }
+    }
+
+    public void Disconnect()
+    {
+        client.Disconnect();
+        noreconnect = true;
     }
 
     public IEnumerable<LobbyHandle> GetLobbies()
@@ -252,6 +258,8 @@ public class DiscordManager
         {
             case DClient.Status.Disconnecting:
             case DClient.Status.Disconnected:
+                if (noreconnect)
+                    break;
                 connected = false;
                 Log.Debug("Discord disconnected, reconnecting...");
                 client.Connect();

@@ -246,6 +246,7 @@ namespace ClassicUO
             SpeechesLoader.Instance.Dispose();
             Verdata.File?.Dispose();
             World.Map?.Destroy();
+            DiscordManager.Instance.Disconnect();
 
             base.UnloadContent();
         }
