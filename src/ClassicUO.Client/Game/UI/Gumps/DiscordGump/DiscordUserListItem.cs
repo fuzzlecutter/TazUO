@@ -95,7 +95,7 @@ public class DiscordUserListItem : Control
         selectedBackground.IsVisible = false;
         Add(selectedBackground);
 
-        var name = TextBox.GetOne(user.DisplayName(), TrueTypeLoader.EMBEDDED_FONT, 20, DiscordManager.Instance.GetUserhue(user.Id()), TextBox.RTLOptions.Default());
+        var name = TextBox.GetOne(user.DisplayName(), TrueTypeLoader.EMBEDDED_FONT, 20, DiscordManager.GetUserhue(user.Id()), TextBox.RTLOptions.Default());
         
         name.X = 5;
         Add(name);

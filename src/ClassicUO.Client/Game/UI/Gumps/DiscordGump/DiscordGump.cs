@@ -1,11 +1,8 @@
-using System;
-using System.Linq;
 using ClassicUO.Assets;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Input;
 using Discord.Sdk;
-using DiscordSocialSDK.Wrapper;
 using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.UI.Gumps;
@@ -68,7 +65,7 @@ public class DiscordGump : Gump
     {
         var id = msg.AuthorId();
 
-        if (id == DiscordManager.Instance.UserID) //Message was sent by us
+        if (id == DiscordManager.Instance.UserId) //Message was sent by us
             id = msg.RecipientId();               //Put this into the dmg history for this user
 
         _discordChannelList.OnChannelActivity(id);

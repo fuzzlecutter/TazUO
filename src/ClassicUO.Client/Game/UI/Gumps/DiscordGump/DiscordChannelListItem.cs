@@ -87,7 +87,7 @@ public class DiscordChannelListItem : Control
         if (dMessage != null)
             chanName = dMessage.Name();
 
-        var name = TextBox.GetOne(chanName, TrueTypeLoader.EMBEDDED_FONT, 20, DiscordManager.Instance.GetUserhue(ID), TextBox.RTLOptions.Default());
+        var name = TextBox.GetOne(chanName, TrueTypeLoader.EMBEDDED_FONT, 20, DiscordManager.GetUserhue(ID), TextBox.RTLOptions.Default());
 
         name.X = 5;
         Add(name);

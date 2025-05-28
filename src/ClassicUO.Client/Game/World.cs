@@ -188,7 +188,7 @@ namespace ClassicUO.Game
 
             Player = new PlayerMobile(serial);
             Mobiles.Add(Player);
-
+            EventSink.InvokeOnPlayerCreated();
             Log.Trace($"Player [0x{serial:X8}] created");
         }
 

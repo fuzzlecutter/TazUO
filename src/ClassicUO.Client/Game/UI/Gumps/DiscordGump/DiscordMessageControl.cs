@@ -34,7 +34,7 @@ public class DiscordMessageControl : Control
             }
         }
 
-        var name = TextBox.GetOne($"[{time.ToShortTimeString()}] {msg.Author()?.DisplayName()}: ", TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.Instance.GetUserhue(msg.AuthorId()), TextBox.RTLOptions.Default());
+        var name = TextBox.GetOne($"[{time.ToShortTimeString()}] {msg.Author()?.DisplayName()}: ", TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.GetUserhue(msg.AuthorId()), TextBox.RTLOptions.Default());
         var message = TextBox.GetOne(content, TrueTypeLoader.EMBEDDED_FONT, 20f, Color.White, TextBox.RTLOptions.Default(width - name.Width));
         message.X = name.Width;
         

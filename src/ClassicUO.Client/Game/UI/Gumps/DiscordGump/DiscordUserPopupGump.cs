@@ -1,4 +1,3 @@
-using System.Text.Json;
 using ClassicUO.Assets;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
@@ -55,7 +54,7 @@ public class DiscordUserPopupGump : Gump
         y += avatar.Height + 5;
         Add(avatar);
 
-        var name = TextBox.GetOne(userHandle.DisplayName(), TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.Instance.GetUserhue(userId), TextBox.RTLOptions.DefaultCentered(Width));
+        var name = TextBox.GetOne(userHandle.DisplayName(), TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.GetUserhue(userId), TextBox.RTLOptions.DefaultCentered(Width));
         name.Y = y;
         Add(name);
         y += name.Height + 5;
@@ -64,7 +63,7 @@ public class DiscordUserPopupGump : Gump
 
         if (presence != null)
         {
-            var c = TextBox.GetOne(presence.Name(), TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.Instance.GetUserhue(userId), TextBox.RTLOptions.DefaultCentered(Width));
+            var c = TextBox.GetOne(presence.Name(), TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.GetUserhue(userId), TextBox.RTLOptions.DefaultCentered(Width));
             c.Y = y;
             y += c.Height + 5;
             Add(c);
@@ -75,7 +74,7 @@ public class DiscordUserPopupGump : Gump
             {
                 ServerInfo data = ServerInfo.FromJson(activitys.Id());
 
-                c = TextBox.GetOne(data.Name, TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.Instance.GetUserhue(userId), TextBox.RTLOptions.DefaultCentered(Width));
+                c = TextBox.GetOne(data.Name, TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.GetUserhue(userId), TextBox.RTLOptions.DefaultCentered(Width));
                 c.Y = y;
                 y += c.Height + 5;
                 Add(c);

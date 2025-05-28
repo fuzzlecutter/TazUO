@@ -24,11 +24,20 @@ public class DiscordChannelListControl : Control
         Build();
 
         DiscordManager.Instance.OnLobbyCreated += OnLobbyCreated;
+        DiscordManager.Instance.OnLobbyDeleted += OnLobbyDeleted;
     }
+
+    private void OnLobbyDeleted(object sender)
+    {
+        //TODO: Only delete required lobby instead of rebuilding the entire channel list.
+        BuildChannelList();
+    }
+
     public override void Dispose()
     {
         base.Dispose();
         DiscordManager.Instance.OnLobbyCreated -= OnLobbyCreated;
+        DiscordManager.Instance.OnLobbyDeleted -= OnLobbyDeleted;
     }
     
     private void OnLobbyCreated(object sender)
