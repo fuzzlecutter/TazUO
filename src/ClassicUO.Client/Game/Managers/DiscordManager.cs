@@ -146,7 +146,7 @@ public class DiscordManager
             attempts++;
         }
     }
-    
+
     public IEnumerable<LobbyHandle> GetLobbies()
     {
         var lobbies = client.GetLobbyIds();
@@ -224,12 +224,12 @@ public class DiscordManager
     {
         client.CreateOrJoinLobbyWithMetadata(GenServerSecret(), GenServerMeta(), new Dictionary<string, string>(), (_, _) => { });
     }
-    
+
     private void OnPlayerCreated(object sender, EventArgs e)
     {
         UpdateRichPresence(true);
     }
-    
+
     private void OnUODisconnected(object sender, EventArgs e)
     {
         //TODO: Save activity from before and change it instead of resetting
@@ -242,7 +242,7 @@ public class DiscordManager
 
         connected = true;
         OnConnected?.Invoke();
-        
+
         client.CreateOrJoinLobbyWithMetadata(TUOLOBBY, TUOMETA, new Dictionary<string, string>(), (_, _) => { });
     }
 
@@ -266,12 +266,13 @@ public class DiscordManager
         activity.SetName("Ultima Online");
         activity.SetType(ActivityTypes.Playing);
 
-        if(includeParty)
+        if (includeParty)
         {
             var party = new ActivityParty();
             party.SetPrivacy(ActivityPartyPrivacy.Public);
             party.SetCurrentSize(1);
             party.SetMaxSize(1);
+
             party.SetId
                 (new ServerInfo(Settings.GlobalSettings.IP, Settings.GlobalSettings.Port.ToString(), World.ServerName, World.Player == null ? 0 : World.Player.Serial).ToJson());
 
@@ -365,30 +366,34 @@ public class DiscordManager
         if (msg == null)
             return;
 
-        AddMsgHistory(msg.ChannelId(), msg);
-
-        OnMessageReceived?.Invoke(msg);
-
+        var id = msg.ChannelId();
+        var channel = msg.Channel(); //This msg may be a lobby, which is not a Channel.
+        var lobby = msg.Lobby();
         var author = msg.Author();
-        var channel = msg.Channel();
+        bool isdm = false;
 
-        if (author == null || channel == null)
-            return;
-
-        var id = channel.Id();
-
-        if (channel.Type() == ChannelType.Dm)
+        if (channel?.Type() == ChannelType.Dm)
         {
-            id = author.Id();
+            isdm = true;
+
+            id = msg.AuthorId();
 
             if (id == UserId)           //Message was sent by us
-                id = msg.RecipientId(); //Put this into the dmg history for this user
+                id = msg.RecipientId(); //Put this into the msg history for this user
         }
 
         AddMsgHistory(id, msg);
 
-        MessageManager.HandleMessage
-            (null, $"[Discord] {author.DisplayName()}: {msg.Content()}", string.Empty, GetHueFromId(author.Id()), MessageType.Regular, 255, TextType.SYSTEM);
+        if (author == null)
+            return;
+
+        OnMessageReceived?.Invoke(msg);
+        string chan = "Discord";
+
+        if (!isdm)
+            chan = channel != null ? channel.Name() : ((lobby != null) ? GetLobbyName(lobby) : "Discord");
+
+        MessageManager.HandleMessage(null, $"{msg.Content()}", $"[{chan}] {author.DisplayName()}", GetHueFromId(author.Id()), MessageType.ChatSystem, 255, TextType.SYSTEM);
     }
 
     private static void OnLog(string message, LoggingSeverity severity)
