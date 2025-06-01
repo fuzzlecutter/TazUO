@@ -81,7 +81,6 @@ namespace ClassicUO.Game.Managers
                             {
                                 var durability = ParseDurability((int)item.Serial, e.Data);
                                 _itemLayerSlots.AddOrUpdate(item.Serial, durability, (_, _) => durability);
-                                HasDurabilityData = true;
                             }
                             else
                             {
@@ -93,6 +92,7 @@ namespace ClassicUO.Game.Managers
                         }
                     }
                 }
+                HasDurabilityData = _itemLayerSlots.Count > 0;
             });
         }
 

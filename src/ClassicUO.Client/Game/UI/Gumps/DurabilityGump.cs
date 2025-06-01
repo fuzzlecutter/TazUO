@@ -39,7 +39,6 @@ namespace ClassicUO.Game.UI.Gumps
             }
 
             return base.Draw(batcher, x, y);
-            ;
         }
 
         protected override void OnMouseUp(int x, int y, MouseButtonType button)
