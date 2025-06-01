@@ -77,7 +77,7 @@ public class DiscordManager
         LoadDiscordSettings();
 
         client = new DClient();
-
+        
         client.AddLogCallback(OnLog, LoggingSeverity.Error);
         client.SetStatusChangedCallback(OnStatusChanged);
         client.SetMessageCreatedCallback(OnMessageCreated);
@@ -220,6 +220,21 @@ public class DiscordManager
         client.SendLobbyMessage(channelId, message, SendUserMessageCallback);
     }
 
+    public void StartCall(ulong channel)
+    {
+        client.StartCall(channel);
+    }
+
+    public void EndCall(ulong channel)
+    {
+        client.EndCall(channel, EndVoiceCallCallback);
+    }
+
+    public Call GetCall(ulong channelId)
+    {
+        return client.GetCall(channelId);
+    }
+    
     private void AddMsgHistory(ulong id, MessageHandle msg)
     {
         if (!messageHistory.ContainsKey(id))
@@ -383,6 +398,11 @@ public class DiscordManager
 
     #region Callbacks
 
+    private void EndVoiceCallCallback()
+    {
+        //Do nothing
+    }
+    
     private void SendUserMessageCallback(ClientResult result, ulong messageId)
     {
         if (!result.Successful())
