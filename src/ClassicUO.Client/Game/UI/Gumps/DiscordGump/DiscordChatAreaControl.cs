@@ -53,7 +53,7 @@ public class DiscordChatAreaControl : Control
 
         _chatScroll.Add(_chatDataBox = new DataBox(0, 0, _chatScroll.Width, 0));
 
-        _chatInput = new(c.Width, 20)
+        _chatInput = new(c.Width - 20, 20) //-20 for scroll bar
         {
             X = c.X,
             Y = c.Height - 20

@@ -216,6 +216,7 @@ namespace ClassicUO
 
         protected override void UnloadContent()
         {
+            DiscordManager.Instance.BeginDisconnect();
             SDL_GetWindowBordersSize(Window.Handle, out int top, out int left, out _, out _);
 
             Settings.GlobalSettings.WindowPosition = new Point(
@@ -246,7 +247,7 @@ namespace ClassicUO
             SpeechesLoader.Instance.Dispose();
             Verdata.File?.Dispose();
             World.Map?.Destroy();
-            DiscordManager.Instance.Disconnect();
+            DiscordManager.Instance.FinalizeDisconnect();
 
             base.UnloadContent();
         }

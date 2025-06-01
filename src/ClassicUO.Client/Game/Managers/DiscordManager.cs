@@ -34,6 +34,8 @@ public class DiscordManager
     public Dictionary<ulong, List<MessageHandle>> MessageHistory => messageHistory;
     public ulong UserId { get; private set; }
 
+    public static DiscordSettings DiscordSettings { get; private set; }
+
     #region Events
 
     public event EmptyEventHandler OnConnected;
@@ -67,8 +69,13 @@ public class DiscordManager
     private static Dictionary<ulong, Color> userHueMemory = new();
     private Dictionary<ulong, LobbyHandle> currentLobbies = new();
 
+    private int disconnectAttempts = 0;
+    int pendingDisconnectLeaves;
+
     private DiscordManager()
     {
+        LoadDiscordSettings();
+
         client = new DClient();
 
         client.AddLogCallback(OnLog, LoggingSeverity.Error);
@@ -90,7 +97,7 @@ public class DiscordManager
         }
     }
 
-    public void Disconnect()
+    public void BeginDisconnect()
     {
         if (!connected)
             return;
@@ -101,11 +108,10 @@ public class DiscordManager
             return;
 
         noreconnect = true;
-        int attempts = 0;
 
-        int pendingLeaves = currentLobbies.Count;
+        pendingDisconnectLeaves = currentLobbies.Count;
 
-        if (pendingLeaves == 0)
+        if (pendingDisconnectLeaves == 0)
         {
             client.Disconnect();
 
@@ -118,14 +124,14 @@ public class DiscordManager
             (
                 lobbyId, result =>
                 {
-                    pendingLeaves--;
+                    pendingDisconnectLeaves--;
 
                     if (!result.Successful())
                         Log.Error($"Failed to leave lobby {lobbyId}: {result.Error()}");
                     else
                         Log.Debug($"Left lobby {lobbyId}");
 
-                    if (pendingLeaves == 0)
+                    if (pendingDisconnectLeaves == 0)
                     {
                         Log.Debug("Final discord disconnect.");
                         client.Disconnect();
@@ -133,17 +139,25 @@ public class DiscordManager
                 }
             );
         }
+    }
+
+    public void FinalizeDisconnect()
+    {
+        SaveDiscordSettings();
+
+        if (!connected)
+            return;
 
         //Yes we're going to freeze the game for a bit, this is called after everything is unloaded already.
         //This would not work in a task, so this is our last resort
-        while (pendingLeaves > 0)
+        while (pendingDisconnectLeaves > 0)
         {
-            if (attempts > 200) //~2 seconds
+            if (disconnectAttempts > 200) //~2 seconds
                 return;
 
             Discord.Sdk.NativeMethods.Discord_RunCallbacks();
             Thread.Sleep(10);
-            attempts++;
+            disconnectAttempts++;
         }
     }
 
@@ -294,6 +308,43 @@ public class DiscordManager
 
     #region Utilities
 
+    private void LoadDiscordSettings()
+    {
+        var path = Path.Combine(CUOEnviroment.ExecutablePath, "Data", "DiscordSettings.json");
+
+        if (!File.Exists(path))
+        {
+            DiscordSettings = new DiscordSettings();
+
+            SaveDiscordSettings();
+
+            return;
+        }
+
+        try
+        {
+            DiscordSettings = JsonSerializer.Deserialize(File.ReadAllText(path), DiscordSettingsJsonContext.Default.DiscordSettings);
+        }
+        catch (Exception e)
+        {
+            Log.Error(e.ToString());
+        }
+    }
+
+    public void SaveDiscordSettings()
+    {
+        var path = Path.Combine(CUOEnviroment.ExecutablePath, "Data", "DiscordSettings.json");
+
+        try
+        {
+            File.WriteAllText(path, JsonSerializer.Serialize(DiscordSettings, DiscordSettingsJsonContext.Default.DiscordSettings));
+        }
+        catch (Exception e)
+        {
+            Log.Error(e.ToString());
+        }
+    }
+
     public static Color GetUserhue(ulong id)
     {
         if (!userHueMemory.ContainsKey(id))
@@ -393,7 +444,8 @@ public class DiscordManager
         if (!isdm)
             chan = channel != null ? channel.Name() : ((lobby != null) ? GetLobbyName(lobby) : "Discord");
 
-        MessageManager.HandleMessage(null, $"{msg.Content()}", $"[{chan}] {author.DisplayName()}", GetHueFromId(author.Id()), MessageType.ChatSystem, 255, TextType.SYSTEM);
+        if ((isdm && DiscordSettings.ShowDMInGame) || (!isdm && DiscordSettings.ShowChatInGame))
+            MessageManager.HandleMessage(null, $"{msg.Content()}", $"[{chan}] {author.DisplayName()}", GetHueFromId(author.Id()), MessageType.ChatSystem, 255, TextType.SYSTEM);
     }
 
     private static void OnLog(string message, LoggingSeverity severity)
@@ -543,6 +595,18 @@ public class DiscordManager
     }
 
     #endregion
+}
+
+[JsonSourceGenerationOptions(WriteIndented = true)]
+[JsonSerializable(typeof(DiscordSettings))]
+public partial class DiscordSettingsJsonContext : JsonSerializerContext
+{
+}
+
+public class DiscordSettings
+{
+    public bool ShowDMInGame { get; set; } = true;
+    public bool ShowChatInGame { get; set; } = true;
 }
 
 public delegate void SimpleEventHandler(object sender);

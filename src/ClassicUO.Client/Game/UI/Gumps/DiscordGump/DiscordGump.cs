@@ -1,9 +1,10 @@
 using ClassicUO.Assets;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
-using ClassicUO.Input;
 using Discord.Sdk;
 using Microsoft.Xna.Framework;
+using MouseEventArgs = ClassicUO.Input.MouseEventArgs;
+using TextBox = ClassicUO.Game.UI.Controls.TextBox;
 
 namespace ClassicUO.Game.UI.Gumps;
 
@@ -16,10 +17,11 @@ public class DiscordGump : Gump
 
     private NiceButton _connect;
     private EmbeddedGumpPic _discordLogo;
-    private TextBox _statusText;
+    private TextBox _statusText, _currentChatTitle;
     private DiscordFriendListControl _discordFriendList;
     private DiscordChannelListControl _discordChannelList;
     private DiscordChatAreaControl _discordChatArea;
+    private MenuButton menuButton;
 
     public DiscordGump() : base(0, 0)
     {
@@ -29,6 +31,7 @@ public class DiscordGump : Gump
 
         BuildLeftArea();
         BuildChatArea();
+        GenMenuContextMenu();
 
         DiscordManager.Instance.OnStatusTextUpdated += OnStatusTextUpdated;
         DiscordManager.Instance.OnUserUpdated += OnUserUpdated;
@@ -138,7 +141,28 @@ public class DiscordGump : Gump
 
     private void BuildChatArea()
     {
-        _discordChatArea = new DiscordChatAreaControl(WIDTH - LEFT_WIDTH - 5, HEIGHT, LEFT_WIDTH + 5, 0);
+        int w = WIDTH - LEFT_WIDTH - 5;
+
+        AlphaBlendControl c;
+
+        Add
+        (
+            c = new(0.75f)
+            {
+                Width = w,
+                Height = 20,
+                X = LEFT_WIDTH + 5
+            }
+        );
+
+        c.BaseColor = new Color(21, 21, 21);
+
+        _currentChatTitle = TextBox.GetOne(string.Empty, TrueTypeLoader.EMBEDDED_FONT, 20f, Color.LightSteelBlue, TextBox.RTLOptions.Default());
+        _currentChatTitle.X = c.X + 5;
+        _currentChatTitle.Y = 2;
+        Add(_currentChatTitle);
+
+        _discordChatArea = new DiscordChatAreaControl(w, HEIGHT - 20, LEFT_WIDTH + 5, 20);
         Add(_discordChatArea);
     }
 
@@ -148,6 +172,24 @@ public class DiscordGump : Gump
 
         _discordFriendList.UpdateSelectedFriend();
         _discordChannelList.UpdateSelectedChannel();
+
+        string chanName = string.Empty;
+
+        if (isDm)
+        {
+            var user = DiscordManager.Instance.GetUser(channelId);
+            chanName = user.DisplayName();
+        }
+        else if (DiscordManager.Instance.GetLobby(channelId) is LobbyHandle lobby)
+        {
+            chanName = DiscordManager.Instance.GetLobbyName(lobby);
+        }
+        else if (DiscordManager.Instance.GetChannel(channelId) is ChannelHandle chan)
+        {
+            chanName = chan.Name();
+        }
+
+        _currentChatTitle.Text = chanName;
     }
 
     private void OnStatusTextUpdated()
@@ -168,6 +210,22 @@ public class DiscordGump : Gump
         DiscordManager.Instance.OnConnected -= DiscordOnConnected;
     }
 
+    private void GenMenuContextMenu(bool regen = false)
+    {
+        if(!regen)
+        {
+            menuButton = new MenuButton(20, 997, 0.8f, "Options", Color.LightSteelBlue.PackedValue);
+            menuButton.X = Width - 22;
+            menuButton.Y = 2;
+            menuButton.MouseUp += (_,_) => { menuButton.ContextMenu.Show(); };
+            Add(menuButton);
+        }
+        
+        menuButton.ContextMenu = new ContextMenuControl();
+        menuButton.ContextMenu.Add(new ContextMenuItemEntry("Show DM messages in system chat and journal?", () => { DiscordManager.DiscordSettings.ShowDMInGame = !DiscordManager.DiscordSettings.ShowDMInGame; GenMenuContextMenu(true); }, true, DiscordManager.DiscordSettings.ShowDMInGame));
+        menuButton.ContextMenu.Add(new ContextMenuItemEntry("Show Channel messages in system chat and journal?", () => { DiscordManager.DiscordSettings.ShowChatInGame = !DiscordManager.DiscordSettings.ShowChatInGame; GenMenuContextMenu(true); }, true, DiscordManager.DiscordSettings.ShowChatInGame));
+    }
+    
     public override void Dispose()
     {
         base.Dispose();

@@ -19,6 +19,7 @@ public class DiscordUserPopupGump : Gump
         IsModal = true;
 
         ModalClickOutsideAreaClosesThisControl = true;
+        
         X = x;
         Y = y;
         userId = user;
@@ -63,7 +64,7 @@ public class DiscordUserPopupGump : Gump
 
         if (presence != null)
         {
-            var c = TextBox.GetOne(presence.Name(), TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.GetUserhue(userId), TextBox.RTLOptions.DefaultCentered(Width));
+            var c = TextBox.GetOne(presence.Name(), TrueTypeLoader.EMBEDDED_FONT, 20f, Color.LightSlateGray, TextBox.RTLOptions.DefaultCentered(Width));
             c.Y = y;
             y += c.Height + 5;
             Add(c);
@@ -74,7 +75,7 @@ public class DiscordUserPopupGump : Gump
             {
                 ServerInfo data = ServerInfo.FromJson(activitys.Id());
 
-                c = TextBox.GetOne(data.Name, TrueTypeLoader.EMBEDDED_FONT, 20f, DiscordManager.GetUserhue(userId), TextBox.RTLOptions.DefaultCentered(Width));
+                c = TextBox.GetOne(data.Name, TrueTypeLoader.EMBEDDED_FONT, 20f, Color.LightSlateGray, TextBox.RTLOptions.DefaultCentered(Width));
                 c.Y = y;
                 y += c.Height + 5;
                 Add(c);

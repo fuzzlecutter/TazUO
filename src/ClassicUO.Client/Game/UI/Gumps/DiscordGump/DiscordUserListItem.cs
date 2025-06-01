@@ -18,6 +18,7 @@ public class DiscordUserListItem : Control
     private readonly int sx, sy, sw, sh;
     private Vector3 shue;
     private long showPopupAt = long.MaxValue;
+    private bool showPopupMouseOver;
     
     public override bool AcceptMouseInput => true;
     public DiscordUserListItem(DiscordGump gump, UserHandle user, int width = 100, int height = 25)
@@ -48,16 +49,23 @@ public class DiscordUserListItem : Control
     protected override void OnMouseEnter(int x, int y)
     {
         base.OnMouseEnter(x, y);
-        showPopupAt = Time.Ticks + 750;
+        showPopupAt = Time.Ticks + 1250;
+        showPopupMouseOver = true;
+    }
+
+    protected override void OnMouseExit(int x, int y)
+    {
+        base.OnMouseExit(x, y);
+        showPopupMouseOver = false;
     }
 
     public override void Update()
     {
         base.Update();
 
-        if (Time.Ticks >= showPopupAt)
+        if (showPopupMouseOver && Time.Ticks >= showPopupAt)
         {
-            if (MouseIsOver)
+            if (showPopupMouseOver)
             {
                 UIManager.Add(new DiscordUserPopupGump(user.Id(), Mouse.Position.X + 20, Mouse.Position.Y + 20));
             }
@@ -89,6 +97,7 @@ public class DiscordUserListItem : Control
         {
             Width = Width,
             Height = Height,
+            AcceptMouseInput = true
         };
 
         selectedBackground.BaseColor = new(51,51,51);
@@ -102,7 +111,7 @@ public class DiscordUserListItem : Control
 
         if(user.GameActivity() != null) //In TUO
         {
-            var tuo = new EmbeddedGumpPic(Width - 79, 0, PNGLoader.Instance.EmbeddedArt["TazUOSM.png"]);
+            var tuo = new EmbeddedGumpPic(Width - 75, 2, PNGLoader.Instance.EmbeddedArt["TazUOSM.png"]);
             Add(tuo);
         }
         
