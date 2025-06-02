@@ -779,7 +779,7 @@ namespace ClassicUO.LegionScripting
             pythonScope = pythonEngine.CreateScope();
             var api = new API();
             scopedAPI = api;
-            pythonScope.SetVariable("API", api);
+            pythonEngine.GetBuiltinModule().SetVariable("API", api);
         }
 
         public void PythonScriptStopped()
