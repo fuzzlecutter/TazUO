@@ -80,7 +80,8 @@ namespace ClassicUO.Game.Managers
                             if (item.Container == World.Player.Serial && _equipLayers.Contains(item.Layer))
                             {
                                 var durability = ParseDurability((int)item.Serial, e.Data);
-                                _itemLayerSlots.AddOrUpdate(item.Serial, durability, (_, _) => durability);
+                                if(durability.Serial != 0)
+                                    _itemLayerSlots.AddOrUpdate(item.Serial, durability, (_, _) => durability);
                             }
                             else
                             {
