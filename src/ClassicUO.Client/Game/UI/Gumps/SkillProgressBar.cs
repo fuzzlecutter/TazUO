@@ -112,6 +112,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             private static ConcurrentQueue<SkillProgressBar> skillProgressBars = new ConcurrentQueue<SkillProgressBar>();
             public static SkillProgressBar CurrentProgressBar;
+            private static bool beingReset;
 
 
             public static void AddSkill(int skillIndex)
@@ -126,35 +127,38 @@ namespace ClassicUO.Game.UI.Gumps
 
             public static void ShowNext()
             {
+                if (beingReset)
+                    return;
+                
                 if (!World.InGame)
                     return;
 
-                if (!ProfileManager.CurrentProfile.DisplaySkillBarOnChange)
+                if (ProfileManager.CurrentProfile != null && !ProfileManager.CurrentProfile.DisplaySkillBarOnChange)
                 {
                     Reset();
-
                     return;
                 }
 
-                if (skillProgressBars.TryDequeue(out var skillProgressBar))
-                {
-                    CurrentProgressBar = skillProgressBar;
-                    skillProgressBar.SetDuration(4000); //Expire in 4 seconds
-                    UIManager.Add(skillProgressBar);
-                }
-                else
-                {
-                    //Not in game anymore, clear the que
-                    Reset();
-                }
+                if (!skillProgressBars.TryDequeue(out var skillProgressBar))
+                    return;
+
+                if (skillProgressBar == null)
+                    return;
+                    
+                CurrentProgressBar = skillProgressBar;
+                skillProgressBar.SetDuration(4000); //Expire in 4 seconds
+                UIManager.Add(skillProgressBar);
             }
 
             public static void Reset()
             {
+                beingReset = true;
+                
                 while (skillProgressBars.TryDequeue(out var skillProgressBar))
                     skillProgressBar?.Dispose();
 
                 skillProgressBars = new ConcurrentQueue<SkillProgressBar>();
+                beingReset = false;
             }
         }
     }

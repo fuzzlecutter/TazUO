@@ -8,6 +8,12 @@ namespace ClassicUO.Game.UI.Gumps
     internal class VersionHistory : Gump
     {
         private static string[] updateTexts = {
+            "/c[white][3.30.0]/cd\n" +
+            "- Implementing Discord Social features\n" +
+            "- Added more python API methods\n" +
+            "- Better python API error handling\n" +
+            "- Other minor bug fixes",
+            
             "/c[white][3.29.0]/cd\n" +
                 "- Moved tooltip override options into main menu\n"+
                 "- Expanded Python API\n"+

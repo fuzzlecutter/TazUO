@@ -393,45 +393,28 @@ namespace ClassicUO.LegionScripting
                 ScriptStartedEvent?.Invoke(null, new ScriptInfoEvent(script));
             }
         }
+
         private static void ExecutePythonScript(ScriptFile script)
         {
-            if(script.pythonEngine == null){
-                script.pythonEngine = Python.CreateEngine();
+            script.SetupPythonEngine();
+            script.SetupPythonScope();
 
-                string dir = Path.GetDirectoryName(script.FullPath);                       
-                ICollection<string> paths = script.pythonEngine.GetSearchPaths();
-                string path = Path.Combine(CUOEnviroment.ExecutablePath, "iplib");
-                paths.Add(path);
-
-                if (!string.IsNullOrWhiteSpace(dir))
-                {
-                    paths.Add(dir);
-                }
-                else
-                {
-                    paths.Add(Environment.CurrentDirectory);
-                }
-
-                script.pythonEngine.SetSearchPaths(paths);
-            }
-
-            script.pythonScope = script.pythonEngine.CreateScope();
-            var api = new API();
-            script.scopedAPI = api;
-            //script.pythonScope.SetVariable("API", api);
-            script.pythonEngine.GetBuiltinModule().SetVariable("API", api);
             try
             {
                 script.pythonEngine.Execute(script.FileContentsJoined, script.pythonScope);
             }
-            catch (ThreadAbortException) { }
+            catch (ThreadAbortException)
+            {
+            }
             catch (Exception e)
             {
+                var eo = script.pythonEngine.GetService<ExceptionOperations>();
+                string error = eo.FormatException(e);
+                
                 GameActions.Print("Python Script Error:");
-                GameActions.Print(e.Message);
+                GameActions.Print(error);
             }
-            script.pythonScope = null;
-            script.scopedAPI = null;
+            script.PythonScriptStopped();
             API.QueuedPythonActions.Enqueue(() => { StopScript(script); });
         }
         public static void StopScript(ScriptFile script)
@@ -456,7 +439,7 @@ namespace ClassicUO.LegionScripting
                         PyThreads.Remove(script.PythonThread.ManagedThreadId);
                         script.PythonThread.Abort();
                     }
-                    script.scopedAPI = null;
+                    script.PythonScriptStopped();
                     script.PythonThread = null;
                 }
 
@@ -677,6 +660,7 @@ namespace ClassicUO.LegionScripting
         public ScriptEngine pythonEngine;
         public ScriptScope pythonScope;
         public API scopedAPI;
+        
         public bool IsPlaying
         {
             get
@@ -771,6 +755,37 @@ namespace ClassicUO.LegionScripting
         public bool FileExists()
         {
             return File.Exists(FullPath);
+        }
+
+        public void SetupPythonEngine()
+        {
+            if (pythonEngine != null)
+                return;
+
+            pythonEngine = Python.CreateEngine();
+
+            string dir = System.IO.Path.GetDirectoryName(FullPath);                       
+            ICollection<string> paths = pythonEngine.GetSearchPaths();
+            string path = System.IO.Path.Combine(CUOEnviroment.ExecutablePath, "iplib");
+            paths.Add(path);
+
+            paths.Add(!string.IsNullOrWhiteSpace(dir) ? dir : Environment.CurrentDirectory);
+
+            pythonEngine.SetSearchPaths(paths);
+        }
+
+        public void SetupPythonScope()
+        {
+            pythonScope = pythonEngine.CreateScope();
+            var api = new API();
+            scopedAPI = api;
+            pythonEngine.GetBuiltinModule().SetVariable("API", api);
+        }
+
+        public void PythonScriptStopped()
+        {
+            pythonScope = null;
+            scopedAPI = null;
         }
     }
 }

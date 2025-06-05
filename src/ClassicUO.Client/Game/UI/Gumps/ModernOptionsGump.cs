@@ -4685,7 +4685,9 @@ namespace ClassicUO.Game.UI.Gumps
 
             private AlphaBlendControl _background;
 
+            public StbTextBox Stb => _textbox;
             public event EventHandler TextChanged { add { _textbox.TextChanged += value; } remove { _textbox.TextChanged -= value; } }
+            public event EventHandler EnterPressed;
 
             public InputField
             (
@@ -4767,6 +4769,12 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 base.SetTooltip(text);
                 _textbox.SetTooltip(text);
+            }
+
+            public override void OnKeyboardReturn(int textID, string text)
+            {
+                base.OnKeyboardReturn(textID, text);
+                EnterPressed?.Invoke(this, EventArgs.Empty);
             }
 
 
