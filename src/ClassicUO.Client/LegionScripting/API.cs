@@ -315,7 +315,7 @@ namespace ClassicUO.LegionScripting
         (() =>
             {
                 GameActions.PickUp(serial, 0, 0, 1);
-                GameActions.Equip(serial);
+                GameActions.Equip();
             }
         );
 
