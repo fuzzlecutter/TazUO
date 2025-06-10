@@ -83,12 +83,12 @@ namespace ClassicUO.LegionScripting
         }
         public static bool UseSecondaryAbility(string command, Argument[] args, bool quiet, bool force)
         {
-            GameActions.UsePrimaryAbility();
+            GameActions.UseSecondaryAbility();
             return true;
         }
         public static bool UsePrimaryAbility(string command, Argument[] args, bool quiet, bool force)
         {
-            GameActions.UseSecondaryAbility();
+            GameActions.UsePrimaryAbility();
             return true;
         }
         public static bool BandageSelf(string command, Argument[] args, bool quiet, bool force)

@@ -9,7 +9,8 @@ namespace ClassicUO.Game.UI.Gumps
     {
         private static string[] updateTexts = {
             "/c[white][3.30.1]/cd\n" +
-            "Fix for Python API EquipItem",
+            "- Fix for Python API EquipItem\n" +
+            "- Fix for legion scripting useability commands\n",
             
             "/c[white][3.30.0]/cd\n" +
             "- Implementing Discord Social features\n" +
