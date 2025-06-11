@@ -1,9 +1,13 @@
+# Python API Documentation  
 This is automatically generated documentation for the Python API scripting.  
 All methods, properties, enums, etc need to pre prefaced with `API.` for example: `API.Msg("An example")`.  
+  
 If you download the [API.py](API.py) file, put it in the same folder as your python scripts and add `import API` to your script, that will enable some mild form of autocomplete in an editor like VS Code.  
 
 
-This was generated on `6/3/2025`.
+[Additional notes](notes.md)  
+  
+This was generated on `6/10/2025`.
 # API  
 
 ## Class Description
@@ -1915,7 +1919,7 @@ This was generated on `6/3/2025`.
  g.SetY(100)
  g.SetWidth(200)
  g.SetHeight(200)
- g.AddControl(API.CreateGumpLabel("Hello World!"))
+ g.Add(API.CreateGumpLabel("Hello World!"))
  API.AddGump(g)
  ```
 
@@ -1943,7 +1947,7 @@ This was generated on `6/3/2025`.
  g.SetY(100)
  g.SetWidth(200)
  g.SetHeight(200)
- g.AddControl(API.CreateGumpLabel("Hello World!"))
+ g.Add(API.CreateGumpLabel("Hello World!"))
  API.AddGump(g)
  ```
 
@@ -1971,7 +1975,7 @@ This was generated on `6/3/2025`.
  g.SetWidth(200)
  g.SetHeight(200)
  cb = API.CreateGumpCheckbox("Check me?!")
- g.AddControl(cb)
+ g.Add(cb)
  API.AddGump(g)
  
  API.SysMsg("Checkbox checked: " + str(cb.IsChecked))
@@ -2001,7 +2005,7 @@ This was generated on `6/3/2025`.
  g.SetY(100)
  g.SetWidth(200)
  g.SetHeight(200)
- g.AddControl(API.CreateGumpLabel("Hello World!"))
+ g.Add(API.CreateGumpLabel("Hello World!"))
  API.AddGump(g)
  ```
 
@@ -2032,7 +2036,7 @@ This was generated on `6/3/2025`.
  cb = API.CreateGumpColorBox(0.5, "#000000")
  cb.SetWidth(200)
  cb.SetHeight(200)
- g.AddControl(cb)
+ g.Add(cb)
  API.AddGump(g)
  ```
 
@@ -2060,7 +2064,7 @@ This was generated on `6/3/2025`.
  g.SetY(100)
  g.SetWidth(200)
  g.SetHeight(200)
- g.AddControl(API.CreateGumpItemPic(0x0E78, 50, 50))
+ g.Add(API.CreateGumpItemPic(0x0E78, 50, 50))
  API.AddGump(g)
  ```
 
@@ -2090,9 +2094,10 @@ This was generated on `6/3/2025`.
  g.SetWidth(200)
  g.SetHeight(200)
  button = API.CreateGumpButton("Click Me!")
- g.AddControl(button)
+ g.Add(button)
  API.AddGump(g)
- API.SysMsg("Button clicked?: " + str(button.IsPressed))
+ API.SysMsg("Button currently clicked?: " + str(button.IsClicked))
+ API.SysMsg("Button clicked since last check?: " + str(button.HasBeenClicked()))
  ```
 
 
@@ -2123,7 +2128,7 @@ This was generated on `6/3/2025`.
  g.SetWidth(200)
  g.SetHeight(200)
  rb = API.CreateGumpRadioButton("Click Me!", 1)
- g.AddControl(rb)
+ g.Add(rb)
  API.AddGump(g)
  API.SysMsg("Radio button checked?: " + str(rb.IsChecked))
  ```

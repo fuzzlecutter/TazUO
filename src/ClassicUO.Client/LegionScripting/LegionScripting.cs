@@ -589,6 +589,8 @@ namespace ClassicUO.LegionScripting
             Interpreter.RegisterExpressionHandler("paralyzed", IsParalyzed);
             Interpreter.RegisterExpressionHandler("mounted", IsMounted);
             Interpreter.RegisterExpressionHandler("diffhits", DiffHits);
+            Interpreter.RegisterExpressionHandler("diffstam", DiffStam);
+            Interpreter.RegisterExpressionHandler("diffmana", DiffMana);
             Interpreter.RegisterExpressionHandler("str", GetStr);
             Interpreter.RegisterExpressionHandler("dex", GetDex);
             Interpreter.RegisterExpressionHandler("int", GetInt);

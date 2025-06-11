@@ -1724,7 +1724,7 @@ namespace ClassicUO.LegionScripting
         /// g.SetY(100)
         /// g.SetWidth(200)
         /// g.SetHeight(200)
-        /// g.AddControl(API.CreateGumpLabel("Hello World!"))
+        /// g.Add(API.CreateGumpLabel("Hello World!"))
         /// API.AddGump(g)
         /// ```
         /// </summary>
@@ -1752,7 +1752,7 @@ namespace ClassicUO.LegionScripting
         /// g.SetY(100)
         /// g.SetWidth(200)
         /// g.SetHeight(200)
-        /// g.AddControl(API.CreateGumpLabel("Hello World!"))
+        /// g.Add(API.CreateGumpLabel("Hello World!"))
         /// API.AddGump(g)
         /// ```
         /// </summary>
@@ -1769,7 +1769,7 @@ namespace ClassicUO.LegionScripting
         /// g.SetWidth(200)
         /// g.SetHeight(200)
         /// cb = API.CreateGumpCheckbox("Check me?!")
-        /// g.AddControl(cb)
+        /// g.Add(cb)
         /// API.AddGump(g)
         /// 
         /// API.SysMsg("Checkbox checked: " + str(cb.IsChecked))
@@ -1792,7 +1792,7 @@ namespace ClassicUO.LegionScripting
         /// g.SetY(100)
         /// g.SetWidth(200)
         /// g.SetHeight(200)
-        /// g.AddControl(API.CreateGumpLabel("Hello World!"))
+        /// g.Add(API.CreateGumpLabel("Hello World!"))
         /// API.AddGump(g)
         /// ```
         /// </summary>
@@ -1816,7 +1816,7 @@ namespace ClassicUO.LegionScripting
         /// cb = API.CreateGumpColorBox(0.5, "#000000")
         /// cb.SetWidth(200)
         /// cb.SetHeight(200)
-        /// g.AddControl(cb)
+        /// g.Add(cb)
         /// API.AddGump(g)
         /// ```
         /// </summary>
@@ -1852,7 +1852,7 @@ namespace ClassicUO.LegionScripting
         /// g.SetY(100)
         /// g.SetWidth(200)
         /// g.SetHeight(200)
-        /// g.AddControl(API.CreateGumpItemPic(0x0E78, 50, 50))
+        /// g.Add(API.CreateGumpItemPic(0x0E78, 50, 50))
         /// API.AddGump(g)
         /// ```
         /// </summary>
@@ -1880,12 +1880,14 @@ namespace ClassicUO.LegionScripting
         /// g.SetWidth(200)
         /// g.SetHeight(200)
         /// button = API.CreateGumpButton("Click Me!")
-        /// g.AddControl(button)
+        /// g.Add(button)
         /// API.AddGump(g)
-        /// API.SysMsg("Button clicked?: " + str(button.IsPressed))
+        /// API.SysMsg("Button currently clicked?: " + str(button.IsClicked))
+        /// API.SysMsg("Button clicked since last check?: " + str(button.HasBeenClicked()))
         /// ```
         /// </summary>
         /// <param name="text"></param>
+        /// <param name="hue"></param>
         /// <param name="normal">Graphic when not clicked or hovering</param>
         /// <param name="pressed">Graphic when pressed</param>
         /// <param name="hover">Graphic on hover</param>
@@ -1893,7 +1895,7 @@ namespace ClassicUO.LegionScripting
         public Button CreateGumpButton(string text = "", ushort hue = 996, ushort normal = 0x00EF, ushort pressed = 0x00F0, ushort hover = 0x00EE)
         {
             Button b = new Button(0, normal, pressed, hover, caption: text, normalHue: hue, hoverHue: hue);
-
+            
             return b;
         }
 
@@ -1907,7 +1909,7 @@ namespace ClassicUO.LegionScripting
         /// g.SetWidth(200)
         /// g.SetHeight(200)
         /// rb = API.CreateGumpRadioButton("Click Me!", 1)
-        /// g.AddControl(rb)
+        /// g.Add(rb)
         /// API.AddGump(g)
         /// API.SysMsg("Radio button checked?: " + str(rb.IsChecked))
         /// ```
