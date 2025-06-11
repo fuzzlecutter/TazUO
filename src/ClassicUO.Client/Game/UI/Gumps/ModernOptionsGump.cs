@@ -2660,6 +2660,9 @@ namespace ClassicUO.Game.UI.Gumps
 
             content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AutoLootEnable, 0, profile.EnableAutoLoot, b => profile.EnableAutoLoot = b), true, page);
             content.BlankLine();
+            
+            content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.ScavengerEnable, 0, profile.EnableScavenger, b => profile.EnableScavenger = b), true, page);
+            content.BlankLine();
 
             content.AddToRight(new CheckboxWithLabel(lang.GetTazUO.AutoLootProgessBarEnable, 0, profile.EnableAutoLootProgressBar, b => profile.EnableAutoLootProgressBar = b), true, page);
             content.BlankLine();
