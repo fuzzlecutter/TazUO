@@ -63,6 +63,25 @@ This was generated on `6/10/2025`.
 ## Methods
 
 <details>
+<summary><h3>ProcessCallbacks()</h3></summary>
+
+ Use this when you need to wait for players to click buttons.
+ Example:
+ ```py
+ while True:
+   API.ProcessCallbacks()
+   API.Pause(0.1)
+ ```
+
+
+#### Does not return anything
+
+</details>
+
+***
+
+
+<details>
 <summary><h3>Attack(serial)</h3></summary>
 
  Attack a mobile  
@@ -2083,21 +2102,28 @@ This was generated on `6/10/2025`.
 
 
 <details>
-<summary><h3>CreateGumpButton(text, hue, normal, pressed, hover)</h3></summary>
+<summary><h3>CreateGumpButton(text, hue, normal, pressed, hover, onPressed)</h3></summary>
 
  Create a button for gumps.  
  Example:  
  ```py
+ def onPressed:
+   API.SysMsg("Button pressed!")
+ 
  g = API.CreateGump()
  g.SetX(100)
  g.SetY(100)
  g.SetWidth(200)
  g.SetHeight(200)
- button = API.CreateGumpButton("Click Me!")
+ button = API.CreateGumpButton("Click Me!", onPressed=onPressed)
  g.Add(button)
  API.AddGump(g)
- API.SysMsg("Button currently clicked?: " + str(button.IsClicked))
- API.SysMsg("Button clicked since last check?: " + str(button.HasBeenClicked()))
+
+ while True:
+   API.SysMsg("Button currently clicked?: " + str(button.IsClicked))
+   API.SysMsg("Button clicked since last check?: " + str(button.HasBeenClicked()))
+   API.ProcessCallbacks()
+   API.Pause(0.2)
  ```
 
 
@@ -2109,6 +2135,7 @@ This was generated on `6/10/2025`.
 | normal | ushort | Yes | Graphic when not clicked or hovering |
 | pressed | ushort | Yes | Graphic when pressed |
 | hover | ushort | Yes | Graphic on hover |
+| onPressed | object | Yes | A callback method when the button is clicked |
 #### Return Type: *Button*
 
 </details>
