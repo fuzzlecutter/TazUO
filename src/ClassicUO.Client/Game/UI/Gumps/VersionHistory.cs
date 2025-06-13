@@ -8,7 +8,7 @@ namespace ClassicUO.Game.UI.Gumps
     internal class VersionHistory : Gump
     {
         private static string[] updateTexts = {
-            "/c[white][3.30.1]/cd\n" +
+            "/c[white][3.31.0]/cd\n" +
             "- Fix for Python API EquipItem\n" +
             "- Fix for legion scripting useability commands\n" +
             "- Added basic scavenger agent(Uses autoloot)\n" +

@@ -191,8 +191,8 @@ namespace ClassicUO.Game.Scenes
                 int w = Settings.GlobalSettings.WindowSize.Value.X;
                 int h = Settings.GlobalSettings.WindowSize.Value.Y;
 
-                w = Math.Max(640, w);
-                h = Math.Max(480, h);
+                w = Math.Max(1000, w);
+                h = Math.Max(600, h);
 
                 Client.Game.SetWindowSize(w, h);
             }
