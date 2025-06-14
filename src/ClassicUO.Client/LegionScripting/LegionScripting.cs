@@ -589,6 +589,8 @@ namespace ClassicUO.LegionScripting
             Interpreter.RegisterExpressionHandler("paralyzed", IsParalyzed);
             Interpreter.RegisterExpressionHandler("mounted", IsMounted);
             Interpreter.RegisterExpressionHandler("diffhits", DiffHits);
+            Interpreter.RegisterExpressionHandler("diffstam", DiffStam);
+            Interpreter.RegisterExpressionHandler("diffmana", DiffMana);
             Interpreter.RegisterExpressionHandler("str", GetStr);
             Interpreter.RegisterExpressionHandler("dex", GetDex);
             Interpreter.RegisterExpressionHandler("int", GetInt);
@@ -766,8 +768,8 @@ namespace ClassicUO.LegionScripting
 
             string dir = System.IO.Path.GetDirectoryName(FullPath);                       
             ICollection<string> paths = pythonEngine.GetSearchPaths();
-            string path = System.IO.Path.Combine(CUOEnviroment.ExecutablePath, "iplib");
-            paths.Add(path);
+            paths.Add(System.IO.Path.Combine(CUOEnviroment.ExecutablePath, "iplib"));
+            paths.Add(System.IO.Path.Combine(CUOEnviroment.ExecutablePath, "LegionScripts"));
 
             paths.Add(!string.IsNullOrWhiteSpace(dir) ? dir : Environment.CurrentDirectory);
 
@@ -777,7 +779,7 @@ namespace ClassicUO.LegionScripting
         public void SetupPythonScope()
         {
             pythonScope = pythonEngine.CreateScope();
-            var api = new API();
+            var api = new API(pythonEngine);
             scopedAPI = api;
             pythonEngine.GetBuiltinModule().SetVariable("API", api);
         }

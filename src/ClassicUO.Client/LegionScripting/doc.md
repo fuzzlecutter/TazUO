@@ -1,9 +1,13 @@
+# Python API Documentation  
 This is automatically generated documentation for the Python API scripting.  
 All methods, properties, enums, etc need to pre prefaced with `API.` for example: `API.Msg("An example")`.  
+  
 If you download the [API.py](API.py) file, put it in the same folder as your python scripts and add `import API` to your script, that will enable some mild form of autocomplete in an editor like VS Code.  
 
 
-This was generated on `6/3/2025`.
+[Additional notes](notes.md)  
+  
+This was generated on `6/11/2025`.
 # API  
 
 ## Class Description
@@ -57,6 +61,25 @@ This was generated on `6/3/2025`.
 
 
 ## Methods
+
+<details>
+<summary><h3>ProcessCallbacks()</h3></summary>
+
+ Use this when you need to wait for players to click buttons.
+ Example:
+ ```py
+ while True:
+   API.ProcessCallbacks()
+   API.Pause(0.1)
+ ```
+
+
+#### Does not return anything
+
+</details>
+
+***
+
 
 <details>
 <summary><h3>Attack(serial)</h3></summary>
@@ -1911,11 +1934,8 @@ This was generated on `6/3/2025`.
  Example:  
  ```py
  g = API.CreateGump()
- g.SetX(100)
- g.SetY(100)
- g.SetWidth(200)
- g.SetHeight(200)
- g.AddControl(API.CreateGumpLabel("Hello World!"))
+ g.SetRect(100, 100, 200, 200)
+ g.Add(API.CreateGumpLabel("Hello World!"))
  API.AddGump(g)
  ```
 
@@ -1939,11 +1959,8 @@ This was generated on `6/3/2025`.
  Example:  
  ```py
  g = API.CreateGump()
- g.SetX(100)
- g.SetY(100)
- g.SetWidth(200)
- g.SetHeight(200)
- g.AddControl(API.CreateGumpLabel("Hello World!"))
+ g.SetRect(100, 100, 200, 200)
+ g.Add(API.CreateGumpLabel("Hello World!"))
  API.AddGump(g)
  ```
 
@@ -1966,12 +1983,9 @@ This was generated on `6/3/2025`.
   Example:
  ```py
  g = API.CreateGump()
- g.SetX(100)
- g.SetY(100)
- g.SetWidth(200)
- g.SetHeight(200)
+ g.SetRect(100, 100, 200, 200)
  cb = API.CreateGumpCheckbox("Check me?!")
- g.AddControl(cb)
+ g.Add(cb)
  API.AddGump(g)
  
  API.SysMsg("Checkbox checked: " + str(cb.IsChecked))
@@ -1997,11 +2011,8 @@ This was generated on `6/3/2025`.
  Example:  
  ```py
  g = API.CreateGump()
- g.SetX(100)
- g.SetY(100)
- g.SetWidth(200)
- g.SetHeight(200)
- g.AddControl(API.CreateGumpLabel("Hello World!"))
+ g.SetRect(100, 100, 200, 200)
+ g.Add(API.CreateGumpLabel("Hello World!"))
  API.AddGump(g)
  ```
 
@@ -2025,14 +2036,11 @@ This was generated on `6/3/2025`.
  Example:  
  ```py
  g = API.CreateGump()
- g.SetX(100)
- g.SetY(100)
- g.SetWidth(200)
- g.SetHeight(200)
+ g.SetRect(100, 100, 200, 200)
  cb = API.CreateGumpColorBox(0.5, "#000000")
  cb.SetWidth(200)
  cb.SetHeight(200)
- g.AddControl(cb)
+ g.Add(cb)
  API.AddGump(g)
  ```
 
@@ -2056,11 +2064,8 @@ This was generated on `6/3/2025`.
  Example:  
  ```py
  g = API.CreateGump()
- g.SetX(100)
- g.SetY(100)
- g.SetWidth(200)
- g.SetHeight(200)
- g.AddControl(API.CreateGumpItemPic(0x0E78, 50, 50))
+ g.SetRect(100, 100, 200, 200)
+ g.Add(API.CreateGumpItemPic(0x0E78, 50, 50))
  API.AddGump(g)
  ```
 
@@ -2085,14 +2090,15 @@ This was generated on `6/3/2025`.
  Example:  
  ```py
  g = API.CreateGump()
- g.SetX(100)
- g.SetY(100)
- g.SetWidth(200)
- g.SetHeight(200)
+ g.SetRect(100, 100, 200, 200)
  button = API.CreateGumpButton("Click Me!")
- g.AddControl(button)
+ g.Add(button)
  API.AddGump(g)
- API.SysMsg("Button clicked?: " + str(button.IsPressed))
+
+ while True:
+   API.SysMsg("Button currently clicked?: " + str(button.IsClicked))
+   API.SysMsg("Button clicked since last check?: " + str(button.HasBeenClicked()))
+   API.Pause(0.2)
  ```
 
 
@@ -2118,12 +2124,9 @@ This was generated on `6/3/2025`.
  Example:  
  ```py
  g = API.CreateGump()
- g.SetX(100)
- g.SetY(100)
- g.SetWidth(200)
- g.SetHeight(200)
+ g.SetRect(100, 100, 200, 200)
  rb = API.CreateGumpRadioButton("Click Me!", 1)
- g.AddControl(rb)
+ g.Add(rb)
  API.AddGump(g)
  API.SysMsg("Radio button checked?: " + str(rb.IsChecked))
  ```
@@ -2181,6 +2184,68 @@ This was generated on `6/3/2025`.
 | height | int | Yes |  |
 | multiline | bool | Yes |  |
 #### Return Type: *TTFTextInputField*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>CreateGumpTTFLabel(text, size, color, font, aligned, maxWidth, applyStroke)</h3></summary>
+
+ Create a TTF label with advanced options.
+ Example:
+ ```py
+ gump = API.CreateGump()
+ gump.SetRect(100, 100, 200, 200)
+ 
+ ttflabel = API.CreateGumpTTFLabel("Example label", 25, "#F100DD", "alagard")
+ ttflabel.SetRect(10, 10, 180, 30)
+ gump.Add(ttflabel)
+
+ API.AddGump(gump) #Add the gump to the players screen
+ ```
+
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| text | string | No |  |
+| size | float | No | Font size |
+| color | string | Yes | Hex color: #FFFFFF. Must begin with #. |
+| font | string | Yes | Must have the font installed in TazUO |
+| aligned | string | Yes | left/center/right. Must set a max width for this to work. |
+| maxWidth | int | Yes | Max width before going to the next line |
+| applyStroke | bool | Yes | Uses players stroke settings, this turns it on or off |
+#### Return Type: *TextBox*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>AddControlOnClick(control, onClick, leftOnly)</h3></summary>
+
+ Add an onClick callback to a control.
+ Example:  
+ ```py
+ def myfunc:
+   API.SysMsg("Something clicked!")
+ bg = API.CreateGumpColorBox(0.7, "#D4202020")
+ API.AddControlOnClick(bg, myfunc)
+ while True:
+   API.ProcessCallbacks()
+ ```
+
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| control | Control | No | The control listening for clicks |
+| onClick | object | No | The callback function |
+| leftOnly | bool | Yes | Only accept left mouse clicks? |
+#### Does not return anything
 
 </details>
 

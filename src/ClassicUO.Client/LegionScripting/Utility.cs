@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
+using ClassicUO.Utility.Logging;
 using LScript;
+using Microsoft.Xna.Framework;
 
 namespace ClassicUO.LegionScripting
 {
@@ -298,6 +301,20 @@ namespace ClassicUO.LegionScripting
             }
 
             return serial;
+        }
+
+        public static Color GetColorFromHex(string color)
+        {
+            if (color.StartsWith("#") && color.Length == 7)
+            {
+                byte r = Convert.ToByte(color.Substring(1, 2), 16);
+                byte g = Convert.ToByte(color.Substring(3, 2), 16);
+                byte b = Convert.ToByte(color.Substring(5, 2), 16);
+
+                return new Color(r, g, b);
+            }
+            
+            return Color.Black;
         }
     }
 }

@@ -275,6 +275,21 @@ namespace ClassicUO.Game.UI.Controls
         /// <summary>
         /// Used in python API
         /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="w"></param>
+        /// <param name="h"></param>
+        public void SetRect(int x, int y, int w, int h)
+        {
+            X = x;
+            Y = y;
+            SetWidth(w);
+            SetHeight(h);
+        }
+
+        /// <summary>
+        /// Used in python API
+        /// </summary>
         /// <param name="width"></param>
         public void SetWidth(int width){
             Width = width < 0 ? 0 : width;
@@ -303,6 +318,19 @@ namespace ClassicUO.Game.UI.Controls
         public void SetY(int y){
             Y = y;
         }
+
+        /// <summary>
+        /// Used in python API
+        /// </summary>
+        /// <returns>int</returns>
+        public int GetX() => X;
+        
+        /// <summary>
+        /// Used in python API
+        /// </summary>
+        /// <returns>int</returns>
+        public int GetY() => Y;
+        
         public void UpdateOffset(int x, int y)
         {
             if (_offset.X != x || _offset.Y != y)

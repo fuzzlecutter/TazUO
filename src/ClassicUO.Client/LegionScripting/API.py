@@ -23,6 +23,9 @@ class Notoriety:
     Murderer = 1
     Invulnerable = 1
 
+def ProcessCallbacks():
+    pass
+
 def Attack(serial: int):
     pass
 
@@ -297,6 +300,12 @@ def CreateGumpRadioButton(text: str = "", group: int = 0, inactive: int = 0x00D0
     pass
 
 def CreateGumpTextBox(text: str = "", width: int = 200, height: int = 30, multiline: bool = False):
+    pass
+
+def CreateGumpTTFLabel(text: str, size: float, color: str = "#FFFFFF", font: str = TrueTypeLoader.EMBEDDED_FONT, aligned: str = "let", maxWidth: int = 0, applyStroke: bool = False):
+    pass
+
+def AddControlOnClick(control: Any, onClick: Any, leftOnly: bool = True):
     pass
 
 def GetSkill(skill: str):

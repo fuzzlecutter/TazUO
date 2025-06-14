@@ -6756,6 +6756,8 @@ namespace ClassicUO.Network
                     IsFromServer = true
                 };
             }
+            
+            gump.PacketGumpText += string.Join("\n", lines);
 
             int group = 0;
             int page = 0;
