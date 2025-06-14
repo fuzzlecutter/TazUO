@@ -16,6 +16,7 @@ namespace ClassicUO.Game.UI.Gumps;
 
 public class BaseOptionsGump : Gump
 {
+    //TODO: Instanced search
     public static string SearchText { get; protected set; } = string.Empty;
 
     public static event EventHandler SearchValueChanged;
@@ -514,7 +515,7 @@ public class BaseOptionsGump : Gump
                 {
                     ((SearchableOption)button).OnSearchMatch();
                     int p = Parent == null ? Page : Parent.Page;
-                    ModernOptionsGump.SetParentsForMatchingSearch(this, p);
+                    SetParentsForMatchingSearch(this, p);
                 }
             }
         }
@@ -1471,17 +1472,23 @@ public class BaseOptionsGump : Gump
             TextLabel.Y = (h - TextLabel.Height) >> 1;
             _groupnumber = groupnumber;
 
-            ModernOptionsGump.SearchValueChanged += ModernOptionsGump_SearchValueChanged;
+            SearchValueChanged += ModernOptionsGump_SearchValueChanged;
+        }
+        
+        public override void Dispose()
+        {
+            base.Dispose();
+            SearchValueChanged -= ModernOptionsGump_SearchValueChanged;
         }
 
         private void ModernOptionsGump_SearchValueChanged(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(ModernOptionsGump.SearchText))
+            if (!string.IsNullOrEmpty(SearchText))
             {
                 if (Search(SearchText))
                 {
                     OnSearchMatch();
-                    ModernOptionsGump.SetParentsForMatchingSearch(this, Page);
+                    SetParentsForMatchingSearch(this, Page);
                 }
                 else
                 {
@@ -1928,6 +1935,12 @@ public class BaseOptionsGump : Gump
             SearchValueChanged += ModernOptionsGump_SearchValueChanged;
             this.options = options;
         }
+        
+        public override void Dispose()
+        {
+            base.Dispose();
+            SearchValueChanged -= ModernOptionsGump_SearchValueChanged;
+        }
 
         private void ModernOptionsGump_SearchValueChanged(object sender, EventArgs e)
         {
@@ -2221,6 +2234,12 @@ public class BaseOptionsGump : Gump
 
             SearchValueChanged += ModernOptionsGump_SearchValueChanged;
         }
+        
+        public override void Dispose()
+        {
+            base.Dispose();
+            SearchValueChanged -= ModernOptionsGump_SearchValueChanged;
+        }
 
         private void ModernOptionsGump_SearchValueChanged(object sender, EventArgs e)
         {
@@ -2281,6 +2300,12 @@ public class BaseOptionsGump : Gump
             Height = Math.Max(_colorPicker.Height, _label.MeasuredSize.Y);
 
             SearchValueChanged += ModernOptionsGump_SearchValueChanged;
+        }
+        
+        public override void Dispose()
+        {
+            base.Dispose();
+            SearchValueChanged -= ModernOptionsGump_SearchValueChanged;
         }
 
         public ushort Hue => _colorPicker.Hue;
@@ -2427,6 +2452,7 @@ public class BaseOptionsGump : Gump
         {
             base.Dispose();
             _text?.Dispose();
+            SearchValueChanged -= ModernOptionsGump_SearchValueChanged;
         }
 
         public bool Search(string text)
@@ -2470,6 +2496,12 @@ public class BaseOptionsGump : Gump
             _slider.Y = (Height / 2) - (_slider.Height / 2);
 
             SearchValueChanged += ModernOptionsGump_SearchValueChanged;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            SearchValueChanged -= ModernOptionsGump_SearchValueChanged;
         }
 
         private void ModernOptionsGump_SearchValueChanged(object sender, EventArgs e)
