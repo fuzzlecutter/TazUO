@@ -14,6 +14,7 @@ namespace ClassicUO.Game.UI.Gumps
             "- Added basic scavenger agent(Uses autoloot)\n" +
             "- Nearby item gump and grid container quick loot now use move item queue\n" +
             "- Combine duplicate system messages\n" +
+            "- Default visual spell indicator setup embedded now\n" +
             "- Various bug fixes\n",
             
             "/c[white][3.30.0]/cd\n" +
