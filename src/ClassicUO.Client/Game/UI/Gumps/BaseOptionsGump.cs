@@ -105,13 +105,6 @@ public class BaseOptionsGump : Gump
         MainContent.ActivePage = ActivePage;
     }
 
-    public override void Dispose()
-    {
-        base.Dispose();
-
-        SearchValueChanged = null;
-    }
-
     public override void ChangePage(int pageIndex)
     {
         base.ChangePage(pageIndex);
