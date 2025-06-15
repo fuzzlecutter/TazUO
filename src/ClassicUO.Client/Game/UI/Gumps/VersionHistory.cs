@@ -8,6 +8,10 @@ namespace ClassicUO.Game.UI.Gumps
     internal class VersionHistory : Gump
     {
         private static string[] updateTexts = {
+            "/c[white][3.32.0]/cd\n" +
+            "- Added simple progress bar control for Python API gumps.\n" +
+            "- Generate user friendly html crash logs and open them on crash\n",
+            
             "/c[white][3.31.0]/cd\n" +
             "- Fix for Python API EquipItem\n" +
             "- Fix for legion scripting useability commands\n" +

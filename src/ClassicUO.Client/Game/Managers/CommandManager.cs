@@ -52,6 +52,8 @@ namespace ClassicUO.Game.Managers
 
         public static void Initialize()
         {
+            Register("crash", (s) => throw new Exception("This test"));
+            
             Register("dis", (s)=>UIManager.Add(new DiscordGump()));
             
             Register("dm", (a) =>
