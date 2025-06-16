@@ -7,7 +7,7 @@ If you download the [API.py](API.py) file, put it in the same folder as your pyt
 
 [Additional notes](notes.md)  
   
-This was generated on `6/11/2025`.
+This was generated on `6/16/2025`.
 # API  
 
 ## Class Description
@@ -1632,7 +1632,7 @@ This was generated on `6/11/2025`.
 **Parameters**  
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
-| msg | string | No | The message to check for |
+| msg | string | No | The message to check for. Can be regex, prepend your msg with $ |
 #### Return Type: *bool*
 
 </details>
@@ -1643,7 +1643,8 @@ This was generated on `6/11/2025`.
 <details>
 <summary><h3>InJournalAny(msgs)</h3></summary>
 
- Check if the journal contains *any* of the strings in this list.  
+ Check if the journal contains *any* of the strings in this list.
+ Can be regex, prepend your msgs with $  .
  Example:  
  ```py
  if API.InJournalAny(["You have been slain", "You are dead"]):
@@ -2218,6 +2219,48 @@ This was generated on `6/11/2025`.
 | maxWidth | int | Yes | Max width before going to the next line |
 | applyStroke | bool | Yes | Uses players stroke settings, this turns it on or off |
 #### Return Type: *TextBox*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>CreateGumpSimpleProgressBar(width, height, backgroundColor, foregroundColor, value, max)</h3></summary>
+
+ Create a progress bar. Can be updated as needed with `bar.SetProgress(current, max)`.
+ Example:
+ ```py
+ gump = API.CreateGump()
+     gump.SetRect(100, 100, 400, 200)
+
+ pb = API.CreateGumpSimpleProgressBar(400, 200)
+     gump.Add(pb)
+
+ API.AddGump(gump)
+
+     cur = 0
+ max = 100
+
+ while True:
+ pb.SetProgress(cur, max)    
+ if cur >= max:
+ break
+ cur += 1
+ API.Pause(0.5)
+ ```
+
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| width | int | No | The width of the bar |
+| height | int | No | The height of the bar |
+| backgroundColor | string | Yes | The background color(Hex color like #616161) |
+| foregroundColor | string | Yes | The foreground color(Hex color like #212121) |
+| value | int | Yes | The current value, for example 70 |
+| max | int | Yes | The max value(or what would be 100%), for example 100 |
+#### Return Type: *SimpleProgressBar*
 
 </details>
 

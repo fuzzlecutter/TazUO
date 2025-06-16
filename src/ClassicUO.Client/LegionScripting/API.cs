@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using ClassicUO.Assets;
 using ClassicUO.Configuration;
@@ -1514,7 +1515,7 @@ namespace ClassicUO.LegionScripting
         ///   API.SysMsg("You have been slain!")
         /// ```
         /// </summary>
-        /// <param name="msg">The message to check for</param>
+        /// <param name="msg">The message to check for. Can be regex, prepend your msg with $</param>
         /// <returns>True if message was found</returns>
         public bool InJournal(string msg)
         {
@@ -1523,6 +1524,9 @@ namespace ClassicUO.LegionScripting
 
             foreach (var je in JournalEntries.ToArray())
             {
+                if (msg.StartsWith("$") && Regex.IsMatch(je.Text, msg.Substring(1)))
+                    return true;
+                
                 if (je.Text.Contains(msg))
                     return true;
             }
@@ -1531,7 +1535,8 @@ namespace ClassicUO.LegionScripting
         }
 
         /// <summary>
-        /// Check if the journal contains *any* of the strings in this list.  
+        /// Check if the journal contains *any* of the strings in this list.
+        /// Can be regex, prepend your msgs with $  .
         /// Example:  
         /// ```py
         /// if API.InJournalAny(["You have been slain", "You are dead"]):
@@ -1548,8 +1553,13 @@ namespace ClassicUO.LegionScripting
             foreach (var je in JournalEntries.ToArray())
             {
                 foreach (var msg in msgs)
+                {
+                    if (msg.StartsWith("$") && Regex.IsMatch(je.Text, msg.Substring(1)))
+                        return true;
+
                     if (je.Text.Contains(msg))
                         return true;
+                }
             }
 
             return false;

@@ -305,6 +305,9 @@ def CreateGumpTextBox(text: str = "", width: int = 200, height: int = 30, multil
 def CreateGumpTTFLabel(text: str, size: float, color: str = "#FFFFFF", font: str = TrueTypeLoader.EMBEDDED_FONT, aligned: str = "let", maxWidth: int = 0, applyStroke: bool = False):
     pass
 
+def CreateGumpSimpleProgressBar(width: int, height: int, backgroundColor: str = "#616161", foregroundColor: str = "#212121", value: int = 100, max: int = 100):
+    pass
+
 def AddControlOnClick(control: Any, onClick: Any, leftOnly: bool = True):
     pass
 
