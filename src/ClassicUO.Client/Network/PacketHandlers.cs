@@ -2983,6 +2983,9 @@ namespace ClassicUO.Network
 
                 UIManager.GetGump<PaperDollGump>(serial)?.RequestUpdateContents();
                 UIManager.GetGump<ModernPaperdoll>(serial)?.RequestUpdateContents();
+                
+                if(mob.Serial == World.Player.Serial)
+                    GameActions.RequestEquippedOPL();
             }
 
             if (p[0] != 0x78)
@@ -3046,6 +3049,7 @@ namespace ClassicUO.Network
 
                 UIManager.GetGump<PaperDollGump>(serial)?.RequestUpdateContents();
                 UIManager.GetGump<ModernPaperdoll>(serial)?.RequestUpdateContents();
+                GameActions.RequestEquippedOPL();
 
                 World.Player.UpdateAbilities();
             }
@@ -3180,6 +3184,7 @@ namespace ClassicUO.Network
                 {
                     UIManager.Add(new ModernPaperdoll(mobile.Serial));
                 }
+                GameActions.RequestEquippedOPL();
             }
             else
             {
