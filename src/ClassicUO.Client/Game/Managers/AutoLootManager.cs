@@ -179,14 +179,15 @@ namespace ClassicUO.Game.Managers
         
         private void OnPositionChanged(object sender, PositionChangedArgs e)
         {
-            if (!loaded || !IsEnabled) return;
+            if (!loaded) return;
 
-            foreach (Item item in World.Items.Values)
-            {
-                if (item == null || !item.OnGround || item.IsCorpse) continue;
-                if (item.Distance >= 3) continue;
-                CheckAndLoot(item);
-            }
+            if(ProfileManager.CurrentProfile.EnableScavenger)
+                foreach (Item item in World.Items.Values)
+                {
+                    if (item == null || !item.OnGround || item.IsCorpse) continue;
+                    if (item.Distance >= 3) continue;
+                    CheckAndLoot(item);
+                }
         }
 
         private void OnOpenContainer(object sender, uint e)
