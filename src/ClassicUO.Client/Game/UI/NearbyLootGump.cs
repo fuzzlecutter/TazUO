@@ -193,10 +193,7 @@ namespace ClassicUO.Game.UI
 
             dataBox.ReArrangeChildren(1);
             dataBox.ForceSizeUpdate(false);
-            scrollArea.Scroll(true); //Weird fix for weird scroll area side effects
-            scrollArea.Scroll(false);
-            if(dataBox.Height <= scrollArea.Height)
-                scrollArea.ResetScrollbarPosition();//Another fix for weird scroll effects
+            scrollArea.ResetScrollbarPosition();//Fix for weird scroll effects
 
             if (SelectedIndex >= itemCount)
                 SelectedIndex = itemCount - 1;
