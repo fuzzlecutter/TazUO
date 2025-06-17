@@ -296,6 +296,9 @@ def CreateGumpItemPic(graphic: int, width: int, height: int):
 def CreateGumpButton(text: str = "", hue: int = 996, normal: int = 0x00EF, pressed: int = 0x00F0, hover: int = 0x00EE):
     pass
 
+def CreateSimpleButton(text: str, width: int, height: int):
+    pass
+
 def CreateGumpRadioButton(text: str = "", group: int = 0, inactive: int = 0x00D0, active: int = 0x00D1, hue: int = 0xFFFF):
     pass
 

@@ -1937,6 +1937,27 @@ namespace ClassicUO.LegionScripting
         }
 
         /// <summary>
+        /// Create a simple button, does not use graphics.
+        /// Example:
+        /// ```py
+        /// g = API.CreateGump()
+        /// g.SetRect(100, 100, 200, 200)
+        /// button = API.CreateSimpleButton("Click Me!", 100, 20)
+        /// g.Add(button)
+        /// API.AddGump(g)
+        /// ```
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public NiceButton CreateSimpleButton(string text, int width, int height)
+        {
+            NiceButton b = new(0, 0, width, height, ButtonAction.Default, text);
+            return b;
+        }
+
+        /// <summary>
         /// Create a radio button for gumps, use group numbers to only allow one item to be checked at a time.  
         /// Example:  
         /// ```py

@@ -7,7 +7,7 @@ If you download the [API.py](API.py) file, put it in the same folder as your pyt
 
 [Additional notes](notes.md)  
   
-This was generated on `6/16/2025`.
+This was generated on `6/17/2025`.
 # API  
 
 ## Class Description
@@ -2112,6 +2112,33 @@ This was generated on `6/16/2025`.
 | pressed | ushort | Yes | Graphic when pressed |
 | hover | ushort | Yes | Graphic on hover |
 #### Return Type: *Button*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>CreateSimpleButton(text, width, height)</h3></summary>
+
+ Create a simple button, does not use graphics.
+ Example:
+ ```py
+ g = API.CreateGump()
+ g.SetRect(100, 100, 200, 200)
+ button = API.CreateSimpleButton("Click Me!", 100, 20)
+ g.Add(button)
+ API.AddGump(g)
+ ```
+
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| text | string | No |  |
+| width | int | No |  |
+| height | int | No |  |
+#### Return Type: *NiceButton*
 
 </details>
 
