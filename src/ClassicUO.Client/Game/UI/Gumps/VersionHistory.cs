@@ -10,7 +10,11 @@ namespace ClassicUO.Game.UI.Gumps
         private static string[] updateTexts = {
             "/c[white][3.32.0]/cd\n" +
             "- Added simple progress bar control for Python API gumps.\n" +
-            "- Generate user friendly html crash logs and open them on crash\n",
+            "- Generate user friendly html crash logs and open them on crash\n" +
+            "- Some fixes for nearby corpse loot gump\n" +
+            "- Very slightly increased minimum distance to start dragging a gump. Hopefully it should prevent accidental drags instead of clicks\n" +
+            "- Nearby loot gump now stays open after relogging\n" +
+            "- Various bug fixes\n",
             
             "/c[white][3.31.0]/cd\n" +
             "- Fix for Python API EquipItem\n" +

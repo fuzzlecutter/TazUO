@@ -46,6 +46,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml;
+using ClassicUO.Game.UI;
 
 namespace ClassicUO.Configuration
 {
@@ -801,6 +802,7 @@ namespace ClassicUO.Configuration
 
                             switch (type)
                             {
+                                case GumpType.NearbyCorpseLoot: gump = new NearbyLootGump(); break;
                                 case GumpType.Buff:
                                     if (ProfileManager.CurrentProfile.UseImprovedBuffBar)
                                         gump = new ImprovedBuffGump();

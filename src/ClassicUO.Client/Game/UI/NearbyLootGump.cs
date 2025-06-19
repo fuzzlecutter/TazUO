@@ -118,6 +118,8 @@ namespace ClassicUO.Game.UI
             RequestUpdateContents();
         }
 
+        public override GumpType GumpType => GumpType.NearbyCorpseLoot;
+
         private void EventSink_OPLOnReceive(object sender, OPLEventArgs e)
         {
             Item i = World.Items.Get(e.Serial);
