@@ -14,6 +14,7 @@ namespace ClassicUO.Game.UI.Gumps
             "- Some fixes for nearby corpse loot gump\n" +
             "- Very slightly increased minimum distance to start dragging a gump. Hopefully it should prevent accidental drags instead of clicks\n" +
             "- Nearby loot gump now stays open after relogging\n" +
+            "- Moved some assistant-like options to their own menu.\n" +
             "- Various bug fixes\n",
             
             "/c[white][3.31.0]/cd\n" +
