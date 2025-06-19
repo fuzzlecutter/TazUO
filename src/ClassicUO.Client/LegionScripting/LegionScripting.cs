@@ -539,6 +539,7 @@ namespace ClassicUO.LegionScripting
             Interpreter.RegisterCommandHandler("pathfind", Pathfind);
             Interpreter.RegisterCommandHandler("cancelpathfind", CancelPathfind);
             Interpreter.RegisterCommandHandler("addcooldown", AddCoolDown);
+            Interpreter.RegisterCommandHandler("togglescript", ToggleScript);
             #endregion
 
             #region Expressions
