@@ -110,6 +110,7 @@ namespace ClassicUO.Game.UI.Gumps
                     CanMove = true;
                     CanCloseWithRightClick = true;
                 }
+                OnLockedChanged();
             }
         }
 
@@ -299,6 +300,10 @@ namespace ClassicUO.Game.UI.Gumps
             base.OnMove(x, y);
 
             SetInScreen();
+        }
+
+        protected virtual void OnLockedChanged()
+        {
         }
 
         public override bool Draw(UltimaBatcher2D batcher, int x, int y)

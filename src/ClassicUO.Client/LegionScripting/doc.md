@@ -3,11 +3,12 @@ This is automatically generated documentation for the Python API scripting.
 All methods, properties, enums, etc need to pre prefaced with `API.` for example: `API.Msg("An example")`.  
   
 If you download the [API.py](API.py) file, put it in the same folder as your python scripts and add `import API` to your script, that will enable some mild form of autocomplete in an editor like VS Code.  
+You can now type `-updateapi` in game to download the latest API.py file.  
 
 
 [Additional notes](notes.md)  
   
-This was generated on `6/17/2025`.
+This was generated on `6/19/2025`.
 # API  
 
 ## Class Description
@@ -72,6 +73,19 @@ This was generated on `6/17/2025`.
    API.ProcessCallbacks()
    API.Pause(0.1)
  ```
+
+
+#### Does not return anything
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>CloseGumps()</h3></summary>
+
+ Close all gumps created by the API unless marked to remain open.
 
 
 #### Does not return anything
@@ -1929,7 +1943,7 @@ This was generated on `6/17/2025`.
 
 
 <details>
-<summary><h3>CreateGump(acceptMouseInput, canMove)</h3></summary>
+<summary><h3>CreateGump(acceptMouseInput, canMove, keepOpen)</h3></summary>
 
  Get a blank gump.  
  Example:  
@@ -1946,6 +1960,7 @@ This was generated on `6/17/2025`.
 | --- | --- | --- | --- |
 | acceptMouseInput | bool | Yes | Allow clicking the gump |
 | canMove | bool | Yes | Allow the player to move this gump |
+| keepOpen | bool | Yes | If true, the gump won't be closed if the script stops. Otherwise, it will be closed when the script is stopped. Defaults to false. |
 #### Return Type: *Gump*
 
 </details>

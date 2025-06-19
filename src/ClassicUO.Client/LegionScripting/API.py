@@ -26,6 +26,9 @@ class Notoriety:
 def ProcessCallbacks():
     pass
 
+def CloseGumps():
+    pass
+
 def Attack(serial: int):
     pass
 
@@ -275,7 +278,7 @@ def GetAllMobiles():
 def GetTile(x: int, y: int):
     pass
 
-def CreateGump(acceptMouseInput: bool = True, canMove: bool = True):
+def CreateGump(acceptMouseInput: bool = True, canMove: bool = True, keepOpen: bool = False):
     pass
 
 def AddGump(g: Any):

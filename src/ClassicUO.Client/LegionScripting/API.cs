@@ -37,6 +37,8 @@ namespace ClassicUO.LegionScripting
         
         private ScriptEngine engine;
         
+        private ConcurrentBag<Gump> gumps = new();
+        
         #region Python C# Queue
         public static readonly ConcurrentQueue<Action> QueuedPythonActions = new();
         private static T InvokeOnMainThread<T>(Func<T> func)
@@ -207,6 +209,15 @@ namespace ClassicUO.LegionScripting
 
         #region Methods
 
+        /// <summary>
+        /// Close all gumps created by the API unless marked to remain open.
+        /// </summary>
+        public void CloseGumps()
+        {
+            while(gumps.TryTake(out var g))
+                g?.Dispose();
+        }
+        
         /// <summary>
         /// Attack a mobile  
         /// Example:  
@@ -1782,7 +1793,7 @@ namespace ClassicUO.LegionScripting
         public GameObject GetTile(int x, int y) => InvokeOnMainThread(() => { return World.Map.GetTile(x, y); });
 
         #region Gumps
-        
+
         /// <summary>
         /// Get a blank gump.  
         /// Example:  
@@ -1795,8 +1806,9 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="acceptMouseInput">Allow clicking the gump</param>
         /// <param name="canMove">Allow the player to move this gump</param>
+        /// <param name="keepOpen">If true, the gump won't be closed if the script stops. Otherwise, it will be closed when the script is stopped. Defaults to false.</param>
         /// <returns>A new, empty gump</returns>
-        public Gump CreateGump(bool acceptMouseInput = true, bool canMove = true)
+        public Gump CreateGump(bool acceptMouseInput = true, bool canMove = true, bool keepOpen = false)
         {
             var g = new Gump(0, 0)
             {
@@ -1804,6 +1816,9 @@ namespace ClassicUO.LegionScripting
                 CanMove = canMove,
                 WantUpdateSize = true
             };
+            
+            if(!keepOpen)
+                gumps.Add(g);
 
             return g;
         }
@@ -1954,6 +1969,7 @@ namespace ClassicUO.LegionScripting
         public NiceButton CreateSimpleButton(string text, int width, int height)
         {
             NiceButton b = new(0, 0, width, height, ButtonAction.Default, text);
+            b.AlwaysShowBackground = true;
             return b;
         }
 
