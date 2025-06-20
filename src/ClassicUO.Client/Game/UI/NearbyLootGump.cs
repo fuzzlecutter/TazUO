@@ -44,6 +44,7 @@ namespace ClassicUO.Game.UI
         private static HashSet<uint> _openedCorpses = new HashSet<uint>();
         private static int selectedIndex;
         private static Point lastLocation;
+        private long nextClean = 0;
 
         public NearbyLootGump() : base(0, 0)
         {
@@ -207,6 +208,8 @@ namespace ClassicUO.Game.UI
 
             if (corpse.Items != null)
             {
+                corpse.Hue = 53;
+                
                 if (_corpsesRequested.Contains(corpse))
                     _corpsesRequested.Remove(corpse);
 
@@ -229,7 +232,7 @@ namespace ClassicUO.Game.UI
         }
         private void TryRequestOpenCorpse(Item corpse)
         {
-            if (_corpsesRequested.Contains(corpse))
+            if (_openedCorpses.Contains(corpse))
                 return;
             if (corpse.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
                 return;
@@ -344,6 +347,13 @@ namespace ClassicUO.Game.UI
                 alphaBG.Height = Height;
                 resizeDrag.Y = Height - 10;
                 scrollArea.SlowUpdate();//Recalculate scrollbar
+            }
+
+            if (Time.Ticks > nextClean)
+            {
+                _openedCorpses.Clear();
+                _corpsesRequested.Clear();
+                nextClean = Time.Ticks + 60000;
             }
         }
         protected override void UpdateContents()
