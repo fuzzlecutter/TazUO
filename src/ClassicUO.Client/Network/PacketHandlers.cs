@@ -5550,13 +5550,7 @@ namespace ClassicUO.Network
                         {
                             fixed (byte* destPtr = decData)
                             {
-                                ZLib.Decompress(
-                                    p.PositionAddress,
-                                    (int)clen,
-                                    0,
-                                    (IntPtr)destPtr,
-                                    dlen
-                                );
+                                ZLib.Decompress(p.PositionAddress, (int)clen, 0, (IntPtr)destPtr, dlen);
                             }
                         }
 
@@ -5616,6 +5610,10 @@ namespace ClassicUO.Network
                 }
 
                 CreateGump(sender, gumpID, (int)x, (int)y, layout, lines);
+            }
+            catch (Exception e)
+            {
+                HtmlCrashLogGen.Generate($"DLEN: {dlen}\nSENDER: {sender}\nGUMPID: {gumpID}" + e.ToString(), description:"TazUO almost crashed, it was prevented but this was put in place for debugging, please post this on our discord.");
             }
             finally
             {
