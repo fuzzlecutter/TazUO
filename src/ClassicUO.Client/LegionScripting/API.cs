@@ -1053,10 +1053,10 @@ namespace ClassicUO.LegionScripting
         /// API.WaitForTarget()
         /// ```
         /// </summary>
-        /// <param name="targetType">Neutral/Harmful/Beneficial/Any</param>
+        /// <param name="targetType">neutral/harmful/beneficial/any/harm/ben</param>
         /// <param name="timeout">Max duration in seconds to wait</param>
         /// <returns>True if target was matching the type, or false if not/timed out</returns>
-        public bool WaitForTarget(string targetType = "Any", double timeout = 5)
+        public bool WaitForTarget(string targetType = "any", double timeout = 5)
         {
             //Can't use Time.Ticks due to threading concerns
             var expire = DateTime.UtcNow.AddSeconds(timeout);
@@ -1064,13 +1064,13 @@ namespace ClassicUO.LegionScripting
 
             TargetType targetT = TargetType.Neutral;
 
-            switch (targetType)
+            switch (targetType.ToLower())
             {
-                case "Harmful": targetT = TargetType.Harmful; break;
-                case "Beneficial": targetT = TargetType.Beneficial; break;
+                case "harmful" or "harm": targetT = TargetType.Harmful; break;
+                case "beneficial" or "ben": targetT = TargetType.Beneficial; break;
             }
 
-            while (!InvokeOnMainThread(() => { return TargetManager.IsTargeting && (TargetManager.TargetingType == targetT || targetType == "Any"); }))
+            while (!InvokeOnMainThread(() => { return TargetManager.IsTargeting && (TargetManager.TargetingType == targetT || targetType.ToLower() == "any"); }))
             {
                 if (DateTime.UtcNow > expire)
                     return false;
@@ -1211,6 +1211,29 @@ namespace ClassicUO.LegionScripting
         /// ```
         /// </summary>
         public void CancelTarget() => InvokeOnMainThread(TargetManager.CancelTarget);
+        
+        /// <summary>
+        /// Check if the player has a target cursor.
+        /// Example:
+        /// ```py
+        /// if API.HasTarget():
+        ///     API.CancelTarget()
+        /// ```
+        /// </summary>
+        /// <param name="targetType">neutral/harmful/beneficial/any/harm/ben</param>
+        /// <returns></returns>
+        public bool HasTarget(string targetType = "any") => InvokeOnMainThread(() =>
+        {
+            TargetType targetT = TargetType.Neutral;
+
+            switch (targetType.ToLower())
+            {
+                case "harmful" or "harm": targetT = TargetType.Harmful; break;
+                case "beneficial" or "ben": targetT = TargetType.Beneficial; break;
+            }
+            
+            return TargetManager.IsTargeting && (TargetManager.TargetingType == targetT || targetType.ToLower() == "any");
+        });
 
         /// <summary>
         /// Set a skills lock status.  
@@ -2218,6 +2241,35 @@ namespace ClassicUO.LegionScripting
             }
         );
 
+        /// <summary>
+        /// Toggle another script on or off.
+        /// Example:
+        /// ```py
+        /// API.ToggleScript("MyScript.py")
+        /// ```
+        /// </summary>
+        /// <param name="scriptName">Full name including extension. Can be .py or .lscript.</param>
+        /// <exception cref="Exception"></exception>
+        public void ToggleScript(string scriptName)
+        {
+            InvokeOnMainThread(() => { 
+                if(string.IsNullOrEmpty(scriptName))
+                    throw new Exception("[ToggleScript] Script name can't be empty.");
+
+                foreach (var script in LegionScripting.LoadedScripts)
+                {
+                    if (script.FileName == scriptName)
+                    {
+                        if(script.IsPlaying)
+                            LegionScripting.StopScript(script);
+                        else
+                            LegionScripting.PlayScript(script);
+                        
+                        return;
+                    }
+                }
+            });
+        }
         #endregion
     }
 }

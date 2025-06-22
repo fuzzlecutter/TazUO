@@ -8,7 +8,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](notes.md)  
   
-This was generated on `6/19/2025`.
+This was generated on `6/22/2025`.
 # API  
 
 ## Class Description
@@ -1196,7 +1196,7 @@ This was generated on `6/19/2025`.
 **Parameters**  
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
-| targetType | string | Yes | Neutral/Harmful/Beneficial/Any |
+| targetType | string | Yes | neutral/harmful/beneficial/any/harm/ben |
 | timeout | double | Yes | Max duration in seconds to wait |
 #### Return Type: *bool*
 
@@ -1350,6 +1350,28 @@ This was generated on `6/19/2025`.
 
 
 #### Does not return anything
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>HasTarget(targetType)</h3></summary>
+
+ Check if the player has a target cursor.
+ Example:
+ ```py
+ if API.HasTarget():
+     API.CancelTarget()
+ ```
+
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| targetType | string | Yes | neutral/harmful/beneficial/any/harm/ben |
+#### Return Type: *bool*
 
 </details>
 
@@ -2378,6 +2400,27 @@ This was generated on `6/19/2025`.
 | --- | --- | --- | --- |
 | distance | ushort | No | Distance from the player |
 | hue | ushort | Yes | The color to change the tiles at that distance |
+#### Does not return anything
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>ToggleScript(scriptName)</h3></summary>
+
+ Toggle another script on or off.
+ Example:
+ ```py
+ API.ToggleScript("MyScript.py")
+ ```
+
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| scriptName | string | No | Full name including extension. Can be .py or .lscript. |
 #### Does not return anything
 
 </details>

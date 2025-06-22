@@ -648,7 +648,7 @@ def Mount(serial: int):
     """
     pass
 
-def WaitForTarget(targetType: str = "Any", timeout: float = 5):
+def WaitForTarget(targetType: str = "any", timeout: float = 5):
     """
      Wait for a target cursor.
      Example:
@@ -737,6 +737,18 @@ def CancelTarget():
      if API.WaitForTarget():
        API.CancelTarget()
        API.SysMsg("Targeting cancelled, april fools made you target something!")
+     ```
+    
+    """
+    pass
+
+def HasTarget(targetType: str = "any"):
+    """
+     Check if the player has a target cursor.
+     Example:
+     ```py
+     if API.HasTarget():
+         API.CancelTarget()
      ```
     
     """
@@ -1338,3 +1350,15 @@ def DisplayRange(distance: int, hue: int = 22):
     
     """
     pass
+
+def ToggleScript(scriptName: str):
+    """
+     Toggle another script on or off.
+     Example:
+     ```py
+     API.ToggleScript("MyScript.py")
+     ```
+    
+    """
+    pass
+
