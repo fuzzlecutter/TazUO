@@ -5510,10 +5510,13 @@ namespace ClassicUO.Network
             uint clen = p.ReadUInt32BE() - 4;
             int dlen = (int)p.ReadUInt32BE();
             if (dlen < 1)
-                dlen = 1;
+            {
+                Log.Error("[Initial]A bad compressed gump packet was received. Unable to process.");
+                return;
+            }
             byte[] decData = System.Buffers.ArrayPool<byte>.Shared.Rent(dlen);
             string layout;
-
+            
             try
             {
                 unsafe
@@ -5530,18 +5533,25 @@ namespace ClassicUO.Network
             {
                 System.Buffers.ArrayPool<byte>.Shared.Return(decData);
             }
-
-            p.Skip((int)clen);
-
-            uint linesNum = p.ReadUInt32BE();
-            string[] lines = new string[linesNum];
-
+            
             try
             {
+                p.Skip((int)clen);
+
+                uint linesNum = p.ReadUInt32BE();
+                string[] lines = new string[linesNum];
+            
                 if (linesNum != 0)
                 {
                     clen = p.ReadUInt32BE() - 4;
                     dlen = (int)p.ReadUInt32BE();
+
+                    if (dlen < 1)
+                    {
+                        Log.Error("A bad compressed gump packet was received. Unable to process.");
+                        return;
+                    }
+                    
                     decData = System.Buffers.ArrayPool<byte>.Shared.Rent(dlen);
 
                     try
@@ -5613,7 +5623,7 @@ namespace ClassicUO.Network
             }
             catch (Exception e)
             {
-                HtmlCrashLogGen.Generate($"DLEN: {dlen}\nSENDER: {sender}\nGUMPID: {gumpID}" + e.ToString(), description:"TazUO almost crashed, it was prevented but this was put in place for debugging, please post this on our discord.");
+                HtmlCrashLogGen.Generate($"DLEN: {dlen}\nSENDER: {sender}\nGUMPID: {gumpID}\n" + e.ToString(), description:"TazUO almost crashed, it was prevented but this was put in place for debugging, please post this on our discord.");
             }
             finally
             {

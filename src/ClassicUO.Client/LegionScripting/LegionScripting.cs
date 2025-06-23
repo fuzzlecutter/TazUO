@@ -375,6 +375,13 @@ namespace ClassicUO.LegionScripting
                 if (script.ScriptType == ScriptType.LegionScript)
                 {
                     script.GenerateScript();
+
+                    if (script.GetScript == null)
+                    {
+                        LScriptError("Unable to play script, it is likely malformed and we were unable to generate the script from your file.");
+                        return;
+                    }
+                    
                     script.GetScript.IsPlaying = true;
                 }
                 else if (script.ScriptType == ScriptType.Python)
