@@ -6829,6 +6829,7 @@ namespace ClassicUO.Network
                     gump.Add(new CroppedText(gparams, lines), page);
                 }
                 else if (
+                    string.Equals(entry, "tilepicasgumppic", StringComparison.InvariantCultureIgnoreCase) ||
                     string.Equals(entry, "gumppic", StringComparison.InvariantCultureIgnoreCase)
                 )
                 {
@@ -7259,13 +7260,26 @@ namespace ClassicUO.Network
                 {
                     gump.MasterGumpSerial = gparams.Count > 0 ? SerialHelper.Parse(gparams[1]) : 0;
                 }
-                else if (
-                    string.Equals(entry, "picinpic", StringComparison.InvariantCultureIgnoreCase)
-                )
+                else if (string.Equals(entry, "picinpichued", StringComparison.InvariantCultureIgnoreCase) ||
+                         string.Equals(entry, "picinpicphued", StringComparison.InvariantCultureIgnoreCase) ||
+                         string.Equals(entry, "picinpic", StringComparison.InvariantCultureIgnoreCase)
+                        )
                 {
                     if (gparams.Count > 7)
                     {
-                        gump.Add(new GumpPicInPic(gparams), page);
+                        //gump.Add(new GumpPicInPic(gparams), page);
+                        GumpPicInPic g;
+                        gump.Add(g = new GumpPicInPic(gparams), page);
+
+                        if (gparams.Count > 8)
+                        {
+                            g.Hue = UInt16Converter.Parse(gparams[8]);
+
+                            if (string.Equals(entry, "picinpicphued", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                g.IsPartialHue = true;
+                            }
+                        }
                     }
                 }
                 else if (string.Equals(entry, "\0", StringComparison.InvariantCultureIgnoreCase))
