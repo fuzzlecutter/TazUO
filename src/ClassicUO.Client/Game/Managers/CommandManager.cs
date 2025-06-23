@@ -43,6 +43,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using ClassicUO.Game.UI.Gumps.SpellBar;
 
 namespace ClassicUO.Game.Managers
 {
@@ -54,6 +55,8 @@ namespace ClassicUO.Game.Managers
 
         public static void Initialize()
         {
+            Register("ss", (s) => { UIManager.Add(new SpellQuickSearch(200, 200)); });
+            
             Register("updateapi", (s) =>
             {
                 try
