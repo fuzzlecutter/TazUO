@@ -5,6 +5,7 @@ Random = None
 LastTargetSerial = None
 LastTargetPos = None
 LastTargetGraphic = None
+Found = None
 
 class ScanType:
     Hostile = 0
@@ -76,6 +77,7 @@ def BandageSelf():
 def ClearLeftHand():
     """
      If you have an item in your left hand, move it to your backpack
+     Sets API.Found to the item's serial.
      Example:
      ```py
      leftHand = API.ClearLeftHand()
@@ -89,6 +91,7 @@ def ClearLeftHand():
 def ClearRightHand():
     """
      If you have an item in your right hand, move it to your backpack
+     Sets API.Found to the item's serial.
      Example:
      ```py
      rightHand = API.ClearRightHand()
@@ -297,7 +300,7 @@ def Msg(message: str):
     """
     pass
 
-def HeadMsg(message: str, serial: int):
+def HeadMsg(message: str, serial: int, hue: int = 1337):
     """
      Show a message above a mobile or item, this is only visible to you.
      Example:
@@ -377,6 +380,7 @@ def EmoteMsg(message: str):
 def FindItem(serial: int):
     """
      Try to get an item by its serial.
+     Sets API.Found to the serial of the item found.
      Example:
      ```py
      donkey = API.RequestTarget()
@@ -392,6 +396,7 @@ def FindItem(serial: int):
 def FindType(graphic: int, container: int = 1337, range: int = 1337, hue: int = 1337, minamount: int = 0):
     """
      Attempt to find an item by type(graphic).
+     Sets API.Found to the serial of the item found.
      Example:
      ```py
      item = API.FindType(0x0EED, API.Backpack)
@@ -419,6 +424,7 @@ def FindTypeAll(graphic: int, container: int = 1337, range: int = 1337, hue: int
 def FindLayer(layer: str, serial: int = 1337):
     """
      Attempt to find an item on a layer.
+     Sets API.Found to the serial of the item found.
      Example:
      ```py
      item = API.FindLayer("Helmet")
@@ -1006,6 +1012,7 @@ def Virtue(virtue: str):
 def NearestEntity(scanType: Any, maxDistance: int = 10):
     """
      Find the nearest item/mobile based on scan type.
+     Sets API.Found to the serial of the item/mobile.
      Example:
      ```py
      item = API.NearestEntity(API.ScanType.Item, 5)
@@ -1021,6 +1028,7 @@ def NearestEntity(scanType: Any, maxDistance: int = 10):
 def NearestMobile(notoriety: list[Any], maxDistance: int = 10):
     """
      Get the nearest mobile by Notoriety.
+     Sets API.Found to the serial of the mobile.
      Example:
      ```py
      mob = API.NearestMobile([API.Notoriety.Murderer, API.Notoriety.Criminal], 7)
@@ -1036,6 +1044,7 @@ def NearestMobile(notoriety: list[Any], maxDistance: int = 10):
 def NearestCorpse(distance: int = 3):
     """
      Get the nearest corpse within a distance.
+     Sets API.Found to the serial of the corpse.
      Example:
      ```py
      corpse = API.NearestCorpse()
@@ -1065,6 +1074,7 @@ def NearestMobiles(notoriety: list[Any], maxDistance: int = 10):
 def FindMobile(serial: int):
     """
      Get a mobile from its serial.
+     Sets API.Found to the serial of the mobile.
      Example:
      ```py
      mob = API.FindMobile(0x12345678)

@@ -186,6 +186,11 @@ namespace ClassicUO.LegionScripting
         /// The graphic of the last targeting object
         /// </summary>
         public ushort LastTargetGraphic => InvokeOnMainThread(() => TargetManager.LastTargetInfo.Graphic);
+        
+        /// <summary>
+        /// The serial of the last item or mobile from the various findtype/mobile methods
+        /// </summary>
+        public uint Found { get; set; }
 
         #endregion
 
@@ -219,11 +224,13 @@ namespace ClassicUO.LegionScripting
         /// <summary>
         /// Close all gumps created by the API unless marked to remain open.
         /// </summary>
-        public void CloseGumps()
-        {
-            while (gumps.TryTake(out var g))
-                g?.Dispose();
-        }
+        public void CloseGumps() => InvokeOnMainThread
+        (() =>
+            {
+                while (gumps.TryTake(out var g))
+                    g?.Dispose();
+            }
+        );
 
         /// <summary>
         /// Attack a mobile  
@@ -254,7 +261,8 @@ namespace ClassicUO.LegionScripting
         public bool BandageSelf() => InvokeOnMainThread(GameActions.BandageSelf);
 
         /// <summary>
-        /// If you have an item in your left hand, move it to your backpack  
+        /// If you have an item in your left hand, move it to your backpack
+        /// Sets API.Found to the item's serial.  
         /// Example:  
         /// ```py
         /// leftHand = API.ClearLeftHand()
@@ -270,17 +278,19 @@ namespace ClassicUO.LegionScripting
 
                 if (i != null)
                 {
-                    GameActions.GrabItem(i, 0, World.Player.FindItemByLayer(Game.Data.Layer.Backpack));
-
+                    MoveItemQueue.Instance.Enqueue(i, Backpack);
+                    Found = i.Serial;
                     return i;
                 }
 
+                Found = 0;
                 return null;
             }
         );
 
         /// <summary>
-        /// If you have an item in your right hand, move it to your backpack  
+        /// If you have an item in your right hand, move it to your backpack
+        /// Sets API.Found to the item's serial.  
         /// Example:  
         /// ```py  
         /// rightHand = API.ClearRightHand()
@@ -296,11 +306,12 @@ namespace ClassicUO.LegionScripting
 
                 if (i != null)
                 {
-                    GameActions.GrabItem(i, 0, World.Player.FindItemByLayer(Game.Data.Layer.Backpack));
-
+                    MoveItemQueue.Instance.Enqueue(i, Backpack);
+                    Found = i.Serial;
                     return i;
                 }
 
+                Found = 0;
                 return null;
             }
         );
@@ -597,7 +608,8 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="message">The message</param>
         /// <param name="serial">The item or mobile</param>
-        public void HeadMsg(string message, uint serial) => InvokeOnMainThread
+        /// <param name="hue">Message hue</param>
+        public void HeadMsg(string message, uint serial, ushort hue = ushort.MaxValue) => InvokeOnMainThread
         (() =>
             {
                 Entity e = World.Get(serial);
@@ -605,7 +617,10 @@ namespace ClassicUO.LegionScripting
                 if (e == null)
                     return;
 
-                MessageManager.HandleMessage(e, message, "", ProfileManager.CurrentProfile.SpeechHue, MessageType.Label, 3, TextType.OBJECT);
+                if (hue == ushort.MaxValue)
+                    hue = ProfileManager.CurrentProfile.SpeechHue;
+
+                MessageManager.HandleMessage(e, message, "", hue, MessageType.Label, 3, TextType.OBJECT);
             }
         );
 
@@ -670,7 +685,8 @@ namespace ClassicUO.LegionScripting
         public void EmoteMsg(string message) => InvokeOnMainThread(() => { GameActions.Say(message, ProfileManager.CurrentProfile.EmoteHue, MessageType.Emote); });
 
         /// <summary>
-        /// Try to get an item by its serial.  
+        /// Try to get an item by its serial.
+        /// Sets API.Found to the serial of the item found.  
         /// Example:  
         /// ```py
         /// donkey = API.RequestTarget()
@@ -682,10 +698,18 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="serial">The serial</param>
         /// <returns></returns>
-        public Item FindItem(uint serial) => InvokeOnMainThread(() => World.Items.Get(serial));
+        public Item FindItem(uint serial) => InvokeOnMainThread(() =>
+        {
+            Item i = World.Items.Get(serial);
+
+            Found = i != null ? i.Serial : 0;
+            
+            return i;
+        });
 
         /// <summary>
-        /// Attempt to find an item by type(graphic).  
+        /// Attempt to find an item by type(graphic).
+        /// Sets API.Found to the serial of the item found.  
         /// Example:  
         /// ```py
         /// item = API.FindType(0x0EED, API.Backpack)
@@ -710,10 +734,12 @@ namespace ClassicUO.LegionScripting
                     {
                         if (i.Amount >= minamount && !ignoreList.Contains(i))
                         {
+                            Found = i.Serial;
                             return i;
                         }
                     }
 
+                    Found = 0;
                     return null;
                 }
             );
@@ -738,7 +764,8 @@ namespace ClassicUO.LegionScripting
                 (() => Utility.FindItems(graphic, uint.MaxValue, uint.MaxValue, container, hue, range).Where(i => !OnIgnoreList(i) && i.Amount >= minamount).ToArray());
 
         /// <summary>
-        /// Attempt to find an item on a layer.  
+        /// Attempt to find an item on a layer.
+        /// Sets API.Found to the serial of the item found.  
         /// Example:  
         /// ```py
         /// item = API.FindLayer("Helmet")
@@ -752,6 +779,7 @@ namespace ClassicUO.LegionScripting
         public Item FindLayer(string layer, uint serial = uint.MaxValue) => InvokeOnMainThread
         (() =>
             {
+                Found = 0;
                 Mobile m = serial == uint.MaxValue ? World.Player : World.Mobiles.Get(serial);
 
                 if (m != null)
@@ -760,7 +788,9 @@ namespace ClassicUO.LegionScripting
                     Item item = m.FindItemByLayer(matchedLayer);
 
                     if (item != null)
-                        return item;
+                        Found = item.Serial;
+
+                    return item;
                 }
 
                 return null;
@@ -1701,7 +1731,8 @@ namespace ClassicUO.LegionScripting
         }
 
         /// <summary>
-        /// Find the nearest item/mobile based on scan type.  
+        /// Find the nearest item/mobile based on scan type.
+        /// Sets API.Found to the serial of the item/mobile.  
         /// Example:  
         /// ```py
         /// item = API.NearestEntity(API.ScanType.Item, 5)
@@ -1717,19 +1748,24 @@ namespace ClassicUO.LegionScripting
         public Entity NearestEntity(ScanType scanType, int maxDistance = 10) => InvokeOnMainThread
         (() =>
             {
+                Found = 0;
                 uint m = Utility.FindNearestCheckPythonIgnore((ScanTypeObject)scanType, this);
 
                 var e = World.Get(m);
 
                 if (e != null && e.Distance <= maxDistance)
+                {
+                    Found = e.Serial;
                     return e;
+                }
 
                 return null;
             }
         );
 
         /// <summary>
-        /// Get the nearest mobile by Notoriety.  
+        /// Get the nearest mobile by Notoriety.
+        /// Sets API.Found to the serial of the mobile.  
         /// Example:  
         /// ```py
         /// mob = API.NearestMobile([API.Notoriety.Murderer, API.Notoriety.Criminal], 7)
@@ -1745,18 +1781,25 @@ namespace ClassicUO.LegionScripting
         public Mobile NearestMobile(IList<Notoriety> notoriety, int maxDistance = 10) => InvokeOnMainThread
         (() =>
             {
+                Found = 0;
                 if (notoriety == null || notoriety.Count == 0)
                     return null;
 
-                return World.Mobiles.Values.Where
+                var mob =  World.Mobiles.Values.Where
                 (m => !m.IsDestroyed && !m.IsDead && m.Serial != World.Player.Serial && notoriety.Contains
                      ((Notoriety)(byte)m.NotorietyFlag) && m.Distance <= maxDistance && !OnIgnoreList(m)
                 ).OrderBy(m => m.Distance).FirstOrDefault();
+                
+                if(mob != null)
+                    Found = mob.Serial;
+
+                return mob;
             }
         );
 
         /// <summary>
-        /// Get the nearest corpse within a distance.  
+        /// Get the nearest corpse within a distance.
+        /// Sets API.Found to the serial of the corpse.  
         /// Example:  
         /// ```py
         /// corpse = API.NearestCorpse()
@@ -1767,7 +1810,16 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="distance"></param>
         /// <returns></returns>
-        public Item NearestCorpse(int distance = 3) => InvokeOnMainThread(() => Utility.FindNearestCorpsePython(distance, this));
+        public Item NearestCorpse(int distance = 3) => InvokeOnMainThread(() =>
+        {
+            Found = 0;
+            var c = Utility.FindNearestCorpsePython(distance, this);
+            
+            if(c != null)
+                Found = c.Serial;
+
+            return c;
+        });
 
         /// <summary>
         /// Get all mobiles matching Notoriety and distance.  
@@ -1797,7 +1849,8 @@ namespace ClassicUO.LegionScripting
         );
 
         /// <summary>
-        /// Get a mobile from its serial.  
+        /// Get a mobile from its serial.
+        /// Sets API.Found to the serial of the mobile.  
         /// Example:  
         /// ```py
         /// mob = API.FindMobile(0x12345678)
@@ -1808,7 +1861,15 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="serial"></param>
         /// <returns>The mobile or null</returns>
-        public Mobile FindMobile(uint serial) => InvokeOnMainThread(() => World.Mobiles.Get(serial));
+        public Mobile FindMobile(uint serial) => InvokeOnMainThread(() =>
+        {
+            Found = 0;
+            var mob = World.Mobiles.Get(serial);
+            if(mob != null)
+                Found = mob.Serial;
+
+            return mob;
+        });
 
         /// <summary>
         /// Return a list of all mobiles the client is aware of.  

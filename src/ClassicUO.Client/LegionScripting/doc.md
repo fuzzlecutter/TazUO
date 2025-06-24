@@ -37,6 +37,9 @@ This was generated on `6/24/2025`.
 - **LastTargetGraphic** (*ushort*)
   -  The graphic of the last targeting object
 
+- **Found** (*uint*)
+  -  The serial of the last item or mobile from the various findtype/mobile methods
+
 
 ## Enums
 ### ScanType
@@ -144,7 +147,8 @@ This was generated on `6/24/2025`.
 <details>
 <summary><h3>ClearLeftHand()</h3></summary>
 
- If you have an item in your left hand, move it to your backpack  
+ If you have an item in your left hand, move it to your backpack
+ Sets API.Found to the item's serial.  
  Example:  
  ```py
  leftHand = API.ClearLeftHand()
@@ -163,7 +167,8 @@ This was generated on `6/24/2025`.
 <details>
 <summary><h3>ClearRightHand()</h3></summary>
 
- If you have an item in your right hand, move it to your backpack  
+ If you have an item in your right hand, move it to your backpack
+ Sets API.Found to the item's serial.  
  Example:  
  ```py  
  rightHand = API.ClearRightHand()
@@ -543,7 +548,7 @@ This was generated on `6/24/2025`.
 
 
 <details>
-<summary><h3>HeadMsg(message, serial)</h3></summary>
+<summary><h3>HeadMsg(message, serial, hue)</h3></summary>
 
  Show a message above a mobile or item, this is only visible to you.  
  Example:  
@@ -557,6 +562,7 @@ This was generated on `6/24/2025`.
 | --- | --- | --- | --- |
 | message | string | No | The message |
 | serial | uint | No | The item or mobile |
+| hue | ushort | Yes | Message hue |
 #### Does not return anything
 
 </details>
@@ -693,7 +699,8 @@ This was generated on `6/24/2025`.
 <details>
 <summary><h3>FindItem(serial)</h3></summary>
 
- Try to get an item by its serial.  
+ Try to get an item by its serial.
+ Sets API.Found to the serial of the item found.  
  Example:  
  ```py
  donkey = API.RequestTarget()
@@ -718,7 +725,8 @@ This was generated on `6/24/2025`.
 <details>
 <summary><h3>FindType(graphic, container, range, hue, minamount)</h3></summary>
 
- Attempt to find an item by type(graphic).  
+ Attempt to find an item by type(graphic).
+ Sets API.Found to the serial of the item found.  
  Example:  
  ```py
  item = API.FindType(0x0EED, API.Backpack)
@@ -773,7 +781,8 @@ This was generated on `6/24/2025`.
 <details>
 <summary><h3>FindLayer(layer, serial)</h3></summary>
 
- Attempt to find an item on a layer.  
+ Attempt to find an item on a layer.
+ Sets API.Found to the serial of the item found.  
  Example:  
  ```py
  item = API.FindLayer("Helmet")
@@ -1818,7 +1827,8 @@ This was generated on `6/24/2025`.
 <details>
 <summary><h3>NearestEntity(scanType, maxDistance)</h3></summary>
 
- Find the nearest item/mobile based on scan type.  
+ Find the nearest item/mobile based on scan type.
+ Sets API.Found to the serial of the item/mobile.  
  Example:  
  ```py
  item = API.NearestEntity(API.ScanType.Item, 5)
@@ -1844,7 +1854,8 @@ This was generated on `6/24/2025`.
 <details>
 <summary><h3>NearestMobile(notoriety, maxDistance)</h3></summary>
 
- Get the nearest mobile by Notoriety.  
+ Get the nearest mobile by Notoriety.
+ Sets API.Found to the serial of the mobile.  
  Example:  
  ```py
  mob = API.NearestMobile([API.Notoriety.Murderer, API.Notoriety.Criminal], 7)
@@ -1870,7 +1881,8 @@ This was generated on `6/24/2025`.
 <details>
 <summary><h3>NearestCorpse(distance)</h3></summary>
 
- Get the nearest corpse within a distance.  
+ Get the nearest corpse within a distance.
+ Sets API.Found to the serial of the corpse.  
  Example:  
  ```py
  corpse = API.NearestCorpse()
@@ -1920,7 +1932,8 @@ This was generated on `6/24/2025`.
 <details>
 <summary><h3>FindMobile(serial)</h3></summary>
 
- Get a mobile from its serial.  
+ Get a mobile from its serial.
+ Sets API.Found to the serial of the mobile.  
  Example:  
  ```py
  mob = API.FindMobile(0x12345678)
