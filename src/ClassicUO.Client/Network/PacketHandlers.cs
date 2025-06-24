@@ -49,7 +49,6 @@ using ClassicUO.Utility.Platforms;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -5540,7 +5539,7 @@ namespace ClassicUO.Network
 
                 uint linesNum = p.ReadUInt32BE();
                 string[] lines = new string[linesNum];
-            
+
                 if (linesNum != 0)
                 {
                     clen = p.ReadUInt32BE() - 4;
@@ -5549,9 +5548,10 @@ namespace ClassicUO.Network
                     if (dlen < 1)
                     {
                         Log.Error("A bad compressed gump packet was received. Unable to process.");
+
                         return;
                     }
-                    
+
                     decData = System.Buffers.ArrayPool<byte>.Shared.Rent(dlen);
 
                     try
@@ -6770,7 +6770,7 @@ namespace ClassicUO.Network
                 };
             }
             
-            gump.PacketGumpText += string.Join("\n", lines);
+            gump.PacketGumpText = string.Join("\n", lines);
 
             int group = 0;
             int page = 0;
