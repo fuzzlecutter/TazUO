@@ -2199,29 +2199,26 @@ namespace ClassicUO.Game.UI.Gumps
 
             if (mapMarkerFile == null)
                 return;
-
-            bool write = false;
             
-            foreach (var marker in mapMarkerFile.Markers)
+            var markersToRemove = mapMarkerFile.Markers.Where(m => m.Name.Equals(markerName, StringComparison.Ordinal)).ToList();
+                             
+             if (markersToRemove.Count == 0)
+                 return;
+             
+             foreach (var marker in markersToRemove)
+             {
+                 mapMarkerFile.Markers.Remove(marker);
+             }
+             
+            using (StreamWriter writer = new StreamWriter(UserMarkersFilePath, false))
             {
-                if (marker.Name.Equals(markerName))
+                foreach (var m in mapMarkerFile.Markers)
                 {
-                    mapMarkerFile.Markers.Remove(marker);
+                    var newLine = $"{m.X},{m.Y},{m.MapId},{m.Name},{m.MarkerIconName},{m.ColorName},4";
 
-                    write = true;
-                } 
-            }
-            
-            if(write)
-                using (StreamWriter writer = new StreamWriter(UserMarkersFilePath, false))
-                {
-                    foreach (var m in mapMarkerFile.Markers)
-                    {
-                        var newLine = $"{m.X},{m.Y},{m.MapId},{m.Name},{m.MarkerIconName},{m.ColorName},4";
-
-                        writer.WriteLine(newLine);
-                    }
+                    writer.WriteLine(newLine);
                 }
+            }
         }
 
         /// <summary>
