@@ -50,6 +50,21 @@ namespace ClassicUO.Game.Managers
             currentLootTotalCount++;
         }
 
+        public void ForceLootContainer(uint serial)
+        {
+            Item cont = World.Items.Get(serial);
+            
+            if (cont == null) return;
+            
+            if (cont.Distance <= ProfileManager.CurrentProfile.AutoOpenCorpseRange && (!cont.IsHumanCorpse || ProfileManager.CurrentProfile.AutoLootHumanCorpses))
+            {
+                for (LinkedObject i = cont.Items; i != null; i = i.Next)
+                {
+                    CheckAndLoot((Item)i);
+                }
+            }
+        }
+
         /// <summary>
         /// Check an item against the loot list, if it needs to be auto looted it will be.
         /// </summary>

@@ -196,7 +196,8 @@ namespace ClassicUO.Game.UI
 
             dataBox.ReArrangeChildren(1);
             dataBox.ForceSizeUpdate(false);
-            scrollArea.ResetScrollbarPosition();//Fix for weird scroll effects
+            scrollArea.SlowUpdate(); //Recalculate scrollbar
+            scrollArea.KeepScrollPositionInBounds();
 
             if (SelectedIndex >= itemCount)
                 SelectedIndex = itemCount - 1;

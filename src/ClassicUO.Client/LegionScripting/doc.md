@@ -8,7 +8,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](notes.md)  
   
-This was generated on `6/22/2025`.
+This was generated on `6/24/2025`.
 # API  
 
 ## Class Description
@@ -1772,6 +1772,29 @@ This was generated on `6/22/2025`.
 
 
 <details>
+<summary><h3>AutoLootContainer(container)</h3></summary>
+
+ Use autoloot on a specific container.
+ Example:
+ ```py
+ targ = API.RequestTarget()
+ if targ:
+   API.AutoLootContainer(targ)
+ ```
+
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| container | uint | No |  |
+#### Does not return anything
+
+</details>
+
+***
+
+
+<details>
 <summary><h3>Virtue(virtue)</h3></summary>
 
  Use a virtue.  
@@ -2421,6 +2444,52 @@ This was generated on `6/22/2025`.
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
 | scriptName | string | No | Full name including extension. Can be .py or .lscript. |
+#### Does not return anything
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>AddMapMarker(name, x, y, map, color)</h3></summary>
+
+ Add a marker to the current World Map (If one is open)
+ Example:
+ ```py
+ API.AddMapMarker("Death")
+ ```
+
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| name | string | No |  |
+| x | int | Yes | Defaults to current player X. |
+| y | int | Yes | Defaults to current player Y. |
+| map | int | Yes | Defaults to current map. |
+| color | string | Yes | red/green/blue/purple/black/yellow/white. Default purple. |
+#### Does not return anything
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>RemoveMapMarker(name)</h3></summary>
+
+ Remove a marker from the world map.  
+ Example:  
+ ```py
+ API.RemoveMapMarker("Death")
+ ```
+
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| name | string | No |  |
 #### Does not return anything
 
 </details>

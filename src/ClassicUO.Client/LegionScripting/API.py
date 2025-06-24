@@ -979,6 +979,19 @@ def ToggleAutoLoot():
     """
     pass
 
+def AutoLootContainer(container: int):
+    """
+     Use autoloot on a specific container.
+     Example:
+     ```py
+     targ = API.RequestTarget()
+     if targ:
+       API.AutoLootContainer(targ)
+     ```
+    
+    """
+    pass
+
 def Virtue(virtue: str):
     """
      Use a virtue.
@@ -1357,6 +1370,28 @@ def ToggleScript(scriptName: str):
      Example:
      ```py
      API.ToggleScript("MyScript.py")
+     ```
+    
+    """
+    pass
+
+def AddMapMarker(name: str, x: int = int.MaxValue, y: int = int.MaxValue, map: int = int.MaxValue, color: str = "purple"):
+    """
+     Add a marker to the current World Map (If one is open)
+     Example:
+     ```py
+     API.AddMapMarker("Death")
+     ```
+    
+    """
+    pass
+
+def RemoveMapMarker(name: str):
+    """
+     Remove a marker from the world map.
+     Example:
+     ```py
+     API.RemoveMapMarker("Death")
      ```
     
     """

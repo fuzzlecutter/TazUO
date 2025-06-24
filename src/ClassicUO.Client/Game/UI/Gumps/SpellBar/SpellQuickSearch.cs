@@ -45,6 +45,7 @@ public class SpellQuickSearch : Gump
     private void SearchEnterPressed(object sender, EventArgs e)
     {
         spellDisplay.InvokeAction();
+        searchField.IsFocused = false;
     }
 
     private void SearchTextChanged(object sender, EventArgs e)

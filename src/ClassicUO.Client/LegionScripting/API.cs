@@ -34,13 +34,15 @@ namespace ClassicUO.LegionScripting
         {
             this.engine = engine;
         }
-        
+
         private ScriptEngine engine;
-        
+
         private ConcurrentBag<Gump> gumps = new();
-        
+
         #region Python C# Queue
+
         public static readonly ConcurrentQueue<Action> QueuedPythonActions = new();
+
         private static T InvokeOnMainThread<T>(Func<T> func)
         {
             var resultEvent = new ManualResetEvent(false);
@@ -57,6 +59,7 @@ namespace ClassicUO.LegionScripting
 
             return result;
         }
+
         private static void InvokeOnMainThread(Action action)
         {
             var resultEvent = new ManualResetEvent(false);
@@ -70,11 +73,13 @@ namespace ClassicUO.LegionScripting
             QueuedPythonActions.Enqueue(wrappedAction);
             resultEvent.WaitOne();
         }
+
         #endregion
 
         #region Python Callback Queue
 
         private readonly Queue<Action> scheduledCallbacks = new();
+
         private void ScheduleCallback(Action action)
         {
             lock (scheduledCallbacks)
@@ -103,6 +108,7 @@ namespace ClassicUO.LegionScripting
             while (true)
             {
                 Action next = null;
+
                 lock (scheduledCallbacks)
                 {
                     if (scheduledCallbacks.Count > 0)
@@ -115,8 +121,9 @@ namespace ClassicUO.LegionScripting
                     break;
             }
         }
+
         #endregion
-        
+
         private ConcurrentBag<uint> ignoreList = new();
         private ConcurrentQueue<JournalEntry> journalEntries = new();
         private Item backpack;
@@ -214,10 +221,10 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         public void CloseGumps()
         {
-            while(gumps.TryTake(out var g))
+            while (gumps.TryTake(out var g))
                 g?.Dispose();
         }
-        
+
         /// <summary>
         /// Attack a mobile  
         /// Example:  
@@ -391,7 +398,7 @@ namespace ClassicUO.LegionScripting
         /// Clear the move item que of all items.
         /// </summary>
         public void ClearMoveQueue() => InvokeOnMainThread(() => Client.Game.GetScene<GameScene>()?.MoveItemQueue.Clear());
-        
+
         /// <summary>
         /// Move an item to another container.  
         /// Use x, and y if you don't want items stacking in the desination container.  
@@ -421,7 +428,7 @@ namespace ClassicUO.LegionScripting
                 Client.Game.GetScene<GameScene>()?.MoveItemQueue.Enqueue(serial, destination, amt, x, y);
             }
         );
-        
+
         /// <summary>
         /// Move an item to another container.  
         /// Use x, and y if you don't want items stacking in the desination container.  
@@ -474,7 +481,7 @@ namespace ClassicUO.LegionScripting
                 Client.Game.GetScene<GameScene>()?.MoveItemQueue.Enqueue(serial, 0, amt, World.Player.X + x, World.Player.Y + y, World.Player.Z + z);
             }
         );
-        
+
         /// <summary>
         /// Move an item to the ground near you.  
         /// Example:  
@@ -1211,7 +1218,7 @@ namespace ClassicUO.LegionScripting
         /// ```
         /// </summary>
         public void CancelTarget() => InvokeOnMainThread(TargetManager.CancelTarget);
-        
+
         /// <summary>
         /// Check if the player has a target cursor.
         /// Example:
@@ -1222,18 +1229,20 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="targetType">neutral/harmful/beneficial/any/harm/ben</param>
         /// <returns></returns>
-        public bool HasTarget(string targetType = "any") => InvokeOnMainThread(() =>
-        {
-            TargetType targetT = TargetType.Neutral;
-
-            switch (targetType.ToLower())
+        public bool HasTarget(string targetType = "any") => InvokeOnMainThread
+        (() =>
             {
-                case "harmful" or "harm": targetT = TargetType.Harmful; break;
-                case "beneficial" or "ben": targetT = TargetType.Beneficial; break;
+                TargetType targetT = TargetType.Neutral;
+
+                switch (targetType.ToLower())
+                {
+                    case "harmful" or "harm": targetT = TargetType.Harmful; break;
+                    case "beneficial" or "ben": targetT = TargetType.Beneficial; break;
+                }
+
+                return TargetManager.IsTargeting && (TargetManager.TargetingType == targetT || targetType.ToLower() == "any");
             }
-            
-            return TargetManager.IsTargeting && (TargetManager.TargetingType == targetT || targetType.ToLower() == "any");
-        });
+        );
 
         /// <summary>
         /// Set a skills lock status.  
@@ -1267,7 +1276,7 @@ namespace ClassicUO.LegionScripting
                 }
             }
         );
-        
+
         /// <summary>
         /// Set a skills lock status.  
         /// Example:  
@@ -1296,7 +1305,7 @@ namespace ClassicUO.LegionScripting
                     case "dex": statB = 1; break;
                     case "int": statB = 2; break;
                 }
-                
+
                 GameActions.ChangeStatLock(statB, status);
             }
         );
@@ -1560,7 +1569,7 @@ namespace ClassicUO.LegionScripting
             {
                 if (msg.StartsWith("$") && Regex.IsMatch(je.Text, msg.Substring(1)))
                     return true;
-                
+
                 if (je.Text.Contains(msg))
                     return true;
             }
@@ -1657,6 +1666,21 @@ namespace ClassicUO.LegionScripting
         /// ```
         /// </summary>
         public void ToggleAutoLoot() => InvokeOnMainThread(() => { ProfileManager.CurrentProfile.EnableAutoLoot ^= true; });
+
+        /// <summary>
+        /// Use autoloot on a specific container.
+        /// Example:
+        /// ```py
+        /// targ = API.RequestTarget()
+        /// if targ:
+        ///   API.AutoLootContainer(targ)
+        /// ```
+        /// </summary>
+        /// <param name="container"></param>
+        public void AutoLootContainer(uint container) => InvokeOnMainThread(() =>
+        {
+            AutoLootManager.Instance?.ForceLootContainer(container);
+        });
 
         /// <summary>
         /// Use a virtue.  
@@ -1839,8 +1863,8 @@ namespace ClassicUO.LegionScripting
                 CanMove = canMove,
                 WantUpdateSize = true
             };
-            
-            if(!keepOpen)
+
+            if (!keepOpen)
                 gumps.Add(g);
 
             return g;
@@ -1918,6 +1942,7 @@ namespace ClassicUO.LegionScripting
         {
             AlphaBlendControl bc = new AlphaBlendControl(opacity);
             bc.BaseColor = Utility.GetColorFromHex(color);
+
             return bc;
         }
 
@@ -1970,7 +1995,7 @@ namespace ClassicUO.LegionScripting
         public Button CreateGumpButton(string text = "", ushort hue = 996, ushort normal = 0x00EF, ushort pressed = 0x00F0, ushort hover = 0x00EE)
         {
             Button b = new Button(0, normal, pressed, hover, caption: text, normalHue: hue, hoverHue: hue);
-            
+
             return b;
         }
 
@@ -1993,6 +2018,7 @@ namespace ClassicUO.LegionScripting
         {
             NiceButton b = new(0, 0, width, height, ButtonAction.Default, text);
             b.AlwaysShowBackground = true;
+
             return b;
         }
 
@@ -2082,24 +2108,27 @@ namespace ClassicUO.LegionScripting
         /// <param name="maxWidth">Max width before going to the next line</param>
         /// <param name="applyStroke">Uses players stroke settings, this turns it on or off</param>
         /// <returns></returns>
-        public TextBox CreateGumpTTFLabel(string text, float size, string color = "#FFFFFF", string font = TrueTypeLoader.EMBEDDED_FONT, string aligned = "left", int maxWidth = 0, bool applyStroke = false)
+        public TextBox CreateGumpTTFLabel
+            (string text, float size, string color = "#FFFFFF", string font = TrueTypeLoader.EMBEDDED_FONT, string aligned = "left", int maxWidth = 0, bool applyStroke = false)
         {
             var opts = TextBox.RTLOptions.Default();
 
             switch (aligned.ToLower())
             {
                 case "left": opts.Align = TextHorizontalAlignment.Left; break;
+
                 case "middle":
                 case "center": opts.Align = TextHorizontalAlignment.Center; break;
+
                 case "right": opts.Align = TextHorizontalAlignment.Right; break;
             }
 
             if (applyStroke)
                 opts.StrokeEffect = true;
-            
-            if(maxWidth > 0)
+
+            if (maxWidth > 0)
                 opts.Width = maxWidth;
-            
+
             return TextBox.GetOne(text, font, size, Utility.GetColorFromHex(color), opts);
         }
 
@@ -2133,14 +2162,16 @@ namespace ClassicUO.LegionScripting
         /// <param name="value">The current value, for example 70</param>
         /// <param name="max">The max value(or what would be 100%), for example 100</param>
         /// <returns></returns>
-        public SimpleProgressBar CreateGumpSimpleProgressBar(int width, int height, string backgroundColor="#616161", string foregroundColor = "#212121", int value=100, int max = 100)
+        public SimpleProgressBar CreateGumpSimpleProgressBar
+            (int width, int height, string backgroundColor = "#616161", string foregroundColor = "#212121", int value = 100, int max = 100)
         {
             SimpleProgressBar bar = new(backgroundColor, foregroundColor, width, height);
             bar.SetProgress(value, max);
+
             return bar;
         }
-        
-        
+
+
         /// <summary>
         /// Add an onClick callback to a control.
         /// Example:  
@@ -2160,30 +2191,33 @@ namespace ClassicUO.LegionScripting
         {
             if (control == null)
                 return;
-            
+
             if (onClick != null && engine.Operations.IsCallable(onClick))
             {
                 control.AcceptMouseInput = true;
+
                 control.MouseUp += (s, e) =>
                 {
                     if (leftOnly && e.Button != MouseButtonType.Left)
                         return;
-                    
-                    this?.ScheduleCallback(() =>
-                    {
-                        try
+
+                    this?.ScheduleCallback
+                    (() =>
                         {
-                            engine.Operations.Invoke(onClick);
+                            try
+                            {
+                                engine.Operations.Invoke(onClick);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Script callback error: {ex}");
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Script callback error: {ex}");
-                        }
-                    });
+                    );
                 };
             }
         }
-        
+
         #endregion
 
         /// <summary>
@@ -2250,26 +2284,78 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="scriptName">Full name including extension. Can be .py or .lscript.</param>
         /// <exception cref="Exception"></exception>
-        public void ToggleScript(string scriptName)
-        {
-            InvokeOnMainThread(() => { 
-                if(string.IsNullOrEmpty(scriptName))
+        public void ToggleScript(string scriptName) => InvokeOnMainThread
+        (() =>
+            {
+                if (string.IsNullOrEmpty(scriptName))
                     throw new Exception("[ToggleScript] Script name can't be empty.");
 
                 foreach (var script in LegionScripting.LoadedScripts)
                 {
                     if (script.FileName == scriptName)
                     {
-                        if(script.IsPlaying)
+                        if (script.IsPlaying)
                             LegionScripting.StopScript(script);
                         else
                             LegionScripting.PlayScript(script);
-                        
+
                         return;
                     }
                 }
-            });
-        }
-        #endregion
-    }
+            }
+        );
+
+        /// <summary>
+        /// Add a marker to the current World Map (If one is open)
+        /// Example:
+        /// ```py
+        /// API.AddMapMarker("Death")
+        /// ```
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="x">Defaults to current player X.</param>
+        /// <param name="y">Defaults to current player Y.</param>
+        /// <param name="map">Defaults to current map.</param>
+        /// <param name="color">red/green/blue/purple/black/yellow/white. Default purple.</param>
+        public void AddMapMarker(string name, int x = int.MaxValue, int y = int.MaxValue, int map = int.MaxValue, string color = "purple") => InvokeOnMainThread
+        (() =>
+            {
+                WorldMapGump wmap = UIManager.GetGump<WorldMapGump>();
+
+                if (wmap == null || string.IsNullOrEmpty(name))
+                    return;
+
+                if (map == int.MaxValue)
+                    map = World.MapIndex;
+
+                if (x == int.MaxValue)
+                    x = World.Player.X;
+
+                if (y == int.MaxValue)
+                    y = World.Player.Y;
+
+                wmap.AddUserMarker(name, x, y, map, color);
+            }
+        );
+
+        /// <summary>
+        /// Remove a marker from the world map.  
+        /// Example:  
+        /// ```py
+        /// API.RemoveMapMarker("Death")
+        /// ```
+        /// </summary>
+        /// <param name="name"></param>
+        public void RemoveMapMarker(string name) => InvokeOnMainThread
+        (() => {
+            WorldMapGump wmap = UIManager.GetGump<WorldMapGump>();
+
+            if (wmap == null || string.IsNullOrEmpty(name))
+                return;
+            
+            wmap.RemoveUserMarker(name);
+        });
+
+    #endregion
+}
 }

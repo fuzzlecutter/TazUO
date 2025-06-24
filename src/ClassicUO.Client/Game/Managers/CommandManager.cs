@@ -55,8 +55,6 @@ namespace ClassicUO.Game.Managers
 
         public static void Initialize()
         {
-            Register("ss", (s) => { UIManager.Add(new SpellQuickSearch(200, 200, (sp) => {GameActions.CastSpell(sp.ID);})); });
-            
             Register("updateapi", (s) =>
             {
                 try
