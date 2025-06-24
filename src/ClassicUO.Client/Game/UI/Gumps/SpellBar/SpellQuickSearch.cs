@@ -3,6 +3,7 @@ using ClassicUO.Assets;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
+using ClassicUO.Input;
 using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.UI.Gumps.SpellBar;
@@ -13,13 +14,17 @@ public class SpellQuickSearch : Gump
 
     private SpellDisplay spellDisplay;
     
-    public SpellQuickSearch(int x, int y) : base(0, 0)
+    private Action<SpellDefinition>  onClick;
+    
+    public SpellQuickSearch(int x, int y, Action<SpellDefinition> onClick = null) : base(0, 0)
     {
         Width = 200;
         Height = 69;
         CanMove = true;
         X = x;
         Y = y;
+        
+        this.onClick = onClick;
 
         Build();
     }
@@ -32,34 +37,69 @@ public class SpellQuickSearch : Gump
         
         Add(searchField = new TTFTextInputField(Width, 25, Width){Y = Height - 25});
         searchField.TextChanged += SearchTextChanged;
+        searchField.EnterPressed += SearchEnterPressed;
         
-        Add(spellDisplay = new(Width){Y = Height - 25 - 44});
+        Add(spellDisplay = new(Width, onClick){Y = Height - 25 - 44});
+    }
+
+    private void SearchEnterPressed(object sender, EventArgs e)
+    {
+        spellDisplay.InvokeAction();
     }
 
     private void SearchTextChanged(object sender, EventArgs e)
     {
         if(searchField.Text.Length > 0)
+        {
             if (SpellDefinition.TryGetSpellFromName(searchField.Text, out var spell))
-            {
                 spellDisplay.SetSpell(spell);
-            }
+        }
+        else
+        {
+            spellDisplay.ClearSpell();
+        }
     }
 
     private class SpellDisplay : Control
     {
         private GumpPic icon;
         private TextBox text;
-        public SpellDisplay(int width)
+        private Action<SpellDefinition> onClick;
+
+        public SpellDefinition Spell;
+        public SpellDisplay(int width, Action<SpellDefinition> onClick)
         {
             Width = width;
             Height = 44;
             CanMove = true;
+            this.onClick = onClick;
         }
         
         public override bool AcceptMouseInput { get; set; } = true;
 
+        protected override void OnMouseUp(int x, int y, MouseButtonType button)
+        {
+            base.OnMouseUp(x, y, button);
+            
+            InvokeAction();
+        }
+
+        public void InvokeAction()
+        {
+            if(Spell != null)
+                onClick?.Invoke(Spell);
+        }
+
+        public void ClearSpell()
+        {
+            Spell = null;
+            icon?.Dispose();
+            text?.Dispose();
+        }
+
         public void SetSpell(SpellDefinition spell)
         {
+            Spell = spell;
             icon?.Dispose();
             //Intential to only use height, these are square spell icons.
             Add(icon = new GumpPic(0, 0, (ushort)spell.GumpIconSmallID, 0) { AcceptMouseInput = false, Width = Height, Height = Height });
