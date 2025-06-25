@@ -224,10 +224,19 @@ namespace ClassicUO.LegionScripting
         /// <summary>
         /// Close all gumps created by the API unless marked to remain open.
         /// </summary>
-        public void CloseGumps() 
+        public void CloseGumps()
         {
+            int c = 0;
             while (gumps.TryTake(out var g))
-                QueuedPythonActions.Enqueue(()=>g?.Dispose());;
+            {
+                if (g is { IsDisposed: false })
+                    QueuedPythonActions.Enqueue(() => g?.Dispose());
+
+                c++;
+
+                if (c > 1000)
+                    break; //Prevent infinite loop just in case.
+            }
         }
 
         /// <summary>

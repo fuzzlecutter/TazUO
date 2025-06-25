@@ -794,7 +794,6 @@ namespace ClassicUO.LegionScripting
 
         public void PythonScriptStopped()
         {
-            
             scopedAPI?.CloseGumps();
             pythonScope = null;
             scopedAPI = null;

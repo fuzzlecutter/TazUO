@@ -594,7 +594,7 @@ namespace ClassicUO.Game.UI.Gumps
             content.AddToRight
             (
                 new CheckboxWithLabel
-                    (lang.GetGeneral.ShowSkillsChangedMsg, isChecked: profile.ShowSkillsChangedMessage, valueChanged: (b) => { profile.ShowStatsChangedMessage = b; }), true, page
+                    (lang.GetGeneral.ShowSkillsChangedMsg, isChecked: profile.ShowSkillsChangedMessage, valueChanged: (b) => { profile.ShowSkillsChangedMessage = b; }), true, page
             );
 
             content.Indent();
