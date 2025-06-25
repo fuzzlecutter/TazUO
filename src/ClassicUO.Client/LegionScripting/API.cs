@@ -808,8 +808,30 @@ namespace ClassicUO.LegionScripting
         /// ```
         /// </summary>
         /// <param name="container"></param>
+        /// <param name="recursive">Search sub containers also?</param>
         /// <returns>A list of items in the container</returns>
-        public Item[] ItemsInContainer(uint container) => InvokeOnMainThread(() => { return Utility.FindItems(parentContainer: container).ToArray(); });
+        public Item[] ItemsInContainer(uint container, bool recursive = false) => InvokeOnMainThread(() =>
+        {
+            if (!recursive)
+                return Utility.FindItems(parentContainer: container).ToArray();
+
+            List<Item> results = new();
+            Stack<uint> containers = new();
+            containers.Push(container);
+
+            while (containers.Count > 0)
+            {
+                uint current = containers.Pop();
+
+                foreach (var item in Utility.FindItems(parentContainer: current))
+                {
+                    results.Add(item);
+                    containers.Push(item.Serial);
+                }
+            }
+
+            return results.ToArray();
+        });
 
         /// <summary>
         /// Attempt to use the first item found by graphic(type).

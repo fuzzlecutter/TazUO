@@ -435,7 +435,7 @@ def FindLayer(layer: str, serial: int = 1337):
     """
     pass
 
-def ItemsInContainer(container: int):
+def ItemsInContainer(container: int, recursive: bool = False):
     """
      Get all items in a container.
      Example:
@@ -1310,22 +1310,22 @@ def CreateGumpSimpleProgressBar(width: int, height: int, backgroundColor: str = 
      Example:
      ```py
      gump = API.CreateGump()
-         gump.SetRect(100, 100, 400, 200)
+     gump.SetRect(100, 100, 400, 200)
     
      pb = API.CreateGumpSimpleProgressBar(400, 200)
-         gump.Add(pb)
+     gump.Add(pb)
     
      API.AddGump(gump)
     
-         cur = 0
+     cur = 0
      max = 100
     
      while True:
-     pb.SetProgress(cur, max)
-     if cur >= max:
-     break
-     cur += 1
-     API.Pause(0.5)
+       pb.SetProgress(cur, max)
+       if cur >= max:
+       break
+       cur += 1
+       API.Pause(0.5)
      ```
     
     """
