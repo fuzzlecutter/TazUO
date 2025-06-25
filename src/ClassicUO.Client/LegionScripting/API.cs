@@ -227,7 +227,7 @@ namespace ClassicUO.LegionScripting
         public void CloseGumps() 
         {
             while (gumps.TryTake(out var g))
-                InvokeOnMainThread(()=>g?.Dispose());
+                QueuedPythonActions.Enqueue(()=>g?.Dispose());;
         }
 
         /// <summary>
