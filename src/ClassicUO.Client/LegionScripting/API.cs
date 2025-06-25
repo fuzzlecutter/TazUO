@@ -224,13 +224,11 @@ namespace ClassicUO.LegionScripting
         /// <summary>
         /// Close all gumps created by the API unless marked to remain open.
         /// </summary>
-        public void CloseGumps() => InvokeOnMainThread
-        (() =>
-            {
-                while (gumps.TryTake(out var g))
-                    g?.Dispose();
-            }
-        );
+        public void CloseGumps() 
+        {
+            while (gumps.TryTake(out var g))
+                InvokeOnMainThread(()=>g?.Dispose());
+        }
 
         /// <summary>
         /// Attack a mobile  
@@ -2148,8 +2146,8 @@ namespace ClassicUO.LegionScripting
         }
 
         /// <summary>
-        /// Create a TTF label with advanced options.
-        /// Example:
+        /// Create a TTF label with advanced options.  
+        /// Example:  
         /// ```py
         /// gump = API.CreateGump()
         /// gump.SetRect(100, 100, 200, 200)
@@ -2194,26 +2192,26 @@ namespace ClassicUO.LegionScripting
         }
 
         /// <summary>
-        /// Create a progress bar. Can be updated as needed with `bar.SetProgress(current, max)`.
-        /// Example:
+        /// Create a progress bar. Can be updated as needed with `bar.SetProgress(current, max)`.  
+        /// Example:  
         /// ```py
         /// gump = API.CreateGump()
-        ///     gump.SetRect(100, 100, 400, 200)
+        /// gump.SetRect(100, 100, 400, 200)
         ///
         /// pb = API.CreateGumpSimpleProgressBar(400, 200)
-        ///     gump.Add(pb)
+        /// gump.Add(pb)
         ///
         /// API.AddGump(gump)
         ///
-        ///     cur = 0
+        /// cur = 0
         /// max = 100
         ///
         /// while True:
-        /// pb.SetProgress(cur, max)    
-        /// if cur >= max:
-        /// break
-        /// cur += 1
-        /// API.Pause(0.5)
+        ///   pb.SetProgress(cur, max)    
+        ///   if cur >= max:
+        ///   break
+        ///   cur += 1
+        ///   API.Pause(0.5)
         /// ```
         /// </summary>
         /// <param name="width">The width of the bar</param>
@@ -2234,7 +2232,7 @@ namespace ClassicUO.LegionScripting
 
 
         /// <summary>
-        /// Add an onClick callback to a control.
+        /// Add an onClick callback to a control.  
         /// Example:  
         /// ```py
         /// def myfunc:
@@ -2337,8 +2335,8 @@ namespace ClassicUO.LegionScripting
         );
 
         /// <summary>
-        /// Toggle another script on or off.
-        /// Example:
+        /// Toggle another script on or off.  
+        /// Example:  
         /// ```py
         /// API.ToggleScript("MyScript.py")
         /// ```
@@ -2367,8 +2365,8 @@ namespace ClassicUO.LegionScripting
         );
 
         /// <summary>
-        /// Add a marker to the current World Map (If one is open)
-        /// Example:
+        /// Add a marker to the current World Map (If one is open)  
+        /// Example:  
         /// ```py
         /// API.AddMapMarker("Death")
         /// ```

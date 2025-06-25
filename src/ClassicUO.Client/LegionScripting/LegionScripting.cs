@@ -421,7 +421,7 @@ namespace ClassicUO.LegionScripting
                 GameActions.Print("Python Script Error:");
                 GameActions.Print(error);
             }
-            script.PythonScriptStopped();
+            //script.PythonScriptStopped();
             API.QueuedPythonActions.Enqueue(() => { StopScript(script); });
         }
         public static void StopScript(ScriptFile script)
@@ -794,6 +794,7 @@ namespace ClassicUO.LegionScripting
 
         public void PythonScriptStopped()
         {
+            
             scopedAPI?.CloseGumps();
             pythonScope = null;
             scopedAPI = null;
