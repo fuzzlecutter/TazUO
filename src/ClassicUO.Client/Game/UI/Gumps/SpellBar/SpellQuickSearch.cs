@@ -36,6 +36,8 @@ public class SpellQuickSearch : Gump
         Add(new AlphaBlendControl(0.75f){Width = Width, Height = Height});
         
         Add(searchField = new TTFTextInputField(Width, 25, Width){Y = Height - 25});
+        searchField.SetPlaceholder("Search..");
+        
         searchField.TextChanged += SearchTextChanged;
         searchField.EnterPressed += SearchEnterPressed;
         

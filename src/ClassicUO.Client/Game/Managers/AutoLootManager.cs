@@ -245,6 +245,8 @@ namespace ClassicUO.Game.Managers
 
             if (nextLootTime > Time.Ticks) return;
 
+            if (Client.Game.GameCursor.ItemHold.Enabled)
+                return; //Prevent moving stuff while holding an item.
 
             var moveItem = lootItems.Dequeue();
             if (moveItem != 0)

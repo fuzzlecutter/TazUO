@@ -6249,7 +6249,8 @@ namespace ClassicUO.Network
                 Log.Warn("AddItemToContainer function adds mobile as Item");
             }
 
-            if (item != null && (container.Graphic != 0x2006 || item.Layer == Layer.Invalid))
+            //Added item.Container != containerSerial to prevent closing containers when changing facets
+            if (item != null && item.Container != containerSerial && (container.Graphic != 0x2006 || item.Layer == Layer.Invalid))
             {
                 World.RemoveItem(item, true);
             }
@@ -6263,8 +6264,14 @@ namespace ClassicUO.Network
             item.Y = y;
             item.Z = 0;
 
-            World.RemoveItemFromContainer(item);
-            item.Container = containerSerial;
+            //Added item.Container != containerSerial to prevent closing containers when changing facets
+            //Shouldn't need to remove it just to add it back in
+            if (item.Container != containerSerial)
+            {
+                World.RemoveItemFromContainer(item);
+                item.Container = containerSerial;
+            }
+            
             container.PushToBack(item);
 
             if (SerialHelper.IsMobile(containerSerial))

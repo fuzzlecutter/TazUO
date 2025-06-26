@@ -6,8 +6,6 @@ using ClassicUO.Input;
 using ClassicUO.Renderer;
 using ClassicUO.Utility;
 using System.Collections.Concurrent;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -18,6 +16,12 @@ namespace ClassicUO.Game.UI.Gumps
         public static ConcurrentQueue<Item> MoveItems = new ConcurrentQueue<Item>();
 
         public static int ObjDelay = 1000;
+
+        private static bool processing;
+        private static ProcessType processType;
+        private static long nextMove;
+        private static uint tradeId, containerId;
+        private static int groundX, groundY, groundZ;
 
         public MultiItemMoveGump(int x, int y) : base(0, 0)
         {
@@ -123,7 +127,6 @@ namespace ClassicUO.Game.UI.Gumps
         {
             processItemMoves(x, y, z);
         }
-
         public static void OnTradeWindowTarget(uint tradeID)
         {
             processItemMoves(tradeID);
@@ -141,48 +144,65 @@ namespace ClassicUO.Game.UI.Gumps
 
         private static void processItemMoves(Item container)
         {
-            Task.Factory.StartNew(() =>
+            if (container != null)
             {
-                if (container != null)
-                {
-                    while (MoveItems.TryDequeue(out Item moveItem))
-                    {
-                        if (GameActions.PickUp(moveItem.Serial, 0, 0, moveItem.Amount))
-                            GameActions.DropItem(moveItem.Serial, 0xFFFF, 0xFFFF, 0, container);
-                        Task.Delay(ObjDelay).Wait();
-                    }
-
-                }
-            });
+                containerId = container.Serial;
+                processType = ProcessType.Container;
+                processing = true;
+            }
         }
 
         private static void processItemMoves(int x, int y, int z)
         {
-            Task.Factory.StartNew(() =>
-            {
-                while (MoveItems.TryDequeue(out Item moveItem))
-                {
-                    Assets.StaticTiles itemData = Assets.TileDataLoader.Instance.StaticData[moveItem.Graphic];
-                    if (GameActions.PickUp(moveItem.Serial, 0, 0, moveItem.Amount))
-                        GameActions.DropItem(moveItem.Serial, x, y, z + (sbyte)(itemData.Height == 0xFF ? 0 : itemData.Height), 0);
-                    Task.Delay(ObjDelay).Wait();
-                }
-            });
+            processType = ProcessType.Ground;
+            groundX = x;
+            groundY = y;
+            groundZ = z;
+            processing = true;
         }
 
         private static void processItemMoves(uint tradeID)
         {
-            Task.Factory.StartNew(() =>
-            {
-                while (MoveItems.TryDequeue(out Item moveItem))
-                {
-                    if (GameActions.PickUp(moveItem.Serial, 0, 0, moveItem.Amount))
-                        GameActions.DropItem(moveItem.Serial, RandomHelper.GetValue(0, 20), RandomHelper.GetValue(0, 20), 0, tradeID);
-                    Task.Delay(ObjDelay).Wait();
-                }
-            });
+            tradeId = tradeID;
+            processType = ProcessType.TradeWindow;
+            processing = true;
         }
 
+        public override void Update()
+        {
+            base.Update();
+
+            if (!processing)
+                return;
+            
+            if (Time.Ticks < nextMove)
+                return;
+            
+            if (Client.Game.GameCursor.ItemHold.Enabled)
+                return;
+            
+            if(MoveItems.TryDequeue(out Item moveItem))
+            {
+                switch (processType)
+                {
+                    case ProcessType.Ground: 
+                        Assets.StaticTiles itemData = Assets.TileDataLoader.Instance.StaticData[moveItem.Graphic];
+                        MoveItemQueue.Instance.Enqueue(moveItem, 0, moveItem.Amount, groundX, groundY, groundZ + (sbyte)(itemData.Height == 0xFF ? 0 : itemData.Height));
+                        break;
+
+                    case ProcessType.Container:
+                        MoveItemQueue.Instance.Enqueue(moveItem, containerId, moveItem.Amount);
+                        break;
+                    
+                    case ProcessType.TradeWindow:
+                        MoveItemQueue.Instance.Enqueue(moveItem, tradeId, moveItem.Amount, RandomHelper.GetValue(0, 20), RandomHelper.GetValue(0, 20), 0);
+                        break;
+                }
+                
+                nextMove = Time.Ticks + ObjDelay;
+            }
+            
+        }
 
         public override bool Draw(UltimaBatcher2D batcher, int x, int y)
         {
@@ -192,6 +212,13 @@ namespace ClassicUO.Game.UI.Gumps
             label.Text = $"Moving {MoveItems.Count} items.";
 
             return base.Draw(batcher, x, y);
+        }
+        
+        protected enum ProcessType
+        {
+            Container,
+            Ground,
+            TradeWindow
         }
     }
 }

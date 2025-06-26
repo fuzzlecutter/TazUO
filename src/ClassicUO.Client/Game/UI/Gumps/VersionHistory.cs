@@ -8,6 +8,11 @@ namespace ClassicUO.Game.UI.Gumps
     internal class VersionHistory : Gump
     {
         private static string[] updateTexts = {
+            "/c[white][3.33.0]/cd\n" +
+            "- Prevent autoloot, move item queue from moving items while you are holding something.\n" +
+            "- Change multi item move to use shared move item queue\n" +
+            "- Prevent closing containers when changing facets\n",
+            
             "/c[white][3.32.0]/cd\n" +
             "- Added simple progress bar control for Python API gumps.\n" +
             "- Generate user friendly html crash logs and open them on crash\n" +
@@ -255,11 +260,6 @@ namespace ClassicUO.Game.UI.Gumps
                 "- The 'Items Only' option for nameplates will no longer include corpses\n" +
                 "- Bug fix for object highlighting\n" +
                 "- Bug fix for <BR> tag in tooltips",
-
-            "/c[white][3.8.0]/cd\n" +
-                "- Added sound override feature\n" +
-                "- Added -radius command, see wiki for more details\n" +
-                "- Added an optional skill progress bar when a skill changes\n",
 
             "\n\n/c[white]For further history please visit our discord."
         };
