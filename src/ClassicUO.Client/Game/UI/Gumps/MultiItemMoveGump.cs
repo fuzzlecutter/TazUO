@@ -201,6 +201,10 @@ namespace ClassicUO.Game.UI.Gumps
                 
                 nextMove = Time.Ticks + ObjDelay;
             }
+            else //No more items left
+            {
+                processing = false;
+            }
             
         }
 
