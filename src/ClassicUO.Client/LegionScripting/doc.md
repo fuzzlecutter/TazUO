@@ -8,7 +8,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](notes.md)  
   
-This was generated on `6/25/2025`.
+This was generated on `6/26/2025`.
 # API  
 
 ## Class Description
@@ -2362,6 +2362,36 @@ This was generated on `6/25/2025`.
 | value | int | Yes | The current value, for example 70 |
 | max | int | Yes | The max value(or what would be 100%), for example 100 |
 #### Return Type: *SimpleProgressBar*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>CreateGumpScrollArea(x, y, width, height)</h3></summary>
+
+ Create a scrolling area, add and position controls to it directly.  
+ Example:  
+ ```py  
+ sa = API.CreateGumpScrollArea(0, 60, 200, 140)  
+ gump.Add(sa)  
+  
+ for i in range(10):  
+     label = API.CreateGumpTTFLabel(f"Label {i + 1}", 20, "#FFFFFF", "alagard")  
+     label.SetRect(5, i * 20, 180, 20)  
+     sa.Add(label)  
+ ```  
+  
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| x | int | No |  |
+| y | int | No |  |
+| width | int | No |  |
+| height | int | No |  |
+#### Return Type: *ScrollArea*
 
 </details>
 

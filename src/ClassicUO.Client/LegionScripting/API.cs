@@ -2261,6 +2261,28 @@ namespace ClassicUO.LegionScripting
             return bar;
         }
 
+        /// <summary>
+        /// Create a scrolling area, add and position controls to it directly.
+        /// Example:
+        /// ```py
+        /// sa = API.CreateGumpScrollArea(0, 60, 200, 140)
+        /// gump.Add(sa)
+        ///
+        /// for i in range(10):
+        ///     label = API.CreateGumpTTFLabel(f"Label {i + 1}", 20, "#FFFFFF", "alagard")
+        ///     label.SetRect(5, i * 20, 180, 20)
+        ///     sa.Add(label)
+        /// ```
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public ScrollArea CreateGumpScrollArea(int x, int y, int width, int height)
+        {
+            return new ScrollArea(x, y, width, height, true);
+        }
 
         /// <summary>
         /// Add an onClick callback to a control.  

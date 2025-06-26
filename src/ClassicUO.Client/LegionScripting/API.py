@@ -855,7 +855,7 @@ def GumpContains(text: str, ID: int = 1337) -> bool:
     """
     pass
 
-def GetGump(ID: int = 1337) -> Any:
+def GetGump(ID: int = 1337) -> Gump:
     """
      Get a gump by ID.
      Example:
@@ -1115,7 +1115,7 @@ def GetTile(x: int, y: int) -> Any:
     """
     pass
 
-def CreateGump(acceptMouseInput: bool = True, canMove: bool = True, keepOpen: bool = False) -> Any:
+def CreateGump(acceptMouseInput: bool = True, canMove: bool = True, keepOpen: bool = False) -> Gump:
     """
      Get a blank gump.
      Example:
@@ -1129,7 +1129,7 @@ def CreateGump(acceptMouseInput: bool = True, canMove: bool = True, keepOpen: bo
     """
     pass
 
-def AddGump(g: Any) -> None:
+def AddGump(g: Gump) -> None:
     """
      Add a gump to the players screen.
      Example:
@@ -1143,7 +1143,7 @@ def AddGump(g: Any) -> None:
     """
     pass
 
-def CreateGumpCheckbox(text: str = "", hue: int = 0) -> Any:
+def CreateGumpCheckbox(text: str = "", hue: int = 0) -> Control:
     """
      Create a checkbox for gumps.
       Example:
@@ -1160,7 +1160,7 @@ def CreateGumpCheckbox(text: str = "", hue: int = 0) -> Any:
     """
     pass
 
-def CreateGumpLabel(text: str, hue: int = 996) -> Any:
+def CreateGumpLabel(text: str, hue: int = 996) -> Control:
     """
      Create a label for a gump.
      Example:
@@ -1174,7 +1174,7 @@ def CreateGumpLabel(text: str, hue: int = 996) -> Any:
     """
     pass
 
-def CreateGumpColorBox(opacity: float = 0.7, color: str = "#000000") -> Any:
+def CreateGumpColorBox(opacity: float = 0.7, color: str = "#000000") -> Control:
     """
      Get a transparent color box for gumps.
      Example:
@@ -1191,7 +1191,7 @@ def CreateGumpColorBox(opacity: float = 0.7, color: str = "#000000") -> Any:
     """
     pass
 
-def CreateGumpItemPic(graphic: int, width: int, height: int) -> Any:
+def CreateGumpItemPic(graphic: int, width: int, height: int) -> Control:
     """
      Create a picture of an item.
      Example:
@@ -1205,7 +1205,7 @@ def CreateGumpItemPic(graphic: int, width: int, height: int) -> Any:
     """
     pass
 
-def CreateGumpButton(text: str = "", hue: int = 996, normal: int = 0x00EF, pressed: int = 0x00F0, hover: int = 0x00EE) -> Any:
+def CreateGumpButton(text: str = "", hue: int = 996, normal: int = 0x00EF, pressed: int = 0x00F0, hover: int = 0x00EE) -> Control:
     """
      Create a button for gumps.
      Example:
@@ -1225,7 +1225,7 @@ def CreateGumpButton(text: str = "", hue: int = 996, normal: int = 0x00EF, press
     """
     pass
 
-def CreateSimpleButton(text: str, width: int, height: int) -> Any:
+def CreateSimpleButton(text: str, width: int, height: int) -> Control:
     """
      Create a simple button, does not use graphics.
      Example:
@@ -1240,7 +1240,7 @@ def CreateSimpleButton(text: str, width: int, height: int) -> Any:
     """
     pass
 
-def CreateGumpRadioButton(text: str = "", group: int = 0, inactive: int = 0x00D0, active: int = 0x00D1, hue: int = 0xFFFF) -> Any:
+def CreateGumpRadioButton(text: str = "", group: int = 0, inactive: int = 0x00D0, active: int = 0x00D1, hue: int = 0xFFFF) -> Control:
     """
      Create a radio button for gumps, use group numbers to only allow one item to be checked at a time.
      Example:
@@ -1256,7 +1256,7 @@ def CreateGumpRadioButton(text: str = "", group: int = 0, inactive: int = 0x00D0
     """
     pass
 
-def CreateGumpTextBox(text: str = "", width: int = 200, height: int = 30, multiline: bool = False) -> Any:
+def CreateGumpTextBox(text: str = "", width: int = 200, height: int = 30, multiline: bool = False) -> Control:
     """
      Create a text area control.
      Example:
@@ -1286,7 +1286,7 @@ def CreateGumpTextBox(text: str = "", width: int = 200, height: int = 30, multil
     """
     pass
 
-def CreateGumpTTFLabel(text: str, size: float, color: str = "#FFFFFF", font: str = TrueTypeLoader.EMBEDDED_FONT, aligned: str = "let", maxWidth: int = 0, applyStroke: bool = False) -> Any:
+def CreateGumpTTFLabel(text: str, size: float, color: str = "#FFFFFF", font: str = TrueTypeLoader.EMBEDDED_FONT, aligned: str = "let", maxWidth: int = 0, applyStroke: bool = False) -> Control:
     """
      Create a TTF label with advanced options.
      Example:
@@ -1304,7 +1304,7 @@ def CreateGumpTTFLabel(text: str, size: float, color: str = "#FFFFFF", font: str
     """
     pass
 
-def CreateGumpSimpleProgressBar(width: int, height: int, backgroundColor: str = "#616161", foregroundColor: str = "#212121", value: int = 100, max: int = 100) -> Any:
+def CreateGumpSimpleProgressBar(width: int, height: int, backgroundColor: str = "#616161", foregroundColor: str = "#212121", value: int = 100, max: int = 100) -> Control:
     """
      Create a progress bar. Can be updated as needed with `bar.SetProgress(current, max)`.
      Example:
@@ -1331,7 +1331,24 @@ def CreateGumpSimpleProgressBar(width: int, height: int, backgroundColor: str = 
     """
     pass
 
-def AddControlOnClick(control: Any, onClick: Any, leftOnly: bool = True) -> None:
+def CreateGumpScrollArea(x: int, y: int, width: int, height: int) -> Control:
+    """
+     Create a scrolling area, add and position controls to it directly.
+     Example:
+     ```py
+     sa = API.CreateGumpScrollArea(0, 60, 200, 140)
+     gump.Add(sa)
+    
+     for i in range(10):
+         label = API.CreateGumpTTFLabel(f"Label {i + 1}", 20, "#FFFFFF", "alagard")
+         label.SetRect(5, i * 20, 180, 20)
+         sa.Add(label)
+     ```
+    
+    """
+    pass
+
+def AddControlOnClick(control: Control, onClick: Any, leftOnly: bool = True) -> None:
     """
      Add an onClick callback to a control.
      Example:
@@ -1347,7 +1364,7 @@ def AddControlOnClick(control: Any, onClick: Any, leftOnly: bool = True) -> None
     """
     pass
 
-def GetSkill(skill: str) -> Any:
+def GetSkill(skill: str) -> Skill:
     """
      Get a skill from the player. See the Skill class for what properties are available: https://github.com/bittiez/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Skill.cs
      Example:
