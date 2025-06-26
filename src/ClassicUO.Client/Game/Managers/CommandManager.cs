@@ -39,8 +39,11 @@ using ClassicUO.Resources;
 using ClassicUO.Utility.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using ClassicUO.Game.UI.Gumps.SpellBar;
 
 namespace ClassicUO.Game.Managers
 {
@@ -52,20 +55,19 @@ namespace ClassicUO.Game.Managers
 
         public static void Initialize()
         {
-            Register("dis", (s)=>UIManager.Add(new DiscordGump()));
-            
-            Register("dm", (a) =>
+            Register("updateapi", (s) =>
             {
-                if (a.Length < 3)
+                try
                 {
-                    GameActions.Print("Usage: -dm userID msg");
-
-                    return;
+                    var client = new WebClient();
+                    var api = client.DownloadString(new Uri("https://raw.githubusercontent.com/bittiez/TazUO/refs/heads/dev/src/ClassicUO.Client/LegionScripting/API.py"));
+                    File.WriteAllText(Path.Combine(CUOEnviroment.ExecutablePath, "LegionScripts", "API.py"), api);
+                    GameActions.Print("Updated API!");
                 }
-
-                if (ulong.TryParse(a[1], out ulong id))
+                catch (Exception ex)
                 {
-                    DiscordManager.Instance.SendDM(id, string.Join(" ", a.Skip(2)));
+                    GameActions.Print("Failed to update the API..", 32);
+                    Log.Error(ex.ToString());
                 }
             });
             

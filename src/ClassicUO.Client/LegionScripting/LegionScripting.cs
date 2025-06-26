@@ -375,6 +375,13 @@ namespace ClassicUO.LegionScripting
                 if (script.ScriptType == ScriptType.LegionScript)
                 {
                     script.GenerateScript();
+
+                    if (script.GetScript == null)
+                    {
+                        LScriptError("Unable to play script, it is likely malformed and we were unable to generate the script from your file.");
+                        return;
+                    }
+                    
                     script.GetScript.IsPlaying = true;
                 }
                 else if (script.ScriptType == ScriptType.Python)
@@ -414,7 +421,7 @@ namespace ClassicUO.LegionScripting
                 GameActions.Print("Python Script Error:");
                 GameActions.Print(error);
             }
-            script.PythonScriptStopped();
+            //script.PythonScriptStopped();
             API.QueuedPythonActions.Enqueue(() => { StopScript(script); });
         }
         public static void StopScript(ScriptFile script)
@@ -539,6 +546,7 @@ namespace ClassicUO.LegionScripting
             Interpreter.RegisterCommandHandler("pathfind", Pathfind);
             Interpreter.RegisterCommandHandler("cancelpathfind", CancelPathfind);
             Interpreter.RegisterCommandHandler("addcooldown", AddCoolDown);
+            Interpreter.RegisterCommandHandler("togglescript", ToggleScript);
             #endregion
 
             #region Expressions
@@ -786,6 +794,7 @@ namespace ClassicUO.LegionScripting
 
         public void PythonScriptStopped()
         {
+            scopedAPI?.CloseGumps();
             pythonScope = null;
             scopedAPI = null;
         }

@@ -49,6 +49,7 @@ using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -443,12 +444,16 @@ namespace ClassicUO
             Time.Ticks = (uint)gameTime.TotalGameTime.TotalMilliseconds;
             Time.Delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            Profiler.EnterContext("Mouse");
             Mouse.Update();
-
+            Profiler.ExitContext("Mouse");
+            
+            Profiler.EnterContext("Packets");
             var data = NetClient.Socket.CollectAvailableData();
             var packetsCount = PacketHandlers.Handler.ParsePackets(data);
             NetClient.Socket.Statistics.TotalPacketsReceived += (uint)packetsCount;
             NetClient.Socket.Flush();
+            Profiler.ExitContext("Packets");
 
             Plugin.Tick();
 
@@ -463,8 +468,13 @@ namespace ClassicUO
                 Profiler.ExitContext("Update");
             }
 
+            Profiler.EnterContext("UI Update");
             UIManager.Update();
+            Profiler.ExitContext("UI Update");
+            
+            Profiler.EnterContext("LScript");
             LegionScripting.LegionScripting.OnUpdate();
+            Profiler.ExitContext("LScript");
 
             if (Time.Ticks >= _nextSlowUpdate)
             {
@@ -521,6 +531,8 @@ namespace ClassicUO
                 bgHueShader = ShaderHueTranslator.GetHueVector(ProfileManager.CurrentProfile.MainWindowBackgroundHue, false, bgHueShader.Z);
         }
 
+        private Stopwatch drawTimer = new ();
+
         protected override void Draw(GameTime gameTime)
         {
             Profiler.EndFrame();
@@ -534,7 +546,6 @@ namespace ClassicUO
             Profiler.EnterContext("RenderFrame");
 
             _totalFrames++;
-
             GraphicsDevice.Clear(Color.Black);
 
             _uoSpriteBatch.Begin();
@@ -571,7 +582,6 @@ namespace ClassicUO
             _uoSpriteBatch.End();
 
             base.Draw(gameTime);
-
             Profiler.ExitContext("RenderFrame");
             Profiler.EnterContext("OutOfContext");
 

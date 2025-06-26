@@ -8,6 +8,17 @@ namespace ClassicUO.Game.UI.Gumps
     internal class VersionHistory : Gump
     {
         private static string[] updateTexts = {
+            "/c[white][3.32.0]/cd\n" +
+            "- Added simple progress bar control for Python API gumps.\n" +
+            "- Generate user friendly html crash logs and open them on crash\n" +
+            "- Some fixes for nearby corpse loot gump\n" +
+            "- Very slightly increased minimum distance to start dragging a gump. Hopefully it should prevent accidental drags instead of clicks\n" +
+            "- Nearby loot gump now stays open after relogging\n" +
+            "- Moved some assistant-like options to their own menu.\n" +
+            "- XML Gumps save locked status now(Ctrl + Alt + Click to lock)\n" +
+            "- Python API created gumps will automatically close when the script stops, unless marked keep open." +
+            "- Various bug fixes\n",
+            
             "/c[white][3.31.0]/cd\n" +
             "- Fix for Python API EquipItem\n" +
             "- Fix for legion scripting useability commands\n" +

@@ -2158,7 +2158,7 @@ namespace ClassicUO.Game.UI.Gumps
                 return;
             }
 
-            var markerCsv = $"{x},{y},{map},{markerName}, ,{color},{3}";
+            var markerCsv = $"{x},{y},{map},{markerName}, ,{color},4";
             using (var fileStream = File.Open(UserMarkersFilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Write))
             using (var streamWriter = new StreamWriter(fileStream))
             {
@@ -2186,6 +2186,39 @@ namespace ClassicUO.Game.UI.Gumps
             var mapMarkerFile = _markerFiles.FirstOrDefault(x => x.FullPath == UserMarkersFilePath);
 
             mapMarkerFile?.Markers.Add(mapMarker);
+        }
+
+        public void RemoveUserMarker(string markerName)
+        {
+            if (!World.InGame)
+            {
+                return;
+            }
+            
+            var mapMarkerFile = _markerFiles.FirstOrDefault(x => x.FullPath == UserMarkersFilePath);
+
+            if (mapMarkerFile == null)
+                return;
+            
+            var markersToRemove = mapMarkerFile.Markers.Where(m => m.Name.Equals(markerName, StringComparison.Ordinal)).ToList();
+                             
+             if (markersToRemove.Count == 0)
+                 return;
+             
+             foreach (var marker in markersToRemove)
+             {
+                 mapMarkerFile.Markers.Remove(marker);
+             }
+             
+            using (StreamWriter writer = new StreamWriter(UserMarkersFilePath, false))
+            {
+                foreach (var m in mapMarkerFile.Markers)
+                {
+                    var newLine = $"{m.X},{m.Y},{m.MapId},{m.Name},{m.MarkerIconName},{m.ColorName},4";
+
+                    writer.WriteLine(newLine);
+                }
+            }
         }
 
         /// <summary>
@@ -2920,7 +2953,7 @@ namespace ClassicUO.Game.UI.Gumps
                 return false;
             }
 
-            Vector3 hueVector = ShaderHueTranslator.GetHueVector(0);
+            Vector3 hueVector = ShaderHueTranslator.GetHueVector(0, false, 1f);
 
             int sx = marker.X - _center.X;
             int sy = marker.Y - _center.Y;

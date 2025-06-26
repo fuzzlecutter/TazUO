@@ -41,6 +41,7 @@ using ClassicUO.Utility;
 using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using ClassicUO.Game.UI.Gumps.SpellBar;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -207,6 +208,10 @@ namespace ClassicUO.Game.UI.Gumps
             );
             moreMenu.ContextMenu = new ContextMenuControl();
             moreMenu.MouseUp += (s, e) => { moreMenu.ContextMenu?.Show(); };
+            moreMenu.ContextMenu.Add(new ContextMenuItemEntry("Assistant", () =>
+            {
+                UIManager.Add(new AssistantGump());
+            }));
             moreMenu.ContextMenu.Add(new ContextMenuItemEntry(Language.Instance.TopBarGump.CommandsEntry, () =>
             {
                 UIManager.Add(new CommandsGump());
@@ -251,15 +256,18 @@ namespace ClassicUO.Game.UI.Gumps
                 }
             }));
             moreMenu.ContextMenu.Add(new ContextMenuItemEntry(cliloc.GetString(3000134, ResGumps.Help), () => { GameActions.RequestHelp(); }));
-            moreMenu.ContextMenu.Add(new ContextMenuItemEntry("Open boat control", () => { UIManager.Add(new BoatControl() { X = 200, Y = 200 }); }));
 
             moreMenu.ContextMenu.Add(new ContextMenuItemEntry("Toggle nameplates", () => { NameOverHeadManager.ToggleOverheads(); }));
             
             moreMenu.ContextMenu.Add(new ContextMenuItemEntry("Legion Scripting", () => { UIManager.Add(new LegionScripting.ScriptManagerGump()); }));
-
-            moreMenu.ContextMenu.Add(new ContextMenuItemEntry("Nearby Loot Gump", () => { UIManager.Add(new NearbyLootGump()); }));
             
             moreMenu.ContextMenu.Add(new ContextMenuItemEntry("Discord", () => { UIManager.Add(new DiscordGump()); }));
+
+            var submenu = new ContextMenuItemEntry("Tools");
+            submenu.Add(new ContextMenuItemEntry("Spell quick cast", () => { UIManager.Add(new SpellQuickSearch(200, 200, (sp) => {GameActions.CastSpell(sp.ID);})); }));
+            submenu.Add(new ContextMenuItemEntry("Open boat control", () => { UIManager.Add(new BoatControl() { X = 200, Y = 200 }); }));
+            submenu.Add(new ContextMenuItemEntry("Nearby Loot Gump", () => { UIManager.Add(new NearbyLootGump()); }));
+            moreMenu.ContextMenu.Add(submenu);
 
             startX += largeWidth + 1;
 

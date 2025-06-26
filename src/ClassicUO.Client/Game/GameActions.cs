@@ -1214,5 +1214,16 @@ namespace ClassicUO.Game
                     bag
                 );
         }
+
+        public static void RequestEquippedOPL()
+        {
+            foreach (Layer layer in Enum.GetValues(typeof(Data.Layer)))
+            {
+                Item item = World.Player.FindItemByLayer(layer);
+                if(item == null) continue;
+
+                World.OPL.Contains(item); //Requests data if we don't have it
+            }
+        }
     }
 }

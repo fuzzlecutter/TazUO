@@ -49,7 +49,6 @@ using ClassicUO.Utility.Platforms;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -2983,6 +2982,9 @@ namespace ClassicUO.Network
 
                 UIManager.GetGump<PaperDollGump>(serial)?.RequestUpdateContents();
                 UIManager.GetGump<ModernPaperdoll>(serial)?.RequestUpdateContents();
+                
+                if(mob.Serial == World.Player.Serial)
+                    GameActions.RequestEquippedOPL();
             }
 
             if (p[0] != 0x78)
@@ -3046,6 +3048,7 @@ namespace ClassicUO.Network
 
                 UIManager.GetGump<PaperDollGump>(serial)?.RequestUpdateContents();
                 UIManager.GetGump<ModernPaperdoll>(serial)?.RequestUpdateContents();
+                GameActions.RequestEquippedOPL();
 
                 World.Player.UpdateAbilities();
             }
@@ -3180,6 +3183,7 @@ namespace ClassicUO.Network
                 {
                     UIManager.Add(new ModernPaperdoll(mobile.Serial));
                 }
+                GameActions.RequestEquippedOPL();
             }
             else
             {
@@ -5505,10 +5509,13 @@ namespace ClassicUO.Network
             uint clen = p.ReadUInt32BE() - 4;
             int dlen = (int)p.ReadUInt32BE();
             if (dlen < 1)
-                dlen = 1;
+            {
+                Log.Error("[Initial]A bad compressed gump packet was received. Unable to process.");
+                return;
+            }
             byte[] decData = System.Buffers.ArrayPool<byte>.Shared.Rent(dlen);
             string layout;
-
+            
             try
             {
                 unsafe
@@ -5525,18 +5532,26 @@ namespace ClassicUO.Network
             {
                 System.Buffers.ArrayPool<byte>.Shared.Return(decData);
             }
-
-            p.Skip((int)clen);
-
-            uint linesNum = p.ReadUInt32BE();
-            string[] lines = new string[linesNum];
-
+            
             try
             {
+                p.Skip((int)clen);
+
+                uint linesNum = p.ReadUInt32BE();
+                string[] lines = new string[linesNum];
+
                 if (linesNum != 0)
                 {
                     clen = p.ReadUInt32BE() - 4;
                     dlen = (int)p.ReadUInt32BE();
+
+                    if (dlen < 1)
+                    {
+                        Log.Error("A bad compressed gump packet was received. Unable to process.");
+
+                        return;
+                    }
+
                     decData = System.Buffers.ArrayPool<byte>.Shared.Rent(dlen);
 
                     try
@@ -5545,13 +5560,7 @@ namespace ClassicUO.Network
                         {
                             fixed (byte* destPtr = decData)
                             {
-                                ZLib.Decompress(
-                                    p.PositionAddress,
-                                    (int)clen,
-                                    0,
-                                    (IntPtr)destPtr,
-                                    dlen
-                                );
+                                ZLib.Decompress(p.PositionAddress, (int)clen, 0, (IntPtr)destPtr, dlen);
                             }
                         }
 
@@ -5611,6 +5620,10 @@ namespace ClassicUO.Network
                 }
 
                 CreateGump(sender, gumpID, (int)x, (int)y, layout, lines);
+            }
+            catch (Exception e)
+            {
+                HtmlCrashLogGen.Generate($"DLEN: {dlen}\nSENDER: {sender}\nGUMPID: {gumpID}\n" + e.ToString(), description:"TazUO almost crashed, it was prevented but this was put in place for debugging, please post this on our discord.");
             }
             finally
             {
@@ -6757,7 +6770,7 @@ namespace ClassicUO.Network
                 };
             }
             
-            gump.PacketGumpText += string.Join("\n", lines);
+            gump.PacketGumpText = string.Join("\n", lines);
 
             int group = 0;
             int page = 0;
@@ -6816,6 +6829,7 @@ namespace ClassicUO.Network
                     gump.Add(new CroppedText(gparams, lines), page);
                 }
                 else if (
+                    string.Equals(entry, "tilepicasgumppic", StringComparison.InvariantCultureIgnoreCase) ||
                     string.Equals(entry, "gumppic", StringComparison.InvariantCultureIgnoreCase)
                 )
                 {
@@ -7246,13 +7260,26 @@ namespace ClassicUO.Network
                 {
                     gump.MasterGumpSerial = gparams.Count > 0 ? SerialHelper.Parse(gparams[1]) : 0;
                 }
-                else if (
-                    string.Equals(entry, "picinpic", StringComparison.InvariantCultureIgnoreCase)
-                )
+                else if (string.Equals(entry, "picinpichued", StringComparison.InvariantCultureIgnoreCase) ||
+                         string.Equals(entry, "picinpicphued", StringComparison.InvariantCultureIgnoreCase) ||
+                         string.Equals(entry, "picinpic", StringComparison.InvariantCultureIgnoreCase)
+                        )
                 {
                     if (gparams.Count > 7)
                     {
-                        gump.Add(new GumpPicInPic(gparams), page);
+                        //gump.Add(new GumpPicInPic(gparams), page);
+                        GumpPicInPic g;
+                        gump.Add(g = new GumpPicInPic(gparams), page);
+
+                        if (gparams.Count > 8)
+                        {
+                            g.Hue = UInt16Converter.Parse(gparams[8]);
+
+                            if (string.Equals(entry, "picinpicphued", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                g.IsPartialHue = true;
+                            }
+                        }
                     }
                 }
                 else if (string.Equals(entry, "\0", StringComparison.InvariantCultureIgnoreCase))
