@@ -285,7 +285,8 @@ namespace ClassicUO.LegionScripting
 
                 if (i != null)
                 {
-                    MoveItemQueue.Instance.Enqueue(i, Backpack);
+                    var bp = World.Player.FindItemByLayer(Layer.Backpack);
+                    MoveItemQueue.Instance.Enqueue(i, bp);
                     Found = i.Serial;
                     return i;
                 }
@@ -313,7 +314,8 @@ namespace ClassicUO.LegionScripting
 
                 if (i != null)
                 {
-                    MoveItemQueue.Instance.Enqueue(i, Backpack);
+                    var bp = World.Player.FindItemByLayer(Layer.Backpack);
+                    MoveItemQueue.Instance.Enqueue(i, bp);
                     Found = i.Serial;
                     return i;
                 }
