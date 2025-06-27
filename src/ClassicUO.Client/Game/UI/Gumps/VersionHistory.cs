@@ -11,7 +11,9 @@ namespace ClassicUO.Game.UI.Gumps
             "/c[white][3.33.0]/cd\n" +
             "- Prevent autoloot, move item queue from moving items while you are holding something.\n" +
             "- Change multi item move to use shared move item queue\n" +
-            "- Prevent closing containers when changing facets\n",
+            "- Prevent closing containers when changing facets\n" +
+            "- Added Create macro button for legion scripts\n" +
+            "- Potential Crash fix from CUO\n",
             
             "/c[white][3.32.0]/cd\n" +
             "- Added simple progress bar control for Python API gumps.\n" +
