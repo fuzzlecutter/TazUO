@@ -56,7 +56,7 @@ namespace ClassicUO.Game.Managers
             
             if (cont == null) return;
             
-            if (cont.Distance <= ProfileManager.CurrentProfile.AutoOpenCorpseRange && (!cont.IsHumanCorpse || ProfileManager.CurrentProfile.AutoLootHumanCorpses))
+            if (cont.Distance <= ProfileManager.CurrentProfile.AutoOpenCorpseRange)
             {
                 for (LinkedObject i = cont.Items; i != null; i = i.Next)
                 {

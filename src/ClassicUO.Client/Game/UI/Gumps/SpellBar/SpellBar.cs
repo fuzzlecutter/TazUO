@@ -22,6 +22,7 @@ public class SpellBar : Gump
         CanMove = true;
         CanCloseWithRightClick = false;
         CanCloseWithEsc = false;
+        AcceptMouseInput = true;
 
         Width = 500;
         Height = 48;
@@ -31,9 +32,7 @@ public class SpellBar : Gump
         
         Build();
     }
-
-    public override bool AcceptMouseInput { get; set; } = true;
-
+    
     protected override void OnMouseWheel(MouseEventType delta)
     {
         base.OnMouseWheel(delta);
@@ -62,7 +61,7 @@ public class SpellBar : Gump
         
         for (int s = 0; s < spellEntries.Length; s++)
         {
-            spellEntries[s].SetSpell(SpellBarManager.SpellBarRows[spellRow].SpellSlot[s], spellRow, s);
+            spellEntries[s].SetSpell(SpellBarManager.GetSpell(spellRow, s), spellRow, s);
         }
     }
 
@@ -74,13 +73,13 @@ public class SpellBar : Gump
         
         for (int i = 0; i < spellEntries.Length; i++)
         {
-            Add(spellEntries[i] = new SpellEntry().SetSpell(SpellBarManager.SpellBarRows[spellRow].SpellSlot[i], spellRow, i));
+            Add(spellEntries[i] = new SpellEntry().SetSpell(SpellBarManager.GetSpell(spellRow, i), spellRow, i));
             spellEntries[i].X = x;
             spellEntries[i].Y = 1;
             x += 46 + 2;
         }
         
-        rowLabel = TextBox.GetOne(spellRow.ToString(), TrueTypeLoader.EMBEDDED_FONT, 12, Color.White, TextBox.RTLOptions.Default());
+        rowLabel = TextBox.GetOne(spellRow.ToString(), TrueTypeLoader.EMBEDDED_FONT, 12, Color.White, TextBox.RTLOptions.DefaultCentered(16));
         rowLabel.X = 482;
         rowLabel.Y = (Height - rowLabel.Height) >> 1;
         Add(rowLabel);
@@ -102,6 +101,9 @@ public class SpellBar : Gump
         public SpellEntry()
         {
             CanMove = true;
+            CanCloseWithRightClick = false;
+            CanCloseWithEsc = false;
+            AcceptMouseInput = true;
             Width = 46;
             Height = 46;
             Build();
@@ -116,6 +118,15 @@ public class SpellBar : Gump
             {
                 icon.Graphic = (ushort)spell.GumpIconSmallID;
                 icon.IsVisible = true;
+                
+                int cliloc = GetSpellTooltip(spell.ID);
+                
+                GameActions.Print($"CLILOC: {cliloc}");
+
+                if (cliloc != 0)
+                {
+                    SetTooltip(ClilocLoader.Instance.GetString(cliloc), 80);
+                }
             }
             else
             {
@@ -131,18 +142,16 @@ public class SpellBar : Gump
             if(button == MouseButtonType.Right)
                 ContextMenu?.Show();
 
-            if (button == MouseButtonType.Left && spell != null)
+            if (button == MouseButtonType.Left && spell != null && !Keyboard.Alt && !Keyboard.Ctrl)
             {
                 GameActions.CastSpell(spell.ID);
             }
         }
-
-        public override bool AcceptMouseInput { get; set; } = true;
-
+        
         private void Build()
         {
             Add(new AlphaBlendControl() { Width = 44, Height = 44, X = 1, Y = 1 });
-            Add(icon = new GumpPic(1, 1, 0x5000, 0) {IsVisible = false});
+            Add(icon = new GumpPic(1, 1, 0x5000, 0) {IsVisible = false, AcceptMouseInput = false});
 
             ContextMenu = new();
             ContextMenu.Add(new ContextMenuItemEntry("Set spell", () =>
@@ -158,6 +167,59 @@ public class SpellBar : Gump
                     )
                 );
             }));
+        }
+        
+        private static int GetSpellTooltip(int id)
+        {
+            if (id >= 1 && id <= 64) // Magery
+            {
+                return 3002011 + (id - 1);
+            }
+
+            if (id >= 101 && id <= 117) // necro
+            {
+                return 1060509 + (id - 101);
+            }
+
+            if (id >= 201 && id <= 210)
+            {
+                return 1060585 + (id - 201);
+            }
+
+            if (id >= 401 && id <= 406)
+            {
+                return 1060595 + (id - 401);
+            }
+
+            if (id >= 501 && id <= 508)
+            {
+                return 1060610 + (id - 501);
+            }
+
+            if (id >= 601 && id <= 616)
+            {
+                return 1071026 + (id - 601);
+            }
+
+            if (id >= 678 && id <= 693)
+            {
+                return 1031678 + (id - 678);
+            }
+
+            if (id >= 701 && id <= 745)
+            {
+                if (id <= 706)
+                {
+                    return 1115612 + (id - 701);
+                }
+
+                if (id <= 745)
+                {
+                    return 1155896 + (id - 707);
+                }
+            }
+
+            return 0;
         }
     }
 }
