@@ -190,7 +190,7 @@ namespace ClassicUO.Game.UI
 
             foreach (Item lootItem in finalItemList)
             {
-                dataBox.Add(NearbyItemDisplay.GetOne(lootItem, itemCount));
+                dataBox.Add(new NearbyItemDisplay(lootItem, itemCount));
                 itemCount++;
             }
 
@@ -217,9 +217,12 @@ namespace ClassicUO.Game.UI
                 _openedCorpses.Add(corpse);
                 for (LinkedObject i = corpse.Items; i != null; i = i.Next)
                 {
-
                     Item item = (Item)i;
-                    if (item == null || item.Graphic == default(ushort) || !item.IsLootable)
+                    
+                    if (item.IsCorpse)
+                        ProcessCorpse(item, ref itemList);
+                    
+                    if (item.Graphic == 0 || !item.IsLootable)
                         continue;
 
                     itemList.Add(item);
@@ -247,27 +250,11 @@ namespace ClassicUO.Game.UI
             if (SelectedIndex == -1)
                 lootButton.InvokeMouseUp(lootButton.Location, MouseButtonType.Left);
             else if (dataBox.Children.Count > SelectedIndex)
-            {
-                AutoLootManager.Instance.LootItem(dataBox.Children[SelectedIndex].LocalSerial);
-            }
+                MoveItemQueue.Instance?.EnqueueQuick(dataBox.Children[SelectedIndex].LocalSerial); //Directly use move item queue instead of autoloot
         }
         private void ClearDataBox()
         {
-            List<Control> removeAfter = new List<Control>();
-
-            foreach (Control c in dataBox.Children)
-            {
-                if (c is NearbyItemDisplay cd)
-                {
-                    cd.ReturnToPool();
-                    removeAfter.Add(c);
-                }
-                else
-                    c.Dispose();
-            }
-
-            foreach (Control c in removeAfter)
-                dataBox.Remove(c);
+            dataBox.Clear();
         }
 
         public static bool IsCorpseRequested(uint serial, bool remove = true)
@@ -367,7 +354,6 @@ namespace ClassicUO.Game.UI
     internal class NearbyItemDisplay : Control
     {
         private const int ITEM_SIZE = 40;
-        private static Queue<NearbyItemDisplay> pool = new Queue<NearbyItemDisplay>();
         private Label itemLabel;
         private AlphaBlendControl alphaBG;
         private Item currentItem;
@@ -389,16 +375,6 @@ namespace ClassicUO.Game.UI
                 return 0;
             }
         }
-        public static NearbyItemDisplay GetOne(Item item, int index)
-        {
-            NearbyItemDisplay nearbyItemDisplay = pool.Count > 0 ? pool.Dequeue() : new NearbyItemDisplay(item, index);
-
-            if (nearbyItemDisplay.IsDisposed)
-                return new NearbyItemDisplay(item, index);
-
-            nearbyItemDisplay.SetItem(item, index);
-            return nearbyItemDisplay;
-        }
 
         public NearbyItemDisplay(Item item, int index)
         {
@@ -410,7 +386,7 @@ namespace ClassicUO.Game.UI
             borderTexture = SolidColorTextureCache.GetTexture(Color.White);
             CanMove = true;
             AcceptMouseInput = true;
-            Width = NearbyLootGump.WIDTH;
+            Width = NearbyLootGump.WIDTH - 18; //-18 for scroll bar
             Height = ITEM_SIZE;
             this.index = index;
 
@@ -462,11 +438,6 @@ namespace ClassicUO.Game.UI
             }
 
             SetTooltip(item);
-        }
-
-        public void ReturnToPool()
-        {
-            pool.Enqueue(this);
         }
 
         public override void Update()

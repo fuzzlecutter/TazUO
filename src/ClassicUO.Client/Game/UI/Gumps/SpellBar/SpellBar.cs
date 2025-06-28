@@ -121,8 +121,6 @@ public class SpellBar : Gump
                 
                 int cliloc = GetSpellTooltip(spell.ID);
                 
-                GameActions.Print($"CLILOC: {cliloc}");
-
                 if (cliloc != 0)
                 {
                     SetTooltip(ClilocLoader.Instance.GetString(cliloc), 80);

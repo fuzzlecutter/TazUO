@@ -38,6 +38,13 @@ namespace ClassicUO.Game.Managers
                 
             Enqueue(item.Serial, bag, 0, 0xFFFF, 0xFFFF);
         }
+        
+        public void EnqueueQuick(uint serial)
+        {
+            Item i = World.Items.Get(serial);
+            if(i != null)
+                EnqueueQuick(i);
+        }
 
         public void ProcessQueue()
         {
