@@ -43,15 +43,17 @@ namespace ClassicUO.Renderer.Arts
                 {
                     artInfo = ArtLoader.Instance.GetArt(idx);
                 }
-                if (artInfo.Pixels.IsEmpty && idx > 0)
-                {
-                    // Trying to load a texture that does not exist in the client MULs
-                    // Degrading gracefully and only crash if not even the fallback ItemID exists
-                    Log.Error(
-                        $"Texture not found for sprite: idx: {idx}; itemid: {(idx > 0x4000 ? idx - 0x4000 : '-')}"
-                    );
-                    return ref Get(0); // ItemID of "UNUSED" placeholder
-                }
+                
+                // if (artInfo.Pixels.IsEmpty && idx > 0)
+                // {
+                //     // Trying to load a texture that does not exist in the client MULs
+                //     // Degrading gracefully and only crash if not even the fallback ItemID exists
+                //     Log.Error(
+                //         $"Texture not found for sprite: idx: {idx}; itemid: {(idx > 0x4000 ? idx - 0x4000 : '-')}"
+                //     );
+                //     return ref Get(0); // ItemID of "UNUSED" placeholder
+                // }
+                
                 if (!artInfo.Pixels.IsEmpty)
                 {
                     spriteInfo.Texture = _atlas.AddSprite(

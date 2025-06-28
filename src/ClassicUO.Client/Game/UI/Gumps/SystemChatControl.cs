@@ -900,7 +900,7 @@ namespace ClassicUO.Game.UI.Gumps
             private TextBox textBox;
             private static TextBox.RTLOptions TextBoxOptions = new() { Width = 320, StrokeEffect = true };
             private string text;
-            private int count = 0;
+            private int count = 1;
             public ChatLineTime(string text, byte font, bool isunicode, ushort hue)
             {
                 this.text = text;
