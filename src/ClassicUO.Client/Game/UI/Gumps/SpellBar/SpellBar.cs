@@ -1,4 +1,5 @@
 using ClassicUO.Assets;
+using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Input;
@@ -37,7 +38,15 @@ public class SpellBar : Gump
     {
         base.OnMouseWheel(delta);
 
-        if (delta == MouseEventType.Up)
+        if (delta == MouseEventType.WheelScrollDown)
+            ChangeRow(true);
+        else
+            ChangeRow(false);
+    }
+
+    private void ChangeRow(bool up)
+    {
+        if (up)
             spellRow -= 1;
         else
             spellRow += 1;
@@ -53,7 +62,7 @@ public class SpellBar : Gump
         
         for (int s = 0; s < spellEntries.Length; s++)
         {
-            spellEntries[s].SetSpell((ushort)SpellBarManager.SpellBarRows[spellRow].SpellSlot[s].GumpIconSmallID);
+            spellEntries[s].SetSpell(SpellBarManager.SpellBarRows[spellRow].SpellSlot[s], spellRow, s);
         }
     }
 
@@ -65,7 +74,9 @@ public class SpellBar : Gump
         
         for (int i = 0; i < spellEntries.Length; i++)
         {
-            Add(spellEntries[i] = new SpellEntry((ushort)SpellBarManager.SpellBarRows[spellRow].SpellSlot[i].GumpIconSmallID) { X = x, Y = 1 });
+            Add(spellEntries[i] = new SpellEntry().SetSpell(SpellBarManager.SpellBarRows[spellRow].SpellSlot[i], spellRow, i));
+            spellEntries[i].X = x;
+            spellEntries[i].Y = 1;
             x += 46 + 2;
         }
         
@@ -73,25 +84,57 @@ public class SpellBar : Gump
         rowLabel.X = 482;
         rowLabel.Y = (Height - rowLabel.Height) >> 1;
         Add(rowLabel);
+        
+        var up = new EmbeddedGumpPic(Width - 16, 0, PNGLoader.Instance.EmbeddedArt["upicon.png"], 148);
+        up.MouseUp += (sender, e) => { ChangeRow(false); };
+        var down = new EmbeddedGumpPic(Width - 16, Height - 16, PNGLoader.Instance.EmbeddedArt["downicon.png"], 148);
+        down.MouseUp += (sender, e) => { ChangeRow(true); };
+        
+        Add(up);
+        Add(down);
     }
 
     public class SpellEntry : Control
     {
-        private ushort graphic;
         private GumpPic icon;
-        public SpellEntry(ushort Graphic)
+        private SpellDefinition spell;
+        private int row, col;
+        public SpellEntry()
         {
-            graphic = Graphic;
             CanMove = true;
             Width = 46;
             Height = 46;
             Build();
         }
-
-        public void SetSpell(ushort graphic)
+        public SpellEntry SetSpell(SpellDefinition spell, int row, int col)
         {
-            this.graphic = graphic;
-            icon.Graphic = graphic;
+            this.spell = spell;
+            this.row = row;
+            this.col = col;
+            SpellBarManager.SpellBarRows[row].SpellSlot[col] = spell;
+            if(spell != null)
+            {
+                icon.Graphic = (ushort)spell.GumpIconSmallID;
+                icon.IsVisible = true;
+            }
+            else
+            {
+                icon.IsVisible = false;
+            }
+
+            return this;
+        }
+
+        protected override void OnMouseUp(int x, int y, MouseButtonType button)
+        {
+            base.OnMouseUp(x, y, button);
+            if(button == MouseButtonType.Right)
+                ContextMenu?.Show();
+
+            if (button == MouseButtonType.Left && spell != null)
+            {
+                GameActions.CastSpell(spell.ID);
+            }
         }
 
         public override bool AcceptMouseInput { get; set; } = true;
@@ -99,7 +142,22 @@ public class SpellBar : Gump
         private void Build()
         {
             Add(new AlphaBlendControl() { Width = 44, Height = 44, X = 1, Y = 1 });
-            Add(icon = new GumpPic(1, 1, graphic, 0));
+            Add(icon = new GumpPic(1, 1, 0x5000, 0) {IsVisible = false});
+
+            ContextMenu = new();
+            ContextMenu.Add(new ContextMenuItemEntry("Set spell", () =>
+            {
+                UIManager.Add
+                (
+                    new SpellQuickSearch
+                    (
+                        ScreenCoordinateX - 20, ScreenCoordinateY - 90, (s) =>
+                        {
+                            SetSpell(s, row, col);
+                        }, true
+                    )
+                );
+            }));
         }
     }
 }

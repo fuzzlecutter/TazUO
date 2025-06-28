@@ -20,8 +20,10 @@ public class SpellBarRow()
         return this;
     }
     
-    public void SetSpell(int slot, SpellDefinition spell)
+    public SpellBarRow SetSpell(int slot, SpellDefinition spell)
     {
         SpellSlot[slot] = spell;
+
+        return this;
     }
 }
