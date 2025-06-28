@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ClassicUO.Assets;
+using ClassicUO.Configuration;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Input;
@@ -240,7 +241,15 @@ public class BaseOptionsGump : Gump
         public static Color DROPDOWN_OPTION_SELECTED_HUE { get; set; } = Color.CadetBlue;
         public static Color BUTTON_FONT_COLOR { get; set; } = Color.White;
         public static Color TEXT_FONT_COLOR { get; set; } = Color.White;
-        public static string FONT { get; set; } = TrueTypeLoader.EMBEDDED_FONT;
+        public static string FONT {
+            get
+            {
+                if (ProfileManager.CurrentProfile != null)
+                    return ProfileManager.CurrentProfile.SelectedTTFJournalFont;
+
+                return TrueTypeLoader.EMBEDDED_FONT;
+            }
+        }
     }
 
 
@@ -313,7 +322,7 @@ public class BaseOptionsGump : Gump
 
             if (!string.IsNullOrEmpty(OptionLabel))
             {
-                Control labelTextBox = TextBox.GetOne(OptionLabel, ThemeSettings.FONT, 20, ThemeSettings.TEXT_FONT_COLOR, TextBox.RTLOptions.Default());
+                Control labelTextBox = TextBox.GetOne(OptionLabel, ThemeSettings.FONT, 20, ThemeSettings.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(maxTotalWidth));
                 FullControl.Add(labelTextBox, optionsPage);
 
                 if (labelTextBox.Width > maxTotalWidth)
