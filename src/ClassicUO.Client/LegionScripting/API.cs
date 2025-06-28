@@ -494,10 +494,17 @@ namespace ClassicUO.LegionScripting
         /// <param name="amt">0 to grab entire stack</param>
         /// <param name="x">Offset from your location</param>
         /// <param name="y">Offset from your location</param>
-        /// <param name="z">Offset from your location</param>
+        /// <param name="z">Offset from your location. Leave blank in most cases</param>
         public void QueMoveItemOffset(uint serial, ushort amt = 0, int x = 0, int y = 0, int z = 0) => InvokeOnMainThread
         (() =>
             {
+                World.Map.GetMapZ(World.Player.X + x, World.Player.Y + y, out sbyte gz, out sbyte gz2);
+
+                if (gz > z)
+                    z = gz;
+                if(gz2 > z)
+                    z = gz2;
+                
                 Client.Game.GetScene<GameScene>()?.MoveItemQueue.Enqueue(serial, 0, amt, World.Player.X + x, World.Player.Y + y, World.Player.Z + z);
             }
         );
@@ -516,10 +523,17 @@ namespace ClassicUO.LegionScripting
         /// <param name="amt">0 to grab entire stack</param>
         /// <param name="x">Offset from your location</param>
         /// <param name="y">Offset from your location</param>
-        /// <param name="z">Offset from your location</param>
+        /// <param name="z">Offset from your location. Leave blank in most cases</param>
         public void MoveItemOffset(uint serial, int amt = 0, int x = 0, int y = 0, int z = 0) => InvokeOnMainThread
         (() =>
             {
+                World.Map.GetMapZ(World.Player.X + x, World.Player.Y + y, out sbyte gz, out sbyte gz2);
+
+                if (gz > z)
+                    z = gz;
+                if(gz2 > z)
+                    z = gz2;
+                
                 GameActions.PickUp(serial, 0, 0, amt);
                 GameActions.DropItem(serial, World.Player.X + x, World.Player.Y + y, World.Player.Z + z, 0);
             }
