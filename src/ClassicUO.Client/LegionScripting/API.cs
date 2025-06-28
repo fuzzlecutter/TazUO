@@ -500,12 +500,23 @@ namespace ClassicUO.LegionScripting
             {
                 World.Map.GetMapZ(World.Player.X + x, World.Player.Y + y, out sbyte gz, out sbyte gz2);
 
-                if (gz > z)
-                    z = gz;
-                if(gz2 > z)
-                    z = gz2;
+                bool useCalculatedZ = false;
                 
-                Client.Game.GetScene<GameScene>()?.MoveItemQueue.Enqueue(serial, 0, amt, World.Player.X + x, World.Player.Y + y, World.Player.Z + z);
+                if (gz > z)
+                {
+                    z = gz;
+                    useCalculatedZ = true;
+                }
+                if(gz2 > z)
+                {
+                    z = gz2;
+                    useCalculatedZ = true;
+                }
+
+                if (!useCalculatedZ)
+                    z = World.Player.Z + z;
+
+                Client.Game.GetScene<GameScene>()?.MoveItemQueue.Enqueue(serial, 0, amt, World.Player.X + x, World.Player.Y + y, z);
             }
         );
 
@@ -529,13 +540,24 @@ namespace ClassicUO.LegionScripting
             {
                 World.Map.GetMapZ(World.Player.X + x, World.Player.Y + y, out sbyte gz, out sbyte gz2);
 
+                bool useCalculatedZ = false;
+                
                 if (gz > z)
+                {
                     z = gz;
+                    useCalculatedZ = true;
+                }
                 if(gz2 > z)
+                {
                     z = gz2;
+                    useCalculatedZ = true;
+                }
+
+                if (!useCalculatedZ)
+                    z = World.Player.Z + z;
                 
                 GameActions.PickUp(serial, 0, 0, amt);
-                GameActions.DropItem(serial, World.Player.X + x, World.Player.Y + y, World.Player.Z + z, 0);
+                GameActions.DropItem(serial, World.Player.X + x, World.Player.Y + y, z, 0);
             }
         );
 
