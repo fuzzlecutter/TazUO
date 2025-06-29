@@ -65,11 +65,16 @@ public class SpellBar : Gump
         }
     }
 
-    private void Build()
+    public void Build()
     {
+        Clear();
+        
         Add(new AlphaBlendControl() { Width = Width, Height = Height });
 
         int x = 2;
+        
+        if(spellRow > SpellBarManager.SpellBarRows.Count - 1)
+            spellRow = SpellBarManager.SpellBarRows.Count - 1;
         
         for (int i = 0; i < spellEntries.Length; i++)
         {

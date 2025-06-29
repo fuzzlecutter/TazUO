@@ -26,6 +26,7 @@ public class AssistantGump : BaseOptionsGump
         BuildAutoSell();
         BuildAutoBuy();
         BuildMobileGraphicFilter();
+        BuildSpellBar();
 
         ChangePage((int)PAGE.AutoLoot);
     }
@@ -116,18 +117,53 @@ public class AssistantGump : BaseOptionsGump
         MainContent.AddToRight(scroll, false, page);
         PositionHelper.Reset();
         
-        scroll.Add(PositionHelper.PositionControl(TextBox.GetOne("This can be used to replace graphics of mobiles with other graphics(For example if dragons are too big, replace them with wyverns).", ThemeSettings.FONT, ThemeSettings.STANDARD_TEXT_SIZE, ThemeSettings.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(MainContent.RightWidth - 20))));;
+        scroll.Add(PositionHelper.PositionControl(new HttpClickableLink("Mobile Graphic Filter Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.Mobile-Graphics-Filter", ThemeSettings.TEXT_FONT_COLOR)));
+        scroll.Add(PositionHelper.PositionControl(TextBox.GetOne("This can be used to replace graphics of mobiles with other graphics(For example if dragons are too big, replace them with wyverns).", ThemeSettings.FONT, ThemeSettings.STANDARD_TEXT_SIZE, ThemeSettings.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(MainContent.RightWidth - 20))));
         PositionHelper.BlankLine();
         scroll.Add(PositionHelper.PositionControl(new GraphicFilterConfigs(MainContent.RightWidth - ThemeSettings.SCROLL_BAR_WIDTH - 10)));
     }
 
+    private void BuildSpellBar()
+    {
+        var page = (int)PAGE.SpellBar;
+        MainContent.AddToLeft(CategoryButton("Spell Bar", page, MainContent.LeftWidth));
+        MainContent.ResetRightSide();
+        
+        ScrollArea scroll = new(0, 0, MainContent.RightWidth, MainContent.Height);
+        MainContent.AddToRight(scroll, false, page);
+        PositionHelper.Reset();
+        
+        scroll.Add(PositionHelper.PositionControl(new HttpClickableLink("SpellBar Wiki", "https://github.com/bittiez/TazUO/wiki/TazUO.SpellBar", ThemeSettings.TEXT_FONT_COLOR)));
+        scroll.Add(PositionHelper.PositionControl(TextBox.GetOne(".", ThemeSettings.FONT, ThemeSettings.STANDARD_TEXT_SIZE, ThemeSettings.TEXT_FONT_COLOR, TextBox.RTLOptions.Default(MainContent.RightWidth - 20))));
+        PositionHelper.BlankLine();
+        
+        ModernButton b;
+        scroll.Add(PositionHelper.PositionControl(b = new ModernButton(0, 0, 100, ThemeSettings.CHECKBOX_SIZE, ButtonAction.Default, "Add row", ThemeSettings.BUTTON_FONT_COLOR)));
+        b.MouseUp += (s, e) =>
+        {
+            SpellBarManager.SpellBarRows.Add(new SpellBarRow());
+            SpellBar.SpellBar.Instance?.Build();
+        };
+
+        ModernButton bb;
+        scroll.Add(PositionHelper.ToRightOf(bb = new ModernButton(0, 0, 100, ThemeSettings.CHECKBOX_SIZE, ButtonAction.Default, "Remove row", ThemeSettings.BUTTON_FONT_COLOR), b));
+        bb.SetTooltip("This will remove the last row. If you have 5 rows, row 5 will be removed.");
+        bb.MouseUp += (s, e) =>
+        {
+            if(SpellBarManager.SpellBarRows.Count > 1) //Make sure to always leave one row.
+                SpellBarManager.SpellBarRows.RemoveAt(SpellBarManager.SpellBarRows.Count - 1);
+            SpellBar.SpellBar.Instance?.Build();
+        };
+    }
+    
     private enum PAGE
     {
         None,
         AutoLoot,
         AutoSell,
         AutoBuy,
-        MobileGraphicFilter
+        MobileGraphicFilter,
+        SpellBar
     }
 
     #region CustomControls

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Utility.Logging;
@@ -21,6 +20,9 @@ public class SpellBarManager
 
     public static SpellDefinition GetSpell(int row, int col)
     {
+        if(SpellBarRows.Count <= row || row < 0) return SpellDefinition.EmptySpell;
+        if(SpellBarRows[row].SpellSlot.Length <= col || col < 0) return SpellDefinition.EmptySpell;
+        
         return SpellBarRows[row].SpellSlot[col];
     }
 
@@ -46,6 +48,8 @@ public class SpellBarManager
         {
             SetDefaults();
         }
+        if(SpellBarRows.Count == 0)
+            SpellBarRows.Add(new SpellBarRow()); //Ensure at least one row is present
     }
 
     public static void Unload()

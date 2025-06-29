@@ -328,6 +328,7 @@ namespace ClassicUO.Network
             Handler.Add(0xF5, DisplayMap);
             Handler.Add(0xF6, BoatMoving);
             Handler.Add(0xF7, PacketList);
+            Handler.Add(EnhancedPacketHandler.EPID, EnhancedPacketHandler.Handle); //For handling custom packets
 
             // login
             Handler.Add(0xA8, ServerListReceived);

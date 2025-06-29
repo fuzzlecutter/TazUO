@@ -291,6 +291,14 @@ public class BaseOptionsGump : Gump
             return c;
         }
 
+        public static Control ToRightOf(Control c, Control other, int padding = 5)
+        {
+            c.Y = other.Y;
+            c.X = other.X + other.Width + padding;
+
+            return c;
+        }
+
         public static void PositionExact(Control c, int x, int y)
         {
             c.X = x;

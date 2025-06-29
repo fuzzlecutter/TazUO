@@ -13,7 +13,8 @@ namespace ClassicUO.Game.UI.Gumps
             "- Change multi item move to use shared move item queue\n" +
             "- Prevent closing containers when changing facets\n" +
             "- Added Create macro button for legion scripts\n" +
-            "- Potential Crash fix from CUO\n",
+            "- Potential Crash fix from CUO\n" +
+            "- Spellbar!\n",
             
             "/c[white][3.32.0]/cd\n" +
             "- Added simple progress bar control for Python API gumps.\n" +
