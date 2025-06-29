@@ -159,9 +159,14 @@ namespace ClassicUO.Game.UI
             var c = new ContextMenuControl();
             c.Add(new ContextMenuItemEntry("Open human corpses?", () =>
             {
-                ProfileManager.CurrentProfile.NearbyLootOpensHumanCorpses ^= true;
+                ProfileManager.CurrentProfile.NearbyLootOpensHumanCorpses = !ProfileManager.CurrentProfile.NearbyLootOpensHumanCorpses;
                 RequestUpdateContents();
             }, true, ProfileManager.CurrentProfile.NearbyLootOpensHumanCorpses));
+            
+            c.Add(new ContextMenuItemEntry("Hide containers when opening corpses?", () =>
+            {
+               ProfileManager.CurrentProfile.NearbyLootConcealsContainerOnOpen = !ProfileManager.CurrentProfile.NearbyLootConcealsContainerOnOpen; 
+            }, true, ProfileManager.CurrentProfile.NearbyLootConcealsContainerOnOpen));;
 
             return c;
         }
@@ -240,8 +245,8 @@ namespace ClassicUO.Game.UI
                 return;
             if (corpse.Distance > ProfileManager.CurrentProfile.AutoOpenCorpseRange)
                 return;
-
-            _corpsesRequested.Add(corpse.Serial);
+            if(ProfileManager.CurrentProfile.NearbyLootConcealsContainerOnOpen)
+                _corpsesRequested.Add(corpse.Serial);
 
             GameActions.DoubleClickQueued(corpse.Serial);
         }

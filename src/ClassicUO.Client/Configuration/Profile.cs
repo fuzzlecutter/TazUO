@@ -604,8 +604,8 @@ namespace ClassicUO.Configuration
         public bool DisableTargetingGridContainers { get; set; }
         public bool ControllerEnabled { get; set; } = true;
         public bool EnableScavenger { get; set; } = true;
-        
         public bool CounterGumpLocked { get; set; }
+        public bool NearbyLootConcealsContainerOnOpen { get; set; } = true;
 
         public void Save(string path, bool saveGumps = true)
         {
