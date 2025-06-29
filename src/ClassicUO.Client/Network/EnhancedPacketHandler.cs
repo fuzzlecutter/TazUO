@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ClassicUO.Configuration;
 using ClassicUO.IO;
 using ClassicUO.Utility.Logging;
 
@@ -13,6 +14,9 @@ public class EnhancedPacketHandler
 
     static EnhancedPacketHandler()
     {
+        if (!Settings.GlobalSettings.EnhancedPacketsEnabled)
+            return;
+        
         Handler.Add(EnhancedPacketType.EnableEnhancedPacket, EnableEnhancedPacket);
     }
 
@@ -22,7 +26,7 @@ public class EnhancedPacketHandler
     private static void EnableEnhancedPacket(ref StackDataReader p, int version)
     { 
         EnhancedOutgoingPackets.EnabledPackets.Add(EnhancedPacketType.EnableEnhancedPacket);
-        
+
         if (version >= 0)
         {
             ushort count = p.ReadUInt16BE(); //Number of enhanced packets to follow.
@@ -56,6 +60,9 @@ public class EnhancedPacketHandler
 
     public void HandlePacket(ushort packetID, ref StackDataReader p, int version)
     {
+        if (!Settings.GlobalSettings.EnhancedPacketsEnabled)
+            return;
+        
         if (_handlers.ContainsKey(packetID))
         {
             _handlers[packetID].Invoke(ref p, version);
