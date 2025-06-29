@@ -334,8 +334,8 @@ namespace ClassicUO.Game.UI.Gumps
                 Utility.Platforms.PlatformHelper.LaunchBrowser("https://discord.gg/QvqzkB95G4");
             };
 
-            CenterXInScreen();
-            CenterYInScreen();
+            CenterXInViewPort();
+            CenterYInViewPort();
         }
     }
 }

@@ -2026,10 +2026,12 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="text">Optional text label</param>
         /// <param name="hue">Optional hue</param>
+        /// <param name="isChecked">Default false, set to true if you want this checkbox checked on creation</param>
         /// <returns>The checkbox</returns>
-        public Checkbox CreateGumpCheckbox(string text = "", ushort hue = 0) => new Checkbox(0x00D2, 0x00D3, text, color: hue)
+        public Checkbox CreateGumpCheckbox(string text = "", ushort hue = 0, bool isChecked = false) => new Checkbox(0x00D2, 0x00D3, text, color: hue)
         {
-            CanMove = true
+            CanMove = true,
+            IsChecked = isChecked
         };
 
         /// <summary>
@@ -2167,11 +2169,12 @@ namespace ClassicUO.LegionScripting
         /// <param name="inactive">Unchecked graphic</param>
         /// <param name="active">Checked graphic</param>
         /// <param name="hue">Text color</param>
+        /// <param name="isChecked">Defaults false, set to true if you want this button checked by default.</param>
         /// <returns></returns>
-        public RadioButton CreateGumpRadioButton(string text = "", int group = 0, ushort inactive = 0x00D0, ushort active = 0x00D1, ushort hue = 0xFFFF)
+        public RadioButton CreateGumpRadioButton(string text = "", int group = 0, ushort inactive = 0x00D0, ushort active = 0x00D1, ushort hue = 0xFFFF, bool isChecked = false)
         {
             RadioButton rb = new RadioButton(group, inactive, active, text, color: hue);
-
+            rb.IsChecked = isChecked;
             return rb;
         }
 

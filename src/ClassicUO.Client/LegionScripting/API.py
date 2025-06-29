@@ -1143,7 +1143,7 @@ def AddGump(g: Gump) -> None:
     """
     pass
 
-def CreateGumpCheckbox(text: str = "", hue: int = 0) -> Control:
+def CreateGumpCheckbox(text: str = "", hue: int = 0, isChecked: bool = False) -> Control:
     """
      Create a checkbox for gumps.
       Example:
@@ -1240,7 +1240,7 @@ def CreateSimpleButton(text: str, width: int, height: int) -> Control:
     """
     pass
 
-def CreateGumpRadioButton(text: str = "", group: int = 0, inactive: int = 0x00D0, active: int = 0x00D1, hue: int = 0xFFFF) -> Control:
+def CreateGumpRadioButton(text: str = "", group: int = 0, inactive: int = 0x00D0, active: int = 0x00D1, hue: int = 0xFFFF, isChecked: bool = False) -> Control:
     """
      Create a radio button for gumps, use group numbers to only allow one item to be checked at a time.
      Example:

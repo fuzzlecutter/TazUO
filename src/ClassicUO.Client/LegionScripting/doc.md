@@ -8,7 +8,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](notes.md)  
   
-This was generated on `6/26/2025`.
+This was generated on `6/28/2025`.
 # API  
 
 ## Class Description
@@ -401,7 +401,7 @@ This was generated on `6/26/2025`.
 | amt | ushort | Yes | 0 to grab entire stack |
 | x | int | Yes | Offset from your location |
 | y | int | Yes | Offset from your location |
-| z | int | Yes | Offset from your location |
+| z | int | Yes | Offset from your location. Leave blank in most cases |
 #### Does not return anything
 
 </details>
@@ -429,7 +429,7 @@ This was generated on `6/26/2025`.
 | amt | int | Yes | 0 to grab entire stack |
 | x | int | Yes | Offset from your location |
 | y | int | Yes | Offset from your location |
-| z | int | Yes | Offset from your location |
+| z | int | Yes | Offset from your location. Leave blank in most cases |
 #### Does not return anything
 
 </details>
@@ -2052,7 +2052,7 @@ This was generated on `6/26/2025`.
 
 
 <details>
-<summary><h3>CreateGumpCheckbox(text, hue)</h3></summary>
+<summary><h3>CreateGumpCheckbox(text, hue, isChecked)</h3></summary>
 
  Create a checkbox for gumps.  
   Example:  
@@ -2072,6 +2072,7 @@ This was generated on `6/26/2025`.
 | --- | --- | --- | --- |
 | text | string | Yes | Optional text label |
 | hue | ushort | Yes | Optional hue |
+| isChecked | bool | Yes | Default false, set to true if you want this checkbox checked on creation |
 #### Return Type: *Checkbox*
 
 </details>
@@ -2220,7 +2221,7 @@ This was generated on `6/26/2025`.
 
 
 <details>
-<summary><h3>CreateGumpRadioButton(text, group, inactive, active, hue)</h3></summary>
+<summary><h3>CreateGumpRadioButton(text, group, inactive, active, hue, isChecked)</h3></summary>
 
  Create a radio button for gumps, use group numbers to only allow one item to be checked at a time.  
  Example:  
@@ -2242,6 +2243,7 @@ This was generated on `6/26/2025`.
 | inactive | ushort | Yes | Unchecked graphic |
 | active | ushort | Yes | Checked graphic |
 | hue | ushort | Yes | Text color |
+| isChecked | bool | Yes | Defaults false, set to true if you want this button checked by default. |
 #### Return Type: *RadioButton*
 
 </details>
