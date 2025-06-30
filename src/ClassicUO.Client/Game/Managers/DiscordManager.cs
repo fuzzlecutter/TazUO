@@ -261,7 +261,6 @@ public class DiscordManager
 
     private void OnUODisconnected(object sender, EventArgs e)
     {
-        //TODO: Save activity from before and change it instead of resetting
         client.UpdateRichPresence(new Activity(), OnUpdateRichPresence); //Reset presence
     }
 
@@ -422,6 +421,12 @@ public class DiscordManager
     private void OnLobbyDeletedCallback(ulong lobbyId)
     {
         currentLobbies.Remove(lobbyId);
+        
+        //Maintain connection to these channels
+        client.CreateOrJoinLobbyWithMetadata(TUOLOBBY, TUOMETA, new Dictionary<string, string>(), (_, _) => { });
+        if(World.InGame)
+            client.CreateOrJoinLobbyWithMetadata(GenServerSecret(), GenServerMeta(), new Dictionary<string, string>(), (_, _) => { });
+        
         OnLobbyDeleted?.Invoke(lobbyId);
     }
 
