@@ -79,6 +79,7 @@ namespace ClassicUO.LegionScripting
         #region Python Callback Queue
 
         private readonly Queue<Action> scheduledCallbacks = new();
+        private static readonly ConcurrentDictionary<string, object> sharedVars = new();
 
         private void ScheduleCallback(Action action)
         {
@@ -221,6 +222,63 @@ namespace ClassicUO.LegionScripting
 
         #region Methods
 
+        /// <summary>
+        /// Set a variable that is shared between scripts.
+        /// Example:
+        /// ```py
+        /// API.SetSharedVar("myVar", 10)
+        /// ```
+        /// </summary>
+        /// <param name="name">Name of the var</param>
+        /// <param name="value">Value, can be a number, text, or *most* other objects too.</param>
+        public void SetSharedVar(string name, object value)
+        {
+            sharedVars[name] = value;
+        }
+
+        /// <summary>
+        /// Get the value of a shared variable.
+        /// Example:
+        /// ```py
+        /// myVar = API.GetSharedVar("myVar")
+        /// if myVar:
+        ///  API.SysMsg(f"myVar is {myVar}")
+        /// ```
+        /// </summary>
+        /// <param name="name">Name of the var</param>
+        /// <returns></returns>
+        public object GetSharedVar(string name)
+        {
+            if (sharedVars.TryGetValue(name, out var v))
+                return v;
+            return null;
+        }
+
+        /// <summary>
+        /// Try to remove a shared variable.
+        /// Example:
+        /// ```py
+        /// API.RemoveSharedVar("myVar")
+        /// ```
+        /// </summary>
+        /// <param name="name">Name of the var</param>
+        public void RemoveSharedVar(string name)
+        {
+            sharedVars.TryRemove(name, out _);
+        }
+
+        /// <summary>
+        /// Clear all shared vars.
+        /// Example:
+        /// ```py
+        /// API.ClearSharedVars()
+        /// ```
+        /// </summary>
+        public void ClearSharedVars()
+        {
+            sharedVars.Clear();
+        }
+        
         /// <summary>
         /// Close all gumps created by the API unless marked to remain open.
         /// </summary>
@@ -495,7 +553,8 @@ namespace ClassicUO.LegionScripting
         /// <param name="x">Offset from your location</param>
         /// <param name="y">Offset from your location</param>
         /// <param name="z">Offset from your location. Leave blank in most cases</param>
-        public void QueMoveItemOffset(uint serial, ushort amt = 0, int x = 0, int y = 0, int z = 0) => InvokeOnMainThread
+        /// <param name="OSI">True if you are playing OSI</param>
+        public void QueMoveItemOffset(uint serial, ushort amt = 0, int x = 0, int y = 0, int z = 0, bool OSI = false) => InvokeOnMainThread
         (() =>
             {
                 World.Map.GetMapZ(World.Player.X + x, World.Player.Y + y, out sbyte gz, out sbyte gz2);
@@ -516,7 +575,7 @@ namespace ClassicUO.LegionScripting
                 if (!useCalculatedZ)
                     z = World.Player.Z + z;
 
-                Client.Game.GetScene<GameScene>()?.MoveItemQueue.Enqueue(serial, 0, amt, World.Player.X + x, World.Player.Y + y, z);
+                Client.Game.GetScene<GameScene>()?.MoveItemQueue.Enqueue(serial, OSI ? uint.MaxValue : 0, amt, World.Player.X + x, World.Player.Y + y, z);
             }
         );
 
@@ -535,7 +594,8 @@ namespace ClassicUO.LegionScripting
         /// <param name="x">Offset from your location</param>
         /// <param name="y">Offset from your location</param>
         /// <param name="z">Offset from your location. Leave blank in most cases</param>
-        public void MoveItemOffset(uint serial, int amt = 0, int x = 0, int y = 0, int z = 0) => InvokeOnMainThread
+        /// <param name="OSI">True if you are playing OSI</param>
+        public void MoveItemOffset(uint serial, int amt = 0, int x = 0, int y = 0, int z = 0, bool OSI = false) => InvokeOnMainThread
         (() =>
             {
                 World.Map.GetMapZ(World.Player.X + x, World.Player.Y + y, out sbyte gz, out sbyte gz2);
@@ -557,7 +617,7 @@ namespace ClassicUO.LegionScripting
                     z = World.Player.Z + z;
                 
                 GameActions.PickUp(serial, 0, 0, amt);
-                GameActions.DropItem(serial, World.Player.X + x, World.Player.Y + y, z, 0);
+                GameActions.DropItem(serial, World.Player.X + x, World.Player.Y + y, z, OSI ? uint.MaxValue : 0);
             }
         );
 
@@ -622,6 +682,30 @@ namespace ClassicUO.LegionScripting
                 return false;
             }
         );
+
+        /// <summary>
+        /// Get a list of all buffs that are active.
+        /// See [Buff.cs](Buff.cs) to see what attributes are available.
+        /// Buff does not get updated after you access it in python, you will need to call this again to get the latest buff data.
+        /// Example:
+        /// ```py
+        /// buffs = API.ActiveBuffs()
+        /// for buff in buffs:
+        ///     API.SysMsg(buff.Title)
+        /// ```
+        /// </summary>
+        /// <returns></returns>
+        public Buff[] ActiveBuffs() => InvokeOnMainThread(() =>
+        {
+            List<Buff> buffs = new();
+
+            foreach (BuffIcon buff in World.Player.BuffIcons.Values)
+            {
+                buffs.Add(new Buff(buff));
+            }
+
+            return buffs.ToArray();
+        });
 
         /// <summary>
         /// Show a system message(Left side of screen).  

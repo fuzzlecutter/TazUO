@@ -14,6 +14,7 @@ namespace ClassicUO.Game.UI.Gumps
             "- Prevent closing containers when changing facets\n" +
             "- Added Create macro button for legion scripts\n" +
             "- Potential Crash fix from CUO\n" +
+            "- Python API changes\n" +
             "- Spellbar!\n",
             
             "/c[white][3.32.0]/cd\n" +

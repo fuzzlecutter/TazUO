@@ -8,7 +8,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](notes.md)  
   
-This was generated on `6/28/2025`.
+This was generated on `6/29/2025`.
 # API  
 
 ## Class Description
@@ -75,6 +75,89 @@ This was generated on `6/28/2025`.
  while True:  
    API.ProcessCallbacks()  
    API.Pause(0.1)  
+ ```  
+  
+
+#### Does not return anything
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>SetSharedVar(name, value)</h3></summary>
+
+ Set a variable that is shared between scripts.  
+ Example:  
+ ```py  
+ API.SetSharedVar("myVar", 10)  
+ ```  
+  
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| name | string | No | Name of the var |
+| value | object | No | Value, can be a number, text, or *most* other objects too. |
+#### Does not return anything
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>GetSharedVar(name)</h3></summary>
+
+ Get the value of a shared variable.  
+ Example:  
+ ```py  
+ myVar = API.GetSharedVar("myVar")  
+ if myVar:  
+  API.SysMsg(f"myVar is {myVar}")  
+ ```  
+  
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| name | string | No | Name of the var |
+#### Return Type: *object*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>RemoveSharedVar(name)</h3></summary>
+
+ Try to remove a shared variable.  
+ Example:  
+ ```py  
+ API.RemoveSharedVar("myVar")  
+ ```  
+  
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| name | string | No | Name of the var |
+#### Does not return anything
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>ClearSharedVars()</h3></summary>
+
+ Clear all shared vars.  
+ Example:  
+ ```py  
+ API.ClearSharedVars()  
  ```  
   
 
@@ -383,7 +466,7 @@ This was generated on `6/28/2025`.
 
 
 <details>
-<summary><h3>QueMoveItemOffset(serial, amt, x, y, z)</h3></summary>
+<summary><h3>QueMoveItemOffset(serial, amt, x, y, z, OSI)</h3></summary>
 
  Move an item to the ground near you.  
  Example:  
@@ -402,6 +485,7 @@ This was generated on `6/28/2025`.
 | x | int | Yes | Offset from your location |
 | y | int | Yes | Offset from your location |
 | z | int | Yes | Offset from your location. Leave blank in most cases |
+| OSI | bool | Yes | True if you are playing OSI |
 #### Does not return anything
 
 </details>
@@ -410,7 +494,7 @@ This was generated on `6/28/2025`.
 
 
 <details>
-<summary><h3>MoveItemOffset(serial, amt, x, y, z)</h3></summary>
+<summary><h3>MoveItemOffset(serial, amt, x, y, z, OSI)</h3></summary>
 
  Move an item to the ground near you.  
  Example:  
@@ -430,6 +514,7 @@ This was generated on `6/28/2025`.
 | x | int | Yes | Offset from your location |
 | y | int | Yes | Offset from your location |
 | z | int | Yes | Offset from your location. Leave blank in most cases |
+| OSI | bool | Yes | True if you are playing OSI |
 #### Does not return anything
 
 </details>
@@ -498,6 +583,27 @@ This was generated on `6/28/2025`.
 | --- | --- | --- | --- |
 | buffName | string | No | The name/title of the buff |
 #### Return Type: *bool*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>ActiveBuffs()</h3></summary>
+
+ Get a list of all buffs that are active.  
+ See [Buff.cs](Buff.cs) to see what attributes are available.  
+ Buff does not get updated after you access it in python, you will need to call this again to get the latest buff data.  
+ Example:  
+ ```py  
+ buffs = API.ActiveBuffs()  
+ for buff in buffs:  
+     API.SysMsg(buff.Title)  
+ ```  
+  
+
+#### Return Type: *Buff[]*
 
 </details>
 

@@ -37,6 +37,52 @@ def ProcessCallbacks() -> None:
     """
     pass
 
+def SetSharedVar(name: str, value: Any) -> None:
+    """
+     Set a variable that is shared between scripts.
+     Example:
+     ```py
+     API.SetSharedVar("myVar", 10)
+     ```
+    
+    """
+    pass
+
+def GetSharedVar(name: str) -> Any:
+    """
+     Get the value of a shared variable.
+     Example:
+     ```py
+     myVar = API.GetSharedVar("myVar")
+     if myVar:
+      API.SysMsg(f"myVar is {myVar}")
+     ```
+    
+    """
+    pass
+
+def RemoveSharedVar(name: str) -> None:
+    """
+     Try to remove a shared variable.
+     Example:
+     ```py
+     API.RemoveSharedVar("myVar")
+     ```
+    
+    """
+    pass
+
+def ClearSharedVars() -> None:
+    """
+     Clear all shared vars.
+     Example:
+     ```py
+     API.ClearSharedVars()
+     ```
+    
+    """
+    pass
+
 def CloseGumps() -> None:
     """
      Close all gumps created by the API unless marked to remain open.
@@ -214,7 +260,7 @@ def MoveItem(serial: int, destination: int, amt: int = 0, x: int = 0xFFFF, y: in
     """
     pass
 
-def QueMoveItemOffset(serial: int, amt: int = 0, x: int = 0, y: int = 0, z: int = 0) -> None:
+def QueMoveItemOffset(serial: int, amt: int = 0, x: int = 0, y: int = 0, z: int = 0, OSI: bool = False) -> None:
     """
      Move an item to the ground near you.
      Example:
@@ -227,7 +273,7 @@ def QueMoveItemOffset(serial: int, amt: int = 0, x: int = 0, y: int = 0, z: int 
     """
     pass
 
-def MoveItemOffset(serial: int, amt: int = 0, x: int = 0, y: int = 0, z: int = 0) -> None:
+def MoveItemOffset(serial: int, amt: int = 0, x: int = 0, y: int = 0, z: int = 0, OSI: bool = False) -> None:
     """
      Move an item to the ground near you.
      Example:
@@ -273,6 +319,21 @@ def BuffExists(buffName: str) -> bool:
      ```py
      if API.BuffExists("Bless"):
        API.SysMsg("You are blessed!")
+     ```
+    
+    """
+    pass
+
+def ActiveBuffs() -> list[Buff]:
+    """
+     Get a list of all buffs that are active.
+     See [Buff.cs](Buff.cs) to see what attributes are available.
+     Buff does not get updated after you access it in python, you will need to call this again to get the latest buff data.
+     Example:
+     ```py
+     buffs = API.ActiveBuffs()
+     for buff in buffs:
+         API.SysMsg(buff.Title)
      ```
     
     """
