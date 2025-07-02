@@ -81,6 +81,7 @@ namespace ClassicUO.Game.UI.Gumps
         private AlphaBlendControl background;
 
         private ScrollArea area;
+        private static int last_x = 100, last_y = 100;
 
         public SkillGumpAdvanced() : base(0, 0)
         {
@@ -270,6 +271,15 @@ namespace ClassicUO.Game.UI.Gumps
             resizeDrag.MouseUp += ResizeDrag_MouseUp;
             resizeDrag.X = Width - 10;
             resizeDrag.Y = Height - 10;
+            X = last_x;
+            Y = last_y;
+        }
+
+        protected override void OnMove(int x, int y)
+        {
+            base.OnMove(x, y);
+            last_x = X;
+            last_y = Y;
         }
 
         public override GumpType GumpType => GumpType.SkillMenu;

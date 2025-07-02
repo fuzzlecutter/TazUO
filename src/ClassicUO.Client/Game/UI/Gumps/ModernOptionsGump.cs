@@ -3898,6 +3898,12 @@ namespace ClassicUO.Game.UI.Gumps
             options.Add(new SettingsOption("", content, MainContent.RightWidth, (int)PAGE.TUOOptions));
         }
 
+        public override void Dispose()
+        {
+            base.Dispose();
+            profile.Save(ProfileManager.ProfilePath);
+        }
+
         private void OverrideAllProfiles(List<ProfileLocationData> allProfiles)
         {
             foreach (var profile in allProfiles)
