@@ -12,7 +12,6 @@ public class SpellBar : Gump
     public static SpellBar Instance { get; private set; }
     
     private SpellEntry[] spellEntries = new SpellEntry[10];
-    private int spellRow = 0;
     private TextBox rowLabel;
     
     public SpellBar() : base(0, 0)
@@ -46,22 +45,22 @@ public class SpellBar : Gump
     private void ChangeRow(bool up)
     {
         if (up)
-            spellRow -= 1;
+            SpellBarManager.CurrentRow -= 1;
         else
-            spellRow += 1;
+            SpellBarManager.CurrentRow += 1;
         
         
-        if (spellRow < 0)
-            spellRow = SpellBarManager.SpellBarRows.Count - 1;
+        if (SpellBarManager.CurrentRow < 0)
+            SpellBarManager.CurrentRow = SpellBarManager.SpellBarRows.Count - 1;
 
-        if (spellRow >= SpellBarManager.SpellBarRows.Count)
-            spellRow = 0;
+        if (SpellBarManager.CurrentRow >= SpellBarManager.SpellBarRows.Count)
+            SpellBarManager.CurrentRow = 0;
 
-        rowLabel.SetText(spellRow.ToString());
+        rowLabel.SetText(SpellBarManager.CurrentRow.ToString());
         
         for (int s = 0; s < spellEntries.Length; s++)
         {
-            spellEntries[s].SetSpell(SpellBarManager.GetSpell(spellRow, s), spellRow, s);
+            spellEntries[s].SetSpell(SpellBarManager.GetSpell(SpellBarManager.CurrentRow, s), SpellBarManager.CurrentRow, s);
         }
     }
 
@@ -73,18 +72,18 @@ public class SpellBar : Gump
 
         int x = 2;
         
-        if(spellRow > SpellBarManager.SpellBarRows.Count - 1)
-            spellRow = SpellBarManager.SpellBarRows.Count - 1;
+        if(SpellBarManager.CurrentRow > SpellBarManager.SpellBarRows.Count - 1)
+            SpellBarManager.CurrentRow = SpellBarManager.SpellBarRows.Count - 1;
         
         for (int i = 0; i < spellEntries.Length; i++)
         {
-            Add(spellEntries[i] = new SpellEntry().SetSpell(SpellBarManager.GetSpell(spellRow, i), spellRow, i));
+            Add(spellEntries[i] = new SpellEntry().SetSpell(SpellBarManager.GetSpell(SpellBarManager.CurrentRow, i), SpellBarManager.CurrentRow, i));
             spellEntries[i].X = x;
             spellEntries[i].Y = 1;
             x += 46 + 2;
         }
         
-        rowLabel = TextBox.GetOne(spellRow.ToString(), TrueTypeLoader.EMBEDDED_FONT, 12, Color.White, TextBox.RTLOptions.DefaultCentered(16));
+        rowLabel = TextBox.GetOne(SpellBarManager.CurrentRow.ToString(), TrueTypeLoader.EMBEDDED_FONT, 12, Color.White, TextBox.RTLOptions.DefaultCentered(16));
         rowLabel.X = 482;
         rowLabel.Y = (Height - rowLabel.Height) >> 1;
         Add(rowLabel);
@@ -119,7 +118,7 @@ public class SpellBar : Gump
             this.row = row;
             this.col = col;
             SpellBarManager.SpellBarRows[row].SpellSlot[col] = spell;
-            if(spell != null)
+            if(spell != null && spell != SpellDefinition.EmptySpell)
             {
                 icon.Graphic = (ushort)spell.GumpIconSmallID;
                 icon.IsVisible = true;

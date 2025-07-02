@@ -1,31 +1,121 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
+using ClassicUO.Input;
 using ClassicUO.Utility.Logging;
+using SDL2;
 
 namespace ClassicUO.Game.Managers;
 
 public class SpellBarManager
 {
     public static List<SpellBarRow> SpellBarRows = [];
+    public static int CurrentRow = 0;
 
+    private static bool enabled;
     private static string charPath;
     private static string fullSavePath;
     private static string presetPath;
     private const string SAVE_FILE = "SpellBar.json";
+    private static SpellBarSettings spellBarSettings;
 
     public static SpellDefinition GetSpell(int row, int col)
     {
+        if (!enabled)
+            return SpellDefinition.EmptySpell;
+        
         if(SpellBarRows.Count <= row || row < 0) return SpellDefinition.EmptySpell;
         if(SpellBarRows[row].SpellSlot.Length <= col || col < 0) return SpellDefinition.EmptySpell;
         
         return SpellBarRows[row].SpellSlot[col];
     }
 
+    public static void ControllerInput(SDL.SDL_GameControllerButton button)
+    {
+        if (!enabled || !spellBarSettings.Enabled)
+            return;
+        
+        for (int i = 0; i < 10; i++) //Currently 10 spells per row supported
+        {
+            if (spellBarSettings.ControllerButtons.Length <= 0)
+                return;
+            
+            if(Controller.AreButtonsPressed(spellBarSettings.ControllerButtons[i]))
+                UseSlot(CurrentRow, i);
+        }
+    }
+
+    public static void KeyPress(SDL.SDL_Keycode key, SDL.SDL_Keymod mod)
+    {
+        if (!enabled || !spellBarSettings.Enabled)
+            return;
+        
+        for (int i = 0; i < 10; i++) //Currently 10 spells per row supported
+        {
+            if (spellBarSettings.HotKeys.Length <= i)
+                return; //We don't have that many hotkeys saved, no need to continue.
+
+            if (key == (SDL.SDL_Keycode)spellBarSettings.HotKeys[i] && (spellBarSettings.KeyMod[i] == (int)SDL.SDL_Keymod.KMOD_NONE || ((int)mod & spellBarSettings.KeyMod[i]) == spellBarSettings.KeyMod[i]))
+                UseSlot(CurrentRow, i);
+        }
+    }
+
+    public static void UseSlot(int row, int col)
+    {
+        if (!enabled || !spellBarSettings.Enabled)
+            return;
+        
+        var spell = GetSpell(row, col);
+
+        if (spell == SpellDefinition.EmptySpell)
+            return;
+        
+        GameActions.CastSpell(spell.ID);
+    }
+
+    public static SDL.SDL_GameControllerButton[][] GetControllerButtons()
+    {
+        if (!enabled || !spellBarSettings.Enabled)
+            return [];
+
+        return spellBarSettings.ControllerButtons
+                               .Select(group => group.Select(x => (SDL.SDL_GameControllerButton)x).ToArray())
+                               .ToArray();
+    }
+
+    public static SDL.SDL_Keycode[] GetHotKeys() => spellBarSettings.HotKeys.Select(x => (SDL.SDL_Keycode)x).ToArray();
+    
+    public static SDL.SDL_Keymod[] GetModKeys() => spellBarSettings.KeyMod.Select(x=>(SDL.SDL_Keymod)x).ToArray();
+
+    public static void SetButtons(int slot, SDL.SDL_Keymod mod, SDL.SDL_Keycode key, SDL.SDL_GameControllerButton[] controllerButtons)
+    {
+        spellBarSettings.KeyMod[slot] = (int)mod;
+        spellBarSettings.HotKeys[slot] = (int)key;
+        if( controllerButtons == null) return;
+        spellBarSettings.ControllerButtons[slot] = controllerButtons.Select(x => x == null ? -1 : (int)x).ToArray();
+    }
+
+    public static bool IsEnabled()
+    {
+        if(spellBarSettings != null)
+            return spellBarSettings.Enabled;
+        return false;
+    }
+
+    public static bool ToggleEnabled()
+    {
+        if(spellBarSettings == null)
+            spellBarSettings = new SpellBarSettings();
+        
+        spellBarSettings.Enabled = !spellBarSettings.Enabled;
+        return spellBarSettings.Enabled;
+    }
+    
     public static void Load()
     {
         charPath = ProfileManager.ProfilePath;
@@ -50,13 +140,31 @@ public class SpellBarManager
         }
         if(SpellBarRows.Count == 0)
             SpellBarRows.Add(new SpellBarRow()); //Ensure at least one row is present
+
+        if (File.Exists(Path.Combine(charPath, "SpellBarSettings.json")))
+        {
+            try
+            {
+                spellBarSettings = JsonSerializer.Deserialize(File.ReadAllText(Path.Combine(charPath, "SpellBarSettings.json")), SpellBarSettingsContext.Default.SpellBarSettings);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
+        }
+        
+        if(spellBarSettings == null)
+            spellBarSettings = new SpellBarSettings();
+        
+        enabled = true;
     }
 
     public static void Unload()
     {
         try
         {
-            File.WriteAllText(fullSavePath, JsonSerializer.Serialize(SpellBarRows, SpellBarRowsContext.Default.ListSpellBarRow));;
+            File.WriteAllText(fullSavePath, JsonSerializer.Serialize(SpellBarRows, SpellBarRowsContext.Default.ListSpellBarRow));
+            File.WriteAllText(Path.Combine(charPath, "SpellBarSettings.json"), JsonSerializer.Serialize(spellBarSettings, SpellBarSettingsContext.Default.SpellBarSettings));
         }
         catch(Exception e)
         {
@@ -72,8 +180,9 @@ public class SpellBarManager
 
 public class SpellBarRow()
 {
+    [JsonIgnore]
     public SpellDefinition[] SpellSlot = new SpellDefinition[10];
-
+    
     public int[] SpellSlotIds {
         get
         {
@@ -91,20 +200,9 @@ public class SpellBarRow()
         {
             for (int i = 0; i < 10; i++)
             {
-                if (value[i] == -2)
-                    SpellSlot[i] = null;
-                else
-                    SpellSlot[i] = SpellDefinition.FullIndexGetSpell(value[i]);
+                SpellSlot[i] = SpellDefinition.FullIndexGetSpell(value[i]);
             }
         }
-    }
-    
-    public SpellBarRow SetDummySpells(int s = 0)
-    {
-        for (int i = 0; i < 10; i++)
-            SpellSlot[i] = SpellDefinition.FullIndexGetSpell(i + s);
-        
-        return this;
     }
     
     public SpellBarRow SetSpell(int slot, SpellDefinition spell)
@@ -115,5 +213,22 @@ public class SpellBarRow()
     }
 }
 
+public class SpellBarSettings
+{
+    public bool Enabled { get; set; }
+    
+    public int CurrentRow { get; set; } = 0;
+    
+    public int[] HotKeys { get; set; } = [(int)SDL.SDL_Keycode.SDLK_F1, (int)SDL.SDL_Keycode.SDLK_F2, (int)SDL.SDL_Keycode.SDLK_F3, (int)SDL.SDL_Keycode.SDLK_F4, (int)SDL.SDL_Keycode.SDLK_F5, 
+        (int)SDL.SDL_Keycode.SDLK_F6, (int)SDL.SDL_Keycode.SDLK_F7, (int)SDL.SDL_Keycode.SDLK_F8, (int)SDL.SDL_Keycode.SDLK_F9, (int)SDL.SDL_Keycode.SDLK_F10];
+    
+    public int[] KeyMod { get; set; } = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    
+    public int[][] ControllerButtons { get; set; } = [[-1],[-1],[-1],[-1],[-1],[-1],[-1],[-1],[-1],[-1]];
+}
+
 [JsonSerializable(typeof(List<SpellBarRow>), GenerationMode = JsonSourceGenerationMode.Metadata)]
 public partial class SpellBarRowsContext : JsonSerializerContext { }
+
+[JsonSerializable(typeof(SpellBarSettings))]
+public partial class SpellBarSettingsContext : JsonSerializerContext { }

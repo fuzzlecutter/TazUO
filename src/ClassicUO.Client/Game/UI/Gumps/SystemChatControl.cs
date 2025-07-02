@@ -104,7 +104,8 @@ namespace ClassicUO.Game.UI.Gumps
                 X = CHAT_X_OFFSET,
                 Y = Height - CHAT_HEIGHT,
                 Width = Width - CHAT_X_OFFSET,
-                Height = CHAT_HEIGHT
+                Height = CHAT_HEIGHT,
+                LoseFocusOnEscapeKey = false
             };
 
             float gradientTransparency = ProfileManager.CurrentProfile != null && ProfileManager.CurrentProfile.HideChatGradient ? 0.0f : 0.5f;
