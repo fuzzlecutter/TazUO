@@ -1409,6 +1409,17 @@ def CreateGumpScrollArea(x: int, y: int, width: int, height: int) -> Control:
     """
     pass
 
+def CreateGumpPic(graphic: int, x: int = 0, y: int = 0, hue: int = 0) -> Any:
+    """
+     Create a gump pic(Use this for gump art, not item art)
+     Example:
+     ```py
+     gumpPic = API.CreateGumpPic(0xafb)
+     gump.Add(gumpPic)
+    
+    """
+    pass
+
 def AddControlOnClick(control: Control, onClick: Any, leftOnly: bool = True) -> None:
     """
      Add an onClick callback to a control.

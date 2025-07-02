@@ -8,7 +8,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](notes.md)  
   
-This was generated on `6/29/2025`.
+This was generated on `7/2/2025`.
 # API  
 
 ## Class Description
@@ -2500,6 +2500,30 @@ This was generated on `6/29/2025`.
 | width | int | No |  |
 | height | int | No |  |
 #### Return Type: *ScrollArea*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>CreateGumpPic(graphic, x, y, hue)</h3></summary>
+
+ Create a gump pic(Use this for gump art, not item art)  
+ Example:  
+ ```py  
+ gumpPic = API.CreateGumpPic(0xafb)  
+ gump.Add(gumpPic)  
+  
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| graphic | ushort | No |  |
+| x | int | Yes |  |
+| y | int | Yes |  |
+| hue | ushort | Yes |  |
+#### Return Type: *GumpPic*
 
 </details>
 

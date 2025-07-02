@@ -2410,6 +2410,23 @@ namespace ClassicUO.LegionScripting
         }
 
         /// <summary>
+        /// Create a gump pic(Use this for gump art, not item art)
+        /// Example:
+        /// ```py
+        /// gumpPic = API.CreateGumpPic(0xafb)
+        /// gump.Add(gumpPic)
+        /// </summary>
+        /// <param name="graphic"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="hue"></param>
+        /// <returns></returns>
+        public GumpPic CreateGumpPic(ushort graphic, int x = 0, int y = 0, ushort hue = 0)
+        {
+            return new GumpPic(x, y, graphic, hue);
+        }
+
+        /// <summary>
         /// Add an onClick callback to a control.  
         /// Example:  
         /// ```py
