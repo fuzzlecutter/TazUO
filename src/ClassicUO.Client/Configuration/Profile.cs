@@ -47,6 +47,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml;
 using ClassicUO.Game.UI;
+using ClassicUO.Game.UI.Gumps.SpellBar;
 
 namespace ClassicUO.Configuration
 {
@@ -964,6 +965,7 @@ namespace ClassicUO.Configuration
                                 case GumpType.ScriptManager:
                                     gump = new LegionScripting.ScriptManagerGump();
                                     break;
+                                case GumpType.SpellBar: gump = new SpellBar(); break;
                             }
 
                             if (gump == null)

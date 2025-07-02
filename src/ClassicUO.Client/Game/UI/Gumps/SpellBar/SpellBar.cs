@@ -3,6 +3,7 @@ using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Input;
+using ClassicUO.Renderer;
 using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.UI.Gumps.SpellBar;
@@ -31,7 +32,9 @@ public class SpellBar : Gump
         
         Build();
     }
-    
+
+    public override GumpType GumpType { get; } = GumpType.SpellBar;
+
     protected override void OnMouseWheel(MouseEventType delta)
     {
         base.OnMouseWheel(delta);
@@ -100,6 +103,54 @@ public class SpellBar : Gump
         Add(up);
         Add(down);
     }
+    
+    protected override void OnMouseUp(int x, int y, MouseButtonType button)
+    {
+        base.OnMouseUp(x, y, button);
+
+        if (button == MouseButtonType.Left && Keyboard.Alt && UIManager.MouseOverControl != null && (UIManager.MouseOverControl == this || UIManager.MouseOverControl.RootParent == this))
+        {
+            ref readonly var texture = ref Client.Game.Gumps.GetGump(0x82C);
+            if (texture.Texture != null)
+            {
+                if (x >= 0 && x <= texture.UV.Width && y >= 0 && y <= texture.UV.Height)
+                {
+                    IsLocked = !IsLocked;
+                }
+            }
+        }
+    }
+
+    public override bool Draw(UltimaBatcher2D batcher, int x, int y)
+    {
+        if (!base.Draw(batcher, x, y))
+            return false;
+        
+        if (Keyboard.Alt)
+        {
+            Vector3 hueVector = ShaderHueTranslator.GetHueVector(0);
+
+            ref readonly var texture = ref Client.Game.Gumps.GetGump(0x82C);
+
+            if (texture.Texture != null)
+            {
+                if (IsLocked)
+                {
+                    hueVector.X = 34;
+                    hueVector.Y = 1;
+                }
+                batcher.Draw
+                (
+                    texture.Texture,
+                    new Vector2(x, y),
+                    texture.UV,
+                    hueVector
+                );
+            }
+        }
+
+        return true;
+    }
 
     public class SpellEntry : Control
     {
@@ -149,7 +200,7 @@ public class SpellBar : Gump
             if(button == MouseButtonType.Right)
                 ContextMenu?.Show();
 
-            if (button == MouseButtonType.Left && spell != null && !Keyboard.Alt && !Keyboard.Ctrl)
+            if (button == MouseButtonType.Left && spell != null && spell != SpellDefinition.EmptySpell && !Keyboard.Alt && !Keyboard.Ctrl)
             {
                 GameActions.CastSpell(spell.ID);
             }

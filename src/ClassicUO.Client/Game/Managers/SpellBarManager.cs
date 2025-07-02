@@ -72,7 +72,7 @@ public class SpellBarManager
         
         var spell = GetSpell(row, col);
 
-        if (spell == SpellDefinition.EmptySpell)
+        if (spell == null || spell == SpellDefinition.EmptySpell)
             return;
         
         GameActions.CastSpell(spell.ID);
