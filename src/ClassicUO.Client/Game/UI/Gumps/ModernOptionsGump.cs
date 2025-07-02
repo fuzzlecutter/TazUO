@@ -1927,6 +1927,7 @@ namespace ClassicUO.Game.UI.Gumps
             );
 
             PositionHelper.PositionControl(s.FullControl);
+            PositionHelper.BlankLine();
             PositionHelper.RemoveIndent();
 
             options.Add
@@ -2008,6 +2009,7 @@ namespace ClassicUO.Game.UI.Gumps
             );
 
             PositionHelper.PositionControl(s.FullControl);
+            PositionHelper.BlankLine();
             SettingsOption ss = s;
 
             options.Add
@@ -2028,7 +2030,7 @@ namespace ClassicUO.Game.UI.Gumps
                 )
             );
 
-            PositionHelper.PositionExact(s.FullControl, ss.FullControl.X + ss.FullControl.Width + 30, ss.FullControl.Y);
+            PositionHelper.PositionControl(s.FullControl);
         }
 
 
