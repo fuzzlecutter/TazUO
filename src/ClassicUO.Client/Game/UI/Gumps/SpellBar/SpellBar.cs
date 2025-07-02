@@ -42,26 +42,30 @@ public class SpellBar : Gump
             ChangeRow(false);
     }
 
-    private void ChangeRow(bool up)
+    public void SetRow(int row)
     {
-        if (up)
-            SpellBarManager.CurrentRow -= 1;
-        else
-            SpellBarManager.CurrentRow += 1;
-        
+        SpellBarManager.CurrentRow = row;
         
         if (SpellBarManager.CurrentRow < 0)
             SpellBarManager.CurrentRow = SpellBarManager.SpellBarRows.Count - 1;
 
         if (SpellBarManager.CurrentRow >= SpellBarManager.SpellBarRows.Count)
             SpellBarManager.CurrentRow = 0;
-
+        
         rowLabel.SetText(SpellBarManager.CurrentRow.ToString());
         
         for (int s = 0; s < spellEntries.Length; s++)
         {
             spellEntries[s].SetSpell(SpellBarManager.GetSpell(SpellBarManager.CurrentRow, s), SpellBarManager.CurrentRow, s);
         }
+    }
+
+    public void ChangeRow(bool up)
+    {
+        if (up)
+            SetRow(SpellBarManager.CurrentRow - 1);
+        else
+            SetRow(SpellBarManager.CurrentRow + 1);
     }
 
     public void Build()
@@ -126,12 +130,13 @@ public class SpellBar : Gump
                 int cliloc = GetSpellTooltip(spell.ID);
                 
                 if (cliloc != 0)
-                {
                     SetTooltip(ClilocLoader.Instance.GetString(cliloc), 80);
-                }
+                else
+                    SetTooltip(string.Empty);
             }
             else
             {
+                SetTooltip("Right click to set spell");
                 icon.IsVisible = false;
             }
 
@@ -168,6 +173,10 @@ public class SpellBar : Gump
                         }, true
                     )
                 );
+            }));
+            ContextMenu.Add(new ContextMenuItemEntry("Clear", () =>
+            {
+                SetSpell(SpellDefinition.EmptySpell, row, col);
             }));
         }
         

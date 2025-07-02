@@ -47,6 +47,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using ClassicUO.Game.UI.Gumps.SpellBar;
 using static SDL2.SDL;
 
 namespace ClassicUO.Game.Managers
@@ -1093,6 +1094,25 @@ namespace ClassicUO.Game.Managers
                     if (!GameActions.CloseLegionScriptingGump())
                         GameActions.OpenLegionScriptingGump();
 
+                    break;
+                
+                case MacroType.SpellBarRowUp:
+                    SpellBar.Instance?.ChangeRow(true);
+
+                    break;
+                
+                case MacroType.SpellBarRowDown:
+                    SpellBar.Instance?.ChangeRow(false);
+
+                    break;
+                
+                case MacroType.SetSpellBarRow: 
+                    string spellRow = ((MacroObjectString)macro).Text;
+
+                    if (int.TryParse(spellRow, out int row))
+                    {
+                        SpellBar.Instance?.SetRow(row);
+                    }
                     break;
 
                 case MacroType.OpenDoor:
@@ -2333,6 +2353,7 @@ namespace ClassicUO.Game.Managers
                 case MacroType.ModifyUpdateRange:
                 case MacroType.RazorMacro:
                 case MacroType.UseCounterBar:
+                case MacroType.SetSpellBarRow:
                 case MacroType.ClientCommand:
                     obj = new MacroObjectString(code, MacroSubType.MSC_NONE);
 
@@ -2512,6 +2533,7 @@ namespace ClassicUO.Game.Managers
                 case MacroType.ModifyUpdateRange:
                 case MacroType.RazorMacro:
                 case MacroType.UseCounterBar:
+                case MacroType.SetSpellBarRow:
                 case MacroType.ClientCommand:
                     SubMenuType = 2;
 
@@ -2638,7 +2660,10 @@ namespace ClassicUO.Game.Managers
         ToggleDurabilityGump,
         ShowNearbyItems,
         ToggleNearbyLootGump,
-        ToggleLegionScripting
+        ToggleLegionScripting,
+        SetSpellBarRow,
+        SpellBarRowUp,
+        SpellBarRowDown,
     }
 
     public enum MacroSubType

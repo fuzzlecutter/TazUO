@@ -41,7 +41,7 @@ public class SpellQuickSearch : Gump
         searchField.TextChanged += SearchTextChanged;
         searchField.EnterPressed += SearchEnterPressed;
         
-        Add(spellDisplay = new(Width, onClick){Y = Height - 25 - 44});
+        Add(spellDisplay = new(Width, onClick, disposeOnReturn){Y = Height - 25 - 44});
     }
 
     private void SearchEnterPressed(object sender, EventArgs e)
@@ -77,14 +77,16 @@ public class SpellQuickSearch : Gump
         private GumpPic icon;
         private TextBox text;
         private Action<SpellDefinition> onClick;
+        private bool disposeOnReturn;
         
         public SpellDefinition Spell;
-        public SpellDisplay(int width, Action<SpellDefinition> onClick)
+        public SpellDisplay(int width, Action<SpellDefinition> onClick, bool disposeOnReturn)
         {
             Width = width;
             Height = 44;
             CanMove = true;
             this.onClick = onClick;
+            this.disposeOnReturn = disposeOnReturn;
         }
         
         public override bool AcceptMouseInput { get; set; } = true;
@@ -94,6 +96,9 @@ public class SpellQuickSearch : Gump
             base.OnMouseUp(x, y, button);
             
             InvokeAction();
+            
+            if(disposeOnReturn)
+                Parent?.Dispose();
         }
 
         public void InvokeAction()
