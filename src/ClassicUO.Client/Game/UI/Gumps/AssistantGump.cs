@@ -177,7 +177,7 @@ public class AssistantGump : BaseOptionsGump
         {
             PositionHelper.BlankLine();
             Control tb;
-            scroll.Add(tb = PositionHelper.PositionControl(TextBox.GetOne($"Row {c} hotkeys: ", ThemeSettings.FONT, ThemeSettings.STANDARD_TEXT_SIZE, ThemeSettings.TEXT_FONT_COLOR, TextBox.RTLOptions.Default())));
+            scroll.Add(tb = PositionHelper.PositionControl(TextBox.GetOne($"Slot {c} hotkeys: ", ThemeSettings.FONT, ThemeSettings.STANDARD_TEXT_SIZE, ThemeSettings.TEXT_FONT_COLOR, TextBox.RTLOptions.Default())));
             
             HotkeyBox hotkey = new();
             var c1 = c;
