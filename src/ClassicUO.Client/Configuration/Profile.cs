@@ -480,6 +480,10 @@ namespace ClassicUO.Configuration
 
         public string NamePlateFont { get; set; } = "avadonian";
         public int NamePlateFontSize { get; set; } = 20;
+        
+        public string OptionsFont { get; set; } = "Roboto-Regular";
+        public int OptionsFontSize { get; set; } = 18;
+        
         public int TextBorderSize { get; set; } = 1;
 
         public bool UseModernShopGump { get; set; } = false;

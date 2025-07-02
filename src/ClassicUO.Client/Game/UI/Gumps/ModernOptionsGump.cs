@@ -3408,6 +3408,8 @@ namespace ClassicUO.Game.UI.Gumps
 
             #region Font settings
 
+            const int minFontSize = 5;
+            const int maxFontSize = 50;
             page = ((int)PAGE.TUOOptions + 1007);
             content.AddToLeft(SubCategoryButton(lang.GetTazUO.FontSettings, page, content.LeftWidth));
             content.ResetRightSide();
@@ -3439,7 +3441,7 @@ namespace ClassicUO.Game.UI.Gumps
             (
                 new SliderWithLabel
                 (
-                    lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, 5, 40, profile.InfoBarFontSize, (i) =>
+                    lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, minFontSize, maxFontSize, profile.InfoBarFontSize, (i) =>
                     {
                         profile.InfoBarFontSize = i;
                         InfoBarGump.UpdateAllOptions();
@@ -3462,7 +3464,7 @@ namespace ClassicUO.Game.UI.Gumps
             content.AddToRight
             (
                 new SliderWithLabel
-                    (lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, 5, 40, profile.GameWindowSideChatFontSize, (i) => { profile.GameWindowSideChatFontSize = i; }), true,
+                    (lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, minFontSize, maxFontSize, profile.GameWindowSideChatFontSize, (i) => { profile.GameWindowSideChatFontSize = i; }), true,
                 page
             );
 
@@ -3480,7 +3482,7 @@ namespace ClassicUO.Game.UI.Gumps
             content.AddToRight
             (
                 new SliderWithLabel
-                    (lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, 5, 40, profile.SelectedToolTipFontSize, (i) => { profile.SelectedToolTipFontSize = i; }), true, page
+                    (lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, minFontSize, maxFontSize, profile.SelectedToolTipFontSize, (i) => { profile.SelectedToolTipFontSize = i; }), true, page
             );
 
             content.RemoveIndent();
@@ -3496,7 +3498,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             content.AddToRight
             (
-                new SliderWithLabel(lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, 5, 40, profile.OverheadChatFontSize, (i) => { profile.OverheadChatFontSize = i; }),
+                new SliderWithLabel(lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, minFontSize, maxFontSize, profile.OverheadChatFontSize, (i) => { profile.OverheadChatFontSize = i; }),
                 true, page
             );
 
@@ -3515,7 +3517,7 @@ namespace ClassicUO.Game.UI.Gumps
             content.AddToRight
             (
                 new SliderWithLabel
-                    (lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, 5, 40, profile.SelectedJournalFontSize, (i) => { profile.SelectedJournalFontSize = i; }), true, page
+                    (lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, minFontSize, maxFontSize, profile.SelectedJournalFontSize, (i) => { profile.SelectedJournalFontSize = i; }), true, page
             );
 
             content.RemoveIndent();
@@ -3531,7 +3533,24 @@ namespace ClassicUO.Game.UI.Gumps
 
             content.AddToRight
             (
-                new SliderWithLabel(lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, 5, 40, profile.NamePlateFontSize, (i) => { profile.NamePlateFontSize = i; }), true,
+                new SliderWithLabel(lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, minFontSize, maxFontSize, profile.NamePlateFontSize, (i) => { profile.NamePlateFontSize = i; }), true,
+                page
+            );
+
+            content.RemoveIndent();
+            content.BlankLine();
+            
+            content.AddToRight
+            (
+                GenerateFontSelector(lang.GetTazUO.Optionsfont, ProfileManager.CurrentProfile.OptionsFont, (i, s) => { ProfileManager.CurrentProfile.OptionsFont = s; }),
+                true, page
+            );
+
+            content.Indent();
+
+            content.AddToRight
+            (
+                new SliderWithLabel(lang.GetTazUO.SharedSize, 0, ThemeSettings.SLIDER_WIDTH, minFontSize, maxFontSize, profile.OptionsFontSize, (i) => { profile.OptionsFontSize = i; }), true,
                 page
             );
 

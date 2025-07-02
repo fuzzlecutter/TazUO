@@ -229,7 +229,16 @@ public class BaseOptionsGump : Gump
         public static int INDENT_SPACE { get; set; } = 40;
         public static int BLANK_LINE { get; set; } = 20;
         public static int HORIZONTAL_SPACING_CONTROLS { get; set; } = 20;
-        public static int STANDARD_TEXT_SIZE { get; set; } = 20;
+        public static int STANDARD_TEXT_SIZE
+        {
+            get
+            {
+                if (ProfileManager.CurrentProfile != null)
+                    return ProfileManager.CurrentProfile.OptionsFontSize;
+
+                return 20;
+            }
+        }
         public static float NO_MATCH_SEARCH { get; set; } = 0.5f;
         public static ushort BACKGROUND { get; set; } = 897;
         public static ushort SEARCH_BACKGROUND { get; set; } = 899;
@@ -245,7 +254,7 @@ public class BaseOptionsGump : Gump
             get
             {
                 if (ProfileManager.CurrentProfile != null)
-                    return ProfileManager.CurrentProfile.SelectedTTFJournalFont;
+                    return ProfileManager.CurrentProfile.OptionsFont;
 
                 return TrueTypeLoader.EMBEDDED_FONT;
             }
@@ -2261,7 +2270,7 @@ public class BaseOptionsGump : Gump
             private TextBox _label;
             private int _selectedIndex;
 
-            public Combobox(int width, string[] items, int selected = -1, int maxHeight = 200, Action<int, string> onOptionSelected = null)
+            public Combobox(int width, string[] items, int selected = -1, int maxHeight = 400, Action<int, string> onOptionSelected = null)
             {
                 Width = width;
                 Height = 25;

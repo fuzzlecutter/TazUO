@@ -549,6 +549,7 @@ namespace ClassicUO.Configuration
             public string OverheadFont { get; set; } = "Overhead font";
             public string JournalFont { get; set; } = "Journal font";
             public string NameplateFont { get; set; } = "Nameplate font";
+            public string Optionsfont { get; set; } = "Options menu font";
             #endregion
 
             #region Controller
