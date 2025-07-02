@@ -36,5 +36,10 @@ namespace ClassicUO
     {
         public static uint Ticks;
         public static float Delta;
+        
+        public static int MsToTicks(double milliseconds)
+        {
+            return (int)(milliseconds / 4);
+        }
     }
 }
