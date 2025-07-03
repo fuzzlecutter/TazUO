@@ -346,7 +346,7 @@ namespace ClassicUO.Game.UI
             {
                 _openedCorpses.Clear();
                 _corpsesRequested.Clear();
-                nextClean = Time.Ticks + Time.MsToTicks(120000);
+                nextClean = Time.Ticks + 120000;
             }
         }
         protected override void UpdateContents()

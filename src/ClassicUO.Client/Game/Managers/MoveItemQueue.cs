@@ -16,7 +16,7 @@ namespace ClassicUO.Game.Managers
 
         public MoveItemQueue()
         {
-            delay = Time.MsToTicks(ProfileManager.CurrentProfile.MoveMultiObjectDelay);
+            delay = ProfileManager.CurrentProfile.MoveMultiObjectDelay;
             Instance = this;
         }
 

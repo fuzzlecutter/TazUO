@@ -284,7 +284,7 @@ namespace ClassicUO.Game.Managers
                     MoveItemQueue.Instance?.EnqueueQuick(m);
                     
                     //GameActions.GrabItem(m, m.Amount);
-                    nextLootTime = Time.Ticks + Time.MsToTicks(ProfileManager.CurrentProfile.MoveMultiObjectDelay);
+                    nextLootTime = Time.Ticks + ProfileManager.CurrentProfile.MoveMultiObjectDelay;
                 }
             }
         }
