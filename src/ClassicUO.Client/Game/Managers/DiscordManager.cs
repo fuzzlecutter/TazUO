@@ -464,7 +464,7 @@ public class DiscordManager
         {
             long now = Time.Ticks;
             furthestAction = Math.Max(furthestAction, now);
-            furthestAction += 1000 + (long)result.RetryAfter();
+            furthestAction += 500 + (long)(result.RetryAfter()*1000);
             RunLater(JoinGameLobby);
         }
     }
@@ -474,7 +474,7 @@ public class DiscordManager
         {
             long now = Time.Ticks;
             furthestAction = Math.Max(furthestAction, now);
-            furthestAction += 1000 + (long)result.RetryAfter();
+            furthestAction += 500 + (long)(result.RetryAfter()*1000);
             RunLater(JoinGameLobby);
         }
     }
