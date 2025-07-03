@@ -371,10 +371,10 @@ namespace ClassicUO.Game.UI.Gumps
 
             if (!skipSave)
             {
-                GridSaveSystem.Instance.SaveContainer(this);
+                GridSaveSystem.Instance?.SaveContainer(this);
             }
 
-            if (IsPlayerBackpack)
+            if (IsPlayerBackpack && ProfileManager.CurrentProfile != null)
             {
                 ProfileManager.CurrentProfile.BackpackGridPosition = Location;
                 ProfileManager.CurrentProfile.BackpackGridSize = new Point(Width, Height);

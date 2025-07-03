@@ -15,6 +15,7 @@ namespace ClassicUO.Game.UI.Gumps
             "- Added Create macro button for legion scripts\n" +
             "- Potential Crash fix from CUO\n" +
             "- Python API changes\n" +
+            "- Minor bug fixes\n" +
             "- Spellbar!\n",
             
             "/c[white][3.32.0]/cd\n" +

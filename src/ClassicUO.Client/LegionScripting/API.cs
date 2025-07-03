@@ -1760,7 +1760,7 @@ namespace ClassicUO.LegionScripting
 
         /// <summary>
         /// Check if the journal contains *any* of the strings in this list.
-        /// Can be regex, prepend your msgs with $  .
+        /// Can be regex, prepend your msgs with $
         /// Example:  
         /// ```py
         /// if API.InJournalAny(["You have been slain", "You are dead"]):

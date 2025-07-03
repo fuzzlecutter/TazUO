@@ -36,6 +36,7 @@ using ClassicUO.Utility.Logging;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using SDL2;
 
 namespace ClassicUO.Network
 {
@@ -216,6 +217,7 @@ namespace ClassicUO.Network
 
         public void Disconnect()
         {
+            SDL.SDL_CaptureMouse(SDL.SDL_bool.SDL_FALSE);
             _isCompressionEnabled = false;
             Statistics.Reset();
             _socket.Disconnect();

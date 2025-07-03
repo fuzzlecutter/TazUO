@@ -2464,6 +2464,7 @@ namespace ClassicUO.Game.UI.Gumps
             );
 
             PositionHelper.PositionControl(s.FullControl);
+            PositionHelper.BlankLine();
 
             options.Add
             (
@@ -2483,7 +2484,8 @@ namespace ClassicUO.Game.UI.Gumps
             );
 
             PositionHelper.PositionControl(s.FullControl);
-
+            PositionHelper.BlankLine();
+            
             options.Add
             (
                 s = new SettingsOption
