@@ -44,6 +44,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
+using System.IO;
+using System.Collections.Generic;
 
 namespace ClassicUO.Game.Managers
 {
@@ -59,7 +61,8 @@ namespace ClassicUO.Game.Managers
         HueCommandTarget,
         IgnorePlayerTarget,
         MoveItemContainer,
-        Internal
+        Internal,
+        SetFavoriteMoveBag,
     }
 
     public class CursorType
@@ -184,7 +187,6 @@ namespace ClassicUO.Game.Managers
 
         public static readonly LastTargetInfo LastTargetInfo = new LastTargetInfo();
 
-
         public static MultiTargetInfo MultiTargetInfo { get; private set; }
 
         public static CursorTarget TargetingState { get; private set; } = CursorTarget.Invalid;
@@ -215,23 +217,23 @@ namespace ClassicUO.Game.Managers
             TargetingType = 0;
         }
 
-        public static void SetTargeting(CursorTarget targeting, uint cursorID, TargetType cursorType)
+        private static Action<uint> _onTargetSelected;
+        private static readonly Dictionary<CursorTarget, Action<uint>> _targetCallbacks = new();
+        public static void SetTargeting(CursorTarget targeting, uint cursorID, TargetType cursorType, Action<uint> callback = null)
         {
             if (targeting == CursorTarget.Invalid)
-            {
                 return;
-            }
 
-            bool lastTargetting = IsTargeting;
+            bool lastTargeting = IsTargeting;
             IsTargeting = cursorType < TargetType.Cancel;
             TargetingState = targeting;
             TargetingType = cursorType;
 
             if (IsTargeting)
             {
-                //UIManager.RemoveTargetLineGump(LastTarget);
+                _onTargetSelected = callback;
             }
-            else if (lastTargetting)
+            else if (lastTargeting)
             {
                 CancelTarget();
             }
@@ -242,7 +244,6 @@ namespace ClassicUO.Game.Managers
 
             _targetCursorId = cursorID;
         }
-
 
         public static void CancelTarget()
         {
@@ -448,6 +449,17 @@ namespace ClassicUO.Game.Managers
 
                         ClearTargetingWithoutTargetCancelPacket();
 
+                        return;
+                    case CursorTarget.SetFavoriteMoveBag:
+                        if (SerialHelper.IsItem(serial))
+                        {
+                            ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial = serial;
+                            ProfileManager.CurrentProfile.Save(ProfileManager.ProfilePath);
+                        }
+                        _onTargetSelected?.Invoke(serial);
+                        _onTargetSelected = null;
+
+                        ClearTargetingWithoutTargetCancelPacket();
                         return;
                     case CursorTarget.IgnorePlayerTarget:
                         if (SelectedObject.Object is Entity pmEntity)

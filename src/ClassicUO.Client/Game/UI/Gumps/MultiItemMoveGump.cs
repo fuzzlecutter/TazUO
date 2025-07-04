@@ -26,7 +26,7 @@ namespace ClassicUO.Game.UI.Gumps
         public MultiItemMoveGump(int x, int y) : base(0, 0)
         {
             Width = 200;
-            Height = 100;
+            Height = 105;
 
             X = x < 0 ? 0 : x;
             Y = y < 0 ? 0 : y;
@@ -69,6 +69,67 @@ namespace ClassicUO.Game.UI.Gumps
                 }
             };
 
+            NiceButton moveToBackpack;
+            Add(moveToBackpack = new NiceButton(0, Height - 60, Width, 20, ButtonAction.Default, "Move to backpack", align: Assets.TEXT_ALIGN_TYPE.TS_CENTER));
+            moveToBackpack.SetTooltip("Move selected items to your backpack.");
+            moveToBackpack.MouseUp += (s, e) =>
+            {
+                if (e.Button == MouseButtonType.Left)
+                {
+                    delay.IsEditable = false;
+                    processItemMoves(World.Player.FindItemByLayer(Data.Layer.Backpack));
+                }
+            };
+
+            NiceButton resetFavorite;
+            Add(resetFavorite = new NiceButton(0, Height - 40, 100, 20, ButtonAction.Default, "Reset favorite", align: Assets.TEXT_ALIGN_TYPE.TS_CENTER));
+            resetFavorite.SetTooltip("Reset your favorite container.");
+            resetFavorite.MouseUp += (s, e) =>
+            {
+                if (e.Button == MouseButtonType.Left)
+                {
+                    TargetManager.SetTargeting(CursorTarget.SetFavoriteMoveBag, CursorType.Target, TargetType.Neutral);
+                    uint favoriteMoveBag = ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial;
+                    if (favoriteMoveBag == 0)
+                    {
+                        return;
+                    }
+                    delay.IsEditable = false;
+                }
+            };
+
+            NiceButton moveToFavorite;
+            Add(moveToFavorite = new NiceButton(100, Height - 40, 100, 20, ButtonAction.Default, "To favorite", align: Assets.TEXT_ALIGN_TYPE.TS_CENTER));
+            moveToFavorite.SetTooltip("Move selected items to your favorite container.");
+            moveToFavorite.MouseUp += (s, e) =>
+            {
+                if (e.Button == MouseButtonType.Left)
+                {
+                    uint favoriteMoveBag = ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial;
+                    if (favoriteMoveBag == 0)
+                    {
+                        TargetManager.SetTargeting(CursorTarget.SetFavoriteMoveBag, CursorType.Target, TargetType.Neutral, serial =>
+                        {
+                            ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial = serial;
+                            ProfileManager.CurrentProfile.Save(ProfileManager.ProfilePath);
+
+                            Item container = World.Items.Get(serial);
+                            if (container != null)
+                            {
+                                delay.IsEditable = false;
+                                processItemMoves(container);
+                            }
+                        });
+                        return;
+                    }
+                    Item container = World.Items.Get(favoriteMoveBag);
+                    if (container != null)
+                    {
+                        delay.IsEditable = false;
+                        processItemMoves(container);
+                    }
+                }
+            };
 
             NiceButton cancel;
             Add(cancel = new NiceButton(0, Height - 20, 100, 20, ButtonAction.Default, "Cancel", align: Assets.TEXT_ALIGN_TYPE.TS_CENTER));
@@ -91,18 +152,6 @@ namespace ClassicUO.Game.UI.Gumps
                     GameActions.Print("Where should we move these items?");
                     TargetManager.SetTargeting(CursorTarget.MoveItemContainer, CursorType.Target, TargetType.Neutral);
                     delay.IsEditable = false;
-                }
-            };
-
-            NiceButton moveToBackpack;
-            Add(moveToBackpack = new NiceButton(0, Height - 40, Width, 20, ButtonAction.Default, "Move to backpack", align: Assets.TEXT_ALIGN_TYPE.TS_CENTER));
-            moveToBackpack.SetTooltip("Move selected items to your backpack.");
-            moveToBackpack.MouseUp += (s, e) =>
-            {
-                if (e.Button == MouseButtonType.Left)
-                {
-                    delay.IsEditable = false;
-                    processItemMoves(World.Player.FindItemByLayer(Data.Layer.Backpack));
                 }
             };
 

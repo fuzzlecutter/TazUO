@@ -368,6 +368,8 @@ namespace ClassicUO.Configuration
 
         public bool DisableSystemChat { get; set; } = false;
 
+        public uint SetFavoriteMoveBagSerial { get; set; } = 0;
+
         #region GRID CONTAINER
         public bool UseGridLayoutContainerGumps { get; set; } = true;
         public int GridContainerSearchMode { get; set; } = 1;
