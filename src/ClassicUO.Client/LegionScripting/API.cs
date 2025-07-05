@@ -1199,7 +1199,8 @@ namespace ClassicUO.LegionScripting
         public void Rename(uint serial, string name) => InvokeOnMainThread(() => { GameActions.Rename(serial, name); });
 
         /// <summary>
-        /// Attempt to dismount if mounted.  
+        /// Attempt to dismount if mounted.
+        /// Sets API.Found to the serial of the mount if found.  
         /// Example:  
         /// ```py
         /// mount = API.Dismount()
@@ -1216,6 +1217,8 @@ namespace ClassicUO.LegionScripting
                 if (mount != null)
                 {
                     GameActions.DoubleClick(World.Player);
+                    
+                    Found = mount.Serial;
 
                     return mount;
                 }
@@ -1339,7 +1342,8 @@ namespace ClassicUO.LegionScripting
         public void TargetSelf() => InvokeOnMainThread(() => TargetManager.Target(World.Player.Serial));
 
         /// <summary>
-        /// Target a land tile relative to your position.  
+        /// Target a land tile relative to your position.
+        /// If this doesn't work, try TargetTileRel instead.
         /// Example:  
         /// ```py
         /// API.TargetLand(1, 1)
@@ -1362,7 +1366,8 @@ namespace ClassicUO.LegionScripting
         );
 
         /// <summary>
-        /// Target a tile relative to your location.  
+        /// Target a tile relative to your location.
+        /// If this doesn't work, try TargetLandRel instead.'
         /// Example:  
         /// ```py
         /// API.TargetTileRel(1, 1)
@@ -1370,8 +1375,8 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="xOffset">X Offset from your position</param>
         /// <param name="yOffset">Y Offset from your position</param>
-        /// <param name="graphic">Optional graphic, will only target if tile matches this</param>
-        public void TargetTileRel(int xOffset, int yOffset, uint graphic = uint.MaxValue) => InvokeOnMainThread
+        /// <param name="graphic">Optional graphic, will try to use the graphic of the tile at that location if left empty.</param>
+        public void TargetTileRel(int xOffset, int yOffset, ushort graphic = ushort.MaxValue) => InvokeOnMainThread
         (() =>
             {
                 if (!TargetManager.IsTargeting)
@@ -1379,13 +1384,16 @@ namespace ClassicUO.LegionScripting
 
                 ushort x = (ushort)(World.Player.X + xOffset);
                 ushort y = (ushort)(World.Player.Y + yOffset);
-
+                short z = World.Player.Z;
                 GameObject g = World.Map.GetTile(x, y);
 
-                if (graphic != uint.MaxValue && g.Graphic != graphic)
-                    return;
+                if (graphic == ushort.MaxValue && g != null)
+                {
+                    graphic = g.Graphic;
+                    z = g.Z;
+                }
 
-                TargetManager.Target(g.Graphic, x, y, g.Z);
+                TargetManager.Target(graphic, x, y, z);
             }
         );
 
@@ -1424,6 +1432,19 @@ namespace ClassicUO.LegionScripting
                 return TargetManager.IsTargeting && (TargetManager.TargetingType == targetT || targetType.ToLower() == "any");
             }
         );
+
+        /// <summary>
+        /// Get the current map index.
+        /// Standard maps are:
+        /// 0 = Fel
+        /// 1 = Tram
+        /// 2 = Ilshenar
+        /// 3 = Malas
+        /// 4 = Tokuno
+        /// 5 = TerMur
+        /// </summary>
+        /// <returns></returns>
+        public int GetMap() => InvokeOnMainThread(() => World.MapIndex);
 
         /// <summary>
         /// Set a skills lock status.  

@@ -694,6 +694,7 @@ def Rename(serial: int, name: str) -> None:
 def Dismount() -> Item:
     """
      Attempt to dismount if mounted.
+     Sets API.Found to the serial of the mount if found.
      Example:
      ```py
      mount = API.Dismount()
@@ -777,6 +778,7 @@ def TargetSelf() -> None:
 def TargetLandRel(xOffset: int, yOffset: int) -> None:
     """
      Target a land tile relative to your position.
+     If this doesn't work, try TargetTileRel instead.
      Example:
      ```py
      API.TargetLand(1, 1)
@@ -788,6 +790,7 @@ def TargetLandRel(xOffset: int, yOffset: int) -> None:
 def TargetTileRel(xOffset: int, yOffset: int, graphic: int = 1337) -> None:
     """
      Target a tile relative to your location.
+     If this doesn't work, try TargetLandRel instead.'
      Example:
      ```py
      API.TargetTileRel(1, 1)
@@ -817,6 +820,20 @@ def HasTarget(targetType: str = "any") -> bool:
      if API.HasTarget():
          API.CancelTarget()
      ```
+    
+    """
+    pass
+
+def GetMap() -> int:
+    """
+     Get the current map index.
+     Standard maps are:
+     0 = Fel
+     1 = Tram
+     2 = Ilshenar
+     3 = Malas
+     4 = Tokuno
+     5 = TerMur
     
     """
     pass
@@ -992,7 +1009,7 @@ def InJournal(msg: str) -> bool:
 def InJournalAny(msgs: list[str]) -> bool:
     """
      Check if the journal contains *any* of the strings in this list.
-     Can be regex, prepend your msgs with $  .
+     Can be regex, prepend your msgs with $
      Example:
      ```py
      if API.InJournalAny(["You have been slain", "You are dead"]):
