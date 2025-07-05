@@ -217,23 +217,23 @@ namespace ClassicUO.Game.Managers
             TargetingType = 0;
         }
 
-        private static Action<uint> _onTargetSelected;
-        private static readonly Dictionary<CursorTarget, Action<uint>> _targetCallbacks = new();
-        public static void SetTargeting(CursorTarget targeting, uint cursorID, TargetType cursorType, Action<uint> callback = null)
+        public static void SetTargeting(CursorTarget targeting, uint cursorID, TargetType cursorType)
         {
             if (targeting == CursorTarget.Invalid)
+            {
                 return;
+            }
 
-            bool lastTargeting = IsTargeting;
+            bool lastTargetting = IsTargeting;
             IsTargeting = cursorType < TargetType.Cancel;
             TargetingState = targeting;
             TargetingType = cursorType;
 
             if (IsTargeting)
             {
-                _onTargetSelected = callback;
+                //UIManager.RemoveTargetLineGump(LastTarget);
             }
-            else if (lastTargeting)
+            else if (lastTargetting)
             {
                 CancelTarget();
             }
@@ -453,11 +453,23 @@ namespace ClassicUO.Game.Managers
                     case CursorTarget.SetFavoriteMoveBag:
                         if (SerialHelper.IsItem(serial))
                         {
-                            ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial = serial;
-                            ProfileManager.CurrentProfile.Save(ProfileManager.ProfilePath);
-                            _onTargetSelected?.Invoke(serial);
+                            Item item = World.Items.Get(serial);
+
+                            if (item != null && item.ItemData.IsContainer)
+                            {
+                                ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial = serial;
+                                ProfileManager.CurrentProfile.Save(ProfileManager.ProfilePath);
+                                GameActions.Print("Favorite move bag set.");
+                            }
+                            else
+                            {
+                                GameActions.Print("That doesn't appear to be a valid container.");
+                            }
                         }
-                        _onTargetSelected = null;
+                        else
+                        {
+                            GameActions.Print("That is not a valid item.");
+                        }
 
                         ClearTargetingWithoutTargetCancelPacket();
                         return;

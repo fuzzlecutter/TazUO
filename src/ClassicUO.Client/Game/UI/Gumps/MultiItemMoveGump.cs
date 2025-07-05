@@ -81,16 +81,15 @@ namespace ClassicUO.Game.UI.Gumps
                 }
             };
 
-            NiceButton resetFavorite;
-            Add(resetFavorite = new NiceButton(0, Height - 40, 100, 20, ButtonAction.Default, "Reset favorite", align: Assets.TEXT_ALIGN_TYPE.TS_CENTER));
-            resetFavorite.SetTooltip("Reset your favorite container.");
-            resetFavorite.MouseUp += (s, e) =>
+            NiceButton setFavorite;
+            Add(setFavorite = new NiceButton(0, Height - 40, 100, 20, ButtonAction.Default, "Set favorite bag", align: Assets.TEXT_ALIGN_TYPE.TS_CENTER));
+            setFavorite.SetTooltip("Set your preferred destination container for future item moves.");
+            setFavorite.MouseUp += (s, e) =>
             {
                 if (e.Button == MouseButtonType.Left)
                 {
-                    ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial = 0;
-                    ProfileManager.CurrentProfile.Save(ProfileManager.ProfilePath);
-                    GameActions.Print("Favorite move bag has been reset.");
+                    GameActions.Print("Target a container to set as your favorite.");
+                    TargetManager.SetTargeting(CursorTarget.SetFavoriteMoveBag, CursorType.Target, TargetType.Neutral);
                     delay.IsEditable = false;
                 }
             };
@@ -105,25 +104,20 @@ namespace ClassicUO.Game.UI.Gumps
                     uint favoriteMoveBag = ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial;
                     if (favoriteMoveBag == 0)
                     {
-                        TargetManager.SetTargeting(CursorTarget.SetFavoriteMoveBag, CursorType.Target, TargetType.Neutral, serial =>
-                        {
-                            ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial = serial;
-                            ProfileManager.CurrentProfile.Save(ProfileManager.ProfilePath);
-
-                            Item container = World.Items.Get(serial);
-                            if (container != null)
-                            {
-                                delay.IsEditable = false;
-                                processItemMoves(container);
-                            }
-                        });
+                        GameActions.Print("No favorite container set. Please target one.");
+                        TargetManager.SetTargeting(CursorTarget.SetFavoriteMoveBag, CursorType.Target, TargetType.Neutral);
                         return;
                     }
+
                     Item container = World.Items.Get(favoriteMoveBag);
                     if (container != null)
                     {
                         delay.IsEditable = false;
                         processItemMoves(container);
+                    }
+                    else
+                    {
+                        GameActions.Print("Favorite container is not available.");
                     }
                 }
             };
