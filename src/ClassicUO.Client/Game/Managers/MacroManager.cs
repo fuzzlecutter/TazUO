@@ -616,7 +616,7 @@ namespace ClassicUO.Game.Managers
                                             break;
                                     }
 
-                                    NetClient.Socket.Send_OpenSpellBook((byte)type);
+                                    AsyncNetClient.Socket.Send_OpenSpellBook((byte)type);
 
                                     break;
 
@@ -1012,7 +1012,7 @@ namespace ClassicUO.Game.Managers
                                     }
 
                                     if (!GameActions.CloseSpellBook(type))
-                                        NetClient.Socket.Send_OpenSpellBook((byte)type);
+                                        AsyncNetClient.Socket.Send_OpenSpellBook((byte)type);
 
                                     break;
 
@@ -1535,11 +1535,11 @@ namespace ClassicUO.Game.Managers
                         {
                             if (macro.Code == MacroType.BandageSelf)
                             {
-                                NetClient.Socket.Send_TargetSelectedObject(bandage.Serial, World.Player.Serial);
+                                AsyncNetClient.Socket.Send_TargetSelectedObject(bandage.Serial, World.Player.Serial);
                             }
                             else if (SerialHelper.IsMobile(TargetManager.SelectedTarget))
                             {
-                                NetClient.Socket.Send_TargetSelectedObject(bandage.Serial, TargetManager.SelectedTarget);
+                                AsyncNetClient.Socket.Send_TargetSelectedObject(bandage.Serial, TargetManager.SelectedTarget);
                             }
                         }
                     }
@@ -1667,7 +1667,7 @@ namespace ClassicUO.Game.Managers
 
                 case MacroType.InvokeVirtue:
                     byte id = (byte)(macro.SubCode - MacroSubType.Honor + 1);
-                    NetClient.Socket.Send_InvokeVirtueRequest(id);
+                    AsyncNetClient.Socket.Send_InvokeVirtueRequest(id);
 
                     break;
 
@@ -1685,13 +1685,13 @@ namespace ClassicUO.Game.Managers
 
                     if (World.Player.Race == RaceType.GARGOYLE)
                     {
-                        NetClient.Socket.Send_ToggleGargoyleFlying();
+                        AsyncNetClient.Socket.Send_ToggleGargoyleFlying();
                     }
 
                     break;
 
                 case MacroType.EquipLastWeapon:
-                    NetClient.Socket.Send_EquipLastWeapon();
+                    AsyncNetClient.Socket.Send_EquipLastWeapon();
 
                     break;
 
@@ -2028,12 +2028,12 @@ namespace ClassicUO.Game.Managers
                     }
                     break;
                 case MacroType.DisarmAbility:
-                    NetClient.Socket.Send_DisarmRequest();
+                    AsyncNetClient.Socket.Send_DisarmRequest();
 
                     break;
 
                 case MacroType.StunAbility:
-                    NetClient.Socket.Send_StunRequest();
+                    AsyncNetClient.Socket.Send_StunRequest();
 
                     break;
 

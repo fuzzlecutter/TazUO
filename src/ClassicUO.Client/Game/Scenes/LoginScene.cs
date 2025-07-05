@@ -594,26 +594,28 @@ namespace ClassicUO.Game.Scenes
                 return;
             }
 
-            if (e != 0)
+            if (e == SocketError.Success)
             {
-                Characters = null;
-                DisposeAllServerEntries();
-
-                if (Settings.GlobalSettings.Reconnect)
-                {
-                    Reconnect = true;
-
-                    PopupMessage = string.Format(ResGeneral.ReconnectPleaseWait01, _reconnectTryCounter, StringHelper.AddSpaceBeforeCapital(e.ToString()));
-
-                    UIManager.GetGump<LoadingGump>()?.SetText(PopupMessage);
-                }
-                else
-                {
-                    PopupMessage = string.Format(ResGeneral.ConnectionLost0, StringHelper.AddSpaceBeforeCapital(e.ToString()));
-                }
-
-                CurrentLoginStep = LoginSteps.PopUpMessage;
+                return;
             }
+
+            Characters = null;
+            DisposeAllServerEntries();
+
+            if (Settings.GlobalSettings.Reconnect)
+            {
+                Reconnect = true;
+
+                PopupMessage = string.Format(ResGeneral.ReconnectPleaseWait01, _reconnectTryCounter, StringHelper.AddSpaceBeforeCapital(e.ToString()));
+
+                UIManager.GetGump<LoadingGump>()?.SetText(PopupMessage);
+            }
+            else
+            {
+                PopupMessage = string.Format(ResGeneral.ConnectionLost0, StringHelper.AddSpaceBeforeCapital(e.ToString()));
+            }
+
+            CurrentLoginStep = LoginSteps.PopUpMessage;
         }
 
         public void ServerListReceived(ref StackDataReader p)
@@ -722,12 +724,12 @@ namespace ClassicUO.Game.Scenes
             long ip = p.ReadUInt32LE(); // use LittleEndian here
             ushort port = p.ReadUInt16BE();
             uint seed = p.ReadUInt32BE();
-
-            NetClient.Socket.Disconnect();
-            NetClient.Socket = new NetClient();
+            
+            NetClient.Socket.Disconnect().Wait();
+            AsyncNetClient.Socket = new AsyncNetClient();
             EncryptionHelper.Initialize(false, seed, (ENCRYPTION_TYPE)Settings.GlobalSettings.Encryption);
 
-            NetClient.Socket.Connect(new IPAddress(ip).ToString(), port);
+            NetClient.Socket.Connect(new IPAddress(ip).ToString(), port).Wait();
 
             if (NetClient.Socket.IsConnected)
             {
