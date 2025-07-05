@@ -5030,7 +5030,7 @@ namespace ClassicUO.Network
                 if (p.ReadBool())
                 {
                     // client can disconnect
-                    NetClient.Socket.Disconnect();
+                    NetClient.Socket.Disconnect().Wait();
                     Client.Game.SetScene(new LoginScene());
                 }
                 else

@@ -16,7 +16,8 @@ namespace ClassicUO.Game.UI.Gumps
             "- Potential Crash fix from CUO\n" +
             "- Python API changes\n" +
             "- Minor bug fixes\n" +
-            "- Spellbar!\n",
+            "- Spellbar!\n" +
+            "- Implemented Async networking\n",
             
             "/c[white][3.32.0]/cd\n" +
             "- Added simple progress bar control for Python API gumps.\n" +

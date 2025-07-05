@@ -161,7 +161,7 @@ namespace ClassicUO.Network
         }
 
 
-        public static NetClient Socket { get; set; } = new NetClient();
+        public static AsyncNetClient Socket => AsyncNetClient.Socket;
        
 
         public bool IsConnected => _socket != null && _socket.IsConnected;

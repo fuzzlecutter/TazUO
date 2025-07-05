@@ -8,7 +8,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](notes.md)  
   
-This was generated on `7/2/2025`.
+This was generated on `7/4/2025`.
 # API  
 
 ## Class Description
@@ -1263,6 +1263,7 @@ This was generated on `7/2/2025`.
 <summary><h3>Dismount()</h3></summary>
 
  Attempt to dismount if mounted.  
+ Sets API.Found to the serial of the mount if found.  
  Example:  
  ```py  
  mount = API.Dismount()  
@@ -1412,6 +1413,7 @@ This was generated on `7/2/2025`.
 <summary><h3>TargetLandRel(xOffset, yOffset)</h3></summary>
 
  Target a land tile relative to your position.  
+ If this doesn't work, try TargetTileRel instead.  
  Example:  
  ```py  
  API.TargetLand(1, 1)  
@@ -1434,6 +1436,7 @@ This was generated on `7/2/2025`.
 <summary><h3>TargetTileRel(xOffset, yOffset, graphic)</h3></summary>
 
  Target a tile relative to your location.  
+ If this doesn't work, try TargetLandRel instead.'  
  Example:  
  ```py  
  API.TargetTileRel(1, 1)  
@@ -1445,7 +1448,7 @@ This was generated on `7/2/2025`.
 | --- | --- | --- | --- |
 | xOffset | int | No | X Offset from your position |
 | yOffset | int | No | Y Offset from your position |
-| graphic | uint | Yes | Optional graphic, will only target if tile matches this |
+| graphic | ushort | Yes | Optional graphic, will try to use the graphic of the tile at that location if left empty. |
 #### Does not return anything
 
 </details>
@@ -1488,6 +1491,26 @@ This was generated on `7/2/2025`.
 | --- | --- | --- | --- |
 | targetType | string | Yes | neutral/harmful/beneficial/any/harm/ben |
 #### Return Type: *bool*
+
+</details>
+
+***
+
+
+<details>
+<summary><h3>GetMap()</h3></summary>
+
+ Get the current map index.  
+ Standard maps are:  
+ 0 = Fel  
+ 1 = Tram  
+ 2 = Ilshenar  
+ 3 = Malas  
+ 4 = Tokuno  
+ 5 = TerMur  
+  
+
+#### Return Type: *int*
 
 </details>
 
@@ -1796,7 +1819,7 @@ This was generated on `7/2/2025`.
 <summary><h3>InJournalAny(msgs)</h3></summary>
 
  Check if the journal contains *any* of the strings in this list.  
- Can be regex, prepend your msgs with $  .  
+ Can be regex, prepend your msgs with $  
  Example:  
  ```py  
  if API.InJournalAny(["You have been slain", "You are dead"]):  
