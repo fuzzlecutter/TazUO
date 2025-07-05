@@ -455,8 +455,8 @@ namespace ClassicUO.Game.Managers
                         {
                             ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial = serial;
                             ProfileManager.CurrentProfile.Save(ProfileManager.ProfilePath);
+                            _onTargetSelected?.Invoke(serial);
                         }
-                        _onTargetSelected?.Invoke(serial);
                         _onTargetSelected = null;
 
                         ClearTargetingWithoutTargetCancelPacket();

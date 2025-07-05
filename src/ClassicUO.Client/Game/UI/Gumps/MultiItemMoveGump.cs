@@ -88,12 +88,9 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 if (e.Button == MouseButtonType.Left)
                 {
-                    TargetManager.SetTargeting(CursorTarget.SetFavoriteMoveBag, CursorType.Target, TargetType.Neutral);
-                    uint favoriteMoveBag = ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial;
-                    if (favoriteMoveBag == 0)
-                    {
-                        return;
-                    }
+                    ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial = 0;
+                    ProfileManager.CurrentProfile.Save(ProfileManager.ProfilePath);
+                    GameActions.Print("Favorite move bag has been reset.");
                     delay.IsEditable = false;
                 }
             };
