@@ -436,6 +436,12 @@ namespace ClassicUO.Game.Scenes
 
         private void SocketOnDisconnected(object sender, SocketError e)
         {
+            if (DisconnectionRequested)
+            {
+                Client.Game.SetScene(new LoginScene());
+
+                return;
+            }
             if (Settings.GlobalSettings.Reconnect)
             {
                 _forceStopScene = true;
@@ -471,21 +477,7 @@ namespace ClassicUO.Game.Scenes
                     {
                         if (s)
                         {
-                            if (
-                                (
-                                    World.ClientFeatures.Flags
-                                    & CharacterListFlags.CLF_OWERWRITE_CONFIGURATION_BUTTON
-                                ) != 0
-                            )
-                            {
-                                DisconnectionRequested = true;
-                                NetClient.Socket.Send_LogoutNotification();
-                            }
-                            else
-                            {
-                                NetClient.Socket.Disconnect();
-                                Client.Game.SetScene(new LoginScene());
-                            }
+                            GameActions.Logout();
                         }
                     }
                 )
