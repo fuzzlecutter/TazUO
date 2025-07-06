@@ -121,7 +121,7 @@ def BandageSelf() -> bool:
     """
     pass
 
-def ClearLeftHand() -> Item:
+def ClearLeftHand() -> int:
     """
      If you have an item in your left hand, move it to your backpack
      Sets API.Found to the item's serial.
@@ -135,7 +135,7 @@ def ClearLeftHand() -> Item:
     """
     pass
 
-def ClearRightHand() -> Item:
+def ClearRightHand() -> int:
     """
      If you have an item in your right hand, move it to your backpack
      Sets API.Found to the item's serial.
@@ -585,7 +585,7 @@ def Pathfind(x: int, y: int, z: int = 1337, distance: int = 1) -> bool:
     """
     pass
 
-def Pathfind(entity: int, distance: int = 0) -> None:
+def Pathfind(entity: int, distance: int = 0) -> bool:
     """
      Attempt to pathfind to a mobile or item.
      Example:
@@ -1088,7 +1088,7 @@ def Virtue(virtue: str) -> None:
     """
     pass
 
-def NearestEntity(scanType: Any, maxDistance: int = 10) -> Any:
+def NearestEntity(scanType: ScanType, maxDistance: int = 10) -> Any:
     """
      Find the nearest item/mobile based on scan type.
      Sets API.Found to the serial of the item/mobile.
@@ -1104,7 +1104,7 @@ def NearestEntity(scanType: Any, maxDistance: int = 10) -> Any:
     """
     pass
 
-def NearestMobile(notoriety: list[Any], maxDistance: int = 10) -> Mobile:
+def NearestMobile(notoriety: list[Notoriety], maxDistance: int = 10) -> Mobile:
     """
      Get the nearest mobile by Notoriety.
      Sets API.Found to the serial of the mobile.
@@ -1135,7 +1135,7 @@ def NearestCorpse(distance: int = 3) -> Item:
     """
     pass
 
-def NearestMobiles(notoriety: list[Any], maxDistance: int = 10) -> list[Mobile]:
+def NearestMobiles(notoriety: list[Notoriety], maxDistance: int = 10) -> list[Mobile]:
     """
      Get all mobiles matching Notoriety and distance.
      Example:
@@ -1181,7 +1181,7 @@ def GetAllMobiles() -> list[Mobile]:
     """
     pass
 
-def GetTile(x: int, y: int) -> Any:
+def GetTile(x: int, y: int) -> GameObject:
     """
      Get the tile at a location.
      Example:
@@ -1427,7 +1427,7 @@ def CreateGumpScrollArea(x: int, y: int, width: int, height: int) -> Control:
     """
     pass
 
-def CreateGumpPic(graphic: int, x: int = 0, y: int = 0, hue: int = 0) -> Any:
+def CreateGumpPic(graphic: int, x: int = 0, y: int = 0, hue: int = 0) -> Control:
     """
      Create a gump pic(Use this for gump art, not item art)
      Example:

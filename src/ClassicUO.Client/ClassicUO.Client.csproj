@@ -5,8 +5,8 @@
     <ApplicationIcon>cuoicon.ico</ApplicationIcon>
     <AssemblyName>ClassicUO</AssemblyName>
     <RootNamespace>ClassicUO</RootNamespace>
-    <AssemblyVersion>3.33.27</AssemblyVersion>
-    <FileVersion>3.33.27</FileVersion>
+    <AssemblyVersion>3.33.28</AssemblyVersion>
+    <FileVersion>3.33.28</FileVersion>
     <PackageProjectUrl>https://github.com/bittiez/TazUO</PackageProjectUrl>
   </PropertyGroup>
 
@@ -115,6 +115,10 @@
     <PackageReference Update="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
+  <Target Name="GenerateDocs" AfterTargets="Build">
+    <Exec Command="dotnet run --project ../APIToMarkdown/APIToMarkdown.csproj &quot;$(ProjectDir)/LegionScripting/API.cs&quot;" />
+  </Target>
+  
   <Target Name="CopyExternalDeps_build" AfterTargets="Build">
     <ItemGroup>
       <MonockickstartPath Include="$(ProjectDir)..\..\tools\monokickstart\*.*" />

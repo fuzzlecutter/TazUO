@@ -17,14 +17,14 @@ This was generated on `7/5/2025`.
 
 ## Properties
 - **JournalEntries** (*ConcurrentQueue<JournalEntry>*)
-- **Backpack** (*Item*)
-  -  Get the players backpack
+- **Backpack** (*uint*)
+  -  Get the player's backpack serial
 
 - **Player** (*PlayerMobile*)
-  -  Returns the player character
+  -  Returns the player character object
 
 - **Bank** (*uint*)
-  -  Return the player's bank container if open, otherwise 0
+  -  Return the player's bank container serial if open, otherwise 0
 
 - **Random** (*Random*)
   -  Can be used for random numbers.
@@ -243,7 +243,7 @@ This was generated on `7/5/2025`.
  ```  
   
 
-#### Return Type: *Item*
+#### Return Type: *uint*
 
 </details>
 
@@ -263,7 +263,7 @@ This was generated on `7/5/2025`.
   ```  
   
 
-#### Return Type: *Item*
+#### Return Type: *uint*
 
 </details>
 
@@ -1092,7 +1092,7 @@ This was generated on `7/5/2025`.
 | --- | --- | --- | --- |
 | entity | uint | No | The mobile or item |
 | distance | int | Yes | Distance to stop from goal |
-#### Does not return anything
+#### Return Type: *bool*
 
 </details>
 

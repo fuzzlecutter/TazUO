@@ -138,22 +138,22 @@ namespace ClassicUO.LegionScripting
         #region Properties
 
         /// <summary>
-        /// Get the players backpack
+        /// Get the player's backpack serial
         /// </summary>
-        public Item Backpack
+        public uint Backpack
         {
             get
             {
                 if (backpack == null)
                     backpack = InvokeOnMainThread(() => World.Player.FindItemByLayer(Game.Data.Layer.Backpack));
-
+                
                 return backpack;
             }
         }
 
 
         /// <summary>
-        /// Returns the player character
+        /// Returns the player character object
         /// </summary>
         public PlayerMobile Player
         {
@@ -167,7 +167,7 @@ namespace ClassicUO.LegionScripting
         }
 
         /// <summary>
-        /// Return the player's bank container if open, otherwise 0
+        /// Return the player's bank container serial if open, otherwise 0
         /// </summary>
         public uint Bank {
             get
@@ -348,8 +348,8 @@ namespace ClassicUO.LegionScripting
         ///   API.SysMsg("Cleared left hand: " + leftHand.Name)
         /// ```  
         /// </summary>
-        /// <returns>The item that was in your hand</returns>
-        public Item ClearLeftHand() => InvokeOnMainThread
+        /// <returns>The item serial that was in your hand</returns>
+        public uint ClearLeftHand() => InvokeOnMainThread<uint>
         (() =>
             {
                 Item i = World.Player.FindItemByLayer(Layer.OneHanded);
@@ -363,7 +363,7 @@ namespace ClassicUO.LegionScripting
                 }
 
                 Found = 0;
-                return null;
+                return 0;
             }
         );
 
@@ -377,8 +377,8 @@ namespace ClassicUO.LegionScripting
         ///   API.SysMsg("Cleared right hand: " + rightHand.Name)
         ///  ```  
         /// </summary>
-        /// <returns>The item that was in your hand</returns>
-        public Item ClearRightHand() => InvokeOnMainThread
+        /// <returns>The item serial that was in your hand</returns>
+        public uint ClearRightHand() => InvokeOnMainThread<uint>
         (() =>
             {
                 Item i = World.Player.FindItemByLayer(Layer.TwoHanded);
@@ -392,7 +392,7 @@ namespace ClassicUO.LegionScripting
                 }
 
                 Found = 0;
-                return null;
+                return 0;
             }
         );
 
@@ -839,7 +839,7 @@ namespace ClassicUO.LegionScripting
         /// ```  
         /// </summary>
         /// <param name="serial">The serial</param>
-        /// <returns></returns>
+        /// <returns>The item object</returns>
         public Item FindItem(uint serial) => InvokeOnMainThread(() =>
         {
             Item i = World.Items.Get(serial);
@@ -1090,7 +1090,8 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="entity">The mobile or item</param>
         /// <param name="distance">Distance to stop from goal</param>
-        public void Pathfind(uint entity, int distance = 0) => InvokeOnMainThread
+        /// <returns>true/false if a path was generated</returns>
+        public bool Pathfind(uint entity, int distance = 0) => InvokeOnMainThread
         (() =>
             {
                 var mob = World.Get(entity);
@@ -1098,10 +1099,12 @@ namespace ClassicUO.LegionScripting
                 if (mob != null)
                 {
                     if (mob is Mobile)
-                        Pathfinder.WalkTo(mob.X, mob.Y, mob.Z, distance);
+                        return Pathfinder.WalkTo(mob.X, mob.Y, mob.Z, distance);
                     else if (mob is Item i && i.OnGround)
-                        Pathfinder.WalkTo(i.X, i.Y, i.Z, distance);
+                        return Pathfinder.WalkTo(i.X, i.Y, i.Z, distance);
                 }
+
+                return false;
             }
         );
 
