@@ -20,6 +20,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using ClassicUO.Utility.Logging;
 using static ClassicUO.Game.Managers.AutoLootManager;
+using ClassicUO.Game.UI.Gumps.GridHighLight;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -2749,11 +2750,11 @@ namespace ClassicUO.Game.UI.Gumps
                 }, true, page
             );
 
-            c.MouseUp += (s, e) => { GridHightlightMenu.Open(); };
+            c.MouseUp += (s, e) => { GridHighlightMenu.Open(); };
 
             content.AddToRight
             (
-                new SliderWithLabel(lang.GetTazUO.GridHighlightSize, 0, ThemeSettings.SLIDER_WIDTH, 1, 5, profile.GridHightlightSize, (i) => { profile.GridHightlightSize = i; }),
+                new SliderWithLabel(lang.GetTazUO.GridHighlightSize, 0, ThemeSettings.SLIDER_WIDTH, 1, 5, profile.GridHighlightSize, (i) => { profile.GridHighlightSize = i; }),
                 true, page
             );
 

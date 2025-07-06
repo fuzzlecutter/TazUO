@@ -48,7 +48,8 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using ClassicUO.Game.Scenes;
-using static ClassicUO.Game.UI.Gumps.GridHightlightMenu;
+using static ClassicUO.Game.UI.Gumps.GridHighLight.GridHighlightMenu;
+using ClassicUO.Game.UI.Gumps.GridHighLight;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -334,7 +335,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             control.Add(new ContextMenuItemEntry("Open Grid highlight settings", () =>
             {
-                GridHightlightMenu.Open();
+                GridHighlightMenu.Open();
             }));
             return control;
         }
@@ -1200,7 +1201,7 @@ namespace ClassicUO.Game.UI.Gumps
                 {
                     int bx = x + 6;
                     int by = y + 6;
-                    int bsize = ProfileManager.CurrentProfile.GridHightlightSize;
+                    int bsize = ProfileManager.CurrentProfile.GridHighlightSize;
 
 
                     Texture2D borderTexture = SolidColorTextureCache.GetTexture(Color.White);

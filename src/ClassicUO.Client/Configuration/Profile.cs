@@ -47,6 +47,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml;
 using ClassicUO.Game.UI;
+using ClassicUO.Game.UI.Gumps.GridHighLight;
 using ClassicUO.Game.UI.Gumps.SpellBar;
 
 namespace ClassicUO.Configuration
@@ -427,7 +428,20 @@ namespace ClassicUO.Configuration
         public List<List<string>> GridHighlight_PropNames { get; set; } = new List<List<string>>();
         public List<List<int>> GridHighlight_PropMinVal { get; set; } = new List<List<int>>();
         public bool GridHighlight_CorpseOnly { get; set; } = false;
-        public int GridHightlightSize { get; set; } = 1;
+        public int GridHighlightSize { get; set; } = 1;
+        public List<bool> GridHighlight_AcceptExtraProperties { get; set; } = new List<bool>();
+        public List<List<bool>> GridHighlight_IsOptionalProperties { get; set; } = new List<List<bool>>();
+        public List<List<string>> GridHighlight_ExcludeNegatives { get; set; } = new List<List<string>>();
+        public List<List<string>> GridHighlight_RequiredRarities { get; set; } = new();
+        public List<GridHighlightSetupEntry> GridHighlightSetup { get; set; } = new();
+        public List<string> ConfigurableProperties { get; set; } = new();
+        public List<string> ConfigurableResistances { get; set; } = new();
+        public List<string> ConfigurableNegatives { get; set; } = new();
+        public List<string> ConfigurableSuperSlayers { get; set; } = new();
+        public List<string> ConfigurableSlayers { get; set; } = new();
+        public List<string> ConfigurableRarities { get; set; } = new();
+        public List<string> ConfigurableEaters { get; set; } = new();
+
         #endregion
 
         #region Modern paperdoll
@@ -967,7 +981,6 @@ namespace ClassicUO.Configuration
                                 case GumpType.ScriptManager:
                                     gump = new LegionScripting.ScriptManagerGump();
                                     break;
-                                case GumpType.SpellBar: gump = new SpellBar(); break;
                             }
 
                             if (gump == null)
