@@ -167,6 +167,19 @@ namespace ClassicUO.LegionScripting
         }
 
         /// <summary>
+        /// Return the player's bank container if open, otherwise 0
+        /// </summary>
+        public uint Bank {
+            get
+            {
+                var i = World.Player.FindItemByLayer(Layer.Bank);
+                if(i != null)
+                    return i.Serial;
+                return 0;
+            }
+        } 
+
+        /// <summary>
         /// Can be used for random numbers.
         /// `API.Random.Next(1, 100)` will return a number between 1 and 100.
         /// `API.Random.Next(100)` will return a number between 0 and 100.
@@ -1055,13 +1068,14 @@ namespace ClassicUO.LegionScripting
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <param name="distance">Distance away from goal to stop.</param>
-        public void Pathfind(int x, int y, int z = int.MinValue, int distance = 0) => InvokeOnMainThread
+        /// <returns>true/false if a path was generated</returns>
+        public bool Pathfind(int x, int y, int z = int.MinValue, int distance = 1) => InvokeOnMainThread
         (() =>
             {
                 if (z == int.MinValue)
                     z = World.Player.Z;
 
-                Pathfinder.WalkTo(x, y, z, distance);
+                return Pathfinder.WalkTo(x, y, z, distance);
             }
         );
 

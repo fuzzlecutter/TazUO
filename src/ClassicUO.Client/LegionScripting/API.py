@@ -1,6 +1,7 @@
 JournalEntries = None
 Backpack = None
 Player = None
+Bank = None
 Random = None
 LastTargetSerial = None
 LastTargetPos = None
@@ -573,7 +574,7 @@ def OnIgnoreList(serial: int) -> bool:
     """
     pass
 
-def Pathfind(x: int, y: int, z: int = 1337, distance: int = 0) -> None:
+def Pathfind(x: int, y: int, z: int = 1337, distance: int = 1) -> bool:
     """
      Attempt to pathfind to a location.  This will fail with large distances.
      Example:

@@ -172,6 +172,9 @@ namespace ClassicUO.LegionScripting
             List<string> groups = new List<string>();
             foreach (string file in Directory.EnumerateFileSystemEntries(path))
             {
+                string fname = Path.GetFileName(file);
+                if(fname == "API.py" || fname.StartsWith("_")) continue;
+                
                 if (file.EndsWith(".lscript") || file.EndsWith(".py"))
                 {
                     if (loadedScripts.Contains(file)) continue;

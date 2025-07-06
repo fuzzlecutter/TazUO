@@ -8,7 +8,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](notes.md)  
   
-This was generated on `7/4/2025`.
+This was generated on `7/5/2025`.
 # API  
 
 ## Class Description
@@ -22,6 +22,9 @@ This was generated on `7/4/2025`.
 
 - **Player** (*PlayerMobile*)
   -  Returns the player character
+
+- **Bank** (*uint*)
+  -  Return the player's bank container if open, otherwise 0
 
 - **Random** (*Random*)
   -  Can be used for random numbers.
@@ -1065,7 +1068,7 @@ This was generated on `7/4/2025`.
 | y | int | No |  |
 | z | int | Yes |  |
 | distance | int | Yes | Distance away from goal to stop. |
-#### Does not return anything
+#### Return Type: *bool*
 
 </details>
 
