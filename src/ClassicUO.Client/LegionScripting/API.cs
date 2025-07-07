@@ -14,6 +14,7 @@ using ClassicUO.Game.Scenes;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
+using ClassicUO.LegionScripting.PyClasses;
 using ClassicUO.Network;
 using FontStashSharp.RichText;
 using Microsoft.Scripting.Hosting;
@@ -205,6 +206,11 @@ namespace ClassicUO.LegionScripting
         /// The serial of the last item or mobile from the various findtype/mobile methods
         /// </summary>
         public uint Found { get; set; }
+
+        /// <summary>
+        /// Access useful player settings.
+        /// </summary>
+        public static PyProfile PlayerProfile => new();
 
         #endregion
 
@@ -698,7 +704,7 @@ namespace ClassicUO.LegionScripting
 
         /// <summary>
         /// Get a list of all buffs that are active.
-        /// See [Buff.cs](Buff.cs) to see what attributes are available.
+        /// See [Buff](Buff.md) to see what attributes are available.
         /// Buff does not get updated after you access it in python, you will need to call this again to get the latest buff data.
         /// Example:
         /// ```py

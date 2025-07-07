@@ -7,6 +7,8 @@ LastTargetSerial = None
 LastTargetPos = None
 LastTargetGraphic = None
 Found = None
+PlayerProfile = None
+QueuedPythonActions = None
 
 class ScanType:
     Hostile = 0
@@ -328,7 +330,7 @@ def BuffExists(buffName: str) -> bool:
 def ActiveBuffs() -> list[Buff]:
     """
      Get a list of all buffs that are active.
-     See [Buff.cs](Buff.cs) to see what attributes are available.
+     See [Buff](Buff.md) to see what attributes are available.
      Buff does not get updated after you access it in python, you will need to call this again to get the latest buff data.
      Example:
      ```py
@@ -1513,4 +1515,19 @@ def RemoveMapMarker(name: str) -> None:
     
     """
     pass
+
+class PyProfile:
+    CharacterName = None
+    ServerName = None
+    LootBagSerial = None
+    FavoriteBagSerial = None
+    MoveItemDelay = None
+    AutoLootEnabled = None
+
+class Buff:
+    Graphic = None
+    Text = None
+    Timer = None
+    Type = None
+    Title = None
 

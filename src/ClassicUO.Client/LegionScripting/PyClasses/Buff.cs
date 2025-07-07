@@ -1,8 +1,8 @@
 using ClassicUO.Game.Data;
 
-namespace ClassicUO.LegionScripting;
+namespace ClassicUO.LegionScripting.PyClasses;
 
-public struct Buff
+public class Buff
 {
     public Buff(BuffIcon icon)
     {

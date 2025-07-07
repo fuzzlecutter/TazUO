@@ -6,118 +6,200 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 public static class GenDoc
 {
-    public static string GenerateMarkdown(string filePath, out StringBuilder python)
+    private static bool isMainAPI = false;
+    public static Dictionary<string, Tuple<StringBuilder, StringBuilder>> GenerateMarkdown(string filePath)
     {
-        var sb = new StringBuilder();
-        python = new StringBuilder();
-
+        Dictionary<string, Tuple<StringBuilder, StringBuilder>> classesDict = new();
         var code = File.ReadAllText(filePath);
         var tree = CSharpSyntaxTree.ParseText(code);
         var root = tree.GetRoot() as CompilationUnitSyntax;
 
         var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
+        
+        foreach (var classDeclaration in classes)
+        {
+            var className = classDeclaration.Identifier.Text;
+            isMainAPI = className == "API";
+            classesDict.TryAdd(className, new Tuple<StringBuilder, StringBuilder>(new StringBuilder(), new StringBuilder()));
+            var sb = classesDict[className].Item1;
+            var python = classesDict[className].Item2;
+            
+            if(isMainAPI)
+                GenUniversalMdHeader(sb);
+            GenClassHeader(sb, python, classDeclaration);
+            GenClassProperties(sb, python, classDeclaration);
+            GenClassFields(sb, python, classDeclaration);
+            GenClassEnums(sb, python, classDeclaration);
+            GenClassMethods(sb, python, classDeclaration);
+        }
+        
+        return classesDict;
+    }
 
+    private static void GenUniversalMdHeader(StringBuilder sb)
+    {
         sb.AppendLine("# Python API Documentation  ");
         sb.AppendLine("This is automatically generated documentation for the Python API scripting.  ");
         sb.AppendLine("All methods, properties, enums, etc need to pre prefaced with `API.` for example: `API.Msg(\"An example\")`.  ");
         sb.AppendLine("  ");
         sb.AppendLine("If you download the [API.py](API.py) file, put it in the same folder as your python scripts and add `import API` to your script, that will enable some mild form of autocomplete in an editor like VS Code.  ");
         sb.AppendLine("You can now type `-updateapi` in game to download the latest API.py file.  ");
-        sb.AppendLine();
-        sb.AppendLine();
+        sb.AppendLine("  ");
         sb.AppendLine("[Additional notes](notes.md)  ");
         sb.AppendLine("  ");
-
         sb.AppendLine($"This was generated on `{DateTime.Now.Date.ToShortDateString()}`.");
+        sb.AppendLine("  ");
+    }
 
-        foreach (var classDeclaration in classes)
+    private static void GenClassHeader(StringBuilder sb, StringBuilder python, ClassDeclarationSyntax classDeclaration)
+    {
+        // Add class name
+        sb.AppendLine($"# {classDeclaration.Identifier.Text}  ");
+        sb.AppendLine();
+
+        // Add class description
+        var classSummary = GetXmlSummary(classDeclaration);
+        if (!string.IsNullOrEmpty(classSummary))
         {
-            // Add class name
-            sb.AppendLine($"# {classDeclaration.Identifier.Text}  ");
+            sb.AppendLine("## Class Description");
+            sb.AppendLine(classSummary);
             sb.AppendLine();
+        }
 
-            // Add class description
-            var classSummary = GetXmlSummary(classDeclaration);
-            if (!string.IsNullOrEmpty(classSummary))
+        if (!isMainAPI)
+        {
+            python.AppendLine($"class {classDeclaration.Identifier.Text}:");
+        }
+    }
+
+    private static void GenClassProperties(StringBuilder sb, StringBuilder python, ClassDeclarationSyntax classDeclaration)
+    {
+        // List properties
+        sb.AppendLine("## Properties");
+        var properties = classDeclaration.Members.OfType<PropertyDeclarationSyntax>();
+        if (properties.Any())
+        {
+            foreach (var property in properties)
             {
-                sb.AppendLine("## Class Description");
-                sb.AppendLine(classSummary);
-                sb.AppendLine();
+                if (!property.Modifiers.Any(SyntaxKind.PublicKeyword))
+                    continue;
+
+                var propertySummary = GetXmlSummary(property);
+                sb.AppendLine($"- **{property.Identifier.Text}** (*{property.Type}*)");
+                if (!string.IsNullOrEmpty(propertySummary))
+                {
+                    sb.AppendLine($"  - {propertySummary}");
+                }
+
+                string space = string.Empty;
+                if (!isMainAPI)
+                    space = "    ";
+                python.AppendLine($"{space}{property.Identifier.Text} = None");
             }
+        }
+        else
+        {
+            sb.AppendLine("_No properties found._");
+        }
+        sb.AppendLine();
+    }
 
-            // List properties
-            sb.AppendLine("## Properties");
-            var properties = classDeclaration.Members.OfType<PropertyDeclarationSyntax>();
-            if (properties.Any())
+    private static void GenClassFields(StringBuilder sb, StringBuilder python, ClassDeclarationSyntax classDeclaration)
+    {
+        var properties = classDeclaration.Members.OfType<FieldDeclarationSyntax>();
+        if (properties.Any())
+        {
+            foreach (var property in properties)
             {
-                foreach (var property in properties)
+                var typeSyntax = property.Declaration.Type;
+                string typeName = typeSyntax.ToString();
+                foreach (var fieldVar in property.Declaration.Variables)
                 {
                     if (!property.Modifiers.Any(SyntaxKind.PublicKeyword))
                         continue;
+                    
+                    if(fieldVar.Identifier.Text == "QueuedPythonActions")
+                        continue;
 
                     var propertySummary = GetXmlSummary(property);
-                    sb.AppendLine($"- **{property.Identifier.Text}** (*{property.Type}*)");
+                    sb.AppendLine($"- **{fieldVar.Identifier.Text}** (*{typeName}*)");
+
                     if (!string.IsNullOrEmpty(propertySummary))
                     {
                         sb.AppendLine($"  - {propertySummary}");
                     }
-                    python.AppendLine($"{property.Identifier.Text} = None");
+
+                    string space = string.Empty;
+
+                    if (!isMainAPI)
+                        space = "    ";
+
+                    python.AppendLine($"{space}{fieldVar.Identifier.Text} = None");
                 }
             }
-            else
-            {
-                sb.AppendLine("_No properties found._");
-            }
-            sb.AppendLine();
+        }
+        else
+        {
+            sb.AppendLine("_No properties found._");
+        }
+        sb.AppendLine();
+    }
 
-            // List enums
-            sb.AppendLine("## Enums");
-            var enums = classDeclaration.Members.OfType<EnumDeclarationSyntax>();
-            if (enums.Any())
+    private static void GenClassEnums(StringBuilder sb, StringBuilder python, ClassDeclarationSyntax classDeclaration)
+    {
+        // List enums
+        sb.AppendLine("## Enums");
+        var enums = classDeclaration.Members.OfType<EnumDeclarationSyntax>();
+        if (enums.Any())
+        {
+            foreach (var enumDeclaration in enums)
             {
-                foreach (var enumDeclaration in enums)
+                if (!enumDeclaration.Modifiers.Any(SyntaxKind.PublicKeyword))
+                    continue;
+
+                string pySpace = isMainAPI ? string.Empty : "    ";
+                
+                python.AppendLine();
+                python.AppendLine($"{pySpace}class {enumDeclaration.Identifier.Text}:");
+
+                sb.AppendLine($"### {enumDeclaration.Identifier.Text}");
+                sb.AppendLine();
+
+                var enumSummary = GetXmlSummary(enumDeclaration);
+                if (!string.IsNullOrEmpty(enumSummary))
                 {
-                    if (!enumDeclaration.Modifiers.Any(SyntaxKind.PublicKeyword))
-                        continue;
-
-                    python.AppendLine();
-                    python.AppendLine($"class {enumDeclaration.Identifier.Text}:");
-
-                    sb.AppendLine($"### {enumDeclaration.Identifier.Text}");
-                    sb.AppendLine();
-
-                    var enumSummary = GetXmlSummary(enumDeclaration);
-                    if (!string.IsNullOrEmpty(enumSummary))
-                    {
-                        sb.AppendLine(enumSummary);
-                        sb.AppendLine();
-                    }
-
-                    sb.AppendLine("**Values:**");
-                    byte last = 0;
-                    foreach (var member in enumDeclaration.Members)
-                    {
-                        sb.AppendLine($"- {member.Identifier.Text}");
-
-                        var value = last += 1;
-                        if (member.EqualsValue?.Value.ToString() != null)
-                        {
-                            if (byte.TryParse(member.EqualsValue?.Value.ToString(), out last))
-                                value = last;
-                        }
-                        python.AppendLine($"    {member.Identifier.Text} = {value}");
-                    }
+                    sb.AppendLine(enumSummary);
                     sb.AppendLine();
                 }
-            }
-            else
-            {
-                sb.AppendLine("_No enums found._");
-            }
-            python.AppendLine();
-            sb.AppendLine();
 
-            // List methods
+                sb.AppendLine("**Values:**");
+                byte last = 0;
+                foreach (var member in enumDeclaration.Members)
+                {
+                    sb.AppendLine($"- {member.Identifier.Text}");
+
+                    var value = last += 1;
+                    if (member.EqualsValue?.Value.ToString() != null)
+                    {
+                        if (byte.TryParse(member.EqualsValue?.Value.ToString(), out last))
+                            value = last;
+                    }
+                    python.AppendLine($"{pySpace}    {member.Identifier.Text} = {value}");
+                }
+                sb.AppendLine();
+            }
+        }
+        else
+        {
+            sb.AppendLine("_No enums found._");
+        }
+        python.AppendLine();
+        sb.AppendLine();
+    }
+
+    private static void GenClassMethods(StringBuilder sb, StringBuilder python, ClassDeclarationSyntax classDeclaration)
+    {
+                    // List methods
             sb.AppendLine("## Methods");
             var methods = classDeclaration.Members.OfType<MethodDeclarationSyntax>();
             if (methods.Any())
@@ -129,8 +211,7 @@ public static class GenDoc
 
                     var methodSummary = GetXmlSummary(method);
                     sb.AppendLine();
-                    sb.AppendLine("<details>");
-                    sb.Append($"<summary><h3>{method.Identifier.Text}");
+                    sb.Append($"<details><summary><h3>{method.Identifier.Text}");
                     GenParametersParenthesis(method.ParameterList.Parameters, ref sb);
                     sb.Append("</h3></summary>");
                     sb.AppendLine();
@@ -156,18 +237,20 @@ public static class GenDoc
                     sb.AppendLine("***");
                     sb.AppendLine();
 
-                    python.AppendLine($"def {method.Identifier.Text}({GetPythonParameters(method.ParameterList.Parameters)})"
+                    string pySpace = isMainAPI ? string.Empty : "    ";
+                    
+                    python.AppendLine($"{pySpace}def {method.Identifier.Text}({GetPythonParameters(method.ParameterList.Parameters)})"
                      + $" -> {MapCSharpTypeToPython(method.ReturnType.ToString())}:");
                     if (!string.IsNullOrWhiteSpace(methodSummary))
                     {
                         // Indent and escape triple quotes in summary if present
                         var pyDoc = methodSummary.Replace("\"\"\"", "\\\"\\\"\\\"");
-                        var indentedDoc = string.Join("\n", pyDoc.Split('\n').Select(line => "    " + line.TrimEnd()));
-                        python.AppendLine("    \"\"\"");
+                        var indentedDoc = string.Join("\n", pyDoc.Split('\n').Select(line => $"{pySpace}    " + line.TrimEnd()));
+                        python.AppendLine($"{pySpace}    \"\"\"");
                         python.AppendLine(indentedDoc);
-                        python.AppendLine("    \"\"\"");
+                        python.AppendLine($"{pySpace}    \"\"\"");
                     }
-                    python.AppendLine($"    pass");
+                    python.AppendLine($"{pySpace}    pass");
                     python.AppendLine();
                 }
             }
@@ -175,11 +258,8 @@ public static class GenDoc
             {
                 sb.AppendLine("_No methods found._");
             }
-        }
-
-        return sb.ToString();
     }
-
+    
     private static string GetXmlSummary(SyntaxNode node)
     {
         var trivia = node.GetLeadingTrivia()
@@ -220,11 +300,11 @@ public static class GenDoc
     {
         if (returnType.ToString() != "void")
         {
-            sb.AppendLine($"#### Return Type: *{returnType}*");
+            sb.AppendLine($"---> Return Type: *{returnType}*");
         }
         else
         {
-            sb.AppendLine("#### Does not return anything");
+            sb.AppendLine("---> Does not return anything");
         }
         sb.AppendLine();
     }
@@ -432,6 +512,7 @@ public static class GenDoc
             "ScanType" => "ScanType",
             "Notoriety" => "Notoriety",
             "GameObject" => "GameObject",
+            "PyProfile" => "PyProfile",
 
             // Fallback for unknown types
             _ => "Any"
@@ -443,42 +524,37 @@ class Program
 {
     static void Main(string[] args)
     {
-        string filePath;
-        bool sameDir = true;
+        if (args.Length == 0)
+            return;
+        
+        string docsDir = args[0];
 
-        if (args.Length > 0)
+        var pyFilePath = Path.Combine(docsDir, "API.py");
+        if(File.Exists(pyFilePath))
+            File.Delete(pyFilePath);
+        
+        foreach (var filePath in args.Skip(1))
         {
-            filePath = args[0];
-            if (args.Length > 1)
-                sameDir = args[1].ToLower() != "n";
-        }
-        else
-        {
-            Console.WriteLine("Enter a cs file path: ");
-            filePath = Console.ReadLine();
+            Console.WriteLine("Processing file: " + filePath);
+            
+            if (string.IsNullOrEmpty(filePath))
+                continue;
 
-            Console.WriteLine("Save output files to same directory as cs file? ([y]/n)");
-            string saveToSameDirectory = Console.ReadLine();
-            if (!string.IsNullOrEmpty(saveToSameDirectory) && saveToSameDirectory.ToLower() == "n")
+            if (!File.Exists(filePath))
+                continue;
+
+            var gen = GenDoc.GenerateMarkdown(filePath);
+            Console.WriteLine($"Generation complete for [{filePath}].");
+            
+            string path = Path.GetDirectoryName(filePath)!;
+
+            foreach (var kvp in gen)
             {
-                sameDir = false;
+                if(!Directory.Exists(docsDir))
+                    Directory.CreateDirectory(docsDir);
+                File.WriteAllText(Path.Combine(docsDir, $"{kvp.Key}.md"), kvp.Value.Item1.ToString());
+                File.AppendAllText(pyFilePath, kvp.Value.Item2.ToString());
             }
         }
-
-        if (string.IsNullOrEmpty(filePath)) return;
-        
-        if(!File.Exists(filePath)) return;
-
-        var markdown = GenDoc.GenerateMarkdown(filePath, out var python);
-        Console.WriteLine("Saved to doc.md and API.py");
-
-        string path = string.Empty;
-        if (sameDir)
-        {
-            path = Path.GetDirectoryName(filePath);
-        }
-
-        File.WriteAllText(Path.Combine(path, "doc.md"), markdown);
-        File.WriteAllText(Path.Combine(path, "API.py"), python.ToString());
     }
 }
