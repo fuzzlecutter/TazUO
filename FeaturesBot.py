@@ -5,6 +5,21 @@ import os
 motd = [
 """
 ```ini
+[ Damage numbers in your journal ]
+```
+> You can add dmg numbers to a journal tab(Right click the tab) to see damage numbers in the journal. \n
+""",
+    
+"""
+```ini
+[ Spell bar ]
+```
+> TazUO added a spell bar to easily manage, store, and cast spells via hotkey or click. \n
+See more -> <https://github.com/bittiez/TazUO/wiki/TazUO.SpellBar>
+""",
+    
+"""
+```ini
 [ Quick Spell Cast Gump ]
 ```
 > TazUO added a simple gump to easily search for and cast spells from. \n

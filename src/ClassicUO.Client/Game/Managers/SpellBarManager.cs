@@ -115,6 +115,70 @@ public class SpellBarManager
         spellBarSettings.Enabled = !spellBarSettings.Enabled;
         return spellBarSettings.Enabled;
     }
+
+    public static void SaveCurrentRowPreset(string name)
+    {
+        if (!enabled || !spellBarSettings.Enabled)
+            return;
+        
+        if (string.IsNullOrEmpty(name))
+            return;
+
+        try
+        {
+            string path = Path.Combine(presetPath, name + ".json");
+
+            if (!Directory.Exists(presetPath))
+                Directory.CreateDirectory(presetPath);
+
+            File.WriteAllText(path, JsonSerializer.Serialize(SpellBarRows[CurrentRow], SpellBarRowsContext.Default.SpellBarRow));
+            GameActions.Print($"Saved the current row as {name}");
+        }
+        catch (Exception e)
+        {
+            Log.Error(e.ToString());
+            GameActions.Print($"Error saving the current row as {name}.json..", 32);
+        }
+    }
+
+    public static void ImportPreset(string name)
+    {
+        if (!enabled || !spellBarSettings.Enabled)
+            return;
+        
+        if (string.IsNullOrEmpty(name))
+            return;
+        
+        string path = Path.Combine(presetPath, name + ".json");
+        if (!File.Exists(path))
+            return;
+
+        try
+        {
+            SpellBarRow row = JsonSerializer.Deserialize(File.ReadAllText(path), SpellBarRowsContext.Default.SpellBarRow);
+            SpellBarRows.Add(row);
+            Unload(); //Save
+            GameActions.Print($"Imported {name} preset");
+        }
+        catch(Exception e)
+        {
+            Log.Error(e.ToString());
+            GameActions.Print($"Error importing {name}.json..", 32);
+        }
+
+    }
+
+    public static string[] ListPresets()
+    {
+        if (!enabled || !spellBarSettings.Enabled)
+            return [];
+        
+        if (!Directory.Exists(presetPath))
+            return [];
+        
+        string[] files = Directory.GetFiles(presetPath, "*.json");
+        return files.Select(x => Path.GetFileNameWithoutExtension(x)).ToArray();
+    }
     
     public static void Load()
     {
@@ -205,6 +269,8 @@ public class SpellBarRow()
         }
     }
     
+    public ushort RowHue { get; set; }
+    
     public SpellBarRow SetSpell(int slot, SpellDefinition spell)
     {
         SpellSlot[slot] = spell;
@@ -228,6 +294,7 @@ public class SpellBarSettings
 }
 
 [JsonSerializable(typeof(List<SpellBarRow>), GenerationMode = JsonSourceGenerationMode.Metadata)]
+[JsonSerializable(typeof(SpellBarRow), GenerationMode = JsonSourceGenerationMode.Metadata)]
 public partial class SpellBarRowsContext : JsonSerializerContext { }
 
 [JsonSerializable(typeof(SpellBarSettings))]

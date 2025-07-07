@@ -5,8 +5,8 @@
     <ApplicationIcon>cuoicon.ico</ApplicationIcon>
     <AssemblyName>ClassicUO</AssemblyName>
     <RootNamespace>ClassicUO</RootNamespace>
-    <AssemblyVersion>3.33.28</AssemblyVersion>
-    <FileVersion>3.33.28</FileVersion>
+    <AssemblyVersion>3.33.33</AssemblyVersion>
+    <FileVersion>3.33.33</FileVersion>
     <PackageProjectUrl>https://github.com/bittiez/TazUO</PackageProjectUrl>
   </PropertyGroup>
 
@@ -115,8 +115,19 @@
     <PackageReference Update="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <DocSourceFiles Include="$(ProjectDir)/LegionScripting/PyClasses/*.cs" />
+    <DocSourceFiles Include="$(ProjectDir)/LegionScripting/API.cs" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Create a string of quoted paths -->
+    <DocFileArgs>@(DocSourceFiles->'"%(FullPath)"', ' ')</DocFileArgs>
+  </PropertyGroup>
+
   <Target Name="GenerateDocs" AfterTargets="Build">
-    <Exec Command="dotnet run --project ../APIToMarkdown/APIToMarkdown.csproj &quot;$(ProjectDir)/LegionScripting/API.cs&quot;" />
+    <Message Text="Running: dotnet run --project ../APIToMarkdown/APIToMarkdown.csproj $(DocFileArgs)" />
+    <Exec Command='dotnet run --project ../APIToMarkdown/APIToMarkdown.csproj "$(ProjectDir)/LegionScripting/docs" $(DocFileArgs)' />
   </Target>
   
   <Target Name="CopyExternalDeps_build" AfterTargets="Build">

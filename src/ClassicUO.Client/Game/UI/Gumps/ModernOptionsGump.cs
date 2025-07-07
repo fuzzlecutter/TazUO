@@ -3287,7 +3287,7 @@ namespace ClassicUO.Game.UI.Gumps
                                         );
                                     }
                                 }
-                            }, "https://gist.githubusercontent.com/bittiez/c70ddcb58fc59f74a0c4d2c5b4fc6478/raw/SpellVisualRange.json"
+                            }, "https://github.com/bittiez/TazUO/raw/refs/heads/dev/src/ClassicUO.Client/Game/Managers/DefaultSpellIndicatorConfig.json"
                         )
                         {
                             X = (Client.Game.Window.ClientBounds.Width >> 1) - 50,

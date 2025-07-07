@@ -1,3 +1,4 @@
+using System;
 using ClassicUO.Assets;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
@@ -14,6 +15,7 @@ public class SpellBar : Gump
     
     private SpellEntry[] spellEntries = new SpellEntry[10];
     private TextBox rowLabel;
+    private AlphaBlendControl background;
     
     public SpellBar() : base(0, 0)
     {
@@ -24,13 +26,26 @@ public class SpellBar : Gump
         CanCloseWithEsc = false;
         AcceptMouseInput = true;
 
-        Width = 500;
+        Width = 515;
         Height = 48;
         
         CenterXInViewPort();
         CenterYInViewPort();
         
         Build();
+        
+        EventSink.SpellCastBegin += EventSinkOnSpellCastBegin;
+    }
+
+    private void EventSinkOnSpellCastBegin(object sender, int e)
+    {
+        foreach (SpellEntry entry in spellEntries)
+        {
+            if (entry.CurrentSpellID == e)
+            {
+                entry.BeginTrackingCasting();
+            }
+        }
     }
 
     public override GumpType GumpType { get; } = GumpType.SpellBar;
@@ -61,6 +76,8 @@ public class SpellBar : Gump
         {
             spellEntries[s].SetSpell(SpellBarManager.GetSpell(SpellBarManager.CurrentRow, s), SpellBarManager.CurrentRow, s);
         }
+        
+        background.Hue = SpellBarManager.SpellBarRows[SpellBarManager.CurrentRow].RowHue;
     }
 
     public void ChangeRow(bool up)
@@ -75,12 +92,14 @@ public class SpellBar : Gump
     {
         Clear();
         
-        Add(new AlphaBlendControl() { Width = Width, Height = Height });
+        Add(background = new AlphaBlendControl() { Width = Width, Height = Height });
 
         int x = 2;
         
         if(SpellBarManager.CurrentRow > SpellBarManager.SpellBarRows.Count - 1)
             SpellBarManager.CurrentRow = SpellBarManager.SpellBarRows.Count - 1;
+
+        background.Hue = SpellBarManager.SpellBarRows[SpellBarManager.CurrentRow].RowHue;
         
         for (int i = 0; i < spellEntries.Length; i++)
         {
@@ -95,13 +114,90 @@ public class SpellBar : Gump
         rowLabel.Y = (Height - rowLabel.Height) >> 1;
         Add(rowLabel);
         
-        var up = new EmbeddedGumpPic(Width - 16, 0, PNGLoader.Instance.EmbeddedArt["upicon.png"], 148);
+        var up = new EmbeddedGumpPic(Width - 31, 0, PNGLoader.Instance.EmbeddedArt["upicon.png"], 148);
         up.MouseUp += (sender, e) => { ChangeRow(false); };
-        var down = new EmbeddedGumpPic(Width - 16, Height - 16, PNGLoader.Instance.EmbeddedArt["downicon.png"], 148);
+        var down = new EmbeddedGumpPic(Width - 31, Height - 16, PNGLoader.Instance.EmbeddedArt["downicon.png"], 148);
         down.MouseUp += (sender, e) => { ChangeRow(true); };
         
         Add(up);
         Add(down);
+
+        NiceButton menu = new (Width - 15, 0, 15, Height, ButtonAction.Default, "+");
+
+        ContextMenuItemEntry import = new ("Import preset");
+        
+        menu.MouseUp += (sender, e) =>
+        {
+            if (e.Button == MouseButtonType.Left)
+            {
+                import.Items.Clear();
+                GenAvailablePresets(import);
+                menu.ContextMenu?.Show();
+            }
+        };
+        
+        menu.ContextMenu = new ContextMenuControl();
+        menu.ContextMenu.Add(new ContextMenuItemEntry("Save preset", () =>
+        {
+            Gump g;
+            UIManager.Add(g = new InputRequest("Preset name", "Save", "Cancel", (r, n) =>
+            {
+                if(r == InputRequest.Result.BUTTON1)
+                    SpellBarManager.SaveCurrentRowPreset(n);
+            }));
+            g.CenterXInViewPort();
+            g.CenterYInViewPort();
+        }));
+        menu.ContextMenu.Add(import);
+        menu.ContextMenu.Add(new ContextMenuItemEntry("Lock/Unlock spellbar movement", (() =>
+        {
+            IsLocked = !IsLocked;
+        })));
+        menu.ContextMenu.Add(new ContextMenuItemEntry("Add row", () =>
+        {
+            SpellBarManager.SpellBarRows.Add(new SpellBarRow());
+            SpellBarManager.CurrentRow = SpellBarManager.SpellBarRows.Count - 1;
+            Build();
+        }));
+        menu.ContextMenu.Add(new ContextMenuItemEntry("Delete row", () =>
+        {
+            if (SpellBarManager.SpellBarRows.Count > 1)
+            {
+                SpellBarManager.SpellBarRows.RemoveAt(SpellBarManager.CurrentRow);
+                SpellBarManager.CurrentRow = Math.Max(0, SpellBarManager.CurrentRow - 1);
+                Build();
+            }
+        }));
+        menu.ContextMenu.Add(new ContextMenuItemEntry("Set row color", () =>
+        {
+            UIManager.Add(new ModernColorPicker((h) =>
+            {
+                SpellBarManager.SpellBarRows[SpellBarManager.CurrentRow].RowHue = h;
+                Build();
+            }));
+        }));
+        menu.ContextMenu.Add(new ContextMenuItemEntry("More options", () =>
+        {
+            AssistantGump g = new AssistantGump();
+            g.ChangePage((int)AssistantGump.PAGE.SpellBar);
+            UIManager.Add(g);
+        }));
+
+        Add(menu);
+    }
+
+    private static void GenAvailablePresets(ContextMenuItemEntry par)
+    {
+        if (par == null)
+            return;
+
+        foreach (string preset in SpellBarManager.ListPresets())
+        {
+            par.Add(new ContextMenuItemEntry(preset, () =>
+            {
+                SpellBarManager.ImportPreset(preset);
+            }));
+        }
     }
     
     protected override void OnMouseUp(int x, int y, MouseButtonType button)
@@ -119,6 +215,12 @@ public class SpellBar : Gump
                 }
             }
         }
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        EventSink.SpellCastBegin -= EventSinkOnSpellCastBegin;
     }
 
     public override bool Draw(UltimaBatcher2D batcher, int x, int y)
@@ -154,9 +256,13 @@ public class SpellBar : Gump
 
     public class SpellEntry : Control
     {
+        public int CurrentSpellID => spell?.ID ?? -1;
+        
         private GumpPic icon;
         private SpellDefinition spell;
+        private AlphaBlendControl background;
         private int row, col;
+        private bool trackCasting;
         public SpellEntry()
         {
             CanMove = true;
@@ -167,11 +273,13 @@ public class SpellBar : Gump
             Height = 46;
             Build();
         }
+        
         public SpellEntry SetSpell(SpellDefinition spell, int row, int col)
         {
             this.spell = spell;
             this.row = row;
             this.col = col;
+            background.Hue = SpellBarManager.SpellBarRows[row].RowHue;
             SpellBarManager.SpellBarRows[row].SpellSlot[col] = spell;
             if(spell != null && spell != SpellDefinition.EmptySpell)
             {
@@ -194,21 +302,36 @@ public class SpellBar : Gump
             return this;
         }
 
+        /// <summary>
+        /// Only call this when you're sure it's being casted.
+        /// </summary>
+        public void BeginTrackingCasting()
+        {
+            trackCasting = true;
+        }
+        public void Cast()
+        {
+            if (spell != null && spell != SpellDefinition.EmptySpell)
+            {
+                GameActions.CastSpell(spell.ID);
+            }
+        }
+
         protected override void OnMouseUp(int x, int y, MouseButtonType button)
         {
             base.OnMouseUp(x, y, button);
             if(button == MouseButtonType.Right)
                 ContextMenu?.Show();
 
-            if (button == MouseButtonType.Left && spell != null && spell != SpellDefinition.EmptySpell && !Keyboard.Alt && !Keyboard.Ctrl)
+            if (button == MouseButtonType.Left && !Keyboard.Alt && !Keyboard.Ctrl)
             {
-                GameActions.CastSpell(spell.ID);
+                Cast();
             }
         }
         
         private void Build()
         {
-            Add(new AlphaBlendControl() { Width = 44, Height = 44, X = 1, Y = 1 });
+            Add(background = new AlphaBlendControl() { Width = 44, Height = 44, X = 1, Y = 1 });
             Add(icon = new GumpPic(1, 1, 0x5000, 0) {IsVisible = false, AcceptMouseInput = false});
 
             ContextMenu = new();
@@ -230,7 +353,55 @@ public class SpellBar : Gump
                 SetSpell(SpellDefinition.EmptySpell, row, col);
             }));
         }
-        
+
+        public override bool Draw(UltimaBatcher2D batcher, int x, int y)
+        {
+            if (!base.Draw(batcher, x, y))
+                return false;
+
+            if (trackCasting)
+            {
+                if (!SpellVisualRangeManager.Instance.IsCastingWithoutTarget())
+                {
+                    trackCasting = false;
+
+                    return true;
+                }
+                
+                SpellVisualRangeManager.SpellRangeInfo i = SpellVisualRangeManager.Instance.GetCurrentSpell();
+
+                if (i == null)
+                {
+                    trackCasting = false;
+                    return true;
+                }
+                
+
+                if (i.CastTime > 0)
+                {
+                    double percent = (DateTime.Now - SpellVisualRangeManager.Instance.LastSpellTime).TotalSeconds / i.CastTime;
+                    if(percent < 0)
+                        percent = 0;
+
+                    if (percent > 1)
+                        percent = 1;
+                    
+                    int filledHeight = (int)(Height * percent);
+                    int yb = Height - filledHeight; // This shifts the rect up as it grows
+
+                    Rectangle rect = new(x, y + yb, Width, filledHeight);
+                    batcher.Draw(SolidColorTextureCache.GetTexture(Color.Black), rect, new Vector3(0, 0, 0.65f));
+                }
+                else
+                {
+                    trackCasting = false;
+                }
+
+            }
+            
+            return true;
+        }
+
         private static int GetSpellTooltip(int id)
         {
             if (id >= 1 && id <= 64) // Magery

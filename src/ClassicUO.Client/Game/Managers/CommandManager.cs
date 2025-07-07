@@ -60,24 +60,7 @@ namespace ClassicUO.Game.Managers
             
             Register("updateapi", (s) =>
             {
-                Task.Run
-                (() =>
-                    {
-                        try
-                        {
-                            var client = new WebClient();
-                            var api = client.DownloadString(new Uri("https://raw.githubusercontent.com/bittiez/TazUO/refs/heads/dev/src/ClassicUO.Client/LegionScripting/API.py"));
-                            File.WriteAllText(Path.Combine(CUOEnviroment.ExecutablePath, "LegionScripts", "API.py"), api);
-                            API.QueuedPythonActions.Enqueue(() => { GameActions.Print("Updated API!"); });
-                        }
-                        catch (Exception ex)
-                        {
-                            API.QueuedPythonActions.Enqueue(() => { GameActions.Print("Failed to update the API..", 32); });
-                            Log.Error(ex.ToString());
-                        }
-
-                    }
-                );
+                LegionScripting.LegionScripting.DownloadAPIPy();
             });
             
             Register

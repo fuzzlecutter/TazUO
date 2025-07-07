@@ -1,12 +1,86 @@
+class Buff:
+    Graphic: int = None
+    Text: str = None
+    Timer: int = None
+    Type = None
+    Title: str = None
+
+class PyControl:
+
+    def SetRect(x: int, y: int, w: int, h: int) -> "PyControl":
+        """
+         Used in python API
+        
+        """
+        pass
+
+    def SetWidth(width: int) -> "PyControl":
+        """
+         Used in python API
+        
+        """
+        pass
+
+    def SetHeight(height: int) -> "PyControl":
+        """
+         Used in python API
+        
+        """
+        pass
+
+    def SetX(x: int) -> "PyControl":
+        """
+         Used in python API
+        
+        """
+        pass
+
+    def SetY(y: int) -> "PyControl":
+        """
+         Used in python API
+        
+        """
+        pass
+
+    def SetPos(x: int, y: int) -> "PyControl":
+        """
+         Use int python API
+        
+        """
+        pass
+
+    def GetX() -> int:
+        """
+         Used in python API
+        
+        """
+        pass
+
+    def GetY() -> int:
+        """
+         Used in python API
+        
+        """
+        pass
+
+class PyProfile:
+    CharacterName: str = None
+    ServerName: str = None
+    LootBagSerial: int = None
+    FavoriteBagSerial: int = None
+    MoveItemDelay: int = None
+    AutoLootEnabled: bool = None
+
 JournalEntries = None
-Backpack = None
+Backpack: int = None
 Player = None
-Bank = None
+Bank: int = None
 Random = None
-LastTargetSerial = None
+LastTargetSerial: int = None
 LastTargetPos = None
-LastTargetGraphic = None
-Found = None
+LastTargetGraphic: int = None
+Found: int = None
+PyProfile: PyProfile = None
 
 class ScanType:
     Hostile = 0
@@ -328,7 +402,7 @@ def BuffExists(buffName: str) -> bool:
 def ActiveBuffs() -> list[Buff]:
     """
      Get a list of all buffs that are active.
-     See [Buff.cs](Buff.cs) to see what attributes are available.
+     See [Buff](Buff.md) to see what attributes are available.
      Buff does not get updated after you access it in python, you will need to call this again to get the latest buff data.
      Example:
      ```py
@@ -574,7 +648,7 @@ def OnIgnoreList(serial: int) -> bool:
     """
     pass
 
-def Pathfind(x: int, y: int, z: int = 1337, distance: int = 1) -> bool:
+def Pathfind(x: int, y: int, z: int = 1337, distance: int = 1, wait: bool = False, timeout: int = 10) -> bool:
     """
      Attempt to pathfind to a location.  This will fail with large distances.
      Example:
@@ -585,14 +659,14 @@ def Pathfind(x: int, y: int, z: int = 1337, distance: int = 1) -> bool:
     """
     pass
 
-def Pathfind(entity: int, distance: int = 0) -> bool:
+def PathfindEntity(entity: int, distance: int = 1, wait: bool = False, timeout: int = 10) -> bool:
     """
      Attempt to pathfind to a mobile or item.
      Example:
      ```py
      mob = API.NearestMobile([API.Notoriety.Gray, API.Notoriety.Criminal], 7)
      if mob:
-       API.Pathfind(mob)
+       API.PathfindEntity(mob)
      ```
     
     """
@@ -759,7 +833,7 @@ def RequestTarget(timeout: float = 5) -> int:
      ```py
      target = API.RequestTarget()
      if target:
-       API.SysMsg("Targeted: " + str(target.Name))
+       API.SysMsg("Targeted serial: " + str(target))
      ```
     
     """
@@ -1222,7 +1296,7 @@ def AddGump(g: Gump) -> None:
     """
     pass
 
-def CreateGumpCheckbox(text: str = "", hue: int = 0, isChecked: bool = False) -> Control:
+def CreateGumpCheckbox(text: str = "", hue: int = 0, isChecked: bool = False) -> PyControl:
     """
      Create a checkbox for gumps.
       Example:
@@ -1239,7 +1313,7 @@ def CreateGumpCheckbox(text: str = "", hue: int = 0, isChecked: bool = False) ->
     """
     pass
 
-def CreateGumpLabel(text: str, hue: int = 996) -> Control:
+def CreateGumpLabel(text: str, hue: int = 996) -> PyControl:
     """
      Create a label for a gump.
      Example:
@@ -1253,7 +1327,7 @@ def CreateGumpLabel(text: str, hue: int = 996) -> Control:
     """
     pass
 
-def CreateGumpColorBox(opacity: float = 0.7, color: str = "#000000") -> Control:
+def CreateGumpColorBox(opacity: float = 0.7, color: str = "#000000") -> PyControl:
     """
      Get a transparent color box for gumps.
      Example:
@@ -1270,7 +1344,7 @@ def CreateGumpColorBox(opacity: float = 0.7, color: str = "#000000") -> Control:
     """
     pass
 
-def CreateGumpItemPic(graphic: int, width: int, height: int) -> Control:
+def CreateGumpItemPic(graphic: int, width: int, height: int) -> PyControl:
     """
      Create a picture of an item.
      Example:
@@ -1284,7 +1358,7 @@ def CreateGumpItemPic(graphic: int, width: int, height: int) -> Control:
     """
     pass
 
-def CreateGumpButton(text: str = "", hue: int = 996, normal: int = 0x00EF, pressed: int = 0x00F0, hover: int = 0x00EE) -> Control:
+def CreateGumpButton(text: str = "", hue: int = 996, normal: int = 0x00EF, pressed: int = 0x00F0, hover: int = 0x00EE) -> PyControl:
     """
      Create a button for gumps.
      Example:
@@ -1304,7 +1378,7 @@ def CreateGumpButton(text: str = "", hue: int = 996, normal: int = 0x00EF, press
     """
     pass
 
-def CreateSimpleButton(text: str, width: int, height: int) -> Control:
+def CreateSimpleButton(text: str, width: int, height: int) -> PyControl:
     """
      Create a simple button, does not use graphics.
      Example:
@@ -1319,7 +1393,7 @@ def CreateSimpleButton(text: str, width: int, height: int) -> Control:
     """
     pass
 
-def CreateGumpRadioButton(text: str = "", group: int = 0, inactive: int = 0x00D0, active: int = 0x00D1, hue: int = 0xFFFF, isChecked: bool = False) -> Control:
+def CreateGumpRadioButton(text: str = "", group: int = 0, inactive: int = 0x00D0, active: int = 0x00D1, hue: int = 0xFFFF, isChecked: bool = False) -> PyControl:
     """
      Create a radio button for gumps, use group numbers to only allow one item to be checked at a time.
      Example:
@@ -1335,7 +1409,7 @@ def CreateGumpRadioButton(text: str = "", group: int = 0, inactive: int = 0x00D0
     """
     pass
 
-def CreateGumpTextBox(text: str = "", width: int = 200, height: int = 30, multiline: bool = False) -> Control:
+def CreateGumpTextBox(text: str = "", width: int = 200, height: int = 30, multiline: bool = False) -> PyControl:
     """
      Create a text area control.
      Example:
@@ -1365,7 +1439,7 @@ def CreateGumpTextBox(text: str = "", width: int = 200, height: int = 30, multil
     """
     pass
 
-def CreateGumpTTFLabel(text: str, size: float, color: str = "#FFFFFF", font: str = TrueTypeLoader.EMBEDDED_FONT, aligned: str = "let", maxWidth: int = 0, applyStroke: bool = False) -> Control:
+def CreateGumpTTFLabel(text: str, size: float, color: str = "#FFFFFF", font: str = TrueTypeLoader.EMBEDDED_FONT, aligned: str = "let", maxWidth: int = 0, applyStroke: bool = False) -> PyControl:
     """
      Create a TTF label with advanced options.
      Example:
@@ -1383,7 +1457,7 @@ def CreateGumpTTFLabel(text: str, size: float, color: str = "#FFFFFF", font: str
     """
     pass
 
-def CreateGumpSimpleProgressBar(width: int, height: int, backgroundColor: str = "#616161", foregroundColor: str = "#212121", value: int = 100, max: int = 100) -> Control:
+def CreateGumpSimpleProgressBar(width: int, height: int, backgroundColor: str = "#616161", foregroundColor: str = "#212121", value: int = 100, max: int = 100) -> PyControl:
     """
      Create a progress bar. Can be updated as needed with `bar.SetProgress(current, max)`.
      Example:
@@ -1410,7 +1484,7 @@ def CreateGumpSimpleProgressBar(width: int, height: int, backgroundColor: str = 
     """
     pass
 
-def CreateGumpScrollArea(x: int, y: int, width: int, height: int) -> Control:
+def CreateGumpScrollArea(x: int, y: int, width: int, height: int) -> PyControl:
     """
      Create a scrolling area, add and position controls to it directly.
      Example:
@@ -1427,7 +1501,7 @@ def CreateGumpScrollArea(x: int, y: int, width: int, height: int) -> Control:
     """
     pass
 
-def CreateGumpPic(graphic: int, x: int = 0, y: int = 0, hue: int = 0) -> Control:
+def CreateGumpPic(graphic: int, x: int = 0, y: int = 0, hue: int = 0) -> PyControl:
     """
      Create a gump pic(Use this for gump art, not item art)
      Example:
@@ -1438,7 +1512,7 @@ def CreateGumpPic(graphic: int, x: int = 0, y: int = 0, hue: int = 0) -> Control
     """
     pass
 
-def AddControlOnClick(control: Control, onClick: Any, leftOnly: bool = True) -> None:
+def AddControlOnClick(control: PyControl, onClick: Any, leftOnly: bool = True) -> PyControl:
     """
      Add an onClick callback to a control.
      Example:

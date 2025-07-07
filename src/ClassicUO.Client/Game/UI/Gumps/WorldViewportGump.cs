@@ -134,22 +134,7 @@ namespace ClassicUO.Game.UI.Gumps
                 UIManager.Add(new VersionHistory());
                 ProfileManager.CurrentProfile.LastVersionHistoryShown = CUOEnviroment.Version.ToString();
                 
-                Task.Run
-                (() =>
-                    {
-                        try
-                        {
-                            var client = new WebClient();
-                            var api = client.DownloadString(new Uri("https://raw.githubusercontent.com/bittiez/TazUO/refs/heads/dev/src/ClassicUO.Client/LegionScripting/API.py"));
-                            File.WriteAllText(Path.Combine(CUOEnviroment.ExecutablePath, "LegionScripts", "API.py"), api);
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error(ex.ToString());
-                        }
-
-                    }
-                );
+                LegionScripting.LegionScripting.DownloadAPIPy();
             }
         }
 
