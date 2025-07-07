@@ -40,11 +40,13 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
         }
 
         public List<GridHighlightProperty> Properties => _entry.Properties;
+
         public bool AcceptExtraProperties
         {
             get => _entry.AcceptExtraProperties;
             set => _entry.AcceptExtraProperties = value;
         }
+
         public int MinimumProperty
         {
             get => _entry.MinimumProperty;
@@ -115,7 +117,8 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
 
             if (Overweight &&
                 itemData.singlePropertyData.Any(prop =>
-                    prop.OriginalString?.Trim().IndexOf("Weight: 50 Stones", StringComparison.OrdinalIgnoreCase) >= 0))
+                    prop.OriginalString != null &&
+                    prop.OriginalString.Trim().IndexOf("Weight: 50 Stones", StringComparison.OrdinalIgnoreCase) >= 0))
             {
                 return false;
             }
@@ -123,8 +126,8 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             foreach (string pattern in ExcludeNegatives.Select(e => e.Trim()))
             {
                 if (itemData.singlePropertyData.Any(prop =>
-                    prop.Name?.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    prop.OriginalString?.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) >= 0))
+                    (prop.Name != null && prop.Name.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (prop.OriginalString != null && prop.OriginalString.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) >= 0)))
                     return false;
             }
 
@@ -132,7 +135,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             {
                 bool hasRequired = itemData.singlePropertyData.Any(prop =>
                     GridHighlightRules.RarityProperties.Contains(prop.Name) &&
-                    RequiredRarities.Contains(prop.Name, StringComparer.OrdinalIgnoreCase));
+                    RequiredRarities.Any(r => string.Equals(r, prop.Name, StringComparison.OrdinalIgnoreCase)));
 
                 if (!hasRequired)
                     return false;
@@ -142,8 +145,8 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             foreach (var prop in Properties)
             {
                 bool matched = itemData.singlePropertyData.Any(p =>
-                    (p.Name.Contains(prop.Name, StringComparison.OrdinalIgnoreCase) ||
-                     p.OriginalString.Contains(prop.Name, StringComparison.OrdinalIgnoreCase)) &&
+                    ((p.Name != null && p.Name.IndexOf(prop.Name, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                     (p.OriginalString != null && p.OriginalString.IndexOf(prop.Name, StringComparison.OrdinalIgnoreCase) >= 0)) &&
                     (prop.MinValue == -1 || p.FirstValue >= prop.MinValue));
 
                 if (matched)
@@ -180,22 +183,23 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
 
             if (Overweight &&
                 itemData.singlePropertyData.Any(prop =>
-                    prop.OriginalString?.Trim().IndexOf("Weight: 50 Stones", StringComparison.OrdinalIgnoreCase) >= 0))
+                    prop.OriginalString != null &&
+                    prop.OriginalString.Trim().IndexOf("Weight: 50 Stones", StringComparison.OrdinalIgnoreCase) >= 0))
             {
                 return false;
             }
 
             foreach (var pattern in ExcludeNegatives.Select(s => s.Trim()))
             {
-                if (itemProperties.Any(p => p.Name.Contains(pattern, StringComparison.OrdinalIgnoreCase)) ||
-                    itemNegatives.Any(p => p.Name.Contains(pattern, StringComparison.OrdinalIgnoreCase)))
+                if (itemProperties.Any(p => p.Name != null && p.Name.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    itemNegatives.Any(p => p.Name != null && p.Name.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) >= 0))
                     return false;
             }
 
             if (RequiredRarities.Count > 0)
             {
                 bool hasRequired = itemRarities.Any(r =>
-                    RequiredRarities.Any(req => r.Name.Equals(req, StringComparison.OrdinalIgnoreCase)));
+                    RequiredRarities.Any(req => string.Equals(r.Name, req, StringComparison.OrdinalIgnoreCase)));
 
                 if (!hasRequired)
                     return false;
@@ -205,7 +209,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             foreach (var prop in Properties)
             {
                 var match = itemProperties.FirstOrDefault(p =>
-                    p.Name.Equals(prop.Name, StringComparison.OrdinalIgnoreCase));
+                    string.Equals(p.Name, prop.Name, StringComparison.OrdinalIgnoreCase));
 
                 if (match == null)
                 {
@@ -251,11 +255,16 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                 (byte)Layer.Pants => EquipmentSlots.Legs,
                 (byte)Layer.Shoes => EquipmentSlots.Footwear,
 
-                // These are not wearable equipment slots:
-                (byte)Layer.Hair or (byte)Layer.Beard or (byte)Layer.Face or
-                (byte)Layer.Mount or (byte)Layer.Backpack or
-                (byte)Layer.ShopBuy or (byte)Layer.ShopBuyRestock or (byte)Layer.ShopSell or (byte)Layer.Bank or (byte)Layer.Invalid
-                    => false,
+                (byte)Layer.Hair or
+                (byte)Layer.Beard or
+                (byte)Layer.Face or
+                (byte)Layer.Mount or
+                (byte)Layer.Backpack or
+                (byte)Layer.ShopBuy or
+                (byte)Layer.ShopBuyRestock or
+                (byte)Layer.ShopSell or
+                (byte)Layer.Bank or
+                (byte)Layer.Invalid => false,
 
                 _ => true
             };
