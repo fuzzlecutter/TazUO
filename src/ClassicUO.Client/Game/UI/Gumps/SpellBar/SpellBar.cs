@@ -25,7 +25,7 @@ public class SpellBar : Gump
         CanCloseWithEsc = false;
         AcceptMouseInput = true;
 
-        Width = 500;
+        Width = 515;
         Height = 48;
         
         CenterXInViewPort();
@@ -109,13 +109,82 @@ public class SpellBar : Gump
         rowLabel.Y = (Height - rowLabel.Height) >> 1;
         Add(rowLabel);
         
-        var up = new EmbeddedGumpPic(Width - 16, 0, PNGLoader.Instance.EmbeddedArt["upicon.png"], 148);
+        var up = new EmbeddedGumpPic(Width - 31, 0, PNGLoader.Instance.EmbeddedArt["upicon.png"], 148);
         up.MouseUp += (sender, e) => { ChangeRow(false); };
-        var down = new EmbeddedGumpPic(Width - 16, Height - 16, PNGLoader.Instance.EmbeddedArt["downicon.png"], 148);
+        var down = new EmbeddedGumpPic(Width - 31, Height - 16, PNGLoader.Instance.EmbeddedArt["downicon.png"], 148);
         down.MouseUp += (sender, e) => { ChangeRow(true); };
         
         Add(up);
         Add(down);
+
+        NiceButton menu = new (Width - 15, 0, 15, Height, ButtonAction.Default, "+");
+
+        ContextMenuItemEntry import = new ("Import preset");
+        
+        menu.MouseUp += (sender, e) =>
+        {
+            if (e.Button == MouseButtonType.Left)
+            {
+                import.Items.Clear();
+                GenAvailablePresets(import);
+                menu.ContextMenu?.Show();
+            }
+        };
+        
+        menu.ContextMenu = new ContextMenuControl();
+        menu.ContextMenu.Add(new ContextMenuItemEntry("Save preset", () =>
+        {
+            Gump g;
+            UIManager.Add(g = new InputRequest("Preset name", "Save", "Cancel", (r, n) =>
+            {
+                if(r == InputRequest.Result.BUTTON1)
+                    SpellBarManager.SaveCurrentRowPreset(n);
+            }));
+            g.CenterXInViewPort();
+            g.CenterYInViewPort();
+        }));
+        menu.ContextMenu.Add(import);
+        menu.ContextMenu.Add(new ContextMenuItemEntry("Lock/Unlock spellbar movement", (() =>
+        {
+            IsLocked = !IsLocked;
+        })));
+        menu.ContextMenu.Add(new ContextMenuItemEntry("Add row", () =>
+        {
+            SpellBarManager.SpellBarRows.Add(new SpellBarRow());
+            SpellBarManager.CurrentRow = SpellBarManager.SpellBarRows.Count - 1;
+            Build();
+        }));
+        menu.ContextMenu.Add(new ContextMenuItemEntry("Delete row", () =>
+        {
+            if (SpellBarManager.SpellBarRows.Count > 1)
+            {
+                SpellBarManager.SpellBarRows.RemoveAt(SpellBarManager.CurrentRow);
+                SpellBarManager.CurrentRow = Math.Max(0, SpellBarManager.CurrentRow - 1);
+                Build();
+            }
+        }));
+        menu.ContextMenu.Add(new ContextMenuItemEntry("More options", () =>
+        {
+            AssistantGump g = new AssistantGump();
+            g.ChangePage((int)AssistantGump.PAGE.SpellBar);
+            UIManager.Add(g);
+        }));
+
+        Add(menu);
+    }
+
+    private static void GenAvailablePresets(ContextMenuItemEntry par)
+    {
+        if (par == null)
+            return;
+
+        foreach (string preset in SpellBarManager.ListPresets())
+        {
+            par.Add(new ContextMenuItemEntry(preset, () =>
+            {
+                SpellBarManager.ImportPreset(preset);
+            }));
+        }
     }
     
     protected override void OnMouseUp(int x, int y, MouseButtonType button)

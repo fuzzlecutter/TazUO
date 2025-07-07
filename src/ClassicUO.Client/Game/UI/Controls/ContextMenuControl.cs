@@ -187,7 +187,7 @@ namespace ClassicUO.Game.UI.Controls
                 Y = 0;
             }
 
-            foreach (ContextMenuItem mitem in FindControls<ContextMenuItem>())
+            foreach (ContextMenuItem mitem in _scroll.FindControls<ContextMenuItem>())
             {
                 if (mitem.Width < _background.Width)
                 {

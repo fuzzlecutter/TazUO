@@ -197,7 +197,7 @@ public class AssistantGump : BaseOptionsGump
         }
     }
     
-    private enum PAGE
+    public enum PAGE
     {
         None,
         AutoLoot,

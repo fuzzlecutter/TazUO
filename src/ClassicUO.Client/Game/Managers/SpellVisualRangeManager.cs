@@ -465,6 +465,7 @@ namespace ClassicUO.Game.Managers
             public double CastTime { get; set; } = 0.0;
             public bool ShowCastRangeDuringCasting { get; set; } = false;
             public bool FreezeCharacterWhileCasting { get; set; } = false;
+            public bool ExpectTargetCursor { get; set; } = false;
 
             public static SpellRangeInfo FromSpellDef(SpellDefinition spell)
             {
