@@ -1,3 +1,4 @@
+using System;
 using ClassicUO.Assets;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
@@ -31,6 +32,19 @@ public class SpellBar : Gump
         CenterYInViewPort();
         
         Build();
+        
+        EventSink.SpellCastBegin += EventSinkOnSpellCastBegin;
+    }
+
+    private void EventSinkOnSpellCastBegin(object sender, int e)
+    {
+        foreach (SpellEntry entry in spellEntries)
+        {
+            if (entry.CurrentSpellID == e)
+            {
+                entry.BeginTrackingCasting();
+            }
+        }
     }
 
     public override GumpType GumpType { get; } = GumpType.SpellBar;
@@ -121,6 +135,12 @@ public class SpellBar : Gump
         }
     }
 
+    public override void Dispose()
+    {
+        base.Dispose();
+        EventSink.SpellCastBegin -= EventSinkOnSpellCastBegin;
+    }
+
     public override bool Draw(UltimaBatcher2D batcher, int x, int y)
     {
         if (!base.Draw(batcher, x, y))
@@ -154,9 +174,12 @@ public class SpellBar : Gump
 
     public class SpellEntry : Control
     {
+        public int CurrentSpellID => spell?.ID ?? -1;
+        
         private GumpPic icon;
         private SpellDefinition spell;
         private int row, col;
+        private bool trackCasting;
         public SpellEntry()
         {
             CanMove = true;
@@ -167,6 +190,7 @@ public class SpellBar : Gump
             Height = 46;
             Build();
         }
+        
         public SpellEntry SetSpell(SpellDefinition spell, int row, int col)
         {
             this.spell = spell;
@@ -194,15 +218,30 @@ public class SpellBar : Gump
             return this;
         }
 
+        /// <summary>
+        /// Only call this when you're sure it's being casted.
+        /// </summary>
+        public void BeginTrackingCasting()
+        {
+            trackCasting = true;
+        }
+        public void Cast()
+        {
+            if (spell != null && spell != SpellDefinition.EmptySpell)
+            {
+                GameActions.CastSpell(spell.ID);
+            }
+        }
+
         protected override void OnMouseUp(int x, int y, MouseButtonType button)
         {
             base.OnMouseUp(x, y, button);
             if(button == MouseButtonType.Right)
                 ContextMenu?.Show();
 
-            if (button == MouseButtonType.Left && spell != null && spell != SpellDefinition.EmptySpell && !Keyboard.Alt && !Keyboard.Ctrl)
+            if (button == MouseButtonType.Left && !Keyboard.Alt && !Keyboard.Ctrl)
             {
-                GameActions.CastSpell(spell.ID);
+                Cast();
             }
         }
         
@@ -230,7 +269,55 @@ public class SpellBar : Gump
                 SetSpell(SpellDefinition.EmptySpell, row, col);
             }));
         }
-        
+
+        public override bool Draw(UltimaBatcher2D batcher, int x, int y)
+        {
+            if (!base.Draw(batcher, x, y))
+                return false;
+
+            if (trackCasting)
+            {
+                if (!SpellVisualRangeManager.Instance.IsCastingWithoutTarget())
+                {
+                    trackCasting = false;
+
+                    return true;
+                }
+                
+                SpellVisualRangeManager.SpellRangeInfo i = SpellVisualRangeManager.Instance.GetCurrentSpell();
+
+                if (i == null)
+                {
+                    trackCasting = false;
+                    return true;
+                }
+                
+
+                if (i.CastTime > 0)
+                {
+                    double percent = (DateTime.Now - SpellVisualRangeManager.Instance.LastSpellTime).TotalSeconds / i.CastTime;
+                    if(percent < 0)
+                        percent = 0;
+
+                    if (percent > 1)
+                        percent = 1;
+                    
+                    int filledHeight = (int)(Height * percent);
+                    int yb = Height - filledHeight; // This shifts the rect up as it grows
+
+                    Rectangle rect = new(x, y + yb, Width, filledHeight);
+                    batcher.Draw(SolidColorTextureCache.GetTexture(Color.Black), rect, new Vector3(0, 0, 0.65f));
+                }
+                else
+                {
+                    trackCasting = false;
+                }
+
+            }
+            
+            return true;
+        }
+
         private static int GetSpellTooltip(int id)
         {
             if (id >= 1 && id <= 64) // Magery

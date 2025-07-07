@@ -468,10 +468,6 @@ namespace ClassicUO
 
             if (Scene != null && Scene.IsLoaded && !Scene.IsDestroyed)
             {
-                if (EventSink.GameUpdate != null)
-                {
-                    EventSink.GameUpdate();
-                }
                 Profiler.EnterContext("Update");
                 Scene.Update();
                 Profiler.ExitContext("Update");
