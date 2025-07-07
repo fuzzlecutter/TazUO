@@ -14,6 +14,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
         public ushort Hue { get; set; }
         public List<GridHighlightProperty> Properties { get; set; } = new();
         public bool AcceptExtraProperties { get; set; } = true;
+        public bool Overweight { get; set; } = true;
         public int MinimumProperty { get; set; } = 0;
         public List<string> ExcludeNegatives { get; set; } = new();
         public List<string> RequiredRarities { get; set; } = new();
@@ -40,6 +41,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
         public bool Skirt { get; set; } = true;
         public bool Legs { get; set; } = true;
         public bool Footwear { get; set; } = true;
+        public bool Other { get; set; } = false;
     }
 
     public class GridHighlightProperty

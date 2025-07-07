@@ -440,7 +440,6 @@ namespace ClassicUO.Configuration
         public List<string> ConfigurableSuperSlayers { get; set; } = new();
         public List<string> ConfigurableSlayers { get; set; } = new();
         public List<string> ConfigurableRarities { get; set; } = new();
-        public List<string> ConfigurableEaters { get; set; } = new();
 
         #endregion
 
@@ -823,6 +822,7 @@ namespace ClassicUO.Configuration
 
                             switch (type)
                             {
+                                case GumpType.SpellBar: gump = new SpellBar(); break;
                                 case GumpType.NearbyCorpseLoot: gump = new NearbyLootGump(); break;
                                 case GumpType.Buff:
                                     if (ProfileManager.CurrentProfile.UseImprovedBuffBar)

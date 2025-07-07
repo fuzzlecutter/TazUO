@@ -21,7 +21,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
         private ScrollArea mainScrollArea;
         GridHighlightData data;
         private readonly int keyLoc;
-
+        private readonly Dictionary<string, Checkbox> slotCheckboxes = new();
         public GridHighlightProperties(int keyLoc, int x, int y) : base(0, 0)
         {
             data = GridHighlightData.GetGridHighlightData(keyLoc);
@@ -52,7 +52,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             acceptExtraPropertiesCheckbox.ValueChanged += (s, e) =>
             {
                 data.AcceptExtraProperties = acceptExtraPropertiesCheckbox.IsChecked;
-                data.Save();
             };
 
             Label acceptExtraPropertiesLabel;
@@ -61,31 +60,16 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             InputField minPropertiesInput;
             Add(minPropertiesInput = new InputField(0x0BB8, 0xFF, 0xFFFF, true, 40, 20) { X = 180, Y = 0 });
             minPropertiesInput.SetText(data.MinimumProperty.ToString());
-            CancellationTokenSource cts = new CancellationTokenSource();
-            minPropertiesInput.TextChanged += async (s, e) =>
+            minPropertiesInput.TextChanged += (s, e) =>
             {
-                cts.Cancel();
-                cts = new CancellationTokenSource();
-                var token = cts.Token;
-
-                try
+                if (int.TryParse(minPropertiesInput.Text, out int val))
                 {
-                    await Task.Delay(500, token);
-                    if (!token.IsCancellationRequested)
-                    {
-                        if (int.TryParse(minPropertiesInput.Text, out int val))
-                        {
-                            data.MinimumProperty = val;
-                            data.Save();
-                            minPropertiesInput.Add(new FadingLabel(10, "Saved", true, 0xff) { X = 0, Y = 0 });
-                        }
-                        else
-                        {
-                            minPropertiesInput.Add(new FadingLabel(20, "Couldn't parse number", true, 0xff) { X = 0, Y = 0 });
-                        }
-                    }
+                    data.MinimumProperty = val;
                 }
-                catch (TaskCanceledException) { }
+                else
+                {
+                    minPropertiesInput.Add(new FadingLabel(20, "Couldn't parse number", true, 0xff) { X = 0, Y = 0 });
+                }
             };
             Label minPropertiesLabel;
             Add(minPropertiesLabel = new Label("Min. property count", true, 0xffff) { X = minPropertiesInput.X + minPropertiesInput.Width, Y = 0 });
@@ -119,7 +103,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                     MinValue = -1,
                     IsOptional = false
                 });
-                    data.Save();
                     Dispose();
                     UIManager.Add(new GridHighlightProperties(keyLoc, X, Y));
                 }
@@ -129,9 +112,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             lastYitem += 30;
 
             #region Equipment slot
-            mainScrollArea.Add(new Label("Select equipment slots", true, 0xffff) { X = 0, Y = lastYitem });
-            lastYitem += 20;
-
             string[] slotNames = new[]
             {
                 "Talisman", "RightHand", "LeftHand",
@@ -141,6 +121,31 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                 "Bracelet", "Ring", "Belt",
                 "Skirt", "Legs", "Footwear"
             };
+
+            mainScrollArea.Add(new Label("Select equipment slots", true, 0xffff) { X = 0, Y = lastYitem });
+            Checkbox otherCheckbox;
+            mainScrollArea.Add(otherCheckbox = new Checkbox(0x00D2, 0x00D3)
+            {
+                X = 150,
+                Y = lastYitem,
+                IsChecked = (bool)typeof(GridHighlightSlot).GetProperty("Other").GetValue(data.EquipmentSlots)
+            });
+            otherCheckbox.ValueChanged += (s, e) =>
+            {
+                foreach (string slotName in slotNames)
+                {
+                    typeof(GridHighlightSlot).GetProperty(slotName).SetValue(data.EquipmentSlots, !otherCheckbox.IsChecked);
+
+                    if (slotCheckboxes.TryGetValue(slotName, out var cb))
+                    {
+                        cb.IsChecked = !otherCheckbox.IsChecked;
+                    }
+                }
+                typeof(GridHighlightSlot).GetProperty("Other").SetValue(data.EquipmentSlots, otherCheckbox.IsChecked);
+            };
+            mainScrollArea.Add(new Label("Other / No Slot Assigned", true, 0xffff) { X = otherCheckbox.X + 20, Y = lastYitem });
+
+            lastYitem += 20;
 
             int colWidth = 110;
             int checkboxHeight = 22;
@@ -160,35 +165,17 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                     Y = lastYitem + row * checkboxHeight,
                     IsChecked = isChecked
                 };
-                CancellationTokenSource cts1 = new CancellationTokenSource();
+                string currentSlotName = slotName;
+                cb.ValueChanged += (s, e) =>
+                {
+                    typeof(GridHighlightSlot).GetProperty(slotName).SetValue(data.EquipmentSlots, cb.IsChecked);
+                };
+                slotCheckboxes[slotName] = cb;
 
                 Label label = new Label(SplitCamelCase(slotName), true, 0xFFFF)
                 {
                     X = cb.X + 20,
                     Y = cb.Y
-                };
-
-                cb.ValueChanged += async (s, e) =>
-                {
-                    cts1.Cancel();
-                    cts1 = new CancellationTokenSource();
-                    var token = cts1.Token;
-
-                    try
-                    {
-                        await Task.Delay(500, token);
-                        if (!token.IsCancellationRequested)
-                        {
-                            var tVal = cb.IsChecked;
-                            if (cb.IsChecked == tVal)
-                            {
-                                typeof(GridHighlightSlot).GetProperty(slotName).SetValue(data.EquipmentSlots, cb.IsChecked);
-                                data.Save();
-                                label.Add(new FadingLabel(10, "Saved", true, 0xff) { X = 0, Y = 0 });
-                            }
-                        }
-                    }
-                    catch (TaskCanceledException) { }
                 };
 
                 mainScrollArea.Add(cb);
@@ -200,6 +187,19 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
 
             #region Negative
             mainScrollArea.Add(new Label("Disqualifying Properties", true, 0xffff) { X = 0, Y = lastYitem });
+            Checkbox weightCheckbox;
+            mainScrollArea.Add(weightCheckbox = new Checkbox(0x00D2, 0x00D3)
+            {
+                X = 150,
+                Y = lastYitem,
+                IsChecked = data.Overweight
+            });
+            weightCheckbox.ValueChanged += (s, e) =>
+            {
+                data.Overweight = weightCheckbox.IsChecked;
+            };
+            mainScrollArea.Add(new Label("Overweight (=50)", true, 0xffff) { X = weightCheckbox.X + 20, Y = lastYitem });
+
             lastYitem += 20;
             mainScrollArea.Add(new Label("Items with any of these properties will be excluded", true, 0xffff) { X = 0, Y = lastYitem });
             lastYitem += 20;
@@ -217,7 +217,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                 if (e.Button == Input.MouseButtonType.Left)
                 {
                     data.ExcludeNegatives.Add("");
-                    data.Save();
                     Dispose();
                     UIManager.Add(new GridHighlightProperties(keyLoc, X, Y));
                 }
@@ -245,7 +244,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                 if (e.Button == Input.MouseButtonType.Left)
                 {
                     data.RequiredRarities.Add("");
-                    data.Save();
                     Dispose();
                     UIManager.Add(new GridHighlightProperties(keyLoc, X, Y));
                 }
@@ -267,7 +265,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                 others.Add("");
             }
 
-            data.Save();
             Combobox propCombobox;
             InputField propInput;
             propInput = new InputField(0x0BB8, 0xFF, 0xFFFF, true, 157, 25) { Y = y };
@@ -288,28 +285,9 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
 
             mainScrollArea.Add(propInput);
             propInput.SetText(others[index]);
-            CancellationTokenSource cts1 = new CancellationTokenSource();
-            propInput.TextChanged += async (s, e) =>
+            propInput.TextChanged += (s, e) =>
             {
-                cts1.Cancel();
-                cts1 = new CancellationTokenSource();
-                var token = cts1.Token;
-
-                try
-                {
-                    await Task.Delay(500, token);
-                    if (!token.IsCancellationRequested)
-                    {
-                        var tVal = propInput.Text;
-                        if (propInput.Text == tVal)
-                        {
-                            others[index] = propInput.Text;
-                            data.Save();
-                            propInput.Add(new FadingLabel(10, "Saved", true, 0xff) { X = 0, Y = 0 });
-                        }
-                    }
-                }
-                catch (TaskCanceledException) { }
+                others[index] = propInput.Text;
             };
 
             NiceButton _del;
@@ -321,7 +299,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                 {
                     Dispose();
                     others.RemoveAt(index);
-                    data.Save();
                     UIManager.Add(new GridHighlightProperties(keyLoc, X, Y));
                 }
             };
@@ -340,7 +317,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                 properties.Add(property);
             }
 
-            data.Save();
             Combobox propCombobox;
             InputField propInput;
             propInput = new InputField(0x0BB8, 0xFF, 0xFFFF, true, 157, 25) { Y = y };
@@ -361,62 +337,24 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
 
             mainScrollArea.Add(propInput);
             propInput.SetText(properties[index].Name);
-            CancellationTokenSource cts1 = new CancellationTokenSource();
-            propInput.TextChanged += async (s, e) =>
+            propInput.TextChanged += (s, e) =>
             {
-                cts1.Cancel();
-                cts1 = new CancellationTokenSource();
-                var token = cts1.Token;
-
-                try
-                {
-                    await Task.Delay(500, token);
-                    if (!token.IsCancellationRequested)
-                    {
-                        var tVal = propInput.Text;
-                        if (propInput.Text == tVal)
-                        {
-                            properties[index].Name = propInput.Text;
-                            data.Save();
-                            propInput.Add(new FadingLabel(10, "Saved", true, 0xff) { X = 0, Y = 0 });
-                        }
-                    }
-                }
-                catch (TaskCanceledException) { }
+                properties[index].Name = propInput.Text;
             };
 
             InputField valInput;
             mainScrollArea.Add(valInput = new InputField(0x0BB8, 0xFF, 0xFFFF, true, 60, 25) { X = 180, Y = y, NumbersOnly = true });
             valInput.SetText(properties[index].MinValue.ToString());
-            CancellationTokenSource cts2 = new CancellationTokenSource();
-            valInput.TextChanged += async (s, e) =>
+            valInput.TextChanged += (s, e) =>
             {
-                cts2.Cancel();
-                cts2 = new CancellationTokenSource();
-                var token = cts2.Token;
-
-                try
+                if (int.TryParse(valInput.Text, out int val))
                 {
-                    await Task.Delay(500, token);
-                    if (!token.IsCancellationRequested)
-                    {
-                        var tVal = valInput.Text;
-                        if (valInput.Text == tVal)
-                        {
-                            if (int.TryParse(valInput.Text, out int val))
-                            {
-                                properties[index].MinValue = val;
-                                data.Save();
-                                valInput.Add(new FadingLabel(10, "Saved", true, 0xff) { X = 180, Y = 0 });
-                            }
-                            else
-                            {
-                                valInput.Add(new FadingLabel(20, "Couldn't parse number", true, 0xff) { X = 180, Y = 0 });
-                            }
-                        }
-                    }
+                    properties[index].MinValue = val;
                 }
-                catch (TaskCanceledException) { }
+                else
+                {
+                    valInput.Add(new FadingLabel(20, "Couldn't parse number", true, 0xff) { X = 180, Y = 0 });
+                }
             };
 
             Checkbox isOptionalCheckbox;
@@ -426,28 +364,9 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                 Y = y + 2,
                 IsChecked = properties[index].IsOptional
             });
-            CancellationTokenSource cts3 = new CancellationTokenSource();
-            isOptionalCheckbox.ValueChanged += async (s, e) =>
+            isOptionalCheckbox.ValueChanged += (s, e) =>
             {
-                cts3.Cancel();
-                cts3 = new CancellationTokenSource();
-                var token = cts3.Token;
-
-                try
-                {
-                    await Task.Delay(500, token);
-                    if (!token.IsCancellationRequested)
-                    {
-                        var tVal = isOptionalCheckbox.IsChecked;
-                        if (isOptionalCheckbox.IsChecked == tVal)
-                        {
-                            properties[index].IsOptional = isOptionalCheckbox.IsChecked;
-                            data.Save();
-                            propInput.Add(new FadingLabel(10, "Saved", true, 0xff) { X = 255, Y = 0 });
-                        }
-                    }
-                }
-                catch (TaskCanceledException) { }
+                properties[index].IsOptional = isOptionalCheckbox.IsChecked;
             };
 
             NiceButton _del;
@@ -459,7 +378,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                 {
                     Dispose();
                     properties.RemoveAt(index);
-                    data.Save();
                     UIManager.Add(new GridHighlightProperties(keyLoc, X, Y));
                 }
             };

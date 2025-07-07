@@ -139,8 +139,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                         if (_name.Text == tVal)
                         {
                             data.Name = _name.Text;
-                            data.Save();
-                            area.Add(new FadingLabel(10, "Saved", true, 0xff) { X = _name.X, Y = _name.Y });
                         }
                     }
                 }
@@ -153,8 +151,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             hueDisplay.HueChanged += (s, e) =>
             {
                 data.Hue = hueDisplay.Hue;
-                data.Save();
-                area.Add(new FadingLabel(10, "Saved", true, 0xff) { X = hueDisplay.X - 40, Y = hueDisplay.Y });
             };
 
             NiceButton _button;
@@ -175,7 +171,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             {
                 if (e.Button == Input.MouseButtonType.Left)
                 {
-                    data.Delete();
                     Dispose();
                     UIManager.Add(new GridHighlightMenu(X, Y));
                 }

@@ -57,6 +57,12 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             set => _entry.ExcludeNegatives = value;
         }
 
+        public bool Overweight
+        {
+            get => _entry.Overweight;
+            set => _entry.Overweight = value;
+        }
+
         public List<string> RequiredRarities
         {
             get => _entry.RequiredRarities;
@@ -73,7 +79,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
         {
             _entry = new GridHighlightSetupEntry();
             ProfileManager.CurrentProfile.GridHighlightSetup.Add(_entry);
-            InvalidateCache();
         }
 
         private GridHighlightData(GridHighlightSetupEntry entry)
@@ -93,34 +98,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             return data;
         }
 
-        public void Save()
-        {
-            GridHighlightRules.SaveGridHighlightConfiguration();
-
-            // Save the profile to disk (writes profile.json)
-            if (ProfileManager.CurrentProfile != null)
-            {
-                var profilePath = Path.Combine(ProfileManager.ProfilePath, "profile.json");
-                ConfigurationResolver.Save(ProfileManager.CurrentProfile, profilePath, ProfileJsonContext.DefaultToUse);
-            }
-
-            InvalidateCache();
-        }
-
-        public void Delete()
-        {
-            ProfileManager.CurrentProfile.GridHighlightSetup.Remove(_entry);
-            InvalidateCache();
-
-            if (ProfileManager.CurrentProfile != null)
-            {
-                var profilePath = Path.Combine(ProfileManager.ProfilePath, "profile.json");
-                ConfigurationResolver.Save(ProfileManager.CurrentProfile, profilePath, ProfileJsonContext.DefaultToUse);
-            }
-
-            GridHighlightRules.SaveGridHighlightConfiguration();
-        }
-
         public bool IsMatch(ItemPropertiesData itemData)
         {
             if (!itemData.HasData)
@@ -136,11 +113,18 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             if (!MatchesSlot(itemData.item.ItemData.Layer))
                 return false;
 
+            if (Overweight &&
+                itemData.singlePropertyData.Any(prop =>
+                    prop.OriginalString?.Trim().IndexOf("Weight: 50 Stones", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                return false;
+            }
+
             foreach (string pattern in ExcludeNegatives.Select(e => e.Trim()))
             {
                 if (itemData.singlePropertyData.Any(prop =>
-                    prop.Name.Contains(pattern, StringComparison.OrdinalIgnoreCase) ||
-                    prop.OriginalString.Contains(pattern, StringComparison.OrdinalIgnoreCase)))
+                    prop.Name?.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    prop.OriginalString?.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) >= 0))
                     return false;
             }
 
@@ -191,8 +175,15 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             var itemResistances = props.Where(p => GridHighlightRules.Resistances.Contains(p.Name)).ToList();
             var itemRarities = props.Where(p => GridHighlightRules.RarityProperties.Contains(p.Name)).ToList();
 
-            if (!itemProperties.Any() && !itemNegatives.Any() && !itemResistances.Any())
+            if (!itemProperties.Any() && !itemNegatives.Any() && !itemResistances.Any() && !itemRarities.Any())
                 return false;
+
+            if (Overweight &&
+                itemData.singlePropertyData.Any(prop =>
+                    prop.OriginalString?.Trim().IndexOf("Weight: 50 Stones", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                return false;
+            }
 
             foreach (var pattern in ExcludeNegatives.Select(s => s.Trim()))
             {
@@ -268,11 +259,6 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
 
                 _ => true
             };
-        }
-
-        private void InvalidateCache()
-        {
-            allConfigs = null;
         }
     }
 }
