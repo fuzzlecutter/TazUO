@@ -15,6 +15,7 @@ public class SpellBar : Gump
     
     private SpellEntry[] spellEntries = new SpellEntry[10];
     private TextBox rowLabel;
+    private AlphaBlendControl background;
     
     public SpellBar() : base(0, 0)
     {
@@ -75,6 +76,8 @@ public class SpellBar : Gump
         {
             spellEntries[s].SetSpell(SpellBarManager.GetSpell(SpellBarManager.CurrentRow, s), SpellBarManager.CurrentRow, s);
         }
+        
+        background.Hue = SpellBarManager.SpellBarRows[SpellBarManager.CurrentRow].RowHue;
     }
 
     public void ChangeRow(bool up)
@@ -89,12 +92,14 @@ public class SpellBar : Gump
     {
         Clear();
         
-        Add(new AlphaBlendControl() { Width = Width, Height = Height });
+        Add(background = new AlphaBlendControl() { Width = Width, Height = Height });
 
         int x = 2;
         
         if(SpellBarManager.CurrentRow > SpellBarManager.SpellBarRows.Count - 1)
             SpellBarManager.CurrentRow = SpellBarManager.SpellBarRows.Count - 1;
+
+        background.Hue = SpellBarManager.SpellBarRows[SpellBarManager.CurrentRow].RowHue;
         
         for (int i = 0; i < spellEntries.Length; i++)
         {
@@ -162,6 +167,14 @@ public class SpellBar : Gump
                 SpellBarManager.CurrentRow = Math.Max(0, SpellBarManager.CurrentRow - 1);
                 Build();
             }
+        }));
+        menu.ContextMenu.Add(new ContextMenuItemEntry("Set row color", () =>
+        {
+            UIManager.Add(new ModernColorPicker((h) =>
+            {
+                SpellBarManager.SpellBarRows[SpellBarManager.CurrentRow].RowHue = h;
+                Build();
+            }));
         }));
         menu.ContextMenu.Add(new ContextMenuItemEntry("More options", () =>
         {
@@ -247,6 +260,7 @@ public class SpellBar : Gump
         
         private GumpPic icon;
         private SpellDefinition spell;
+        private AlphaBlendControl background;
         private int row, col;
         private bool trackCasting;
         public SpellEntry()
@@ -265,6 +279,7 @@ public class SpellBar : Gump
             this.spell = spell;
             this.row = row;
             this.col = col;
+            background.Hue = SpellBarManager.SpellBarRows[row].RowHue;
             SpellBarManager.SpellBarRows[row].SpellSlot[col] = spell;
             if(spell != null && spell != SpellDefinition.EmptySpell)
             {
@@ -316,7 +331,7 @@ public class SpellBar : Gump
         
         private void Build()
         {
-            Add(new AlphaBlendControl() { Width = 44, Height = 44, X = 1, Y = 1 });
+            Add(background = new AlphaBlendControl() { Width = 44, Height = 44, X = 1, Y = 1 });
             Add(icon = new GumpPic(1, 1, 0x5000, 0) {IsVisible = false, AcceptMouseInput = false});
 
             ContextMenu = new();

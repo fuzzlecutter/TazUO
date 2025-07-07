@@ -269,6 +269,8 @@ public class SpellBarRow()
         }
     }
     
+    public ushort RowHue { get; set; }
+    
     public SpellBarRow SetSpell(int slot, SpellDefinition spell)
     {
         SpellSlot[slot] = spell;
