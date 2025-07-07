@@ -94,7 +94,13 @@ public static class GenDoc
                 string space = string.Empty;
                 if (!isMainAPI)
                     space = "    ";
-                python.AppendLine($"{space}{property.Identifier.Text} = None");
+
+                var pyType = MapCSharpTypeToPython(property.Type.ToString(), "");
+
+                if (!string.IsNullOrEmpty(pyType))
+                    pyType = ": " + pyType;
+                
+                python.AppendLine($"{space}{property.Identifier.Text}{pyType} = None");
             }
         }
         else
@@ -133,8 +139,13 @@ public static class GenDoc
 
                     if (!isMainAPI)
                         space = "    ";
+                    
+                    var pyType = MapCSharpTypeToPython(typeName, "");
 
-                    python.AppendLine($"{space}{fieldVar.Identifier.Text} = None");
+                    if (!string.IsNullOrEmpty(pyType))
+                        pyType = ": " + pyType;
+
+                    python.AppendLine($"{space}{fieldVar.Identifier.Text}{pyType} = None");
                 }
             }
         }
@@ -238,9 +249,13 @@ public static class GenDoc
                     sb.AppendLine();
 
                     string pySpace = isMainAPI ? string.Empty : "    ";
+                    string pyReturn = MapCSharpTypeToPython(method.ReturnType.ToString());
+
+                    if (pyReturn == classDeclaration.Identifier.Text)
+                        pyReturn = $"\"{pyReturn}\"";
                     
                     python.AppendLine($"{pySpace}def {method.Identifier.Text}({GetPythonParameters(method.ParameterList.Parameters)})"
-                     + $" -> {MapCSharpTypeToPython(method.ReturnType.ToString())}:");
+                     + $" -> {pyReturn}:");
                     if (!string.IsNullOrWhiteSpace(methodSummary))
                     {
                         // Indent and escape triple quotes in summary if present
@@ -404,7 +419,7 @@ public static class GenDoc
         };
     }
 
-    private static string MapCSharpTypeToPython(string csharpType)
+    private static string MapCSharpTypeToPython(string csharpType, string noMatch = "Any")
     {
         // Trim whitespace just in case
         csharpType = csharpType.Trim();
@@ -502,9 +517,9 @@ public static class GenDoc
             "Guid" or "System.Guid" => "str", // Often represented as string or UUID
 
             "Gump" => "Gump", // Custom types
-            "Control" or "ScrollArea" or "SimpleProgressBar" or "TextBox" or "TTFTextInputField" or "GumpPic" => "Control",
-            "RadioButton" or "NiceButton" or "Button" or "ResizableStaticPic" or "AlphaBlendControl" => "Control",
-            "Label" or "Checkbox" => "Control",
+            "Control" or "ScrollArea" or "SimpleProgressBar" or "TextBox" or "TTFTextInputField" or "GumpPic" => "PyControl",
+            "RadioButton" or "NiceButton" or "Button" or "ResizableStaticPic" or "AlphaBlendControl" => "PyControl",
+            "Label" or "Checkbox" => "PyControl",
             "Item" => "Item",
             "Mobile" => "Mobile",
             "Skill" => "Skill",
@@ -515,7 +530,7 @@ public static class GenDoc
             "PyProfile" => "PyProfile",
 
             // Fallback for unknown types
-            _ => "Any"
+            _ => noMatch
         };
     }
 }

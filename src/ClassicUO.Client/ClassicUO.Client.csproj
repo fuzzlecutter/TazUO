@@ -5,8 +5,8 @@
     <ApplicationIcon>cuoicon.ico</ApplicationIcon>
     <AssemblyName>ClassicUO</AssemblyName>
     <RootNamespace>ClassicUO</RootNamespace>
-    <AssemblyVersion>3.33.29</AssemblyVersion>
-    <FileVersion>3.33.29</FileVersion>
+    <AssemblyVersion>3.33.30</AssemblyVersion>
+    <FileVersion>3.33.30</FileVersion>
     <PackageProjectUrl>https://github.com/bittiez/TazUO</PackageProjectUrl>
   </PropertyGroup>
 
@@ -116,9 +116,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <DocSourceFiles Include="$(ProjectDir)/LegionScripting/PyClasses/*.cs" />
     <DocSourceFiles Include="$(ProjectDir)/LegionScripting/API.cs" />
-    <DocSourceFiles Include="$(ProjectDir)/LegionScripting/PyClasses/PyProfile.cs" />
-    <DocSourceFiles Include="$(ProjectDir)/LegionScripting/PyClasses/Buff.cs" />
   </ItemGroup>
 
   <PropertyGroup>

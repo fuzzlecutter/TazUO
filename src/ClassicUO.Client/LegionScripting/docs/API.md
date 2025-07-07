@@ -7,7 +7,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
   
 [Additional notes](notes.md)  
   
-This was generated on `7/6/2025`.
+This was generated on `7/7/2025`.
   
 # API  
 
@@ -43,11 +43,10 @@ This was generated on `7/6/2025`.
 - **Found** (*uint*)
   -  The serial of the last item or mobile from the various findtype/mobile methods
 
-- **PlayerProfile** (*PyProfile*)
+- **PyProfile** (*PyProfile*)
   -  Access useful player settings.
 
 
-- **QueuedPythonActions** (*ConcurrentQueue<Action>*)
 
 ## Enums
 ### ScanType
@@ -1013,7 +1012,7 @@ This was generated on `7/6/2025`.
 ***
 
 
-<details><summary><h3>Pathfind(x, y, z, distance)</h3></summary>
+<details><summary><h3>Pathfind(x, y, z, distance, wait, timeout)</h3></summary>
 
  Attempt to pathfind to a location.  This will fail with large distances.  
  Example:  
@@ -1029,6 +1028,8 @@ This was generated on `7/6/2025`.
 | y | int | No |  |
 | z | int | Yes |  |
 | distance | int | Yes | Distance away from goal to stop. |
+| wait | bool | Yes | True/False if you want to wait for pathfinding to complete or time out |
+| timeout | int | Yes | Seconds to wait before cancelling waiting |
 ---> Return Type: *bool*
 
 </details>
@@ -1036,14 +1037,14 @@ This was generated on `7/6/2025`.
 ***
 
 
-<details><summary><h3>Pathfind(entity, distance)</h3></summary>
+<details><summary><h3>PathfindEntity(entity, distance, wait, timeout)</h3></summary>
 
  Attempt to pathfind to a mobile or item.  
  Example:  
  ```py  
  mob = API.NearestMobile([API.Notoriety.Gray, API.Notoriety.Criminal], 7)  
  if mob:  
-   API.Pathfind(mob)  
+   API.PathfindEntity(mob)  
  ```  
   
 
@@ -1052,6 +1053,8 @@ This was generated on `7/6/2025`.
 | --- | --- | --- | --- |
 | entity | uint | No | The mobile or item |
 | distance | int | Yes | Distance to stop from goal |
+| wait | bool | Yes | True/False if you want to wait for pathfinding to complete or time out |
+| timeout | int | Yes | Seconds to wait before cancelling waiting |
 ---> Return Type: *bool*
 
 </details>
@@ -1326,7 +1329,7 @@ This was generated on `7/6/2025`.
  ```py  
  target = API.RequestTarget()  
  if target:  
-   API.SysMsg("Targeted: " + str(target.Name))  
+   API.SysMsg("Targeted serial: " + str(target))  
  ```  
   
 
@@ -2474,7 +2477,7 @@ This was generated on `7/6/2025`.
 | control | Control | No | The control listening for clicks |
 | onClick | object | No | The callback function |
 | leftOnly | bool | Yes | Only accept left mouse clicks? |
----> Does not return anything
+---> Return Type: *Control*
 
 </details>
 

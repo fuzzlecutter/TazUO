@@ -210,7 +210,7 @@ namespace ClassicUO.LegionScripting
         /// <summary>
         /// Access useful player settings.
         /// </summary>
-        public static PyProfile PlayerProfile => new();
+        public static PyProfile PyProfile => new();
 
         #endregion
 
@@ -1074,16 +1074,42 @@ namespace ClassicUO.LegionScripting
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <param name="distance">Distance away from goal to stop.</param>
+        /// <param name="wait">True/False if you want to wait for pathfinding to complete or time out</param>
+        /// <param name="timeout">Seconds to wait before cancelling waiting</param>
         /// <returns>true/false if a path was generated</returns>
-        public bool Pathfind(int x, int y, int z = int.MinValue, int distance = 1) => InvokeOnMainThread
-        (() =>
-            {
-                if (z == int.MinValue)
-                    z = World.Player.Z;
+        public bool Pathfind(int x, int y, int z = int.MinValue, int distance = 1, bool wait = false, int timeout = 10)
+        {
+            var pathFindStatus = InvokeOnMainThread
+            (() =>
+                {
+                    if (z == int.MinValue)
+                        z = World.Player.Z;
 
-                return Pathfinder.WalkTo(x, y, z, distance);
+                    return Pathfinder.WalkTo(x, y, z, distance);
+                }
+            );
+
+            if (!wait)
+                return pathFindStatus;
+            
+            if(timeout > 30)
+                timeout = 30;
+            
+            var expire = DateTime.Now.AddSeconds(timeout);
+            
+            while (InvokeOnMainThread(()=>Pathfinder.AutoWalking))
+            {
+                if (DateTime.Now >= expire)
+                {
+                    InvokeOnMainThread(Pathfinder.StopAutoWalk);
+                    return false;
+                }
             }
-        );
+
+            InvokeOnMainThread(Pathfinder.StopAutoWalk);
+
+            return InvokeOnMainThread(()=>World.Player.DistanceFrom(new Vector2(x, y)) <= distance);
+        }
 
         /// <summary>
         /// Attempt to pathfind to a mobile or item.  
@@ -1091,28 +1117,54 @@ namespace ClassicUO.LegionScripting
         /// ```py
         /// mob = API.NearestMobile([API.Notoriety.Gray, API.Notoriety.Criminal], 7)
         /// if mob:
-        ///   API.Pathfind(mob)
+        ///   API.PathfindEntity(mob)
         /// ```
         /// </summary>
         /// <param name="entity">The mobile or item</param>
         /// <param name="distance">Distance to stop from goal</param>
+        /// <param name="wait">True/False if you want to wait for pathfinding to complete or time out</param>
+        /// <param name="timeout">Seconds to wait before cancelling waiting</param>
         /// <returns>true/false if a path was generated</returns>
-        public bool Pathfind(uint entity, int distance = 0) => InvokeOnMainThread
-        (() =>
-            {
-                var mob = World.Get(entity);
-
-                if (mob != null)
+        public bool PathfindEntity(uint entity, int distance = 1, bool wait = false, int timeout = 10)
+        {
+            int x = 0, y = 0, z = 0;
+            var pathFindStatus = InvokeOnMainThread
+            (() =>
                 {
-                    if (mob is Mobile)
-                        return Pathfinder.WalkTo(mob.X, mob.Y, mob.Z, distance);
-                    else if (mob is Item i && i.OnGround)
-                        return Pathfinder.WalkTo(i.X, i.Y, i.Z, distance);
-                }
+                    var mob = World.Get(entity);
+                    if (mob != null)
+                    {
+                        x = mob.X;
+                        y = mob.Y;
+                        z = mob.Z;
+                        return Pathfinder.WalkTo(x, y, z, distance);
+                    }
 
-                return false;
+                    return false;
+                }
+            );
+            
+            if(!wait || (x == 0 && y == 0))
+                return pathFindStatus;
+
+            if(timeout > 30)
+                timeout = 30;
+            
+            var expire = DateTime.Now.AddSeconds(timeout);
+            
+            while (InvokeOnMainThread(()=>Pathfinder.AutoWalking))
+            {
+                if (DateTime.Now >= expire)
+                {
+                    InvokeOnMainThread(Pathfinder.StopAutoWalk);
+                    return false;
+                }
             }
-        );
+
+            InvokeOnMainThread(Pathfinder.StopAutoWalk);
+
+            return InvokeOnMainThread(()=>World.Player.DistanceFrom(new Vector2(x, y)) <= distance);
+        }
 
         /// <summary>
         /// Check if you are already pathfinding.
@@ -1336,7 +1388,7 @@ namespace ClassicUO.LegionScripting
         /// ```py
         /// target = API.RequestTarget()
         /// if target:
-        ///   API.SysMsg("Targeted: " + str(target.Name))
+        ///   API.SysMsg("Targeted serial: " + str(target))
         /// ```
         /// </summary>
         /// <param name="timeout">Mac duration to wait for them to target something.</param>
@@ -2094,7 +2146,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="y"></param>
         /// <returns>A GameObject of that location.</returns>
         public GameObject GetTile(int x, int y) => InvokeOnMainThread(() => { return World.Map.GetTile(x, y); });
-
+        
         #region Gumps
 
         /// <summary>
@@ -2485,10 +2537,11 @@ namespace ClassicUO.LegionScripting
         /// <param name="control">The control listening for clicks</param>
         /// <param name="onClick">The callback function</param>
         /// <param name="leftOnly">Only accept left mouse clicks?</param>
-        public void AddControlOnClick(Control control, object onClick, bool leftOnly = true)
+        /// <returns>Returns the control so methods can be chained.</returns>
+        public Control AddControlOnClick(Control control, object onClick, bool leftOnly = true)
         {
             if (control == null)
-                return;
+                return control;
 
             if (onClick != null && engine.Operations.IsCallable(onClick))
             {
@@ -2514,6 +2567,8 @@ namespace ClassicUO.LegionScripting
                     );
                 };
             }
+
+            return control;
         }
 
         #endregion
