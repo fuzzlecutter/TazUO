@@ -364,8 +364,6 @@ namespace ClassicUO.Game.UI
         private AlphaBlendControl alphaBG;
         private Item currentItem;
         private int index;
-        private bool highlight = false;
-        private ushort borderHighlightHue = 0;
         private readonly Texture2D borderTexture;
 
         private ushort bgHue
@@ -403,7 +401,6 @@ namespace ClassicUO.Game.UI
 
         public void SetItem(Item item, int index)
         {
-            highlight = false;
             currentItem = item;
             this.index = index;
             if (item == null) return;
@@ -433,15 +430,7 @@ namespace ClassicUO.Game.UI
                 itemLabel.Text = name;
             }
 
-            ItemPropertiesData data = new ItemPropertiesData(item);
-            foreach (GridHighlightData config in GridHighlightData.AllConfigs)
-            {
-                if (config.IsMatch(data))
-                {
-                    highlight = true;
-                    borderHighlightHue = config.Hue;
-                }
-            }
+            World.OPL.Contains(item);
 
             SetTooltip(item);
         }
@@ -546,12 +535,12 @@ namespace ClassicUO.Game.UI
                 );
             }
 
-            if (highlight)
+            if (currentItem != null && currentItem.MatchesHighlightData)
             {
                 int bx = x + 6;
                 int by = y + 6;
 
-                Vector3 borderHueVec = ShaderHueTranslator.GetHueVector(borderHighlightHue, false, 0.8f);
+                Vector3 borderHueVec = ShaderHueTranslator.GetHueVector(currentItem.HighlightHue, false, 0.8f);
 
                 batcher.Draw( //Top bar
                     borderTexture,

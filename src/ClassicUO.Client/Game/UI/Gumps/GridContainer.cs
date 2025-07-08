@@ -312,8 +312,6 @@ namespace ClassicUO.Game.UI.Gumps
 
             BuildBorder();
             ResizeWindow(savedSize);
-
-            EventSink.OPLOnReceive += OPLReceived;
         }
 
         public override GumpType GumpType => GumpType.GridContainer;
@@ -362,10 +360,7 @@ namespace ClassicUO.Game.UI.Gumps
                    + (borderWidth * 2)          // Borders on the top and bottom
                    + ((gridItemSize + Y_SPACING) * rows); // Total height of grid items with spacing
         }
-        private void OPLReceived(object sender, OPLEventArgs e)
-        {
-            gridSlotManager.FindItem(e.Serial)?.ApplyGridHighlighting();
-        }
+
         public override void Save(XmlTextWriter writer)
         {
             base.Save(writer);
@@ -493,8 +488,6 @@ namespace ClassicUO.Game.UI.Gumps
 
         public override void Dispose()
         {
-            EventSink.OPLOnReceive -= OPLReceived;
-
             if (isCorpse)
             {
                 lastCorpseX = X;
@@ -770,9 +763,6 @@ namespace ClassicUO.Game.UI.Gumps
             private CustomToolTip toolTipThis, toolTipitem1, toolTipitem2;
             private readonly List<SimpleTimedTextGump> timedTexts = new();
 
-            private bool borderHighlight;
-            private ushort borderHighlightHue;
-
             public bool Highlight { get; set; }
             public bool SelectHighlight { get; set; }
             public Item SlotItem
@@ -840,30 +830,6 @@ namespace ClassicUO.Game.UI.Gumps
 
                 timedTexts.Add(timedText);
                 UIManager.Add(timedText);
-            }
-
-            public void ApplyGridHighlighting()
-            {
-                SetHighlightBorderHue(0);
-
-                if (_item == null) return;
-
-                ItemPropertiesData itemData = new ItemPropertiesData(_item);
-
-                if (!itemData.HasData) return;
-
-                foreach (var highlightConfig in GridHighlightData.AllConfigs)
-                    if (highlightConfig.IsMatch(itemData))
-                    {
-                        SetHighlightBorderHue(highlightConfig.Hue);
-                        if (CUOEnviroment.Debug)
-                            GameActions.Print($"Item {_item.Name} matched grid highlight: {highlightConfig.Name}");
-                    }
-            }
-            public void SetHighlightBorderHue(ushort hue)
-            {
-                borderHighlight = hue != 0;
-                borderHighlightHue = hue;
             }
 
             public void Resize()
@@ -1123,7 +1089,8 @@ namespace ClassicUO.Game.UI.Gumps
 
             public override bool Draw(UltimaBatcher2D batcher, int x, int y)
             {
-                if (_item != null && _item.ItemData.Layer > 0 && hit.MouseIsOver && Keyboard.Ctrl && (toolTipThis == null || toolTipThis.IsDisposed) && (toolTipitem1 == null || toolTipitem1.IsDisposed) && (toolTipitem2 == null || toolTipitem2.IsDisposed))
+                bool itemNull = _item == null;
+                if (!itemNull && _item.ItemData.Layer > 0 && hit.MouseIsOver && Keyboard.Ctrl && (toolTipThis == null || toolTipThis.IsDisposed) && (toolTipitem1 == null || toolTipitem1.IsDisposed) && (toolTipitem2 == null || toolTipitem2.IsDisposed))
                 {
                     Item compItem = World.Player.FindItemByLayer((Layer)_item.ItemData.Layer);
                     if (compItem != null && (Layer)_item.ItemData.Layer != Layer.Backpack)
@@ -1197,7 +1164,7 @@ namespace ClassicUO.Game.UI.Gumps
                     hueVector
                 );
 
-                if (borderHighlight)
+                if (!itemNull && _item.MatchesHighlightData)
                 {
                     int bx = x + 6;
                     int by = y + 6;
@@ -1205,7 +1172,7 @@ namespace ClassicUO.Game.UI.Gumps
 
 
                     Texture2D borderTexture = SolidColorTextureCache.GetTexture(Color.White);
-                    Vector3 borderHueVec = ShaderHueTranslator.GetHueVector(borderHighlightHue, false, 0.8f);
+                    Vector3 borderHueVec = ShaderHueTranslator.GetHueVector(_item.HighlightHue, false, 0.8f);
 
                     batcher.Draw( //Top bar
                         borderTexture,
@@ -1429,7 +1396,6 @@ namespace ClassicUO.Game.UI.Gumps
                             slot.Value.IsVisible = true;
                         }
                     }
-                    slot.Value.ApplyGridHighlighting();
                 }
                 SetGridPositions();
             }
@@ -1539,6 +1505,8 @@ namespace ClassicUO.Game.UI.Gumps
                     {
                         continue;
                     }
+
+                    World.OPL.Contains(item); //Request tooltip data
 
                     contents.Add(item);
                 }

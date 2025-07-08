@@ -50,6 +50,7 @@ using SDL2;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using ClassicUO.Game.UI.Gumps.GridHighLight;
 
 namespace ClassicUO.Game.Scenes
 {
@@ -840,6 +841,7 @@ namespace ClassicUO.Game.Scenes
             DelayedObjectClickManager.Update();
             AutoLootManager.Instance.Update();
             _moveItemQueue.ProcessQueue();
+            GridHighlightData.ProcessQueue();
 
             if (!MoveCharacterByMouseInput() && !currentProfile.DisableArrowBtn && !MoveCharByController())
             {

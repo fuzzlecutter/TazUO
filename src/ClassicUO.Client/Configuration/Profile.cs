@@ -626,9 +626,13 @@ namespace ClassicUO.Configuration
         public bool EnableScavenger { get; set; } = true;
         public bool CounterGumpLocked { get; set; }
         public bool NearbyLootConcealsContainerOnOpen { get; set; } = true;
-
+        
+        private long lastSave;
         public void Save(string path, bool saveGumps = true)
         {
+            if (Time.Ticks - lastSave < 10) //Don't save if saved in the last 10 ms, prevent duplcate saving when exiting game with options menu open
+                return;
+            
             Log.Trace($"Saving path:\t\t{path}");
 
             // Save profile settings
@@ -639,6 +643,7 @@ namespace ClassicUO.Configuration
                 SaveGumps(path);
 
             Log.Trace("Saving done!");
+            lastSave = Time.Ticks;
         }
 
         public void SaveAsFile(string path, string filename)

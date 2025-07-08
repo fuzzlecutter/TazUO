@@ -2,9 +2,12 @@ using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using ClassicUO.Game.GameObjects;
 
 namespace ClassicUO.Game.UI.Gumps.GridHighLight
 {
@@ -12,6 +15,9 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
     {
         private static GridHighlightData[] allConfigs;
         private readonly GridHighlightSetupEntry _entry;
+        
+        private static readonly Queue<uint> _queue = new();
+        private static bool hasQueuedItems;
 
         public static GridHighlightData[] AllConfigs
         {
@@ -86,6 +92,42 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
         private GridHighlightData(GridHighlightSetupEntry entry)
         {
             _entry = entry;
+        }
+        
+        public static void ProcessItemOpl(uint value)
+        {
+            _queue.Enqueue(value);
+            hasQueuedItems = true;
+        }
+
+        public static void ProcessQueue()
+        {
+            if (!hasQueuedItems)
+                return;
+
+            List<ItemPropertiesData> itemData = new(3);
+            
+            for (int i = 0; i < 3 && _queue.Count > 0; i++)
+            {
+                uint ser = _queue.Dequeue();
+                if(World.Items.TryGetValue(ser, out var item))
+                    itemData.Add(new ItemPropertiesData(item));
+            }
+            
+            foreach (GridHighlightData config in AllConfigs)
+            {
+                foreach (ItemPropertiesData data in itemData)
+                {
+                    if (config.IsMatch(data))
+                    {
+                        data.item.MatchesHighlightData = true;
+                        data.item.HighlightHue = config.Hue;
+                    }
+                }
+            }
+            
+            if(_queue.Count == 0)
+                hasQueuedItems = false;
         }
 
         public static GridHighlightData GetGridHighlightData(int index)

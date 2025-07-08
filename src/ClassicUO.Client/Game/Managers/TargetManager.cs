@@ -458,7 +458,6 @@ namespace ClassicUO.Game.Managers
                             if (item != null && item.ItemData.IsContainer)
                             {
                                 ProfileManager.CurrentProfile.SetFavoriteMoveBagSerial = serial;
-                                ProfileManager.CurrentProfile.Save(ProfileManager.ProfilePath);
                                 GameActions.Print("Favorite move bag set.");
                             }
                             else

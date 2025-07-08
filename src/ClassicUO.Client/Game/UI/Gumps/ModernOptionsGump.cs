@@ -3904,7 +3904,7 @@ namespace ClassicUO.Game.UI.Gumps
         public override void Dispose()
         {
             base.Dispose();
-            profile.Save(ProfileManager.ProfilePath);
+            ProfileManager.CurrentProfile?.Save(ProfileManager.ProfilePath);
         }
 
         private void OverrideAllProfiles(List<ProfileLocationData> allProfiles)

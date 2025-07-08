@@ -36,6 +36,7 @@ using System.Text.RegularExpressions;
 using ClassicUO.Configuration;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.UI.Controls;
+using ClassicUO.Game.UI.Gumps.GridHighLight;
 using ClassicUO.Network;
 
 namespace ClassicUO.Game.Managers
@@ -59,6 +60,8 @@ namespace ClassicUO.Game.Managers
             prop.NameCliloc = namecliloc;
 
             EventSink.InvokeOPLOnReceive(null, new OPLEventArgs(serial, name, data));
+            
+            GridHighlightData.ProcessItemOpl(serial);
         }
 
         public bool Contains(uint serial)
