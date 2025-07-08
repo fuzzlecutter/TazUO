@@ -7,7 +7,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
   
 [Additional notes](notes.md)  
   
-This was generated on `7/7/2025`.
+This was generated on `7/8/2025`.
   
 # API  
 
@@ -2543,6 +2543,38 @@ This was generated on `7/7/2025`.
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
 | scriptName | string | No | Full name including extension. Can be .py or .lscript. |
+---> Does not return anything
+
+</details>
+
+***
+
+
+<details><summary><h3>PlayScript(scriptName)</h3></summary>
+
+ Play a legion script.  
+  
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| scriptName | string | No | This is the file name including extension. |
+---> Does not return anything
+
+</details>
+
+***
+
+
+<details><summary><h3>StopScript(scriptName)</h3></summary>
+
+ Stop a legion script.  
+  
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| scriptName | string | No | This is the file name including extension. |
 ---> Does not return anything
 
 </details>

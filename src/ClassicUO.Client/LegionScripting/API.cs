@@ -2657,6 +2657,48 @@ namespace ClassicUO.LegionScripting
                 }
             }
         );
+        
+        /// <summary>
+        /// Play a legion script.
+        /// </summary>
+        /// <param name="scriptName">This is the file name including extension.</param>
+        public void PlayScript(string scriptName) => InvokeOnMainThread
+        (() =>
+            {
+                if (string.IsNullOrEmpty(scriptName))
+                    GameActions.Print("[PlayScript] Script name can't be empty.");
+
+                foreach (var script in LegionScripting.LoadedScripts)
+                {
+                    if (script.FileName == scriptName)
+                    {
+                        LegionScripting.PlayScript(script);
+                        return;
+                    }
+                }
+            }
+        );
+        
+        /// <summary>
+        /// Stop a legion script. 
+        /// </summary>
+        /// <param name="scriptName">This is the file name including extension.</param>
+        public void StopScript(string scriptName) => InvokeOnMainThread
+        (() =>
+            {
+                if (string.IsNullOrEmpty(scriptName))
+                    GameActions.Print("[StopScript] Script name can't be empty.");
+
+                foreach (var script in LegionScripting.LoadedScripts)
+                {
+                    if (script.FileName == scriptName)
+                    {
+                        LegionScripting.StopScript(script);
+                        return;
+                    }
+                }
+            }
+        );
 
         /// <summary>
         /// Add a marker to the current World Map (If one is open)  

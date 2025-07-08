@@ -1566,6 +1566,20 @@ def ToggleScript(scriptName: str) -> None:
     """
     pass
 
+def PlayScript(scriptName: str) -> None:
+    """
+     Play a legion script.
+    
+    """
+    pass
+
+def StopScript(scriptName: str) -> None:
+    """
+     Stop a legion script.
+    
+    """
+    pass
+
 def AddMapMarker(name: str, x: int = int.MaxValue, y: int = int.MaxValue, map: int = int.MaxValue, color: str = "purple") -> None:
     """
      Add a marker to the current World Map (If one is open)

@@ -165,6 +165,7 @@ namespace ClassicUO.Game.Managers
             List<Tuple<uint, ushort>> sellList = new List<Tuple<uint, ushort>>();
             long val = 0;
             ushort total_count = 0;
+            ushort unique_items = 0;
 
             foreach (var sellConfig in sellItems)
             {
@@ -183,6 +184,7 @@ namespace ClassicUO.Game.Managers
                         sellList.Add(new Tuple<uint, ushort>(item.Serial, item.Amount));
                         current_count += item.Amount;
                         val += item.Price * item.Amount;
+                        unique_items++;
                     }
                     else
                     {
@@ -192,10 +194,14 @@ namespace ClassicUO.Game.Managers
                             sellList.Add(new Tuple<uint, ushort>(item.Serial, remainingAmount));
                             current_count += remainingAmount;
                             val += item.Price * remainingAmount;
+                            unique_items++;
                         }
                     }
                 }
                 total_count += current_count;
+
+                if (unique_items >= 50)
+                    break;
             }
             sellPackets.Remove(vendorSerial);
 

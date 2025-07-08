@@ -54,14 +54,30 @@ public class SpellBarManager
     {
         if (!enabled || !spellBarSettings.Enabled)
             return;
-        
-        for (int i = 0; i < 10; i++) //Currently 10 spells per row supported
-        {
-            if (spellBarSettings.HotKeys.Length <= i)
-                return; //We don't have that many hotkeys saved, no need to continue.
 
-            if (key == (SDL.SDL_Keycode)spellBarSettings.HotKeys[i] && (spellBarSettings.KeyMod[i] == (int)SDL.SDL_Keymod.KMOD_NONE || ((int)mod & spellBarSettings.KeyMod[i]) == spellBarSettings.KeyMod[i]))
-                UseSlot(CurrentRow, i);
+        for (int i = 0; i < 10; i++)
+        {
+            if (i >= spellBarSettings.HotKeys.Length)
+                break;
+
+            var hotKey = (SDL.SDL_Keycode)spellBarSettings.HotKeys[i];
+            var hotMod = (SDL.SDL_Keymod)spellBarSettings.KeyMod[i];
+
+            if (key != hotKey)
+                continue;
+
+            // If no mod is expected, only allow if none are pressed
+            if (hotMod == SDL.SDL_Keymod.KMOD_NONE)
+            {
+                if (mod == SDL.SDL_Keymod.KMOD_NONE)
+                    UseSlot(CurrentRow, i);
+            }
+            else
+            {
+                // All required mods must be present
+                if ((mod & hotMod) == hotMod)
+                    UseSlot(CurrentRow, i);
+            }
         }
     }
 
