@@ -1114,6 +1114,14 @@ namespace ClassicUO.Game.Managers
                         SpellBar.Instance?.SetRow(row);
                     }
                     break;
+                
+                case MacroType.Dismount:
+                    var m = World.Player.FindItemByLayer(Layer.Mount);
+                    if (m != null)
+                    {
+                        GameActions.DoubleClick(World.Player);
+                    }
+                    break;
 
                 case MacroType.OpenDoor:
                     GameActions.OpenDoor();
@@ -2664,6 +2672,7 @@ namespace ClassicUO.Game.Managers
         SetSpellBarRow,
         SpellBarRowUp,
         SpellBarRowDown,
+        Dismount,
     }
 
     public enum MacroSubType

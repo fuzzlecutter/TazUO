@@ -766,15 +766,12 @@ def Rename(serial: int, name: str) -> None:
     """
     pass
 
-def Dismount() -> Item:
+def Dismount() -> None:
     """
      Attempt to dismount if mounted.
-     Sets API.Found to the serial of the mount if found.
      Example:
      ```py
-     mount = API.Dismount()
-     if mount:
-       API.UseObject(mount)
+     API.Dismount()
      ```
     
     """
@@ -1523,6 +1520,26 @@ def AddControlOnClick(control: PyControl, onClick: Any, leftOnly: bool = True) -
      API.AddControlOnClick(bg, myfunc)
      while True:
        API.ProcessCallbacks()
+     ```
+    
+    """
+    pass
+
+def AddControlOnDisposed(control: PyControl, onDispose: Any) -> PyControl:
+    """
+     Add onDispose(Closed) callback to a control.
+     Example:
+     ```py
+     def onClose():
+         API.Stop()
+    
+     gump = API.CreateGump()
+     gump.SetRect(100, 100, 200, 200)
+    
+     bg = API.CreateGumpColorBox(opacity=0.7, color="#000000")
+     gump.Add(bg.SetRect(0, 0, 200, 200))
+    
+     API.AddControlOnDisposed(gump, onClose)
      ```
     
     """

@@ -673,7 +673,7 @@ namespace ClassicUO.Game.UI.Controls
 
         internal event EventHandler<MouseDoubleClickEventArgs> MouseDoubleClick;
 
-        internal event EventHandler FocusEnter, FocusLost;
+        internal event EventHandler FocusEnter, FocusLost, Disposed;
 
         internal event EventHandler<KeyboardEventArgs> KeyDown, KeyUp;
 
@@ -1110,6 +1110,7 @@ namespace ClassicUO.Game.UI.Controls
 
             IsDisposed = true;
             AfterDispose();
+            Disposed?.Invoke(null, null);
         }
 
         /// <summary>

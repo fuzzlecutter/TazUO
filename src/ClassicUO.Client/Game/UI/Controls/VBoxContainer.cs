@@ -2,12 +2,14 @@ namespace ClassicUO.Game.UI.Controls;
 
 public class VBoxContainer : Control
 {
-    private Positioner pos = new(1, 1);
+    private Positioner pos;
     private bool repositionRequested;
-    public VBoxContainer(int width)
+    
+    public VBoxContainer(int width, int leftpad = 1, int toppad = 1)
     {
         CanMove = true;
         Width = width;
+        pos = new(leftpad, toppad);
     }
 
     public override bool AcceptMouseInput { get; set; } = true;

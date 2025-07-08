@@ -1220,16 +1220,13 @@ This was generated on `7/8/2025`.
 <details><summary><h3>Dismount()</h3></summary>
 
  Attempt to dismount if mounted.  
- Sets API.Found to the serial of the mount if found.  
  Example:  
  ```py  
- mount = API.Dismount()  
- if mount:  
-   API.UseObject(mount)  
+ API.Dismount()  
  ```  
   
 
----> Return Type: *Item*
+---> Does not return anything
 
 </details>
 
@@ -2477,6 +2474,36 @@ This was generated on `7/8/2025`.
 | control | Control | No | The control listening for clicks |
 | onClick | object | No | The callback function |
 | leftOnly | bool | Yes | Only accept left mouse clicks? |
+---> Return Type: *Control*
+
+</details>
+
+***
+
+
+<details><summary><h3>AddControlOnDisposed(control, onDispose)</h3></summary>
+
+ Add onDispose(Closed) callback to a control.  
+ Example:  
+ ```py  
+ def onClose():  
+     API.Stop()  
+  
+ gump = API.CreateGump()  
+ gump.SetRect(100, 100, 200, 200)  
+  
+ bg = API.CreateGumpColorBox(opacity=0.7, color="#000000")  
+ gump.Add(bg.SetRect(0, 0, 200, 200))  
+  
+ API.AddControlOnDisposed(gump, onClose)  
+ ```  
+  
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| control | Control | No |  |
+| onDispose | object | No |  |
 ---> Return Type: *Control*
 
 </details>

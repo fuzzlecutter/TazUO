@@ -1275,30 +1275,17 @@ namespace ClassicUO.LegionScripting
 
         /// <summary>
         /// Attempt to dismount if mounted.
-        /// Sets API.Found to the serial of the mount if found.  
         /// Example:  
         /// ```py
-        /// mount = API.Dismount()
-        /// if mount:
-        ///   API.UseObject(mount)
+        /// API.Dismount()
         /// ```
         /// </summary>
-        /// <returns>Returns your mount</returns>
-        public Item Dismount() => InvokeOnMainThread
+        public void Dismount() => InvokeOnMainThread
         (() =>
             {
-                Item mount = World.Player.FindItemByLayer(Layer.Mount);
-
-                if (mount != null)
-                {
+                if (World.Player.FindItemByLayer(Layer.Mount) != null)
                     GameActions.DoubleClick(World.Player);
-                    
-                    Found = mount.Serial;
-
-                    return mount;
-                }
-
-                return null;
+                
             }
         );
 
@@ -2540,33 +2527,73 @@ namespace ClassicUO.LegionScripting
         /// <returns>Returns the control so methods can be chained.</returns>
         public Control AddControlOnClick(Control control, object onClick, bool leftOnly = true)
         {
-            if (control == null)
+            if (control == null || onClick == null || !engine.Operations.IsCallable(onClick))
                 return control;
 
-            if (onClick != null && engine.Operations.IsCallable(onClick))
+            control.AcceptMouseInput = true;
+
+            control.MouseUp += (s, e) =>
             {
-                control.AcceptMouseInput = true;
+                if (leftOnly && e.Button != MouseButtonType.Left)
+                    return;
 
-                control.MouseUp += (s, e) =>
-                {
-                    if (leftOnly && e.Button != MouseButtonType.Left)
-                        return;
-
-                    this?.ScheduleCallback
-                    (() =>
+                this?.ScheduleCallback
+                (() =>
+                    {
+                        try
                         {
-                            try
-                            {
-                                engine.Operations.Invoke(onClick);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine($"Script callback error: {ex}");
-                            }
+                            engine.Operations.Invoke(onClick);
                         }
-                    );
-                };
-            }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Script callback error: {ex}");
+                        }
+                    }
+                );
+            };
+
+            return control;
+        }
+        
+        /// <summary>
+        /// Add onDispose(Closed) callback to a control.
+        /// Example:
+        /// ```py
+        /// def onClose():
+        ///     API.Stop()
+        ///
+        /// gump = API.CreateGump()
+        /// gump.SetRect(100, 100, 200, 200)
+        ///
+        /// bg = API.CreateGumpColorBox(opacity=0.7, color="#000000")
+        /// gump.Add(bg.SetRect(0, 0, 200, 200))
+        ///
+        /// API.AddControlOnDisposed(gump, onClose)
+        /// ```
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="onDispose"></param>
+        /// <returns></returns>
+        public Control AddControlOnDisposed(Control control, object onDispose)
+        {
+            if (control == null || onDispose == null || !engine.Operations.IsCallable(onDispose))
+                return control;
+            
+            control.Disposed += (s, e) =>
+            {
+                this?.ScheduleCallback
+                (() =>
+                    {
+                        try
+                        {
+                            engine.Operations.Invoke(onDispose);
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                    }
+                );
+            };
 
             return control;
         }
