@@ -5,13 +5,14 @@ using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
+using ClassicUO.Game.UI.Gumps.GridHighLight;
 using ClassicUO.Input;
 using ClassicUO.Renderer;
 using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDL2;
-using static ClassicUO.Game.UI.Gumps.GridHightlightMenu;
+using static ClassicUO.Game.UI.Gumps.GridHighLight.GridHighlightMenu;
 
 namespace ClassicUO.Game.UI
 {
