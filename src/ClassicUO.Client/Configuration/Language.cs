@@ -204,7 +204,7 @@ namespace ClassicUO.Configuration
             public string DragAnchored { get; set; } = "Anchor opened health bars together";
             public string ShowStatsChangedMsg { get; set; } = "Show stats changed messages";
             public string ShowSkillsChangedMsg { get; set; } = "Show skills changed messages";
-            public string ChangeVolume { get; set; } = "Changed by";
+            public string ChangeVolume { get; set; } = "Every tenth (0.1)";
             #endregion
 
             #region General->TerrainStatics
