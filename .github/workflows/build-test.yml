@@ -31,7 +31,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: ${{ github.head_ref || github.ref_name }}
+        ref: ${{ github.event.pull_request.head.sha || github.ref }}
       
     - name: Get submodules
       run: |
