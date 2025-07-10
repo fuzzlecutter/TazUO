@@ -28,7 +28,7 @@ namespace ClassicUO.LegionScripting
         public override GumpType GumpType => GumpType.ScriptManager;
         public static bool RefreshContent = false;
         public const string NOGROUPTEXT = "No group";
-        public ScriptManagerGump() : base(lastWidth, lastHeight, 300, 200, 0, 0)
+        public ScriptManagerGump() : base(lastWidth, lastHeight, 200, 200, 0, 0)
         {
             X = lastX;
             Y = lastY;
