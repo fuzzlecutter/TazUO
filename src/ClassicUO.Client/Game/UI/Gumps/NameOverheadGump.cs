@@ -842,7 +842,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         public override void Dispose()
         {
-            _text.Dispose();
+            _text?.Dispose();
             base.Dispose();
         }
     }
