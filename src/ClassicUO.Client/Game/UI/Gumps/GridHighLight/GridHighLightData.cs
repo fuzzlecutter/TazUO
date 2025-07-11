@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ClassicUO.Game.GameObjects;
+using System.Text.RegularExpressions;
 
 namespace ClassicUO.Game.UI.Gumps.GridHighLight
 {
@@ -220,10 +221,11 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
 
             var props = itemData.singlePropertyData;
 
-            var itemProperties = props.Where(p => GridHighlightRules.Properties.Contains(p.Name)).ToList();
-            var itemNegatives = props.Where(p => GridHighlightRules.NegativeProperties.Contains(p.Name)).ToList();
-            var itemResistances = props.Where(p => GridHighlightRules.Resistances.Contains(p.Name)).ToList();
-            var itemRarities = props.Where(p => GridHighlightRules.RarityProperties.Contains(p.Name)).ToList();
+            string stripHtmlTags(string input) => Regex.Replace(input, "<.*?>", string.Empty);
+            var itemProperties = props.Where(p => GridHighlightRules.Properties.Contains(stripHtmlTags(p.Name))).ToList();
+            var itemNegatives = props.Where(p => GridHighlightRules.NegativeProperties.Contains(stripHtmlTags(p.Name))).ToList();
+            var itemResistances = props.Where(p => GridHighlightRules.Resistances.Contains(stripHtmlTags(p.Name))).ToList();
+            var itemRarities = props.Where(p => GridHighlightRules.RarityProperties.Contains(stripHtmlTags(p.Name))).ToList();
 
             if (!itemProperties.Any() && !itemNegatives.Any() && !itemResistances.Any() && !itemRarities.Any())
                 return false;
