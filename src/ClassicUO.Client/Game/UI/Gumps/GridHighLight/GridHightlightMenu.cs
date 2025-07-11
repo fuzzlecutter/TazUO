@@ -171,6 +171,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             {
                 if (e.Button == Input.MouseButtonType.Left)
                 {
+                    data.Delete();
                     Dispose();
                     UIManager.Add(new GridHighlightMenu(X, Y));
                 }
