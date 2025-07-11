@@ -32,11 +32,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Assets;
+using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 using MathHelper = ClassicUO.Utility.MathHelper;
 
@@ -146,7 +148,7 @@ namespace ClassicUO.Game
                             // TODO: Investigate reducing PathObject allocations here and below
                             list.Add
                             (
-                                new PathObject
+                                PathObject.Get
                                 (
                                     flags,
                                     landMinZ,
@@ -173,7 +175,7 @@ namespace ClassicUO.Game
                                     {
                                         list.Add
                                         (
-                                            new PathObject
+                                            PathObject.Get
                                             (
                                                 (uint)PATH_OBJECT_FLAGS.POF_IMPASSABLE_OR_SURFACE,
                                                 mobile.Z,
@@ -304,7 +306,7 @@ namespace ClassicUO.Game
 
                                     list.Add
                                     (
-                                        new PathObject
+                                        PathObject.Get
                                         (
                                             flags,
                                             objZ,
@@ -341,7 +343,11 @@ namespace ClassicUO.Game
             int direction = newDirection ^ 4;
             newX += _offsetX[direction];
             newY += _offsetY[direction];
-            
+
+            foreach (PathObject o in _reusableList)
+            {
+                o.Return();
+            }
             _reusableList.Clear();
 
             if (!CreateItemList(_reusableList, newX, newY, stepState) || _reusableList.Count == 0)
@@ -437,6 +443,10 @@ namespace ClassicUO.Game
                 stepState
             );
 
+            foreach (PathObject o in _reusableList)
+            {
+                o.Return();
+            }
             _reusableList.Clear();
 
             if (World.CustomHouseManager != null)
@@ -458,7 +468,7 @@ namespace ClassicUO.Game
 
             _reusableList.Add
             (
-                new PathObject
+                PathObject.Get
                 (
                     (uint)PATH_OBJECT_FLAGS.POF_IMPASSABLE_OR_SURFACE,
                     128,
@@ -729,45 +739,50 @@ namespace ClassicUO.Game
 
             int newDistFromStart = parent.DistFromStartCost + cost + Math.Abs(z - parent.Z);
 
+            var updatedNode = PathNode.Get();
+
+            updatedNode.X = x;
+            updatedNode.Y = y;
+            updatedNode.Z = z;
+            updatedNode.Direction = direction;
+            updatedNode.Parent = parent;
+            updatedNode.DistFromStartCost = newDistFromStart;
+            updatedNode.DistFromGoalCost = GetGoalDistCost(new Point(x, y), cost); 
+            updatedNode.Cost = updatedNode.DistFromStartCost + updatedNode.DistFromGoalCost;
+            
             if (_openSet.Contains(x, y, z))
             {
                 // Since tile is already in the open list, we enqueue the better option that
                 // has a lower cost (existing one will be ignored later by PriorityQueue impl)
-                var updatedNode = new PathNode
-                {
-                    X = x,
-                    Y = y,
-                    Z = z,
-                    Direction = direction,
-                    Parent = parent,
-                    DistFromStartCost = newDistFromStart,
-                    DistFromGoalCost = GetGoalDistCost(new Point(x, y), cost),
-                };
+                updatedNode.X = x;
+                updatedNode.Y = y;
+                updatedNode.Z = z;
+                updatedNode.Direction = direction;
+                updatedNode.Parent = parent;
+                updatedNode.DistFromStartCost = newDistFromStart;
+                updatedNode.DistFromGoalCost = GetGoalDistCost(new Point(x, y), cost); 
                 updatedNode.Cost = updatedNode.DistFromStartCost + updatedNode.DistFromGoalCost;
-
+                
                 _openSet.Enqueue(updatedNode, updatedNode.Cost);
                 return false;
             }
             else
             {
-                var node = new PathNode
-                {
-                    X = x,
-                    Y = y,
-                    Z = z,
-                    Direction = direction,
-                    Parent = parent,
-                    DistFromStartCost = newDistFromStart,
-                    DistFromGoalCost = GetGoalDistCost(new Point(x, y), cost),
-                };
-                node.Cost = node.DistFromStartCost + node.DistFromGoalCost;
+                updatedNode.X = x;
+                updatedNode.Y = y;
+                updatedNode.Z = z;
+                updatedNode.Direction = direction;
+                updatedNode.Parent = parent;
+                updatedNode.DistFromStartCost = newDistFromStart;
+                updatedNode.DistFromGoalCost = GetGoalDistCost(new Point(x, y), cost); 
+                updatedNode.Cost = updatedNode.DistFromStartCost + updatedNode.DistFromGoalCost;
 
-                _openSet.Enqueue(node, node.Cost);
+                _openSet.Enqueue(updatedNode, updatedNode.Cost);
 
                 if (MathHelper.GetDistance(_endPoint, new Point(x, y)) <= _pathfindDistance &&
                     Math.Abs(_endPointZ - z) < Constants.ALLOWED_Z_DIFFERENCE)
                 {
-                    _goalNode = node;
+                    _goalNode = updatedNode;
                 }
 
                 return true;
@@ -819,6 +834,8 @@ namespace ClassicUO.Game
                     }
                 }
             }
+            
+            //node.Return();
 
             return found;
         }
@@ -833,6 +850,7 @@ namespace ClassicUO.Game
                 if (_closedSet.Contains(key))
                 {
                     // Skip already processed nodes (e.g., old duplicates)
+                    node?.Return();
                     continue;
                 }
 
@@ -849,15 +867,14 @@ namespace ClassicUO.Game
             _closedSet.Clear();
             _goalNode = null;
 
-            var startNode = new PathNode
-            {
-                X = _startPoint.X,
-                Y = _startPoint.Y,
-                Z = World.Player.Z,
-                Parent = null,
-                DistFromStartCost = 0
-            };
+            var startNode = PathNode.Get();
 
+            startNode.X = _startPoint.X;
+            startNode.Y = _startPoint.Y;
+            startNode.Z = World.Player.Z;
+            startNode.Parent = null;
+            startNode.DistFromStartCost = 0;
+            
             var startPoint = new Point(_startPoint.X, _startPoint.Y);
             startNode.DistFromGoalCost = GetGoalDistCost(startPoint, 0);
             startNode.Cost = startNode.DistFromGoalCost;
@@ -884,6 +901,7 @@ namespace ClassicUO.Game
 
                 if (closedNodesCount >= maxNodes)
                 {
+                    currentNode.Return();
                     return false;
                 }
 
@@ -908,7 +926,7 @@ namespace ClassicUO.Game
                 pathStack.Push(current);
                 current = current.Parent;
             }
-
+            
             _path.Clear();
             while (pathStack.Count > 0)
             {
@@ -1003,7 +1021,18 @@ namespace ClassicUO.Game
 
         private class PathObject : IComparable<PathObject>
         {
-            public PathObject(uint flags, int z, int avgZ, int h, GameObject obj)
+            private static ObjectPool<PathObject> _pool = new ObjectPool<PathObject>(
+                ()=> new PathObject(0, 0, 0, 0, null), (po) =>
+                {
+                    po.Flags = 0;
+                    po.Z = 0;
+                    po.AverageZ = 0;
+                    po.Height = 0;
+                    po.Object = null;
+                }, 
+                15
+                );
+            private PathObject(uint flags, int z, int avgZ, int h, GameObject obj)
             {
                 Flags = flags;
                 Z = z;
@@ -1012,15 +1041,31 @@ namespace ClassicUO.Game
                 Object = obj;
             }
 
-            public uint Flags { get; }
+            public static PathObject Get(uint flags, int z, int avgZ, int h, GameObject obj)
+            {
+                var po = _pool.Get();
+                po.Flags = flags;
+                po.Z = z;
+                po.AverageZ = avgZ;
+                po.Height = h;
+                po.Object = obj;
+                return po;
+            }
 
-            public int Z { get; }
+            public void Return()
+            {
+                _pool.Return(this);
+            }
+            
+            public uint Flags { get; private set; }
 
-            public int AverageZ { get; }
+            public int Z { get; private set; }
 
-            public int Height { get; }
+            public int AverageZ { get; private set; }
 
-            public GameObject Object { get; }
+            public int Height { get; private set; }
+
+            public GameObject Object { get; private set; }
 
             public int CompareTo(PathObject other)
             {
@@ -1037,6 +1082,26 @@ namespace ClassicUO.Game
 
         private class PathNode
         {
+            private static ObjectPool<PathNode> _pool = new(
+                ()=>new PathNode(), 
+                (pn) => {pn.Reset();},
+                15
+                );
+
+            private PathNode()
+            {
+            }
+
+            public static PathNode Get()
+            {
+                return _pool.Get();
+            }
+
+            public void Return()
+            {
+                _pool.Return(this);
+            }
+
             public int X { get; set; }
 
             public int Y { get; set; }
@@ -1098,6 +1163,10 @@ namespace ClassicUO.Game
 
             internal void Clear()
             {
+                foreach (QueueNode node in _heap)
+                {
+                    node.Node?.Return();
+                }
                 _heap.Clear();
                 _nodeLookup.Clear();
             }
