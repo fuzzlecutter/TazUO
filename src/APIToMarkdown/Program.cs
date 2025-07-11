@@ -12,7 +12,7 @@ public static class GenDoc
         Dictionary<string, Tuple<StringBuilder, StringBuilder>> classesDict = new();
         var code = File.ReadAllText(filePath);
         var tree = CSharpSyntaxTree.ParseText(code);
-        var root = tree.GetRoot() as CompilationUnitSyntax;
+        var root = (CompilationUnitSyntax)tree.GetRoot();
 
         var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
         
@@ -388,7 +388,7 @@ public static class GenDoc
         var sb = new StringBuilder();
         foreach (var param in parameters)
         {
-            string pythonType = MapCSharpTypeToPython(param.Type.ToString());
+            string pythonType = MapCSharpTypeToPython(param.Type!.ToString());
 
             string defaultValue = param.Default != null ? $" = {MapDefaultToPython(param.Default.ToString())}" : string.Empty;
 
@@ -447,7 +447,7 @@ public static class GenDoc
     };
 
         // Check if the type starts with one of the prefixes and ends with ">"
-        string matchedPrefix = collectionPrefixes.FirstOrDefault(prefix => csharpType.StartsWith(prefix));
+        string? matchedPrefix = collectionPrefixes.FirstOrDefault(prefix => csharpType.StartsWith(prefix));
         if (matchedPrefix != null && csharpType.EndsWith(">"))
         {
             // Extract the element type T from Collection<T>
