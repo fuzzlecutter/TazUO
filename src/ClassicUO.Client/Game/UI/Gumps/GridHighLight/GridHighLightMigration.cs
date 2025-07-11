@@ -21,7 +21,9 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                 {
                     Name = profile.GridHighlight_Name[i],
                     Hue = profile.GridHighlight_Hue.ElementAtOrDefault(i),
-                    AcceptExtraProperties = profile.GridHighlight_AcceptExtraProperties.ElementAtOrDefault(i),
+                    AcceptExtraProperties = i < profile.GridHighlight_AcceptExtraProperties.Count
+                        ? profile.GridHighlight_AcceptExtraProperties[i]
+                        : true,
                     ExcludeNegatives = profile.GridHighlight_ExcludeNegatives.ElementAtOrDefault(i) ?? new(),
                     RequiredRarities = profile.GridHighlight_RequiredRarities.ElementAtOrDefault(i) ?? new(),
                     Properties = new List<GridHighlightProperty>()

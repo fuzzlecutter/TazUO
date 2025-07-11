@@ -94,6 +94,11 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             _entry = entry;
         }
         
+      public void Delete()
+        {
+            ProfileManager.CurrentProfile.GridHighlightSetup.Remove(_entry);
+        }
+
         public static void ProcessItemOpl(uint value)
         {
             _queue.Enqueue(value);
