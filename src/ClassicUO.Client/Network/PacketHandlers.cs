@@ -2116,14 +2116,17 @@ namespace ClassicUO.Network
                             if (isSingleUpdate)
                             {
                                 float change = realVal / 10.0f - skill.Value;
+                                int deltaThreshold = ProfileManager.CurrentProfile?.ShowSkillsChangedDeltaValue ?? 0;
 
                                 if (
                                     change != 0.0f
                                     && !float.IsNaN(change)
                                     && ProfileManager.CurrentProfile != null
                                     && ProfileManager.CurrentProfile.ShowSkillsChangedMessage
-                                    && Math.Abs(change * 10)
-                                        >= ProfileManager.CurrentProfile.ShowSkillsChangedDeltaValue
+                                    && (
+                                        deltaThreshold <= 0
+                                        || skill.ValueFixed / deltaThreshold != realVal / deltaThreshold
+                                    )
                                 )
                                 {
                                     GameActions.Print(
