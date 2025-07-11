@@ -67,6 +67,7 @@ namespace ClassicUO.Game
         private static Point _startPoint, _endPoint;
 
         private static int _endPointZ;
+        private static readonly List<PathObject> _reusableList = new();
 
         public static Point StartPoint => _startPoint;
         public static Point EndPoint => _endPoint;
@@ -340,15 +341,15 @@ namespace ClassicUO.Game
             int direction = newDirection ^ 4;
             newX += _offsetX[direction];
             newY += _offsetY[direction];
-            // TODO: Get list from an object pool instead of multiple allocations
-            List<PathObject> list = new List<PathObject>();
+            
+            _reusableList.Clear();
 
-            if (!CreateItemList(list, newX, newY, stepState) || list.Count == 0)
+            if (!CreateItemList(_reusableList, newX, newY, stepState) || _reusableList.Count == 0)
             {
                 return 0;
             }
 
-            foreach (PathObject obj in list)
+            foreach (PathObject obj in _reusableList)
             {
                 GameObject o = obj.Object;
                 int averageZ = obj.AverageZ;
@@ -436,8 +437,7 @@ namespace ClassicUO.Game
                 stepState
             );
 
-            // TODO: Get list from an object pool instead of multiple allocations
-            List<PathObject> list = new List<PathObject>();
+            _reusableList.Clear();
 
             if (World.CustomHouseManager != null)
             {
@@ -449,14 +449,14 @@ namespace ClassicUO.Game
                 }
             }
 
-            if (!CreateItemList(list, x, y, stepState) || list.Count == 0)
+            if (!CreateItemList(_reusableList, x, y, stepState) || _reusableList.Count == 0)
             {
                 return false;
             }
 
-            list.Sort();
+            _reusableList.Sort();
 
-            list.Add
+            _reusableList.Add
             (
                 new PathObject
                 (
@@ -478,9 +478,9 @@ namespace ClassicUO.Game
             int currentTempObjZ = 1000000;
             int currentZ = -128;
 
-            for (int i = 0; i < list.Count; i++)
+            for (int i = 0; i < _reusableList.Count; i++)
             {
-                PathObject obj = list[i];
+                PathObject obj = _reusableList[i];
 
                 if ((obj.Flags & (uint)PATH_OBJECT_FLAGS.POF_NO_DIAGONAL) != 0 && stepState == (int)PATH_STEP_STATE.PSS_FLYING)
                 {
@@ -503,7 +503,7 @@ namespace ClassicUO.Game
                     {
                         for (int j = i - 1; j >= 0; j--)
                         {
-                            PathObject tempObj = list[j];
+                            PathObject tempObj = _reusableList[j];
 
                             if ((tempObj.Flags & (uint)(PATH_OBJECT_FLAGS.POF_SURFACE | PATH_OBJECT_FLAGS.POF_BRIDGE)) != 0)
                             {
