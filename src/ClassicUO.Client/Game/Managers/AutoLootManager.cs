@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ClassicUO.Game.Managers
@@ -395,7 +396,7 @@ namespace ClassicUO.Game.Managers
                 else
                     search = StringHelper.GetPluralAdjustedString(compareTo.ItemData.Name);
 
-                return System.Text.RegularExpressions.Regex.IsMatch(search, RegexSearch, System.Text.RegularExpressions.RegexOptions.Multiline);
+                return RegexHelper.GetRegex(RegexSearch, RegexOptions.Multiline).IsMatch(search);
             }
 
             public bool Equals(AutoLootConfigEntry other)

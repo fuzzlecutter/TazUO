@@ -38,6 +38,7 @@ using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps.GridHighLight;
 using ClassicUO.Network;
+using ClassicUO.Utility;
 
 namespace ClassicUO.Game.Managers
 {
@@ -274,7 +275,7 @@ namespace ClassicUO.Game.Managers
                 bool foundMatch = false;
                 foreach (SinglePropertyData secondItem in comparedTo.singlePropertyData)
                 {
-                    if (String.Equals(thisItem.Name, secondItem.Name, StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(thisItem.Name, secondItem.Name, StringComparison.InvariantCultureIgnoreCase))
                     {
                         foundMatch = true;
                         finalTooltip += thisItem.Name;
@@ -336,14 +337,10 @@ namespace ClassicUO.Game.Managers
                 OriginalString = line;
 
                 // Remove any color tags like /c[#...]
-                string cleaned = Regex.Replace(line, @"/c\[[#a-zA-Z0-9]+\]", "", RegexOptions.IgnoreCase);
-
-                // Remove /cd or other slashes
-                cleaned = Regex.Replace(cleaned, @"/cd", "", RegexOptions.IgnoreCase).Trim();
-
+                string cleaned = RegexHelper.GetRegex(@"/c\[[#a-zA-Z0-9]+\]", RegexOptions.IgnoreCase).Replace(line, "").Replace("/cd", "").Trim();
+                
                 // Extract numbers
-                string numberPattern = @"-?\d+(\.\d+)?";
-                MatchCollection matches = Regex.Matches(cleaned, numberPattern);
+                MatchCollection matches = RegexHelper.GetRegex(@"-?\d+(\.\d+)?").Matches(cleaned);
 
                 if (matches.Count > 0)
                 {
@@ -353,8 +350,7 @@ namespace ClassicUO.Game.Managers
                 }
 
                 // Remove all numbers and symbols from the cleaned string to isolate the name
-                string nameOnly = Regex.Replace(cleaned, @"[-+]?\d+(\.\d+)?[%]?(/[ ]*\d+)?", "", RegexOptions.IgnoreCase);
-                Name = nameOnly.Trim();
+                Name = RegexHelper.GetRegex(@"[-+]?\d+(\.\d+)?[%]?(/[ ]*\d+)?", RegexOptions.IgnoreCase).Replace(cleaned, "").Trim();
 
                 // Fallback if something went wrong
                 if (string.IsNullOrWhiteSpace(Name))
