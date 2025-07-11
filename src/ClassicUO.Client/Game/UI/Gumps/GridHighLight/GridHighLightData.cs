@@ -18,6 +18,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
         private static bool hasQueuedItems;
 
         private static readonly Regex HtmlTagRegex = new("<.*?>", RegexOptions.Compiled);
+        private readonly Dictionary<string, string> _normalizeCache = new();
 
         public static GridHighlightData[] AllConfigs
         {
@@ -287,9 +288,19 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             return matchingPropertiesCount >= MinimumProperty;
         }
 
-        private string Normalize(string input) {
-            var res = string.IsNullOrWhiteSpace(input) ? string.Empty : HtmlTagRegex.Replace(input, string.Empty).Trim();
-            return res;
+        private string Normalize(string input)
+        {
+            input ??= string.Empty;
+
+            if (_normalizeCache.TryGetValue(input, out var cached))
+                return cached;
+
+            var result = string.IsNullOrWhiteSpace(input)
+                ? string.Empty
+                : HtmlTagRegex.Replace(input, string.Empty).Trim();
+
+            _normalizeCache[input] = result;
+            return result;
         }
 
         private bool MatchesSlot(byte layer)
