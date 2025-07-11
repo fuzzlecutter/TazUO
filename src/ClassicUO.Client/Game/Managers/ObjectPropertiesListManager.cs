@@ -335,28 +335,30 @@ namespace ClassicUO.Game.Managers
             {
                 OriginalString = line;
 
-                string pattern = @"(-?\d+(\.)?(\d+)?)";
-                MatchCollection matches = Regex.Matches(line, pattern, RegexOptions.CultureInvariant);
+                // Remove any color tags like /c[#...]
+                string cleaned = Regex.Replace(line, @"/c\[[#a-zA-Z0-9]+\]", "", RegexOptions.IgnoreCase);
 
-                Match nameMatch = Regex.Match(line, @"(\D+)");
-                if (nameMatch.Success)
-                {
-                    Name = nameMatch.Value;
-                    //Name = Regex.Replace(Name, "/c[\"?'?(?<color>.*?)\"?'?]", "", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-                    Name = Name.Replace("/cd", "");
-                }
+                // Remove /cd or other slashes
+                cleaned = Regex.Replace(cleaned, @"/cd", "", RegexOptions.IgnoreCase).Trim();
 
-                if (Name.Length < 1)
-                    Name = line;
+                // Extract numbers
+                string numberPattern = @"-?\d+(\.\d+)?";
+                MatchCollection matches = Regex.Matches(cleaned, numberPattern);
 
                 if (matches.Count > 0)
                 {
                     double.TryParse(matches[0].Value, out FirstValue);
                     if (matches.Count > 1)
-                    {
                         double.TryParse(matches[1].Value, out SecondValue);
-                    }
                 }
+
+                // Remove all numbers and symbols from the cleaned string to isolate the name
+                string nameOnly = Regex.Replace(cleaned, @"[-+]?\d+(\.\d+)?[%]?(/[ ]*\d+)?", "", RegexOptions.IgnoreCase);
+                Name = nameOnly.Trim();
+
+                // Fallback if something went wrong
+                if (string.IsNullOrWhiteSpace(Name))
+                    Name = line;
             }
 
             public override string ToString()
