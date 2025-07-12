@@ -1203,7 +1203,15 @@ namespace ClassicUO.Game
                 {
                     if (existing.IsValid && existing.Cost <= node.Cost)
                     {
-                        // Existing priority is better or equal, so ignore
+                        // Existing priority is better or equal, so ignore this node.
+
+                        // While it breaks encapsulation to perform this inside
+                        // the priority queue, it is safe to return this node
+                        // to the object pool early at this point because we know
+                        // the caller will discard its reference to this node, so
+                        // it cannot be used later during path reconstruction.
+                        node.Return();
+
                         return;
                     }
 
