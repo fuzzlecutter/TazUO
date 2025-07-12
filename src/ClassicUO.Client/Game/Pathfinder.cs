@@ -39,6 +39,7 @@ using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Assets;
 using ClassicUO.Utility;
+using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 using MathHelper = ClassicUO.Utility.MathHelper;
 
@@ -47,7 +48,7 @@ namespace ClassicUO.Game
     public static class Pathfinder
     {
         private const int PATHFINDER_MAX_NODES = 150000;
-        private static PathNode _goalNode = null;
+        private static PathNode _goalNode;
         private static int _pathfindDistance;
         private static readonly PriorityQueue _openSet = new();
         private static readonly HashSet<(int x, int y, int z)> _closedSet = new();
@@ -754,39 +755,21 @@ namespace ClassicUO.Game
             {
                 // Since tile is already in the open list, we enqueue the better option that
                 // has a lower cost (existing one will be ignored later by PriorityQueue impl)
-                updatedNode.X = x;
-                updatedNode.Y = y;
-                updatedNode.Z = z;
-                updatedNode.Direction = direction;
-                updatedNode.Parent = parent;
-                updatedNode.DistFromStartCost = newDistFromStart;
-                updatedNode.DistFromGoalCost = GetGoalDistCost(new Point(x, y), cost); 
-                updatedNode.Cost = updatedNode.DistFromStartCost + updatedNode.DistFromGoalCost;
                 
                 _openSet.Enqueue(updatedNode, updatedNode.Cost);
                 return false;
             }
-            else
+
+            _openSet.Enqueue(updatedNode, updatedNode.Cost);
+
+            if (MathHelper.GetDistance(_endPoint, new Point(x, y)) <= _pathfindDistance &&
+                Math.Abs(_endPointZ - z) < Constants.ALLOWED_Z_DIFFERENCE)
             {
-                updatedNode.X = x;
-                updatedNode.Y = y;
-                updatedNode.Z = z;
-                updatedNode.Direction = direction;
-                updatedNode.Parent = parent;
-                updatedNode.DistFromStartCost = newDistFromStart;
-                updatedNode.DistFromGoalCost = GetGoalDistCost(new Point(x, y), cost); 
-                updatedNode.Cost = updatedNode.DistFromStartCost + updatedNode.DistFromGoalCost;
-
-                _openSet.Enqueue(updatedNode, updatedNode.Cost);
-
-                if (MathHelper.GetDistance(_endPoint, new Point(x, y)) <= _pathfindDistance &&
-                    Math.Abs(_endPointZ - z) < Constants.ALLOWED_Z_DIFFERENCE)
-                {
-                    _goalNode = updatedNode;
-                }
-
-                return true;
+                _goalNode = updatedNode;
             }
+
+            return true;
+            
         }
 
         private static bool OpenNodes(PathNode node)
@@ -835,8 +818,6 @@ namespace ClassicUO.Game
                 }
             }
             
-            //node.Return();
-
             return found;
         }
 
@@ -863,9 +844,8 @@ namespace ClassicUO.Game
 
         private static bool FindPath(int maxNodes)
         {
-            _openSet.Clear();
-            _closedSet.Clear();
-            _goalNode = null;
+            CleanupPath();
+            CleanupPathfinding();
 
             var startNode = PathNode.Get();
 
@@ -911,7 +891,9 @@ namespace ClassicUO.Game
                     return true;
                 }
 
-                OpenNodes(currentNode);
+                if (!OpenNodes(currentNode))                
+                    currentNode?.Return();                
+
             }
 
             return false;
@@ -921,12 +903,30 @@ namespace ClassicUO.Game
         {
             var pathStack = new Stack<PathNode>();
             var current = goalNode;
-            while (current is not null && current != current.Parent)
+            var visited = new HashSet<PathNode>();
+            int iterations = 0;
+    
+            while (current is not null && current.Parent != current && iterations < PATHFINDER_MAX_NODES)
             {
+                // Check for cycles
+                if (visited.Contains(current))
+                {
+                    // Cycle detected - break out
+                    Log.Warn("[Pathfinder]Cycle detected in path reconstruction!");
+                    break;
+                }
+        
+                visited.Add(current);
                 pathStack.Push(current);
                 current = current.Parent;
+                iterations++;
             }
-            
+    
+            if (iterations >= PATHFINDER_MAX_NODES)
+            {
+                Log.Warn($"[Pathfinder]Path reconstruction hit iteration limit: {PATHFINDER_MAX_NODES}");
+            }
+    
             _path.Clear();
             while (pathStack.Count > 0)
             {
@@ -943,7 +943,8 @@ namespace ClassicUO.Game
 
             EventSink.InvokeOnPathFinding(null, new Vector4(x, y, z, distance));
 
-            _path.Clear();
+            CleanupPathfinding();
+            CleanupPath();
             _pointIndex = 0;
             _goalNode = null;
             _run = false;
@@ -999,6 +1000,31 @@ namespace ClassicUO.Game
         {
             AutoWalking = false;
             _run = false;
+            CleanupPath();
+            CleanupPathfinding();
+        }
+        
+        private static void CleanupPathfinding()
+        {
+            // Clean up any remaining nodes in the open set
+            while (!_openSet.IsEmpty())
+            {
+                var node = _openSet.Dequeue();
+                node?.Return();
+            }
+    
+            _openSet.Clear();
+            _closedSet.Clear();
+            _goalNode = null;
+        }
+        
+        private static void CleanupPath()
+        {
+            // Return all nodes in the current path to the pool
+            foreach (var node in _path)
+            {
+                node?.Return();
+            }
             _path.Clear();
         }
 
@@ -1088,18 +1114,23 @@ namespace ClassicUO.Game
                 15
                 );
 
+            private static int created, returned;
+            
             private PathNode()
             {
+                created++;
             }
 
             public static PathNode Get()
             {
+                //Console.WriteLine($"PATHNODE: Created: {created}, {returned}");
                 return _pool.Get();
             }
 
             public void Return()
             {
                 _pool.Return(this);
+                returned++;
             }
 
             public int X { get; set; }
@@ -1221,6 +1252,7 @@ namespace ClassicUO.Game
                     var top = _heap[0];
                     if (!top.IsValid)
                     {
+                        top.Node?.Return();
                         RemoveAt(0);
                         continue;
                     }
