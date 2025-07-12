@@ -733,7 +733,8 @@ namespace ClassicUO.Game
 
         private static bool AddNodeToList(int direction, int x, int y, int z, PathNode parent, int cost)
         {
-            if (_closedSet.Contains((x, y, z)))
+            var coordinate = (x, y, z);
+            if (_closedSet.Contains(coordinate))
             {
                 return false;
             }
@@ -751,16 +752,16 @@ namespace ClassicUO.Game
             updatedNode.DistFromGoalCost = GetGoalDistCost(new Point(x, y), cost); 
             updatedNode.Cost = updatedNode.DistFromStartCost + updatedNode.DistFromGoalCost;
             
-            if (_openSet.Contains(x, y, z))
+            if (_openSet.Contains(coordinate))
             {
                 // Since tile is already in the open list, we enqueue the better option that
                 // has a lower cost (existing one will be ignored later by PriorityQueue impl)
                 
-                _openSet.Enqueue(updatedNode, updatedNode.Cost);
+                _openSet.Enqueue(updatedNode);
                 return false;
             }
 
-            _openSet.Enqueue(updatedNode, updatedNode.Cost);
+            _openSet.Enqueue(updatedNode);
 
             if (MathHelper.GetDistance(_endPoint, new Point(x, y)) <= _pathfindDistance &&
                 Math.Abs(_endPointZ - z) < Constants.ALLOWED_Z_DIFFERENCE)
@@ -859,7 +860,7 @@ namespace ClassicUO.Game
             startNode.DistFromGoalCost = GetGoalDistCost(startPoint, 0);
             startNode.Cost = startNode.DistFromGoalCost;
 
-            _openSet.Enqueue(startNode, startNode.Cost);
+            _openSet.Enqueue(startNode);
 
             int closedNodesCount = 0;
 
@@ -1133,6 +1134,8 @@ namespace ClassicUO.Game
                 returned++;
             }
 
+            public bool IsValid { get; set; }
+
             public int X { get; set; }
 
             public int Y { get; set; }
@@ -1154,39 +1157,23 @@ namespace ClassicUO.Game
             public void Reset()
             {
                 Parent = null;
-                Used = false;
+                Used = IsValid = false;
                 X = Y = Z = Direction = Cost = DistFromGoalCost = DistFromStartCost = 0;
             }
         }
 
         class PriorityQueue
         {
-            class QueueNode
+            readonly List<PathNode> _heap = new();
+            readonly Dictionary<(int, int, int), PathNode> _lookup = new();
+
+            internal bool Contains((int, int, int) coordinate)
             {
-                internal PathNode Node;
-                internal int Priority;
-                internal bool IsValid;
-
-                internal QueueNode(PathNode node, int priority)
-                {
-                    Node = node;
-                    Priority = priority;
-                    IsValid = true;
-                }
-            }
-
-            readonly List<QueueNode> _heap = new();
-            readonly Dictionary<(int, int, int), QueueNode> _nodeLookup = new();
-
-            internal bool Contains(int x, int y, int z) => _nodeLookup.ContainsKey((x, y, z));
-
-            internal bool Contains(PathNode node)
-            {
-                if (_nodeLookup.TryGetValue(GetKey(node), out QueueNode queuenode))
+                if (_lookup.TryGetValue(coordinate, out var existing))
                 {
                     // The priority queue lazily remove duplicates, so we check
                     // whether the node is valid here.
-                    return queuenode.IsValid;
+                    return existing.IsValid;
                 }
 
                 return false;
@@ -1194,12 +1181,12 @@ namespace ClassicUO.Game
 
             internal void Clear()
             {
-                foreach (QueueNode node in _heap)
+                foreach (var node in _heap)
                 {
-                    node.Node?.Return();
+                    node.Return();
                 }
                 _heap.Clear();
-                _nodeLookup.Clear();
+                _lookup.Clear();
             }
 
             internal bool IsEmpty()
@@ -1220,12 +1207,12 @@ namespace ClassicUO.Game
                 return true;
             }
 
-            internal void Enqueue(PathNode node, int priority)
+            internal void Enqueue(PathNode node)
             {
                 var key = GetKey(node);
-                if (_nodeLookup.TryGetValue(key, out QueueNode existing))
+                if (_lookup.TryGetValue(key, out var existing))
                 {
-                    if (existing.IsValid && existing.Priority <= priority)
+                    if (existing.IsValid && existing.Cost <= node.Cost)
                     {
                         // Existing priority is better or equal, so ignore
                         return;
@@ -1235,10 +1222,10 @@ namespace ClassicUO.Game
                     existing.IsValid = false;
                 }
 
-                var qNode = new QueueNode(node, priority);
-                _heap.Add(qNode);
+                node.IsValid = true;
+                _lookup[key] = node;
+                _heap.Add(node);
                 int index = _heap.Count - 1;
-                _nodeLookup[key] = qNode;
                 HeapifyUp(index);
             }
 
@@ -1252,14 +1239,14 @@ namespace ClassicUO.Game
                     var top = _heap[0];
                     if (!top.IsValid)
                     {
-                        top.Node?.Return();
+                        top.Return();
                         RemoveAt(0);
                         continue;
                     }
 
                     RemoveAt(0);
-                    _nodeLookup.Remove(GetKey(top.Node));
-                    return top.Node;
+                    _lookup.Remove(GetKey(top));
+                    return top;
                 }
 
                 return null;
@@ -1275,7 +1262,7 @@ namespace ClassicUO.Game
                 while (index > 0)
                 {
                     int parent = (index - 1) / 2;
-                    if (_heap[index].Priority < _heap[parent].Priority)
+                    if (_heap[index].Cost < _heap[parent].Cost)
                     {
                         Swap(index, parent);
                         index = parent;
@@ -1296,12 +1283,12 @@ namespace ClassicUO.Game
                     int right = index * 2 + 2;
                     int smallest = index;
 
-                    if (left <= lastIndex && _heap[left].Priority < _heap[smallest].Priority)
+                    if (left <= lastIndex && _heap[left].Cost < _heap[smallest].Cost)
                     {
                         smallest = left;
                     }
 
-                    if (right <= lastIndex && _heap[right].Priority < _heap[smallest].Priority)
+                    if (right <= lastIndex && _heap[right].Cost < _heap[smallest].Cost)
                     {
                         smallest = right;
                     }
@@ -1325,9 +1312,10 @@ namespace ClassicUO.Game
 
             void RemoveAt(int index)
             {
+                var keyToRemove = GetKey(_heap[index]);
+                _lookup.Remove(keyToRemove);
+
                 int lastIndex = _heap.Count - 1;
-                var keyToRemove = GetKey(_heap[index].Node);
-                _nodeLookup.Remove(keyToRemove);
                 if (index != lastIndex)
                 {
                     Swap(index, lastIndex);
