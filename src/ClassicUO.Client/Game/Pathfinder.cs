@@ -1233,7 +1233,6 @@ namespace ClassicUO.Game
                     }
 
                     RemoveAt(0);
-                    _lookup.Remove(GetKey(top));
                     return top;
                 }
 
@@ -1300,8 +1299,9 @@ namespace ClassicUO.Game
 
             void RemoveAt(int index)
             {
-                var keyToRemove = GetKey(_heap[index]);
-                _lookup.Remove(keyToRemove);
+                var node = _heap[index];
+                var key = GetKey(node);
+                _lookup.Remove(key);
 
                 int lastIndex = _heap.Count - 1;
                 if (index != lastIndex)
