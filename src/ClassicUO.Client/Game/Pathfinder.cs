@@ -51,7 +51,7 @@ namespace ClassicUO.Game
         private static PathNode _goalNode;
         private static int _pathfindDistance;
         private static readonly PriorityQueue _openSet = new();
-        private static readonly HashSet<(int x, int y, int z)> _closedSet = new();
+        private static readonly Dictionary<(int x, int y, int z), PathNode> _closedSet = new();
         private static readonly List<PathNode> _path = new();
         private static int _pointIndex;
         private static bool _run;
@@ -734,7 +734,7 @@ namespace ClassicUO.Game
         private static bool AddNodeToList(int direction, int x, int y, int z, PathNode parent, int cost)
         {
             var coordinate = (x, y, z);
-            if (_closedSet.Contains(coordinate))
+            if (_closedSet.ContainsKey(coordinate))
             {
                 return false;
             }
@@ -829,14 +829,15 @@ namespace ClassicUO.Game
                 var node = _openSet.Dequeue();
                 var key = (node.X, node.Y, node.Z);
 
-                if (_closedSet.Contains(key))
+                if (_closedSet.ContainsKey(key))
                 {
-                    // Skip already processed nodes (e.g., old duplicates)
-                    node?.Return();
+                    // TODO: Maybe just remove this conditional.
+                    // If it happens, there is a bug that needs to be fixed.
+                    Log.Warn("[Pathfinder]Node in both open and closed set. This shouldn't happen.");
                     continue;
                 }
 
-                _closedSet.Add(key);
+                _closedSet[key] = node;
                 return node;
             }
 
@@ -845,9 +846,6 @@ namespace ClassicUO.Game
 
         private static bool FindPath(int maxNodes)
         {
-            CleanupPath();
-            CleanupPathfinding();
-
             var startNode = PathNode.Get();
 
             startNode.X = _startPoint.X;
@@ -882,19 +880,17 @@ namespace ClassicUO.Game
 
                 if (closedNodesCount >= maxNodes)
                 {
-                    currentNode.Return();
-                    return false;
+                    break;
                 }
 
                 if (_goalNode is not null)
                 {
                     ReconstructPath(_goalNode);
+
                     return true;
                 }
 
-                if (!OpenNodes(currentNode))                
-                    currentNode?.Return();                
-
+                OpenNodes(currentNode);
             }
 
             return false;
@@ -945,7 +941,6 @@ namespace ClassicUO.Game
             EventSink.InvokeOnPathFinding(null, new Vector4(x, y, z, distance));
 
             CleanupPathfinding();
-            CleanupPath();
             _pointIndex = 0;
             _goalNode = null;
             _run = false;
@@ -1001,7 +996,6 @@ namespace ClassicUO.Game
         {
             AutoWalking = false;
             _run = false;
-            CleanupPath();
             CleanupPathfinding();
         }
         
@@ -1013,20 +1007,19 @@ namespace ClassicUO.Game
                 var node = _openSet.Dequeue();
                 node?.Return();
             }
-    
+
             _openSet.Clear();
-            _closedSet.Clear();
-            _goalNode = null;
-        }
-        
-        private static void CleanupPath()
-        {
-            // Return all nodes in the current path to the pool
-            foreach (var node in _path)
+
+            // Clean up any remaining nodes in the closed set
+            foreach (var n in _closedSet)
             {
-                node?.Return();
+                n.Value.Return();
             }
+
+            _closedSet.Clear();
+
             _path.Clear();
+            _goalNode = null;
         }
 
         private enum PATH_STEP_STATE
@@ -1181,10 +1174,6 @@ namespace ClassicUO.Game
 
             internal void Clear()
             {
-                foreach (var node in _heap)
-                {
-                    node.Return();
-                }
                 _heap.Clear();
                 _lookup.Clear();
             }
@@ -1239,7 +1228,6 @@ namespace ClassicUO.Game
                     var top = _heap[0];
                     if (!top.IsValid)
                     {
-                        top.Return();
                         RemoveAt(0);
                         continue;
                     }
@@ -1327,6 +1315,17 @@ namespace ClassicUO.Game
                 {
                     HeapifyDown(index);
                     HeapifyUp(index);
+                }
+
+                if (!node.IsValid)
+                {
+                    // While it breaks encapsulation to perform this inside
+                    // the priority queue, it is safe to return the invalid
+                    // node to the object pool early at this point because
+                    // we know no other data structures reference it any
+                    // longer, so it won't be used in any subsequent
+                    // pathfinding calculations nor in path reconstruction.
+                    node.Return();
                 }
             }
         }
