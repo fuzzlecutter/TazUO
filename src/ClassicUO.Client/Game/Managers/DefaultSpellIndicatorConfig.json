@@ -1197,14 +1197,14 @@
       "CastTime": 1,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 202,
       "Name": "Close Wounds",
       "PowerWords": "Obsu Vulni",
       "CursorSize": 1,
-      "CastRange": 0,
+      "CastRange": 2,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1212,7 +1212,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 203,
@@ -1234,7 +1234,7 @@
       "Name": "Dispel Evil",
       "PowerWords": "Dispiro Malas",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 8,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1279,13 +1279,13 @@
       "Name": "Holy Light",
       "PowerWords": "Augus Luminos",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 3,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
       "IsLinear": false,
       "CastTime": 1.75,
-      "ShowCastRangeDuringCasting": false,
+      "ShowCastRangeDuringCasting": true,
       "FreezeCharacterWhileCasting": false,
       "ExpectTargetCursor": false
     },
@@ -1294,13 +1294,13 @@
       "Name": "Noble Sacrifice",
       "PowerWords": "Dium Prostra",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 3,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
       "IsLinear": false,
       "CastTime": 1.5,
-      "ShowCastRangeDuringCasting": false,
+      "ShowCastRangeDuringCasting": true,
       "FreezeCharacterWhileCasting": false,
       "ExpectTargetCursor": false
     },
@@ -1317,7 +1317,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 210,
@@ -1489,13 +1489,13 @@
       "Name": "Essence of Wind",
       "PowerWords": "Anathrae",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 5,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
       "IsLinear": false,
       "CastTime": 3,
-      "ShowCastRangeDuringCasting": false,
+      "ShowCastRangeDuringCasting": true,
       "FreezeCharacterWhileCasting": false,
       "ExpectTargetCursor": false
     },
@@ -1533,7 +1533,7 @@
       "ID": 614,
       "Name": "Word of Death",
       "PowerWords": "Nyraxle",
-      "CursorSize": 1,
+      "CursorSize": 0,
       "CastRange": 0,
       "Hue": 32,
       "CursorHue": 10,
@@ -1542,7 +1542,7 @@
       "CastTime": 3.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 615,
@@ -1557,7 +1557,7 @@
       "CastTime": 4,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 616,
@@ -1662,7 +1662,7 @@
       "CastTime": 1.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 684,
@@ -1677,7 +1677,7 @@
       "CastTime": 2,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 685,
@@ -1713,8 +1713,8 @@
       "ID": 687,
       "Name": "Mass Sleep",
       "PowerWords": "Vas Zu",
-      "CursorSize": 0,
-      "CastRange": 0,
+      "CursorSize": 3,
+      "CastRange": 10,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1722,14 +1722,14 @@
       "CastTime": 2,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 688,
       "Name": "Cleansing Winds",
       "PowerWords": "In Vas Mani Hur",
-      "CursorSize": 0,
-      "CastRange": 0,
+      "CursorSize": 2,
+      "CastRange": 12,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1737,14 +1737,14 @@
       "CastTime": 2,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 689,
       "Name": "Bombard",
       "PowerWords": "Corp Por Ylem",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 12,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1752,14 +1752,14 @@
       "CastTime": 2.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 690,
       "Name": "Spell Plague",
       "PowerWords": "Vas Rel Jux Ort",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 12,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1767,14 +1767,14 @@
       "CastTime": 2.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 691,
       "Name": "Hail Storm",
       "PowerWords": "Kal Des Ylem",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 10,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1782,14 +1782,14 @@
       "CastTime": 2.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 692,
       "Name": "Nether Cyclone",
       "PowerWords": "Grav Hur",
       "CursorSize": 1,
-      "CastRange": 0,
+      "CastRange": 12,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1797,14 +1797,14 @@
       "CastTime": 2.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 693,
       "Name": "Rising Colossus",
       "PowerWords": "Kal Vas Xen Corp Ylem",
       "CursorSize": 1,
-      "CastRange": 0,
+      "CastRange": 12,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1812,7 +1812,7 @@
       "CastTime": 2.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 701,
@@ -1879,7 +1879,7 @@
       "Name": "Tribulation",
       "PowerWords": "In Jux Hur Rel",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 10,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1887,14 +1887,14 @@
       "CastTime": 0,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 706,
       "Name": "Despair",
       "PowerWords": "Kal Des Mani Tym",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 10,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1902,7 +1902,7 @@
       "CastTime": 0,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 707,
@@ -1917,7 +1917,7 @@
       "CastTime": 0,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 708,
@@ -1939,7 +1939,7 @@
       "Name": "Nether Blast",
       "PowerWords": "In Vas Xen Por",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 10,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1947,7 +1947,7 @@
       "CastTime": 0,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 710,
@@ -1977,14 +1977,14 @@
       "CastTime": 0,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 712,
       "Name": "Conduit",
       "PowerWords": "Uus Corp Grav",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 10,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1992,7 +1992,7 @@
       "CastTime": 0,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 713,
@@ -2014,13 +2014,14 @@
       "Name": "Summon Reaper",
       "PowerWords": "Lartarisstree",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 10,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
       "IsLinear": false,
       "CastTime": 0,
       "ShowCastRangeDuringCasting": false,
-      "FreezeCharacterWhileCasting": false
+      "FreezeCharacterWhileCasting": false,
+      "ExpectTargetCursor": true
     }
   ]

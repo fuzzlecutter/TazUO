@@ -15,6 +15,9 @@ namespace ClassicUO.Game.UI.Gumps
             "- Added Create macro button for legion scripts\n" +
             "- Potential Crash fix from CUO\n" +
             "- Python API changes\n" +
+            "- Change how skill message frequency option works - fuzzlecutter\n" +
+            "- Added an option to default to old container style with the option to switch to grid container style\n" +
+            "- Added option to remove System prefix in journal\n" +
             "- Minor bug fixes\n" +
             "- Spellbar!\n" +
             "- Implemented Async networking\n",
