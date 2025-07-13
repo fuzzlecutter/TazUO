@@ -8,6 +8,7 @@ public class ObjectPool<T> where T : class
     private readonly Stack<T> _pool;
     private readonly Func<T> _factory;
     private readonly Action<T> _onReturn;
+    public int MaxCapacity { get; set; } = 3000;
 
     public ObjectPool(Func<T> factory, Action<T> onReturn = null, int initialCapacity = 0)
     {
@@ -27,7 +28,8 @@ public class ObjectPool<T> where T : class
     public void Return(T obj)
     {
         _onReturn?.Invoke(obj);
-        _pool.Push(obj);
+        if (_pool.Count < MaxCapacity)
+            _pool.Push(obj);
     }
 
     public void Clear()

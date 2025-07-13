@@ -1107,24 +1107,19 @@ namespace ClassicUO.Game
                 (pn) => {pn.Reset();},
                 15
                 );
-
-            private static int created, returned;
             
             private PathNode()
             {
-                created++;
             }
 
             public static PathNode Get()
             {
-                //Console.WriteLine($"PATHNODE: Created: {created}, {returned}");
                 return _pool.Get();
             }
 
             public void Return()
             {
                 _pool.Return(this);
-                returned++;
             }
 
             public bool IsValid { get; set; }
