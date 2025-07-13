@@ -319,19 +319,28 @@ namespace ClassicUO.Game.UI.Gumps
         private ContextMenuControl GenContextMenu()
         {
             var control = new ContextMenuControl();
-            control.Add(new ContextMenuItemEntry("Open Original Container", () =>
+            control.Add(new ContextMenuItemEntry("Open Original View", () =>
             {
                 UseOldContainerStyle = true;
                 OpenOldContainer(LocalSerial);
             }));
 
-            control.Add(new ContextMenuItemEntry("Stack similar items in original container", () =>
+            control.Add(new ContextMenuItemEntry
+            (
+                "Open New Containers in the Original View", () =>
+                {
+                    ProfileManager.CurrentProfile.GridContainersDefaultToOldStyleView = !ProfileManager.CurrentProfile.GridContainersDefaultToOldStyleView;
+                    openRegularGump.ContextMenu = GenContextMenu();
+                }, true, ProfileManager.CurrentProfile.GridContainersDefaultToOldStyleView
+            ));
+            
+            control.Add(new ContextMenuItemEntry("Stack Similar Items in the Original View", () =>
             {
                 StackNonStackableItems = !StackNonStackableItems;
                 openRegularGump.ContextMenu = GenContextMenu();
             }, true, StackNonStackableItems));
 
-            control.Add(new ContextMenuItemEntry("Open Grid highlight settings", () =>
+            control.Add(new ContextMenuItemEntry("Open Grid View Highlight Settings", () =>
             {
                 GridHighlightMenu.Open();
             }));
@@ -1966,7 +1975,7 @@ namespace ClassicUO.Game.UI.Gumps
             }
             public bool UseOriginalContainerGump(uint container)
             {
-                bool useOriginalContainer = false;
+                bool useOriginalContainer = ProfileManager.CurrentProfile?.GridContainersDefaultToOldStyleView ?? false;
 
                 XElement thisContainer = rootElement.Element("container_" + container.ToString());
                 if (thisContainer != null)
