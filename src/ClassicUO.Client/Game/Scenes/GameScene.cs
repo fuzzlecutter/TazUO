@@ -101,6 +101,7 @@ namespace ClassicUO.Game.Scenes
         private RenderTarget2D _world_render_target,
             _lightRenderTarget;
         private AnimatedStaticsManager _animatedStaticsManager;
+        private long _nextProfileSave;
 
         public MoveItemQueue MoveItemQueue => _moveItemQueue;
         public bool UpdateDrawPosition { get; set; }
@@ -897,6 +898,12 @@ namespace ClassicUO.Game.Scenes
             }
 
             _useItemQueue.Update();
+
+            if (Time.Ticks > _nextProfileSave)
+            {
+                ProfileManager.CurrentProfile.Save(ProfileManager.ProfilePath);
+                _nextProfileSave = Time.Ticks + 1000*60*60; //1 Hour
+            }
 
             if (!UIManager.IsMouseOverWorld)
             {

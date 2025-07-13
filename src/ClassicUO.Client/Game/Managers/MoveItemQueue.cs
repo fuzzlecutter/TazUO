@@ -10,6 +10,8 @@ namespace ClassicUO.Game.Managers
     {
         public static MoveItemQueue Instance { get; private set; }
         
+        public bool IsEmpty => _queue.IsEmpty;
+        
         private static long delay = 1000;
         private readonly ConcurrentQueue<MoveRequest> _queue = new();
         private long nextMove;

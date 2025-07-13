@@ -12,7 +12,7 @@
       "CastTime": 0.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 3,
@@ -27,7 +27,7 @@
       "CastTime": 0.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 4,
@@ -42,7 +42,7 @@
       "CastTime": 0.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 5,
@@ -57,7 +57,7 @@
       "CastTime": 0.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 6,
@@ -72,7 +72,7 @@
       "CastTime": 0.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 8,
@@ -87,7 +87,7 @@
       "CastTime": 0.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 9,
@@ -102,7 +102,7 @@
       "CastTime": 0.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 10,
@@ -117,7 +117,7 @@
       "CastTime": 0.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 11,
@@ -132,7 +132,7 @@
       "CastTime": 0.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 12,
@@ -147,7 +147,7 @@
       "CastTime": 0.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 13,
@@ -162,7 +162,7 @@
       "CastTime": 0.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 14,
@@ -177,7 +177,7 @@
       "CastTime": 0.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 15,
@@ -207,7 +207,7 @@
       "CastTime": 0.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 17,
@@ -222,7 +222,7 @@
       "CastTime": 1,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 18,
@@ -237,7 +237,7 @@
       "CastTime": 1,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 19,
@@ -252,7 +252,7 @@
       "CastTime": 1,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 20,
@@ -267,7 +267,7 @@
       "CastTime": 1,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 21,
@@ -282,7 +282,7 @@
       "CastTime": 1,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 22,
@@ -297,7 +297,7 @@
       "CastTime": 1,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 23,
@@ -312,7 +312,7 @@
       "CastTime": 1,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 24,
@@ -327,7 +327,7 @@
       "CastTime": 1.25,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 25,
@@ -342,7 +342,7 @@
       "CastTime": 1.25,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 26,
@@ -357,7 +357,7 @@
       "CastTime": 1.25,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 27,
@@ -372,7 +372,7 @@
       "CastTime": 1.25,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 28,
@@ -387,7 +387,7 @@
       "CastTime": 1.25,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 29,
@@ -402,7 +402,7 @@
       "CastTime": 1.25,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 30,
@@ -417,7 +417,7 @@
       "CastTime": 1.25,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 31,
@@ -432,7 +432,7 @@
       "CastTime": 1.25,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 32,
@@ -462,7 +462,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 34,
@@ -477,7 +477,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 35,
@@ -522,7 +522,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 38,
@@ -537,7 +537,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 39,
@@ -552,7 +552,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 40,
@@ -582,7 +582,7 @@
       "CastTime": 1.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 42,
@@ -597,7 +597,7 @@
       "CastTime": 1.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 43,
@@ -612,14 +612,14 @@
       "CastTime": 1.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 44,
       "Name": "Invisibility",
       "PowerWords": "An Lor Xen",
-      "CursorSize": 10,
-      "CastRange": 0,
+      "CursorSize": 1,
+      "CastRange": 10,
       "Hue": 57,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -627,7 +627,7 @@
       "CastTime": 1.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 45,
@@ -642,7 +642,7 @@
       "CastTime": 1.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 46,
@@ -657,7 +657,7 @@
       "CastTime": 1.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 47,
@@ -672,7 +672,7 @@
       "CastTime": 1.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 48,
@@ -687,7 +687,7 @@
       "CastTime": 1.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 49,
@@ -702,7 +702,7 @@
       "CastTime": 2,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 50,
@@ -717,7 +717,7 @@
       "CastTime": 2,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 51,
@@ -732,7 +732,7 @@
       "CastTime": 2,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 52,
@@ -762,7 +762,7 @@
       "CastTime": 2,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 54,
@@ -777,7 +777,7 @@
       "CastTime": 2,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 55,
@@ -792,7 +792,7 @@
       "CastTime": 2,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 56,
@@ -822,7 +822,7 @@
       "CastTime": 2,
       "ShowCastRangeDuringCasting": true,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 58,
@@ -837,7 +837,7 @@
       "CastTime": 2.25,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 59,
@@ -852,7 +852,7 @@
       "CastTime": 2.25,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 60,
@@ -867,7 +867,7 @@
       "CastTime": 2.25,
       "ShowCastRangeDuringCasting": true,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 61,
@@ -942,7 +942,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 102,
@@ -957,7 +957,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 103,
@@ -972,7 +972,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 104,
@@ -1002,7 +1002,7 @@
       "CastTime": 0.75,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 106,
@@ -1047,7 +1047,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 109,
@@ -1062,7 +1062,7 @@
       "CastTime": 1,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 110,
@@ -1077,7 +1077,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 111,
@@ -1092,7 +1092,7 @@
       "CastTime": 2,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 112,
@@ -1137,14 +1137,14 @@
       "CastTime": 2,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 115,
       "Name": "Wither",
       "PowerWords": "Kal Vas An Flam",
       "CursorSize": 0,
-      "CastRange": 0,
+      "CastRange": 4,
       "Hue": 32,
       "CursorHue": 10,
       "MaxDuration": 10,
@@ -1152,7 +1152,7 @@
       "CastTime": 1.5,
       "ShowCastRangeDuringCasting": false,
       "FreezeCharacterWhileCasting": false,
-      "ExpectTargetCursor": false
+      "ExpectTargetCursor": true
     },
     {
       "ID": 116,

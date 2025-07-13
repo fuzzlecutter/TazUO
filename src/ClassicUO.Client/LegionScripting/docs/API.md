@@ -7,7 +7,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
   
 [Additional notes](notes.md)  
   
-This was generated on `7/11/25`.
+This was generated on `7/12/25`.
   
 # API  
 
@@ -2647,6 +2647,23 @@ This was generated on `7/11/25`.
 | --- | --- | --- | --- |
 | name | string | No |  |
 ---> Does not return anything
+
+</details>
+
+***
+
+
+<details><summary><h3>IsProcessingMoveQue()</h3></summary>
+
+ Check if the move item queue is being processed. You can use this to prevent actions if the queue is being processed.  
+ Example:  
+ ```py  
+ if API.IsProcessingMoveQue():  
+   API.Pause(0.5)  
+ ```  
+  
+
+---> Return Type: *bool*
 
 </details>
 

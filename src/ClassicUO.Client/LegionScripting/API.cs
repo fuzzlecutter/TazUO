@@ -2778,6 +2778,17 @@ namespace ClassicUO.LegionScripting
             wmap.RemoveUserMarker(name);
         });
 
-    #endregion
-}
+        /// <summary>
+        /// Check if the move item queue is being processed. You can use this to prevent actions if the queue is being processed.
+        /// Example:
+        /// ```py
+        /// if API.IsProcessingMoveQue():
+        ///   API.Pause(0.5)
+        /// ```
+        /// </summary>
+        /// <returns></returns>
+        public bool IsProcessingMoveQue() => InvokeOnMainThread(() => !MoveItemQueue.Instance.IsEmpty);
+
+        #endregion
+    }
 }
