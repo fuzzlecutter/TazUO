@@ -74,10 +74,10 @@ namespace ClassicUO.Network.Encryption
 
                 int temp = ((((a << 9) | b) << 10) | c) ^ ((c * c) << 5);
 
-                KEY_2 = (uint) ((temp << 4) ^ (b * b) ^ (b * 0x0B000000) ^ (c * 0x380000) ^ 0x2C13A5FD);
+                KEY_1 = (uint) ((temp << 4) ^ (b * b) ^ (b * 0x0B000000) ^ (c * 0x380000) ^ 0x2C13A5FD);
                 temp = (((((a << 9) | c) << 10) | b) * 8) ^ (c * c * 0x0c00);
-                KEY_3 = (uint) (temp ^ (b * b) ^ (b * 0x6800000) ^ (c * 0x1c0000) ^ 0x0A31D527F);
-                KEY_1 = KEY_2 - 1;
+                KEY_2 = (uint) (temp ^ (b * b) ^ (b * 0x6800000) ^ (c * 0x1c0000) ^ 0x0A31D527F);
+                KEY_3 = KEY_1 - 1;
 
 
                 if (version < (ClientVersion) (((1 & 0xFF) << 24) | ((25 & 0xFF) << 16) | ((35 & 0xFF) << 8) | (0 & 0xFF)))
