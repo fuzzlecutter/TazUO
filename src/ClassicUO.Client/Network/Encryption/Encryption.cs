@@ -80,7 +80,7 @@ namespace ClassicUO.Network.Encryption
                 KEY_3 = KEY_1 - 1;
 
 
-                if (version < (ClientVersion) (((1 & 0xFF) << 24) | ((25 & 0xFF) << 16) | ((35 & 0xFF) << 8) | (0 & 0xFF)))
+                if (version < (ClientVersion) (((1 & 0xFF) << 24) | ((25 & 0xFF) << 16) | ((36 & 0xFF) << 8) | (0 & 0xFF)))
                 {
                     Type = ENCRYPTION_TYPE.OLD_BFISH;
                 }
