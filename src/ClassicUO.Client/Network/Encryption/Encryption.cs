@@ -122,6 +122,11 @@ namespace ClassicUO.Network.Encryption
             }
             else
             {
+                if (encryption == ENCRYPTION_TYPE.OLD_BFISH)
+                {
+                    _loginCrypt.Initialize(seed, KEY_1, KEY_2, KEY_3);
+                }
+
                 if (encryption >= ENCRYPTION_TYPE.OLD_BFISH && encryption < ENCRYPTION_TYPE.TWOFISH_MD5)
                 {
                     _blowfishEncryption.Initialize();
@@ -175,6 +180,10 @@ namespace ClassicUO.Network.Encryption
             else if (Type == ENCRYPTION_TYPE.TWOFISH_MD5)
             {
                 _twoFishBehaviour.Encrypt(src, dst, size);
+            }
+            else if (Type == ENCRYPTION_TYPE.OLD_BFISH)
+            {
+                _loginCrypt.Encrypt_OLD(src, dst, size);
             }
             else
             {
