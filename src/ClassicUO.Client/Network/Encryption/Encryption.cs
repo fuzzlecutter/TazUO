@@ -56,7 +56,7 @@ namespace ClassicUO.Network.Encryption
 
             switch (version)
             {
-                case < (ClientVersion)((1 & 0xFF) << 24 | (25 & 0xFF) << 16 | (35 & 0xFF) << 8 | 0 & 0xFF):
+                case < (ClientVersion)((1 & 0xFF) << 24 | (25 & 0xFF) << 16 | (36 & 0xFF) << 8 | 0 & 0xFF):
                     return (EncryptionType.OLD_BFISH, [key1, key2, key3]);
                 case (ClientVersion)((1 & 0xFF) << 24 | (25 & 0xFF) << 16 | (36 & 0xFF) << 8 | 0 & 0xFF):
                     return (EncryptionType.BLOWFISH__1_25_36, [key1, key2, key3]);
