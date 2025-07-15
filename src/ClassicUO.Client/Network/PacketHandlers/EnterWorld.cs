@@ -53,7 +53,11 @@ internal static class EnterWorld
             AsyncNetClient.Socket.Send_Language(Settings.GlobalSettings.Language);
         }
 
-        AsyncNetClient.Socket.Send_ClientVersion(Settings.GlobalSettings.ClientVersion);
+
+        if (Client.Game.UO.Version > Utility.ClientVersion.CV_12535)
+        {
+            AsyncNetClient.Socket.Send_ClientVersion(Settings.GlobalSettings.ClientVersion);
+        }
 
         GameActions.SingleClick(world, world.Player);
         AsyncNetClient.Socket.Send_SkillsRequest(world.Player.Serial);
