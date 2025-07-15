@@ -31,6 +31,7 @@
 #endregion
 
 using System;
+using ClassicUO.Utility.Logging;
 
 namespace ClassicUO.Network.Encryption
 {
@@ -46,6 +47,8 @@ namespace ClassicUO.Network.Encryption
             _k1 = k1;
             _k2 = k2;
             _k3 = k3;
+
+            Log.Info($"Login key1={_k1:X8}, key2={_k2:X8}, key3={_k3:X8}");
 
             const uint seed_key = 0x0000_1357;
 
