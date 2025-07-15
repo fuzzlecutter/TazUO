@@ -840,7 +840,7 @@ namespace ClassicUO.Game.Scenes
             if (Time.Ticks > _timePing)
             {
                 NetClient.Socket.Statistics.SendPing();
-                _timePing = (long)Time.Ticks + 1000;
+                _timePing = (long)Time.Ticks + 1000 * 61;
             }
 
             if (currentProfile.ForceResyncOnHang && Time.Ticks - NetClient.Socket.Statistics.LastPingReceived > 5000 && Time.Ticks - _lastResync > 5000)
