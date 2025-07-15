@@ -957,7 +957,10 @@ namespace ClassicUO.Network
                 NetClient.Socket.Send_Language(Settings.GlobalSettings.Language);
             }
 
-            NetClient.Socket.Send_ClientVersion(Settings.GlobalSettings.ClientVersion);
+            if (Client.Version > Utility.ClientVersion.CV_12535)
+            {
+                NetClient.Socket.Send_ClientVersion(Settings.GlobalSettings.ClientVersion);
+            }
 
             GameActions.SingleClick(World.Player);
             NetClient.Socket.Send_SkillsRequest(World.Player.Serial);
