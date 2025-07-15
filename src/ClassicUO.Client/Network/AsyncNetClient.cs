@@ -223,7 +223,7 @@ namespace ClassicUO.Network
 
                         if (addressBytes != null && addressBytes.Length != 0)
                         {
-                            _localIP = (uint)(addressBytes[0] | (addressBytes[1] << 8) | (addressBytes[2] << 16) | (addressBytes[3] << 24));
+                            _localIP = (uint)(addressBytes[3] | (addressBytes[2] << 8) | (addressBytes[1] << 16) | (addressBytes[0] << 24));
                         }
 
                         if (!_localIP.HasValue || _localIP == 0)

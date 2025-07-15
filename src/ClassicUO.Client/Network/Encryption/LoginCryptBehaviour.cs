@@ -43,11 +43,6 @@ namespace ClassicUO.Network.Encryption
 
         public void Initialize(uint seed, uint k1, uint k2, uint k3)
         {
-            _seed[0] = (byte) ((seed >> 24) & 0xFF);
-            _seed[1] = (byte) ((seed >> 16) & 0xFF);
-            _seed[2] = (byte) ((seed >> 8) & 0xFF);
-            _seed[3] = (byte) (seed & 0xFF);
-
             _k1 = k1;
             _k2 = k2;
             _k3 = k3;
