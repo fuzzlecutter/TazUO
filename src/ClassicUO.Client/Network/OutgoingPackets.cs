@@ -132,7 +132,14 @@ namespace ClassicUO.Network
                 writer.WriteZero(2);
             }
 
-            writer.WriteUInt8(idx);
+            if (Client.Version > ClientVersion.CV_12535)
+            {
+                writer.WriteUInt8(idx);
+            }
+            else
+            {
+                writer.WriteUInt8(0);
+            }
 
             if (length < 0)
             {
