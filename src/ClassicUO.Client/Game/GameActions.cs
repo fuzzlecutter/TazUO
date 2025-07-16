@@ -876,13 +876,24 @@ namespace ClassicUO.Game
             }
         }
 
-        public static void ReplyGump(uint local, uint server, int button, uint[] switches = null, Tuple<ushort, string>[] entries = null)
+        public static void ReplyGump(uint local, uint server, int button, uint[] switches = null, Tuple<ushort, string>[] entries = null, string text = null)
         {
-            Socket.Send_GumpResponse(local,
-                                     server,
-                                     button,
-                                     switches,
-                                     entries);
+            if (UIManager.GetGumpServer(server) is TextEntryDialogGump dialog)
+            {
+                Socket.Send_TextEntryDialogResponse(local,
+                                                    dialog.ParentID,
+                                                    dialog.ButtonID,
+                                                    text,
+                                                    dialog.ButtonID == button);
+            }
+            else
+            {
+                Socket.Send_GumpResponse(local,
+                                         server,
+                                         button,
+                                         switches,
+                                         entries);
+            }
             if (CUOEnviroment.Debug)
                 GameActions.Print($"Gump Button: {button} for gump: {server}");
         }

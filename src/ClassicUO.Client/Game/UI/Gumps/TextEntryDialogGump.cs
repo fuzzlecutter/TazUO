@@ -36,7 +36,7 @@ using ClassicUO.Network;
 
 namespace ClassicUO.Game.UI.Gumps
 {
-    internal class TextEntryDialogGump : Gump
+    public class TextEntryDialogGump : Gump
     {
         private readonly StbTextBox _textBox;
         public override bool ShouldBeSaved => false;
@@ -114,6 +114,8 @@ namespace ClassicUO.Game.UI.Gumps
 
             ButtonID = buttonid;
             ParentID = parentid;
+            Description = description;
+            Text = text;
 
             UIManager.KeyboardFocusControl = _textBox;
             _textBox.SetKeyboardFocus();
@@ -121,9 +123,14 @@ namespace ClassicUO.Game.UI.Gumps
 
         public byte ParentID { get; }
         public byte ButtonID { get; }
+        public string Description { get; }
+        public string Text { get; }
 
         public override void OnButtonClick(int buttonID)
         {
+            if (CUOEnviroment.Debug)
+                GameActions.Print($"Text entry gump Button: {ButtonID} and Text: {Text} and Description: {Description} for gump: {LocalSerial}");
+
             switch ((ButtonType) buttonID)
             {
                 case ButtonType.Ok:

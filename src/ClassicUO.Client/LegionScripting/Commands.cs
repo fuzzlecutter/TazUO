@@ -600,16 +600,17 @@ namespace ClassicUO.LegionScripting
         public static bool ReplyGump(string command, Argument[] args, bool quiet, bool force)
         {
             if (args.Length < 1)
-                throw new RunTimeError(null, "Usage: replygump 'buttonid' 'gumpid'");
+                throw new RunTimeError(null, "Usage: replygump 'buttonid' 'gumpid' 'text'");
 
             int buttonID = args[0].AsInt();
             uint gumpID = args.Length > 1 ? args[1].AsUInt() : World.Player.LastGumpID;
+            string text = args.Length > 2 ? args[2].AsString() : null;
 
             Gump g = UIManager.GetGumpServer(gumpID);
 
             if (g != null)
             {
-                GameActions.ReplyGump(g.LocalSerial, gumpID, buttonID, new uint[0] { }, new Tuple<ushort, string>[0]);
+                GameActions.ReplyGump(g.LocalSerial, gumpID, buttonID, new uint[0] { }, new Tuple<ushort, string>[0], text);
                 g.Dispose();
             }
 

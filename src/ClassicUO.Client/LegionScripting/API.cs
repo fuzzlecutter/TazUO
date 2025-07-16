@@ -1798,14 +1798,14 @@ namespace ClassicUO.LegionScripting
         /// <param name="button">Button ID</param>
         /// <param name="gump">Gump ID, leave blank to reply to last gump</param>
         /// <returns>True if gump was found, false if not</returns>
-        public bool ReplyGump(int button, uint gump = uint.MaxValue) => InvokeOnMainThread
+        public bool ReplyGump(int button, uint gump = uint.MaxValue, string text = null) => InvokeOnMainThread
         (() =>
             {
                 Gump g = UIManager.GetGumpServer(gump == uint.MaxValue ? World.Player.LastGumpID : gump);
 
                 if (g != null)
                 {
-                    GameActions.ReplyGump(g.LocalSerial, g.ServerSerial, button, new uint[0] { }, new Tuple<ushort, string>[0]);
+                    GameActions.ReplyGump(g.LocalSerial, g.ServerSerial, button, new uint[0] { }, new Tuple<ushort, string>[0], text);
                     g.Dispose();
 
                     return true;
