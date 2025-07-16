@@ -3716,6 +3716,12 @@ namespace ClassicUO.Network
             };
 
             UIManager.Add(gump);
+            
+            if (World.Player != null)
+            {
+                World.Player.HasGump = true;
+                World.Player.LastGumpID = 0xD00DAD;
+            }
         }
 
         private static void UnicodeTalk(ref StackDataReader p)

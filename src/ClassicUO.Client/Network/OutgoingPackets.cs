@@ -1628,6 +1628,11 @@ namespace ClassicUO.Network
 
             socket.Send(writer.BufferWritten);
             writer.Dispose();
+
+            if (World.Player != null)
+            {
+                World.Player.HasGump = false;
+            }
         }
 
         public static void Send_RenameRequest(this AsyncNetClient socket, uint serial, string name)
