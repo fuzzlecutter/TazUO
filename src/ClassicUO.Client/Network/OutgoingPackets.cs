@@ -3831,6 +3831,11 @@ namespace ClassicUO.Network
             const byte ID = 0x02;
 
             int length = PacketsTable.GetPacketLength(ID);
+            if (Client.Version <= ClientVersion.CV_12535)
+            {
+                // Client version didn't yet have fastwalk added to packet
+                length = 3;
+            }
 
             var writer = new StackDataWriter(length < 0 ? 64 : length);
 
@@ -3848,7 +3853,10 @@ namespace ClassicUO.Network
 
             writer.WriteUInt8((byte) direction);
             writer.WriteUInt8(seq);
-            writer.WriteUInt32BE(fastWalk);
+            if (Client.Version > ClientVersion.CV_12535)
+            {
+                writer.WriteUInt32BE(fastWalk);
+            }
 
             if (length < 0)
             {
