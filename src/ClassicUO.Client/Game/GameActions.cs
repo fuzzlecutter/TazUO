@@ -878,7 +878,7 @@ namespace ClassicUO.Game
 
         public static void ReplyGump(uint local, uint server, int button, uint[] switches = null, Tuple<ushort, string>[] entries = null, string text = null)
         {
-            if (UIManager.GetGumpServer(server) is TextEntryDialogGump dialog)
+            if (UIManager.GetGump<TextEntryDialogGump>(local) is TextEntryDialogGump dialog)
             {
                 Socket.Send_TextEntryDialogResponse(local,
                                                     dialog.ParentID,

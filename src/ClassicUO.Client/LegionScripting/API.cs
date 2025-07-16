@@ -1801,7 +1801,8 @@ namespace ClassicUO.LegionScripting
         public bool ReplyGump(int button, uint gump = uint.MaxValue, string text = null) => InvokeOnMainThread
         (() =>
             {
-                Gump g = UIManager.GetGumpServer(gump == uint.MaxValue ? World.Player.LastGumpID : gump);
+                Gump g = UIManager.GetGumpServer(gump == uint.MaxValue ? World.Player.LastGumpID : gump)
+                        ?? UIManager.GetGump<TextEntryDialogGump>(); // TODO: Isn't from server in the sense it has no server serial
 
                 if (g != null)
                 {
@@ -1845,7 +1846,8 @@ namespace ClassicUO.LegionScripting
         public bool GumpContains(string text, uint ID = uint.MaxValue) => InvokeOnMainThread
         (() =>
             {
-                Gump g = UIManager.GetGumpServer(ID == uint.MaxValue ? World.Player.LastGumpID : ID);
+                Gump g = UIManager.GetGumpServer(ID == uint.MaxValue ? World.Player.LastGumpID : ID)
+                        ?? UIManager.GetGump<TextEntryDialogGump>(); // TODO: Isn't from server in the sense it has no server serial
 
                 if (g == null)
                     return false;
@@ -1887,7 +1889,8 @@ namespace ClassicUO.LegionScripting
         public Gump GetGump(uint ID = uint.MaxValue) => InvokeOnMainThread
         (() =>
             {
-                Gump g = UIManager.GetGumpServer(ID == uint.MaxValue ? World.Player.LastGumpID : ID);
+                Gump g = UIManager.GetGumpServer(ID == uint.MaxValue ? World.Player.LastGumpID : ID)
+                        ?? UIManager.GetGump<TextEntryDialogGump>(); // TODO: Isn't from server in the sense it has no server serial
 
                 return g;
             }
