@@ -3823,6 +3823,11 @@ namespace ClassicUO.Network
             const byte ID = 0x02;
 
             int length = AsyncNetClient.PacketsTable.GetPacketLength(ID);
+            if (Client.Version < ClientVersion.CV_1260)
+            {
+                // Fastwalk bytes were added in client 1.26.0. See below.
+                length = 3;
+            }
 
             var writer = new StackDataWriter(length < 0 ? 64 : length);
 
@@ -3840,7 +3845,10 @@ namespace ClassicUO.Network
 
             writer.WriteUInt8((byte)direction);
             writer.WriteUInt8(seq);
-            writer.WriteUInt32BE(fastWalk);
+            if (Client.Version >= ClientVersion.CV_1260)
+            {
+                writer.WriteUInt32BE(fastWalk);
+            }
 
             if (length < 0)
             {
