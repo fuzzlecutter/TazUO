@@ -99,6 +99,12 @@ class Notoriety:
     Murderer = 1
     Invulnerable = 1
 
+class PersistentVar:
+    Char = 1
+    Account = 2
+    Server = 3
+    Global = 4
+
 def ProcessCallbacks() -> None:
     """
      Use this when you need to wait for players to click buttons.
@@ -1626,6 +1632,39 @@ def IsProcessingMoveQue() -> bool:
      ```py
      if API.IsProcessingMoveQue():
        API.Pause(0.5)
+     ```
+    
+    """
+    pass
+
+def SavePersistentVar(name: str, value: str, scope: Any) -> None:
+    """
+     Save a variable that persists between sessions and scripts.
+     Example:
+     ```py
+     API.SavePersistentVar("TotalKills", "5", API.PersistentVar.Char)
+     ```
+    
+    """
+    pass
+
+def RemovePersistentVar(name: str, scope: Any) -> None:
+    """
+     Delete/remove a persistent variable.
+     Example:
+     ```py
+     API.RemovePersistentVar("TotalKills", API.PersistentVar.Char)
+     ```
+    
+    """
+    pass
+
+def GetPersistentVar(name: str, defaultValue: str, scope: Any) -> str:
+    """
+     Get a persistent variable.
+     Example:
+     ```py
+     API.GetPersistentVar("TotalKills", "0", API.PersistentVar.Char)
      ```
     
     """

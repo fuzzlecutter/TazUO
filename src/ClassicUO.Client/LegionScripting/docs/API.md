@@ -7,7 +7,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
   
 [Additional notes](notes.md)  
   
-This was generated on `7/12/25`.
+This was generated on `7/17/25`.
   
 # API  
 
@@ -69,6 +69,14 @@ This was generated on `7/12/25`.
 - Enemy
 - Murderer
 - Invulnerable
+
+### PersistentVar
+
+**Values:**
+- Char
+- Account
+- Server
+- Global
 
 
 ## Methods
@@ -2664,6 +2672,71 @@ This was generated on `7/12/25`.
   
 
 ---> Return Type: *bool*
+
+</details>
+
+***
+
+
+<details><summary><h3>SavePersistentVar(name, value, scope)</h3></summary>
+
+ Save a variable that persists between sessions and scripts.  
+ Example:  
+ ```py  
+ API.SavePersistentVar("TotalKills", "5", API.PersistentVar.Char)  
+ ```  
+  
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| name | string | No |  |
+| value | string | No |  |
+| scope | PersistentVar | No |  |
+---> Does not return anything
+
+</details>
+
+***
+
+
+<details><summary><h3>RemovePersistentVar(name, scope)</h3></summary>
+
+ Delete/remove a persistent variable.  
+ Example:  
+ ```py  
+ API.RemovePersistentVar("TotalKills", API.PersistentVar.Char)  
+ ```  
+  
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| name | string | No |  |
+| scope | PersistentVar | No |  |
+---> Does not return anything
+
+</details>
+
+***
+
+
+<details><summary><h3>GetPersistentVar(name, defaultValue, scope)</h3></summary>
+
+ Get a persistent variable.  
+ Example:  
+ ```py  
+ API.GetPersistentVar("TotalKills", "0", API.PersistentVar.Char)  
+ ```  
+  
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| name | string | No |  |
+| defaultValue | string | No | The value returned if no value was saved |
+| scope | PersistentVar | No |  |
+---> Return Type: *string*
 
 </details>
 

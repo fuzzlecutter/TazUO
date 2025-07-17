@@ -5,8 +5,8 @@
     <ApplicationIcon>cuoicon.ico</ApplicationIcon>
     <AssemblyName>ClassicUO</AssemblyName>
     <RootNamespace>ClassicUO</RootNamespace>
-    <AssemblyVersion>3.33.38</AssemblyVersion>
-    <FileVersion>3.33.38</FileVersion>
+    <AssemblyVersion>3.33.39</AssemblyVersion>
+    <FileVersion>3.33.39</FileVersion>
     <PackageProjectUrl>https://github.com/bittiez/TazUO</PackageProjectUrl>
   </PropertyGroup>
 
@@ -98,6 +98,7 @@
 
   <ItemGroup>
     <PackageReference Include="IronPython" Version="3.4.2" />
+    <PackageReference Include="SQLite" Version="3.13.0" />
   </ItemGroup>
 
   <ItemGroup>

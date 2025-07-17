@@ -51,6 +51,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using ClassicUO.Game.UI.Gumps.GridHighLight;
+using ClassicUO.LegionScripting;
 
 namespace ClassicUO.Game.Scenes
 {
@@ -211,7 +212,8 @@ namespace ClassicUO.Game.Scenes
             {
                 XmlGumpHandler.TryAutoOpenByName(xml);
             }
-
+            
+            PersistentVars.Load();
             LegionScripting.LegionScripting.Init();
             BuySellAgent.Load();
             GraphicsReplacement.Load();
@@ -374,6 +376,7 @@ namespace ClassicUO.Game.Scenes
             GraphicsReplacement.Save();
             BuySellAgent.Unload();
 
+            PersistentVars.Unload();
             LegionScripting.LegionScripting.Unload();
 
             ProfileManager.CurrentProfile.GameWindowPosition = new Point(

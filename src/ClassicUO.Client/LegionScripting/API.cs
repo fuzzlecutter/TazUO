@@ -137,7 +137,7 @@ namespace ClassicUO.LegionScripting
         }
 
         #region Properties
-
+        
         /// <summary>
         /// Get the player's backpack serial
         /// </summary>
@@ -235,6 +235,14 @@ namespace ClassicUO.LegionScripting
             Enemy = 0x05,
             Murderer = 0x06,
             Invulnerable = 0x07
+        }
+
+        public enum PersistentVar
+        {
+            Char,
+            Account,
+            Server,
+            Global
         }
 
         #endregion
@@ -2789,6 +2797,67 @@ namespace ClassicUO.LegionScripting
         /// <returns></returns>
         public bool IsProcessingMoveQue() => InvokeOnMainThread(() => !MoveItemQueue.Instance.IsEmpty);
 
+        /// <summary>
+        /// Save a variable that persists between sessions and scripts.
+        /// Example:
+        /// ```py
+        /// API.SavePersistentVar("TotalKills", "5", API.PersistentVar.Char)
+        /// ```
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <param name="scope"></param>
+        public void SavePersistentVar(string name, string value, PersistentVar scope)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                GameActions.Print("Var's must have a name.", 32);
+                return;
+            }
+            
+            PersistentVars.SaveVar(scope, name, value);
+        }
+
+        /// <summary>
+        /// Delete/remove a persistent variable.
+        /// Example:
+        /// ```py
+        /// API.RemovePersistentVar("TotalKills", API.PersistentVar.Char)
+        /// ```
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="scope"></param>
+        public void RemovePersistentVar(string name, PersistentVar scope)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                GameActions.Print("Var's must have a name.", 32);
+                return;
+            }
+            
+            PersistentVars.DeleteVar(scope, name);
+        }
+
+        /// <summary>
+        /// Get a persistent variable.
+        /// Example:
+        /// ```py
+        /// API.GetPersistentVar("TotalKills", "0", API.PersistentVar.Char)
+        /// ```
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="defaultValue">The value returned if no value was saved</param>
+        /// <param name="scope"></param>
+        public string GetPersistentVar(string name, string defaultValue, PersistentVar scope)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                GameActions.Print("Var's must have a name.", 32);
+                return defaultValue;
+            }
+            
+            return PersistentVars.GetVar(scope, name, defaultValue);
+        }
         #endregion
     }
 }
