@@ -131,9 +131,8 @@
     <Exec Command='dotnet run --project ../APIToMarkdown/APIToMarkdown.csproj "$(ProjectDir)/LegionScripting/docs" $(DocFileArgs)' />
   </Target>
 
-  <Target Name="CopySQLiteNative" AfterTargets="Build">
+  <Target Name="CopySQLiteNative" AfterTargets="Build;Publish">
     <ItemGroup>
-      <!-- Find all SQLite native libraries -->
       <SQLiteFiles Include="$(MSBuildProjectDirectory)\packages\**\sqlite3.dll" />
       <SQLiteFiles Include="$(MSBuildProjectDirectory)\packages\**\libsqlite3.so" />
       <SQLiteFiles Include="$(MSBuildProjectDirectory)\packages\**\libsqlite3.dylib" />
@@ -142,11 +141,17 @@
       <SQLiteFiles Include="$(NuGetPackageRoot)\**\libsqlite3.dylib" />
     </ItemGroup>
 
+    <PropertyGroup>
+      <SqliteCopyTargetDir Condition="'$(PublishDir)' != ''">$(PublishDir)</SqliteCopyTargetDir>
+      <SqliteCopyTargetDir Condition="'$(SqliteCopyTargetDir)' == ''">$(OutputPath)</SqliteCopyTargetDir>
+    </PropertyGroup>
+
     <Copy SourceFiles="@(SQLiteFiles)"
-          DestinationFolder="$(OutputPath)"
+          DestinationFolder="$(SqliteCopyTargetDir)"
           SkipUnchangedFiles="true"
           Condition="'@(SQLiteFiles)' != ''" />
   </Target>
+
   
   <Target Name="CopyExternalDeps_build" AfterTargets="Build">
     <ItemGroup>
