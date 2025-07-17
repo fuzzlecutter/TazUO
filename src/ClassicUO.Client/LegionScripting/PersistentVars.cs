@@ -191,7 +191,28 @@ namespace ClassicUO.LegionScripting
         public static void SaveVar(API.PersistentVar scope, string key, string value)
         {
             var (s, scopeKey) = GetScopeKeyPair(scope);
+            var scopeStr = s.ToString();
 
+            // Update in-memory data immediately
+            lock (_fileLock)
+            {
+                // Ensure scope exists
+                if (!_data.ContainsKey(scopeStr))
+                {
+                    _data[scopeStr] = new Dictionary<string, Dictionary<string, string>>();
+                }
+                
+                // Ensure scope key exists
+                if (!_data[scopeStr].ContainsKey(scopeKey))
+                {
+                    _data[scopeStr][scopeKey] = new Dictionary<string, string>();
+                }
+                
+                // Set the value immediately
+                _data[scopeStr][scopeKey][key] = value;
+            }
+
+            // Queue for async file save
             _saveQueue.Enqueue((s, scopeKey, key, value));
 
             // Only start the save task if not already running
@@ -204,7 +225,20 @@ namespace ClassicUO.LegionScripting
         public static void DeleteVar(API.PersistentVar scope, string key)
         {
             var (s, scopeKey) = GetScopeKeyPair(scope);
+            var scopeStr = s.ToString();
 
+            // Update in-memory data immediately
+            lock (_fileLock)
+            {
+                if (_data.TryGetValue(scopeStr, out var scopeData) &&
+                    scopeData.TryGetValue(scopeKey, out var keyData) &&
+                    keyData.ContainsKey(key))
+                {
+                    keyData.Remove(key);
+                }
+            }
+
+            // Queue for async file save
             _saveQueue.Enqueue((s, scopeKey, key, null)); // null value = delete
 
             if (Interlocked.CompareExchange(ref _saveTaskRunning, 1, 0) == 0)
@@ -219,42 +253,13 @@ namespace ClassicUO.LegionScripting
             {
                 bool hasChanges = false;
                 
+                // Process all queued items (but don't update in-memory data since it's already done)
                 while (_saveQueue.TryDequeue(out var item))
                 {
-                    lock (_fileLock)
-                    {
-                        var scopeStr = item.scope.ToString();
-                        
-                        // Ensure scope exists
-                        if (!_data.ContainsKey(scopeStr))
-                        {
-                            _data[scopeStr] = new Dictionary<string, Dictionary<string, string>>();
-                        }
-                        
-                        // Ensure scope key exists
-                        if (!_data[scopeStr].ContainsKey(item.scopeKey))
-                        {
-                            _data[scopeStr][item.scopeKey] = new Dictionary<string, string>();
-                        }
-                        
-                        if (item.value == null)
-                        {
-                            // Delete operation
-                            if (_data[scopeStr][item.scopeKey].ContainsKey(item.key))
-                            {
-                                _data[scopeStr][item.scopeKey].Remove(item.key);
-                                hasChanges = true;
-                            }
-                        }
-                        else
-                        {
-                            // Set operation
-                            _data[scopeStr][item.scopeKey][item.key] = item.value;
-                            hasChanges = true;
-                        }
-                    }
+                    hasChanges = true;
                 }
                 
+                // Only save to file if there were changes
                 if (hasChanges)
                 {
                     SaveToFile();
