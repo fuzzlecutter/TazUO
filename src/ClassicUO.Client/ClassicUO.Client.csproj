@@ -98,7 +98,7 @@
 
   <ItemGroup>
     <PackageReference Include="IronPython" Version="3.4.2" />
-    <PackageReference Include="SQLite" Version="3.13.0" />
+    <PackageReference Include="SQLite.Native" Version="3.12.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -129,6 +129,23 @@
   <Target Name="GenerateDocs" AfterTargets="Build">
     <Message Text="Running: dotnet run --project ../APIToMarkdown/APIToMarkdown.csproj $(DocFileArgs)" />
     <Exec Command='dotnet run --project ../APIToMarkdown/APIToMarkdown.csproj "$(ProjectDir)/LegionScripting/docs" $(DocFileArgs)' />
+  </Target>
+
+  <Target Name="CopySQLiteNative" AfterTargets="Build">
+    <ItemGroup>
+      <!-- Find all SQLite native libraries -->
+      <SQLiteFiles Include="$(MSBuildProjectDirectory)\packages\**\sqlite3.dll" />
+      <SQLiteFiles Include="$(MSBuildProjectDirectory)\packages\**\libsqlite3.so" />
+      <SQLiteFiles Include="$(MSBuildProjectDirectory)\packages\**\libsqlite3.dylib" />
+      <SQLiteFiles Include="$(NuGetPackageRoot)\**\sqlite3.dll" />
+      <SQLiteFiles Include="$(NuGetPackageRoot)\**\libsqlite3.so" />
+      <SQLiteFiles Include="$(NuGetPackageRoot)\**\libsqlite3.dylib" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(SQLiteFiles)"
+          DestinationFolder="$(OutputPath)"
+          SkipUnchangedFiles="true"
+          Condition="'@(SQLiteFiles)' != ''" />
   </Target>
   
   <Target Name="CopyExternalDeps_build" AfterTargets="Build">
