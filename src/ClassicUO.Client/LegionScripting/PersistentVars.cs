@@ -1,181 +1,190 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text;
 using ClassicUO.Configuration;
 
 namespace ClassicUO.LegionScripting
 {
     public static class PersistentVars
     {
-        private const string DATABASE_FILE = "legionvars.sqlite";
+        private const string DATA_FILE = "legionvars.dat";
         private const string GlobalScopeKey = "GLOBAL";
+        private const char SEPARATOR = '\t';
 
         private static string _charScopeKey = "";
         private static string _accountScopeKey = "";
         private static string _serverScopeKey = "";
 
-        private static readonly object _dbLock = new();
-        private static readonly ConcurrentQueue<(API.PersistentVar scope, string scopeKey, string key, string value)> _saveQueue = new();
+        private static readonly object _fileLock = new object();
+        private static readonly ConcurrentQueue<(API.PersistentVar scope, string scopeKey, string key, string value)> _saveQueue = new ConcurrentQueue<(API.PersistentVar scope, string scopeKey, string key, string value)>();
         private static int _saveTaskRunning = 0;
 
-        private static string DbPath => Path.Combine(CUOEnviroment.ExecutablePath, "Data", DATABASE_FILE);
-        private static IntPtr _connection = IntPtr.Zero;
-
-        // SQLite P/Invoke declarations
-        private const string SQLITE_DLL = "sqlite3";
-        
-        [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int sqlite3_open([MarshalAs(UnmanagedType.LPStr)] string filename, out IntPtr ppDb);
-        
-        [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int sqlite3_close(IntPtr db);
-        
-        [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int sqlite3_prepare_v2(IntPtr db, [MarshalAs(UnmanagedType.LPStr)] string zSql, int nByte, out IntPtr ppStmt, IntPtr pzTail);
-        
-        [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int sqlite3_step(IntPtr stmt);
-        
-        [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int sqlite3_finalize(IntPtr stmt);
-        
-        [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int sqlite3_bind_text(IntPtr stmt, int index, [MarshalAs(UnmanagedType.LPStr)] string value, int length, IntPtr destructor);
-        
-        [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr sqlite3_column_text(IntPtr stmt, int col);
-        
-        [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr sqlite3_errmsg(IntPtr db);
-
-        // SQLite constants
-        private const int SQLITE_OK = 0;
-        private const int SQLITE_ROW = 100;
-        private const int SQLITE_DONE = 101;
-        private static readonly IntPtr SQLITE_TRANSIENT = new IntPtr(-1);
+        private static string DataPath => Path.Combine(CUOEnviroment.ExecutablePath, "Data", DATA_FILE);
+        private static Dictionary<string, Dictionary<string, Dictionary<string, string>>> _data = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
 
         public static void Load()
         {
             _charScopeKey = ProfileManager.CurrentProfile.ServerName + ProfileManager.CurrentProfile.Username + ProfileManager.CurrentProfile.CharacterName;
             _accountScopeKey = ProfileManager.CurrentProfile.ServerName + ProfileManager.CurrentProfile.Username;
             _serverScopeKey = ProfileManager.CurrentProfile.ServerName;
-            Connect();
+
+            LoadFromFile();
         }
 
-        private static void Connect()
+        private static void LoadFromFile()
         {
-            if (_connection == IntPtr.Zero)
+            lock (_fileLock)
             {
-                // Ensure the Data directory exists
-                var dataDir = Path.GetDirectoryName(DbPath);
-                if (!Directory.Exists(dataDir))
+                try
                 {
-                    Directory.CreateDirectory(dataDir);
-                }
+                    // Ensure the Data directory exists
+                    var dataDir = Path.GetDirectoryName(DataPath);
+                    if (!Directory.Exists(dataDir))
+                    {
+                        Directory.CreateDirectory(dataDir);
+                    }
 
-                var result = sqlite3_open(DbPath, out _connection);
-                if (result != SQLITE_OK)
+                    _data = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
+
+                    if (File.Exists(DataPath))
+                    {
+                        var lines = File.ReadAllLines(DataPath, Encoding.UTF8);
+                        
+                        foreach (var line in lines)
+                        {
+                            if (string.IsNullOrEmpty(line)) continue;
+                            
+                            var parts = line.Split(SEPARATOR);
+                            if (parts.Length >= 4)
+                            {
+                                var scope = parts[0];
+                                var scopeKey = parts[1];
+                                var key = parts[2];
+                                var value = parts.Length > 4 ? string.Join(SEPARATOR.ToString(), parts, 3, parts.Length - 3) : parts[3];
+                                
+                                // Unescape special characters
+                                value = UnescapeValue(value);
+                                
+                                if (!_data.ContainsKey(scope))
+                                {
+                                    _data[scope] = new Dictionary<string, Dictionary<string, string>>();
+                                }
+                                
+                                if (!_data[scope].ContainsKey(scopeKey))
+                                {
+                                    _data[scope][scopeKey] = new Dictionary<string, string>();
+                                }
+                                
+                                _data[scope][scopeKey][key] = value;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
                 {
-                    throw new Exception($"Failed to open SQLite database: {result}");
+                    // If file is corrupted, start fresh
+                    _data = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
+                    
+                    // Optionally log the error
+                    Console.WriteLine($"Warning: Failed to load persistent vars file: {ex.Message}");
                 }
-
-                // Set WAL mode
-                ExecuteNonQuery("PRAGMA journal_mode = WAL;");
-
-                // Create table
-                ExecuteNonQuery(@"CREATE TABLE IF NOT EXISTS PersistentVars (
-                        Scope TEXT NOT NULL,
-                        ScopeKey TEXT NOT NULL,
-                        Key TEXT NOT NULL,
-                        Value TEXT,
-                        PRIMARY KEY (Scope, ScopeKey, Key)
-                    );");
             }
         }
 
-        private static void ExecuteNonQuery(string sql)
+        private static void SaveToFile()
         {
-            var result = sqlite3_prepare_v2(_connection, sql, -1, out var stmt, IntPtr.Zero);
-            if (result != SQLITE_OK)
+            lock (_fileLock)
             {
-                var errorMsg = GetErrorMessage();
-                throw new Exception($"Failed to prepare statement: {result} - {errorMsg}");
-            }
-
-            try
-            {
-                result = sqlite3_step(stmt);
-                if (result != SQLITE_DONE && result != SQLITE_ROW)
+                try
                 {
-                    var errorMsg = GetErrorMessage();
-                    throw new Exception($"Failed to execute statement: {result} - {errorMsg}");
+                    var lines = new List<string>();
+                    
+                    foreach (var scope in _data)
+                    {
+                        foreach (var scopeKey in scope.Value)
+                        {
+                            foreach (var keyValue in scopeKey.Value)
+                            {
+                                var escapedValue = EscapeValue(keyValue.Value);
+                                lines.Add($"{scope.Key}{SEPARATOR}{scopeKey.Key}{SEPARATOR}{keyValue.Key}{SEPARATOR}{escapedValue}");
+                            }
+                        }
+                    }
+                    
+                    // Write to temp file first, then move (atomic operation)
+                    var tempPath = DataPath + ".tmp";
+                    File.WriteAllLines(tempPath, lines, Encoding.UTF8);
+                    
+                    if (File.Exists(DataPath))
+                    {
+                        File.Delete(DataPath);
+                    }
+                    
+                    File.Move(tempPath, DataPath);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Failed to save persistent vars: {ex.Message}", ex);
                 }
             }
-            finally
+        }
+
+        private static string EscapeValue(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            
+            return value.Replace("\\", "\\\\")
+                       .Replace("\t", "\\t")
+                       .Replace("\n", "\\n")
+                       .Replace("\r", "\\r");
+        }
+
+        private static string UnescapeValue(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            
+            return value.Replace("\\r", "\r")
+                       .Replace("\\n", "\n")
+                       .Replace("\\t", "\t")
+                       .Replace("\\\\", "\\");
+        }
+
+        private static (API.PersistentVar scope, string scopeKey) GetScopeKeyPair(API.PersistentVar scope)
+        {
+            switch (scope)
             {
-                sqlite3_finalize(stmt);
+                case API.PersistentVar.Char:
+                    return (scope, _charScopeKey);
+                case API.PersistentVar.Account:
+                    return (scope, _accountScopeKey);
+                case API.PersistentVar.Server:
+                    return (scope, _serverScopeKey);
+                case API.PersistentVar.Global:
+                    return (scope, GlobalScopeKey);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(scope), scope, null);
             }
         }
-
-        private static string GetErrorMessage()
-        {
-            var ptr = sqlite3_errmsg(_connection);
-            return ptr != IntPtr.Zero ? Marshal.PtrToStringAnsi(ptr) : "Unknown error";
-        }
-
-        private static (API.PersistentVar scope, string scopeKey) GetScopeKeyPair(API.PersistentVar scope) =>
-            scope switch
-            {
-                API.PersistentVar.Char => (scope, _charScopeKey),
-                API.PersistentVar.Account => (scope, _accountScopeKey),
-                API.PersistentVar.Server => (scope, _serverScopeKey),
-                API.PersistentVar.Global => (scope, GlobalScopeKey),
-                _ => throw new ArgumentOutOfRangeException(nameof(scope), scope, null)
-            };
 
         public static string GetVar(API.PersistentVar scope, string key, string defaultValue = "")
         {
             var (s, scopeKey) = GetScopeKeyPair(scope);
+            var scopeStr = s.ToString();
 
-            lock (_dbLock)
+            lock (_fileLock)
             {
-                Connect();
-
-                const string sql = @"SELECT Value FROM PersistentVars WHERE Scope = ? AND ScopeKey = ? AND Key = ?;";
-                var result = sqlite3_prepare_v2(_connection, sql, -1, out var stmt, IntPtr.Zero);
-                if (result != SQLITE_OK)
+                if (_data.TryGetValue(scopeStr, out var scopeData) &&
+                    scopeData.TryGetValue(scopeKey, out var keyData) &&
+                    keyData.TryGetValue(key, out var value))
                 {
-                    var errorMsg = GetErrorMessage();
-                    throw new Exception($"Failed to prepare statement: {result} - {errorMsg}");
+                    return value;
                 }
-
-                try
-                {
-                    // Bind parameters
-                    sqlite3_bind_text(stmt, 1, s.ToString(), -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 2, scopeKey, -1, SQLITE_TRANSIENT);
-                    sqlite3_bind_text(stmt, 3, key, -1, SQLITE_TRANSIENT);
-
-                    result = sqlite3_step(stmt);
-                    if (result == SQLITE_ROW)
-                    {
-                        var valuePtr = sqlite3_column_text(stmt, 0);
-                        if (valuePtr != IntPtr.Zero)
-                        {
-                            return Marshal.PtrToStringAnsi(valuePtr) ?? defaultValue;
-                        }
-                    }
-
-                    return defaultValue;
-                }
-                finally
-                {
-                    sqlite3_finalize(stmt);
-                }
+                
+                return defaultValue;
             }
         }
 
@@ -188,7 +197,7 @@ namespace ClassicUO.LegionScripting
             // Only start the save task if not already running
             if (Interlocked.CompareExchange(ref _saveTaskRunning, 1, 0) == 0)
             {
-                _ = Task.Run(ProcessSaveQueue);
+                Task.Run(ProcessSaveQueue);
             }
         }
 
@@ -200,7 +209,7 @@ namespace ClassicUO.LegionScripting
 
             if (Interlocked.CompareExchange(ref _saveTaskRunning, 1, 0) == 0)
             {
-                _ = Task.Run(ProcessSaveQueue);
+                Task.Run(ProcessSaveQueue);
             }
         }
 
@@ -208,73 +217,47 @@ namespace ClassicUO.LegionScripting
         {
             try
             {
+                bool hasChanges = false;
+                
                 while (_saveQueue.TryDequeue(out var item))
                 {
-                    lock (_dbLock)
+                    lock (_fileLock)
                     {
-                        Connect();
-
-                        void Exec((API.PersistentVar scope, string scopeKey, string key, string value) i)
+                        var scopeStr = item.scope.ToString();
+                        
+                        // Ensure scope exists
+                        if (!_data.ContainsKey(scopeStr))
                         {
-                            IntPtr stmt = IntPtr.Zero;
-                            try
+                            _data[scopeStr] = new Dictionary<string, Dictionary<string, string>>();
+                        }
+                        
+                        // Ensure scope key exists
+                        if (!_data[scopeStr].ContainsKey(item.scopeKey))
+                        {
+                            _data[scopeStr][item.scopeKey] = new Dictionary<string, string>();
+                        }
+                        
+                        if (item.value == null)
+                        {
+                            // Delete operation
+                            if (_data[scopeStr][item.scopeKey].ContainsKey(item.key))
                             {
-                                int result;
-                                if (i.value == null)
-                                {
-                                    // Delete operation
-                                    const string deleteSql = @"DELETE FROM PersistentVars WHERE Scope = ? AND ScopeKey = ? AND Key = ?;";
-                                    result = sqlite3_prepare_v2(_connection, deleteSql, -1, out stmt, IntPtr.Zero);
-                                    if (result != SQLITE_OK)
-                                    {
-                                        var errorMsg = GetErrorMessage();
-                                        throw new Exception($"Failed to prepare delete statement: {result} - {errorMsg}");
-                                    }
-
-                                    sqlite3_bind_text(stmt, 1, i.scope.ToString(), -1, SQLITE_TRANSIENT);
-                                    sqlite3_bind_text(stmt, 2, i.scopeKey, -1, SQLITE_TRANSIENT);
-                                    sqlite3_bind_text(stmt, 3, i.key, -1, SQLITE_TRANSIENT);
-                                }
-                                else
-                                {
-                                    // Insert or replace operation
-                                    const string insertSql = @"INSERT OR REPLACE INTO PersistentVars (Scope, ScopeKey, Key, Value) VALUES (?, ?, ?, ?);";
-                                    result = sqlite3_prepare_v2(_connection, insertSql, -1, out stmt, IntPtr.Zero);
-                                    if (result != SQLITE_OK)
-                                    {
-                                        var errorMsg = GetErrorMessage();
-                                        throw new Exception($"Failed to prepare insert statement: {result} - {errorMsg}");
-                                    }
-
-                                    sqlite3_bind_text(stmt, 1, i.scope.ToString(), -1, SQLITE_TRANSIENT);
-                                    sqlite3_bind_text(stmt, 2, i.scopeKey, -1, SQLITE_TRANSIENT);
-                                    sqlite3_bind_text(stmt, 3, i.key, -1, SQLITE_TRANSIENT);
-                                    sqlite3_bind_text(stmt, 4, i.value ?? "", -1, SQLITE_TRANSIENT);
-                                }
-
-                                result = sqlite3_step(stmt);
-                                if (result != SQLITE_DONE)
-                                {
-                                    var errorMsg = GetErrorMessage();
-                                    throw new Exception($"Failed to execute statement: {result} - {errorMsg}");
-                                }
-                            }
-                            finally
-                            {
-                                if (stmt != IntPtr.Zero)
-                                {
-                                    sqlite3_finalize(stmt);
-                                }
+                                _data[scopeStr][item.scopeKey].Remove(item.key);
+                                hasChanges = true;
                             }
                         }
-
-                        Exec(item);
-
-                        while (_saveQueue.TryDequeue(out var nextItem))
+                        else
                         {
-                            Exec(nextItem);
+                            // Set operation
+                            _data[scopeStr][item.scopeKey][item.key] = item.value;
+                            hasChanges = true;
                         }
                     }
+                }
+                
+                if (hasChanges)
+                {
+                    SaveToFile();
                 }
             }
             finally
@@ -285,21 +268,12 @@ namespace ClassicUO.LegionScripting
 
         public static void Unload()
         {
+            // Process any remaining items in the queue
             if (_saveQueue.Count > 0)
             {
                 if (Interlocked.CompareExchange(ref _saveTaskRunning, 1, 0) == 0)
                 {
                     Task.Run(ProcessSaveQueue).Wait();
-                }
-            }
-
-            // Close the database connection
-            lock (_dbLock)
-            {
-                if (_connection != IntPtr.Zero)
-                {
-                    sqlite3_close(_connection);
-                    _connection = IntPtr.Zero;
                 }
             }
         }
