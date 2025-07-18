@@ -196,12 +196,26 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
         private static void ExportGridHighlightSettings()
         {
             var data = ProfileManager.CurrentProfile.GridHighlightSetup;
+
             RunFileDialog(true, "Save grid highlight settings", file =>
             {
+                if (Directory.Exists(file))
+                {
+                    // If the path is a directory, append default filename
+                    file = Path.Combine(file, "highlights.json");
+                }
+                else if (!Path.HasExtension(file))
+                {
+                    // If it's not a directory and has no extension, assume they meant a file name
+                    file += ".json";
+                }
+
                 var json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(file, json);
+                GameActions.Print($"Saved highlight export to: {file}");
             });
         }
+
 
         private static void ImportGridHighlightSettings()
         {
@@ -209,14 +223,18 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             {
                 try
                 {
+                    if (!File.Exists(file))
+                        return;
+                    
                     string json = File.ReadAllText(file);
                     var imported = JsonSerializer.Deserialize<List<GridHighlightSetupEntry>>(json);
                     if (imported != null)
                     {
-                        ProfileManager.CurrentProfile.GridHighlightSetup = imported;
+                        ProfileManager.CurrentProfile.GridHighlightSetup.AddRange(imported);;
                         SaveProfile();
                         UIManager.GetGump<GridHighlightMenu>()?.Dispose();
                         UIManager.Add(new GridHighlightMenu());
+                        GameActions.Print($"Imported highlight config from: {file}");
                     }
                 }
                 catch (Exception ex)
@@ -229,41 +247,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
 
         private static void RunFileDialog(bool save, string title, Action<string> onResult)
         {
-            if (CUOEnviroment.IsUnix) return;
-
-            Thread t = new(() =>
-            {
-                string selectedFile = null;
-
-                if (save)
-                {
-                    var dialog = new System.Windows.Forms.SaveFileDialog
-                    {
-                        Filter = "Json|*.json",
-                        Title = title
-                    };
-
-                    if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                        selectedFile = dialog.FileName;
-                }
-                else
-                {
-                    var dialog = new System.Windows.Forms.OpenFileDialog
-                    {
-                        Filter = "Json|*.json",
-                        Title = title
-                    };
-
-                    if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                        selectedFile = dialog.FileName;
-                }
-
-                if (!string.IsNullOrWhiteSpace(selectedFile))
-                    onResult(selectedFile);
-            });
-
-            t.SetApartmentState(ApartmentState.STA);
-            t.Start();
+            FileSelector.ShowFileBrowser(save ? FileSelectorType.Directory : FileSelectorType.File, null, save ? null : ["*.json"], onResult, title);
         }
 
         public override bool Draw(UltimaBatcher2D batcher, int x, int y)
