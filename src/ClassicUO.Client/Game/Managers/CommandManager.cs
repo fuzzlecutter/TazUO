@@ -56,7 +56,7 @@ namespace ClassicUO.Game.Managers
 
         public static void Initialize()
         {
-            Register("sb", (s)=>UIManager.Add(new SpellBar()));
+            Register("sb", (s)=>UIManager.Add(new ScriptBrowser()));
             
             Register("updateapi", (s) =>
             {
