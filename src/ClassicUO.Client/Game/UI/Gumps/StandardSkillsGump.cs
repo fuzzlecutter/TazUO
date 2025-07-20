@@ -813,7 +813,7 @@ namespace ClassicUO.Game.UI.Gumps
         private class SkillItemControl : Control
         {
             private readonly Button _buttonStatus;
-            private Lock _status;
+            private Lock? _status;
             private readonly Label _value;
 
 
@@ -898,6 +898,11 @@ namespace ClassicUO.Game.UI.Gumps
                     }
 
                     Skill skill = World.Player.Skills[Index];
+                    if (!skill.Lock.HasValue)
+                    {
+                        return;
+                    }
+
                     byte newStatus = (byte) skill.Lock;
 
                     if (newStatus < 2)
@@ -916,7 +921,7 @@ namespace ClassicUO.Game.UI.Gumps
                 }
             }
 
-            public void SetStatus(Lock status)
+            public void SetStatus(Lock? status)
             {
                 _status = status;
                 ushort graphic = GetStatusButtonGraphic();

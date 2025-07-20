@@ -2103,7 +2103,7 @@ namespace ClassicUO.Network
 
                     ushort realVal = p.ReadUInt16BE();
                     ushort baseVal = 0;
-                    Lock locked = Lock.Undefined;
+                    Lock? locked = null;
                     if (haveBaseAndLocked)
                     {
                         baseVal = p.ReadUInt16BE();

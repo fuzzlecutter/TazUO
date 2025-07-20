@@ -37,7 +37,6 @@ namespace ClassicUO.Game.Data
 {
     public enum Lock : byte
     {
-        Undefined = -1,
         Up = 0,
         Down = 1,
         Locked = 2
@@ -56,7 +55,7 @@ namespace ClassicUO.Game.Data
             IsClickable = click;
         }
 
-        public Lock Lock { get; internal set; }
+        public Lock? Lock { get; internal set; }
 
         public ushort ValueFixed { get; internal set; }
 
