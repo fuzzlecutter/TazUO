@@ -86,7 +86,7 @@ internal static class UpdateSkills
 
                 ushort realVal = p.ReadUInt16BE();
                 ushort baseVal = 0;
-                var locked = Lock.Undefined;
+                Lock? locked = null;
                 if (haveBaseAndLocked)
                 {
                     baseVal = p.ReadUInt16BE();
