@@ -19,6 +19,7 @@ internal static class UpdateSkills
         byte type = p.ReadUInt8();
         bool haveCap = (type != 0u && type <= 0x03) || type == 0xDF;
         bool isSingleUpdate = type == 0xFF || type == 0xDF;
+        bool haveBaseAndLocked = Client.Game.UO.Version >= Utility.ClientVersion.CV_200;
 
         if (type == 0xFE)
         {
@@ -84,8 +85,14 @@ internal static class UpdateSkills
                     id--;
 
                 ushort realVal = p.ReadUInt16BE();
-                ushort baseVal = p.ReadUInt16BE();
-                var locked = (Lock)p.ReadUInt8();
+                ushort baseVal = 0;
+                Lock? locked = null;
+                if (haveBaseAndLocked)
+                {
+                    baseVal = p.ReadUInt16BE();
+                    locked = (Lock)p.ReadUInt8();
+                }
+
                 ushort cap = 1000;
 
                 if (haveCap)

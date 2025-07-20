@@ -54,7 +54,7 @@ public class SkillsTabContent : VerticalStackPanel
                     3 => sa.Base.CompareTo(sb.Base),
                     4 => sa.Cap.CompareTo(sb.Cap),
                     5 => (sa.Base - sa.BaseAtLogin).CompareTo(sb.Base - sb.BaseAtLogin),
-                    6 => ((byte)sa.Lock).CompareTo((byte)sb.Lock),
+                    6 => ((byte)(sa.Lock ?? default)).CompareTo((byte)(sb.Lock ?? default)),
                     _ => 0
                 };
                 return sortAscending ? cmp : -cmp;
@@ -100,7 +100,7 @@ public class SkillsTabContent : VerticalStackPanel
 
                 var btn = new MyraButton("", () =>
                 {
-                    byte nextLock = (byte)(((byte)skill.Lock + 1) % 3);
+                    byte nextLock = (byte)(((byte)(skill.Lock ?? default) + 1) % 3);
                     GameActions.ChangeSkillLockStatus((ushort)capturedSkillIdx, nextLock);
                     skill.Lock = (Lock)nextLock;
                     AsyncNetClient.Socket.Send_SkillsRequest(player.Serial);
@@ -148,7 +148,7 @@ public class SkillsTabContent : VerticalStackPanel
                         3 => sa.Base.CompareTo(sb.Base),
                         4 => sa.Cap.CompareTo(sb.Cap),
                         5 => (sa.Base - sa.BaseAtLogin).CompareTo(sb.Base - sb.BaseAtLogin),
-                        6 => ((byte)sa.Lock).CompareTo((byte)sb.Lock),
+                        6 => ((byte)(sa.Lock ?? default)).CompareTo((byte)(sb.Lock ?? default)),
                         _ => 0
                     };
                     return sortAscending ? cmp : -cmp;
@@ -259,7 +259,7 @@ public class SkillsTabContent : VerticalStackPanel
                     Lock.Up     => "Up",
                     Lock.Down   => "Down",
                     Lock.Locked => "Locked",
-                    _           => "?"
+                    _           => ""
                 };
                 sb.AppendLine($"{skill.Name}\t{skill.Value:F1}\t{skill.Base:F1}\t{skill.Cap:F1}\t{d:F1}\t{lockStr}");
             }
