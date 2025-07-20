@@ -17,6 +17,7 @@ using ClassicUO.Input;
 using ClassicUO.LegionScripting.PyClasses;
 using ClassicUO.Network;
 using FontStashSharp.RichText;
+using IronPython.Runtime;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Xna.Framework;
 using Button = ClassicUO.Game.UI.Controls.Button;
@@ -1193,6 +1194,44 @@ namespace ClassicUO.LegionScripting
         /// ```
         /// </summary>
         public void CancelPathfinding() => InvokeOnMainThread(Pathfinder.StopAutoWalk);
+
+        /// <summary>
+        /// Attempt to build a path to a location.  This will fail with large distances.  
+        /// Example:
+        /// ```py
+        /// API.RequestTarget()
+        /// path = API.GetPath(int(API.LastTargetPos.X), int(API.LastTargetPos.Y))
+        /// if path is not None:
+        ///     for x, y, z in path:
+        ///         tile = API.GetTile(x, y)
+        ///         tile.Hue = 53
+        /// ```
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <param name="distance">Distance away from goal to stop.</param>
+        /// <returns>Returns a list of positions to reach the goal. Returns null if cannot find path.</returns>
+        public PythonList GetPath(int x, int y, int z = int.MinValue, int distance = 1) => InvokeOnMainThread(() =>
+        {
+            if (z == int.MinValue)
+                z = World.Map.GetTileZ(x, y);
+
+            var path = Pathfinder.GetPathTo(x, y, z, distance);
+            if (path is null)
+            {
+                return null;
+            }
+
+            var pythonList = new PythonList();
+            foreach (var p in path)
+            {
+                var tuple = new PythonTuple(new object[] { p.X, p.Y, p.Z });
+                pythonList.Add(tuple);
+            }
+
+            return pythonList;
+        });
 
         /// <summary>
         /// Automatically follow a mobile. This is different than pathfinding. This will continune to follow the mobile.

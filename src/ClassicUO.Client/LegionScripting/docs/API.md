@@ -1141,6 +1141,34 @@ This was generated on `7/20/25`.
 ***
 
 
+<details><summary><h3>GetPath(x, y, z, distance)</h3></summary>
+
+ Attempt to build a path to a location.  This will fail with large distances.  
+ Example:  
+ ```py  
+ API.RequestTarget()  
+ path = API.GetPath(int(API.LastTargetPos.X), int(API.LastTargetPos.Y))  
+ if path is not None:  
+     for x, y, z in path:  
+         tile = API.GetTile(x, y)  
+         tile.Hue = 53  
+ ```  
+  
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| x | int | No |  |
+| y | int | No |  |
+| z | int | Yes |  |
+| distance | int | Yes | Distance away from goal to stop. |
+---> Return Type: *PythonList*
+
+</details>
+
+***
+
+
 <details><summary><h3>AutoFollow(mobile)</h3></summary>
 
  Automatically follow a mobile. This is different than pathfinding. This will continune to follow the mobile.  
