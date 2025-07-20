@@ -3160,6 +3160,12 @@ namespace ClassicUO.Network
                 gump.WantUpdateSize = false;
                 UIManager.Add(gump);
             }
+
+            if (World.Player != null)
+            {
+                World.Player.HasGump = true;
+                World.Player.LastGumpID = 0xDEADBEEF;
+            }
         }
 
         private static void OpenPaperdoll(ref StackDataReader p)

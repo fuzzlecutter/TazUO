@@ -31,6 +31,7 @@
 #endregion
 
 using System.Linq;
+using System.Collections.Generic;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Assets;
 using ClassicUO.Network;
@@ -40,8 +41,9 @@ using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.UI.Gumps
 {
-    internal class MenuGump : Gump
+    public class MenuGump : Gump
     {
+        public List<(ushort graphic, ushort hue)> Options = new();
         private readonly ContainerHorizontal _container;
         private bool _isDown,
             _isLeft;
@@ -137,6 +139,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         public void AddItem(ushort graphic, ushort hue, string name, int x, int y, int index)
         {
+            Options.Add((graphic, hue));
             var view = new ItemView(graphic, hue)
             {
                 X = x,

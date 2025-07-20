@@ -1802,7 +1802,8 @@ namespace ClassicUO.LegionScripting
         (() =>
             {
                 Gump g = UIManager.GetGumpServer(gump == uint.MaxValue ? World.Player.LastGumpID : gump)
-                        ?? UIManager.GetGump<TextEntryDialogGump>(); // TODO: Isn't from server in the sense it has no server serial
+                        ?? (Gump)UIManager.GetGump<MenuGump>()
+                        ?? (Gump)UIManager.GetGump<TextEntryDialogGump>();
 
                 if (g != null)
                 {
@@ -1847,7 +1848,8 @@ namespace ClassicUO.LegionScripting
         (() =>
             {
                 Gump g = UIManager.GetGumpServer(ID == uint.MaxValue ? World.Player.LastGumpID : ID)
-                        ?? UIManager.GetGump<TextEntryDialogGump>(); // TODO: Isn't from server in the sense it has no server serial
+                        ?? (Gump)UIManager.GetGump<MenuGump>()
+                        ?? (Gump)UIManager.GetGump<TextEntryDialogGump>();
 
                 if (g == null)
                     return false;
@@ -1890,7 +1892,8 @@ namespace ClassicUO.LegionScripting
         (() =>
             {
                 Gump g = UIManager.GetGumpServer(ID == uint.MaxValue ? World.Player.LastGumpID : ID)
-                        ?? UIManager.GetGump<TextEntryDialogGump>(); // TODO: Isn't from server in the sense it has no server serial
+                        ?? (Gump)UIManager.GetGump<MenuGump>()
+                        ?? (Gump)UIManager.GetGump<TextEntryDialogGump>();
 
                 return g;
             }

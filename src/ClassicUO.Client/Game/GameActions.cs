@@ -886,6 +886,23 @@ namespace ClassicUO.Game
                                                     text,
                                                     dialog.ButtonID == button);
             }
+            else if (UIManager.GetGump<MenuGump>(local) is MenuGump menu)
+            {
+                ushort graphic = 0;
+                ushort hue = 0;
+                if (button >= 0 && button < menu.Options.Count)
+                {
+                    var option = menu.Options[button];
+                    graphic = option.graphic;
+                    hue = option.hue;
+                }
+
+                Socket.Send_MenuResponse(menu.LocalSerial,
+                                         (ushort)menu.ServerSerial,
+                                         button + 1,
+                                         graphic,
+                                         hue);
+            }
             else
             {
                 Socket.Send_GumpResponse(local,
