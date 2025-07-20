@@ -7,6 +7,7 @@ namespace ClassicUO.Game.Data
 {
     public enum Lock : byte
     {
+        Undefined = -1,
         Up = 0,
         Down = 1,
         Locked = 2
