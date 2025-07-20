@@ -21,7 +21,7 @@ namespace ClassicUO.Game.Data
             IsClickable = click;
         }
 
-        public Lock Lock { get; internal set; }
+        public Lock? Lock { get; internal set; }
 
         public ushort ValueFixed { get; internal set; }
 
