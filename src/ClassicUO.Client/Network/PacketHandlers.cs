@@ -2022,6 +2022,7 @@ namespace ClassicUO.Network
             byte type = p.ReadUInt8();
             bool haveCap = type != 0u && type <= 0x03 || type == 0xDF;
             bool isSingleUpdate = type == 0xFF || type == 0xDF;
+            bool haveBaseAndLocked = Client.Version > Utility.ClientVersion.CV_12535;
 
             if (type == 0xFE)
             {
@@ -2101,8 +2102,14 @@ namespace ClassicUO.Network
                     }
 
                     ushort realVal = p.ReadUInt16BE();
-                    ushort baseVal = p.ReadUInt16BE();
-                    Lock locked = (Lock)p.ReadUInt8();
+                    ushort baseVal = 0;
+                    Lock locked = Lock.Undefined;
+                    if (haveBaseAndLocked)
+                    {
+                        baseVal = p.ReadUInt16BE();
+                        locked = (Lock)p.ReadUInt8();
+                    }
+
                     ushort cap = 1000;
 
                     if (haveCap)
