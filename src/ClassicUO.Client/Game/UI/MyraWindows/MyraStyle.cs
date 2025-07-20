@@ -400,7 +400,7 @@ public static class MyraStyle
         combo.PopupBorderThickness = new Thickness(1);
     }
 
-    public static Button ApplySkillButtonStyle(Button button, Lock skillLock)
+    public static Button ApplySkillButtonStyle(Button button, Lock? skillLock)
     {
         var img = new Image()
         {
@@ -409,7 +409,7 @@ public static class MyraStyle
                 Lock.Up => _skillUpButton,
                 Lock.Down => _skillDownButton,
                 Lock.Locked => _skillLockBtn,
-                _ => _skillLockBtn,
+                _ => _skillUpButton,
             },
         };
 
