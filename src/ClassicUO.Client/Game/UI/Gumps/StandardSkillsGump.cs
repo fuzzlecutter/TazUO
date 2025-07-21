@@ -12,6 +12,7 @@ using ClassicUO.Input;
 using ClassicUO.Assets;
 using ClassicUO.Network;
 using ClassicUO.Renderer;
+using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 using SDL3;
 using System.Diagnostics;
@@ -35,6 +36,7 @@ namespace ClassicUO.Game.UI.Gumps
         private readonly GumpPic _gumpPic;
         private readonly HitBox _hitBox;
         private bool _isMinimized;
+        private bool _originalStyle;
         private readonly Button _newGroupButton;
         private readonly ExpandableScroll _scrollArea;
 
@@ -49,6 +51,9 @@ namespace ClassicUO.Game.UI.Gumps
             AcceptMouseInput = false;
             CanMove = true;
             CanCloseWithRightClick = true;
+            _originalStyle = Client.Game.UO.Version <= ClientVersion.CV_12535;
+            ushort topScroll = (ushort)(_originalStyle ? 0x820 : 0x1F40);
+            int topWidgetX = _originalStyle ? 138 : 160;
 
             GumpScale = ProfileManager.CurrentProfile?.SkillsGumpScale ?? 1.0;
             // Built directly in scaled space (it reads the self-scaled ExpandableScroll's dimensions and
@@ -57,12 +62,12 @@ namespace ClassicUO.Game.UI.Gumps
 
             Height = S(200 + _diffY);
 
-            Add(_gumpPic = new GumpPic(S(160), 0, 0x82D, 0));
+            Add(_gumpPic = new GumpPic(S(topWidgetX), 0, 0x82D, 0));
             _gumpPic.ApplyScale(GumpScale, scalePosition: false);
             _gumpPic.MouseDoubleClick += _picBase_MouseDoubleClick;
 
             // SpecialHeight stays in design space; ExpandableScroll scales its own graphics internally.
-            _scrollArea = new ExpandableScroll(0, S(_diffY), 200 + _diffY, 0x1F40, true, GumpScale)
+            _scrollArea = new ExpandableScroll(0, S(_diffY), 200 + _diffY, topScroll, true, GumpScale)
             {
                 TitleGumpID = 0x0834,
                 AcceptMouseInput = true
@@ -100,18 +105,20 @@ namespace ClassicUO.Game.UI.Gumps
 
             _area.Add(_container);
 
-            Add
+            _skillsLabelSum = new Label
             (
-                _skillsLabelSum = new Label
-                (
-                    World.Player.Skills.Sum(s => s.Value).ToString("F1"),
-                    false,
-                    600,
-                    0,
-                    3
-                ) { X = _bottomComment.X + _bottomComment.Width + S(5), Y = _bottomComment.Y - S(5) }
-            );
-            _skillsLabelSum.SetInternalScale(GumpScale);
+                World.Player.Skills.Sum(s => s.Value).ToString("F1"),
+                false,
+                600,
+                0,
+                3
+            ) { X = _bottomComment.X + _bottomComment.Width + 5, Y = _bottomComment.Y - 5 };
+
+            if (!_originalStyle)
+            {
+                Add(_skillsLabelSum);
+                _skillsLabelSum.SetInternalScale(GumpScale);
+            }
 
             //new group
             int x = S(60);
@@ -128,41 +135,43 @@ namespace ClassicUO.Game.UI.Gumps
             );
             _newGroupButton.ApplyScale(GumpScale, scalePosition: false);
 
-            Add
+            _checkReal = new Checkbox
             (
-                _checkReal = new Checkbox
-                (
-                    0x938,
-                    0x939,
-                    TazLang.Get("show_real"),
-                    1,
-                    0x0386,
-                    false
-                ) { X = _newGroupButton.X + _newGroupButton.Width + S(30), Y = _newGroupButton.Y - S(6) }
-            );
-            _checkReal.ApplyScale(GumpScale, scalePosition: false);
+                0x938,
+                0x939,
+                TazLang.Get("show_real"),
+                1,
+                0x0386,
+                false
+            ) { X = _newGroupButton.X + _newGroupButton.Width + S(30), Y = _newGroupButton.Y - S(6) };
 
-            Add
+            _checkCaps = new Checkbox
             (
-                _checkCaps = new Checkbox
-                (
-                    0x938,
-                    0x939,
-                    TazLang.Get("show_caps"),
-                    1,
-                    0x0386,
-                    false
-                ) { X = _newGroupButton.X + _newGroupButton.Width + S(30), Y = _newGroupButton.Y + S(7) }
-            );
-            _checkCaps.ApplyScale(GumpScale, scalePosition: false);
+                0x938,
+                0x939,
+                TazLang.Get("show_caps"),
+                1,
+                0x0386,
+                false
+            ) { X = _newGroupButton.X + _newGroupButton.Width + S(30), Y = _newGroupButton.Y + S(7) };
 
-            _checkReal.ValueChanged += UpdateSkillsValues;
-            _checkCaps.ValueChanged += UpdateSkillsValues;
+            if (!_originalStyle)
+            {
+                _checkReal.ApplyScale(GumpScale, scalePosition: false);
+                _checkCaps.ApplyScale(GumpScale, scalePosition: false);
 
+                Add(_checkReal);
+                Add(_checkCaps);
+
+                _checkReal.ValueChanged += UpdateSkillsValues;
+                _checkCaps.ValueChanged += UpdateSkillsValues;
+            }
 
             LoadSkills();
 
-            Add(_resetGroups = new NiceButton(_scrollArea.X + S(25), _scrollArea.Y + S(7), S(100), S(18),
+            int resetGroupsX = _originalStyle ? _newGroupButton.X + _newGroupButton.Width + S(30) : _scrollArea.X + S(25);
+            int resetGroupsY = _originalStyle ? _newGroupButton.Y : _scrollArea.Y + S(7);
+            Add(_resetGroups = new NiceButton(resetGroupsX, resetGroupsY, S(100), S(18),
                                               ButtonAction.Activate, TazLang.Get("reset_groups"),
                                               unicode: false,
                                               font: 6)
@@ -261,7 +270,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 World.SkillsGroupManager.Add(g);
 
-                var control = new SkillsGroupControl(this, g, 3, 3);
+                var control = new SkillsGroupControl(this, g, 3, 3, _originalStyle);
                 _skillsControl.Add(control);
                 _container.Add(control);
                 control.IsMinimized = !g.IsMaximized;
@@ -297,7 +306,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 foreach (SkillsGroup g in World.SkillsGroupManager.Groups)
                 {
-                    var control = new SkillsGroupControl(this, g, 3, 3);
+                    var control = new SkillsGroupControl(this, g, 3, 3, _originalStyle);
                     _skillsControl.Add(control);
                     _container.Add(control);
 
@@ -333,8 +342,15 @@ namespace ClassicUO.Game.UI.Gumps
             _area.Height = Height - S(150 + _diffY);
             _newGroupButton.Y = Height - S(52);
             _skillsLabelSum.Y = _bottomComment.Y + S(2);
-            _checkReal.Y = _newGroupButton.Y - S(6);
-            _checkCaps.Y = _newGroupButton.Y + S(7);
+            if (_originalStyle)
+            {
+                _resetGroups.Y = _newGroupButton.Y - S(2);
+            }
+            else
+            {
+                _checkReal.Y = _newGroupButton.Y - S(6);
+                _checkCaps.Y = _newGroupButton.Y + S(7);
+            }
         }
 
         public override void Update()
@@ -419,6 +435,7 @@ namespace ClassicUO.Game.UI.Gumps
             private readonly SkillsGroup _group;
             private readonly GumpPicTiled _gumpPic;
             private bool _isMinimized;
+            private bool _originalStyle;
 
             private readonly List<SkillItemControl> _skills = new List<SkillItemControl>();
             private byte _status;
@@ -426,7 +443,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             private int S(int v) => ScaleHelper.Scaled(v, _gump.UIScale);
 
-            public SkillsGroupControl(StandardSkillsGump gump, SkillsGroup group, int x, int y)
+            public SkillsGroupControl(StandardSkillsGump gump, SkillsGroup group, int x, int y, bool originalStyle)
             {
                 _gump = gump;
                 CanMove = false;
@@ -440,6 +457,7 @@ namespace ClassicUO.Game.UI.Gumps
                 Height = S(20);
 
                 _group = group;
+                _originalStyle = originalStyle;
 
                 _button = new Button(1000, 0x0827, 0x0827, 0x0827)
                 {
@@ -574,7 +592,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             public void AddSkill(int index, int x, int y)
             {
-                var c = new SkillItemControl(_gump, index, x, y);
+                var c = new SkillItemControl(_gump, index, x, y, _originalStyle);
                 _skills.Add(c);
                 _box.Add(c);
                 _box.WantUpdateSize = true;
@@ -811,16 +829,18 @@ namespace ClassicUO.Game.UI.Gumps
             private readonly Button _buttonStatus;
             private Lock? _status;
             private readonly Label _value;
+            private bool _originalStyle;
 
 
             private int S(int v) => ScaleHelper.Scaled(v, _gump.UIScale);
 
-            public SkillItemControl(StandardSkillsGump gump, int index, int x, int y)
+            public SkillItemControl(StandardSkillsGump gump, int index, int x, int y, bool originalStyle)
             {
                 _gump = gump;
                 Index = index;
                 X = S(x);
                 Y = S(y);
+                _originalStyle = originalStyle;
 
                 if (index < 0 || index >= Client.Game.UO.FileManager.Skills.Skills.Count)
                 {
@@ -856,7 +876,10 @@ namespace ClassicUO.Game.UI.Gumps
                         ContainsByBounds = true
                     };
 
-                    Add(_buttonStatus);
+                    if (!_originalStyle)
+                    {
+                        Add(_buttonStatus);
+                    }
                     _buttonStatus.ApplyScale(_gump.UIScale, scalePosition: false);
 
                     Label name;
@@ -957,7 +980,7 @@ namespace ClassicUO.Game.UI.Gumps
                     }
 
                     _value.Text = $"{val:F1}";
-                    _value.X = S(250) - _value.Width;
+                    _value.X = (_originalStyle ? S(225) : S(250)) - _value.Width;
                 }
             }
 
