@@ -134,7 +134,7 @@ namespace ClassicUO.Game.UI.Gumps
                 LocalSerial == World.Player && World.ClientFeatures.PaperdollBooks;
             bool showRacialAbilitiesBook =
                 showPaperdollBooks && Client.Game.UO.Version >= ClientVersion.CV_7000;
-
+            bool showDurability = Client.Version >= ClientVersion.CV_6000;
             if (LocalSerial == World.Player)
             {
                 Add(_picBase = new GumpPic(0, 0, Settings.Graphic_Background_Player, Settings.Hue_Background_Player));
@@ -293,15 +293,18 @@ namespace ClassicUO.Game.UI.Gumps
             Add(_virtueMenuPic = new GumpPic(Settings.Position_X_Virtue, Settings.Position_Y_Virtue, Settings.Graphic_Button_Virtue, 0));
             _virtueMenuPic.MouseDoubleClick += VirtueMenu_MouseDoubleClickEvent;
 
-            // Adds a durability tracker for this paperdoll's mobile. It only draws and accepts input
-            // while that mobile has tracked durability, so it stays hidden otherwise.
-            Add(new DurabilityGumpMinimized(World)
+            if (showDurability)
             {
-                WatchSerial = LocalSerial,
-                X = Settings.Position_X_Durability,
-                Y = Settings.Position_Y_Durability,
-                Graphic = Settings.Graphic_Button_Durability
-            });
+                // Adds a durability tracker for this paperdoll's mobile. It only draws and accepts input
+                // while that mobile has tracked durability, so it stays hidden otherwise.
+                Add(new DurabilityGumpMinimized(World)
+                {
+                    WatchSerial = LocalSerial,
+                    X = Settings.Position_X_Durability,
+                    Y = Settings.Position_Y_Durability,
+                    Graphic = Settings.Graphic_Button_Durability
+                });
+            }
 
             // Equipment slots for hat/earrings/neck/ring/bracelet
             AddEquipSlot(EquipSlotSide.Left, Layer.Helmet);
