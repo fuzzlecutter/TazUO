@@ -176,6 +176,7 @@ namespace ClassicUO.Game.UI.Gumps
                 LocalSerial == World.Player && World.ClientFeatures.PaperdollBooks;
             var showRacialAbilitiesBook =
                 showPaperdollBooks && Client.Version >= ClientVersion.CV_7000;
+            var showDurability = Client.Version >= ClientVersion.CV_6000;
             if (LocalSerial == World.Player)
             {
                 Add(_picBase = new GumpPic(0, 0, settings.Graphic_Background_Player, settings.Hue_Background_Player));
@@ -342,7 +343,7 @@ namespace ClassicUO.Game.UI.Gumps
             _virtueMenuPic.ScaleWidthAndHeight(Scale).ScaleXAndY(Scale).SetInternalScale(Scale);
             _virtueMenuPic.MouseDoubleClick += VirtueMenu_MouseDoubleClickEvent;
 
-            if (LocalSerial == World.Player.Serial)
+            if (LocalSerial == World.Player.Serial && showDurability)
                 Add(new DurabilityGumpMinimized()
                 {
                     X = settings.Position_X_Durability,
