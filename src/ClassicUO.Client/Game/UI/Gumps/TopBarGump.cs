@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 
 // Copyright (c) 2021, andreakarasho
 // All rights reserved.
@@ -51,15 +51,21 @@ namespace ClassicUO.Game.UI.Gumps
 
         private TopBarGump() : base(0, 0)
         {
+            bool originalBar = Client.Version <= ClientVersion.CV_12535;
+            ushort resizeButtonLeft = (ushort)(originalBar ? 0x138A : 0x15A1);
+            ushort resizeButtonRight = (ushort)(originalBar ? 0x138A : 0x15A4);
             CanMove = true;
             AcceptMouseInput = true;
             CanCloseWithRightClick = false;
 
             // little
-            Add(new ResizePic(0x13BE) { Width = 30, Height = 27 }, 2);
+            if (!originalBar)
+            {
+                Add(new ResizePic(0x13BE) { Width = 30, Height = 27 }, 2);
+            }
 
             Add(
-                new Button(0, 0x15A1, 0x15A1, 0x15A1)
+                new Button(0, resizeButtonLeft, resizeButtonLeft, resizeButtonLeft)
                 {
                     X = 5,
                     Y = 3,
@@ -108,12 +114,15 @@ namespace ClassicUO.Game.UI.Gumps
 
             bool hasUOStore = Client.Version >= ClientVersion.CV_706400;
 
-            ResizePic background;
+            ResizePic background = null;
 
-            Add(background = new ResizePic(0x13BE) { Height = 27 }, 1);
+            if (!originalBar)
+            {
+                Add(background = new ResizePic(0x13BE) { Height = 27 }, 1);
+            }
 
             Add(
-                new Button(0, 0x15A4, 0x15A4, 0x15A4)
+                new Button(0, resizeButtonRight, resizeButtonRight, resizeButtonRight)
                 {
                     X = 5,
                     Y = 3,
@@ -155,7 +164,10 @@ namespace ClassicUO.Game.UI.Gumps
                 );
 
                 startX += (textTable[i][0] != 0 ? largeWidth : smallWidth) + 1;
-                background.Width = startX;
+                if (background is not null)
+                {
+                    background.Width = startX;
+                }
             }
 
             RighClickableButton supporters;
@@ -304,7 +316,10 @@ namespace ClassicUO.Game.UI.Gumps
                 startX += largeWidth + 1;
             }
 
-            background.Width = startX + 1;
+            if (background is not null)
+            {
+                background.Width = startX + 1;
+            }
 
             //layer
             LayerOrder = UILayer.Over;
