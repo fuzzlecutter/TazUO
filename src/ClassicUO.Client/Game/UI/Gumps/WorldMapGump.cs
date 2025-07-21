@@ -104,6 +104,8 @@ namespace ClassicUO.Game.UI.Gumps
         private readonly Dictionary<string, ContextMenuItemEntry> _options = new Dictionary<string, ContextMenuItemEntry>();
         private bool _showCoordinates;
         private bool _showMouseCoordinates;
+        private bool _showGeoCoordinates;
+        private bool _showMouseGeoCoordinates;
         private bool _showGroupBar = true;
         private bool _showGroupName = true;
         private bool _showMarkerIcons = true;
@@ -229,6 +231,8 @@ namespace ClassicUO.Game.UI.Gumps
 
             _showCoordinates = ProfileManager.CurrentProfile.WorldMapShowCoordinates;
             _showMouseCoordinates = ProfileManager.CurrentProfile.WorldMapShowMouseCoordinates;
+            _showGeoCoordinates = ProfileManager.CurrentProfile.WorldMapShowGeoCoordinates;
+            _showMouseGeoCoordinates = ProfileManager.CurrentProfile.WorldMapShowMouseGeoCoordinates;
             _showMobiles = ProfileManager.CurrentProfile.WorldMapShowMobiles;
             _showCorpse = ProfileManager.CurrentProfile.WorldMapShowCorpse;
 
@@ -271,6 +275,8 @@ namespace ClassicUO.Game.UI.Gumps
 
             ProfileManager.CurrentProfile.WorldMapShowCoordinates = _showCoordinates;
             ProfileManager.CurrentProfile.WorldMapShowMouseCoordinates = _showMouseCoordinates;
+            ProfileManager.CurrentProfile.WorldMapShowGeoCoordinates = _showGeoCoordinates;
+            ProfileManager.CurrentProfile.WorldMapShowMouseGeoCoordinates = _showMouseGeoCoordinates;
             ProfileManager.CurrentProfile.WorldMapShowMobiles = _showMobiles;
             ProfileManager.CurrentProfile.WorldMapShowCorpse = _showCorpse;
 
@@ -429,7 +435,11 @@ namespace ClassicUO.Game.UI.Gumps
 
             _options["show_coordinates"] = new ContextMenuItemEntry(ResGumps.ShowYourCoordinates, () => { _showCoordinates = !_showCoordinates; SaveSettings(); }, true, _showCoordinates);
 
-            _options["show_mouse_coordinates"] = new ContextMenuItemEntry(ResGumps.ShowMouseCoordinates, () => { _showMouseCoordinates = !_showMouseCoordinates; }, true, _showMouseCoordinates);
+            _options["show_mouse_coordinates"] = new ContextMenuItemEntry(ResGumps.ShowMouseCoordinates, () => { _showMouseCoordinates = !_showMouseCoordinates; SaveSettings(); }, true, _showMouseCoordinates);
+
+            _options["show_geo_coordinates"] = new ContextMenuItemEntry(ResGumps.ShowYourGeoCoordinates, () => { _showGeoCoordinates = !_showGeoCoordinates; SaveSettings(); }, true, _showGeoCoordinates);
+
+            _options["show_mouse_geo_coordinates"] = new ContextMenuItemEntry(ResGumps.ShowMouseGeoCoordinates, () => { _showMouseGeoCoordinates = !_showMouseGeoCoordinates; SaveSettings(); }, true, _showMouseGeoCoordinates);
 
             _options["allow_positional_target"] = new ContextMenuItemEntry(
                 ResGumps.AllowPositionalTargeting, () => { _allowPositionalTarget = !_allowPositionalTarget; SaveSettings(); }, true, _allowPositionalTarget
@@ -643,6 +653,8 @@ namespace ClassicUO.Game.UI.Gumps
             ContextMenu.Add(_options["show_multis"]);
             ContextMenu.Add(_options["show_coordinates"]);
             ContextMenu.Add(_options["show_mouse_coordinates"]);
+            ContextMenu.Add(_options["show_geo_coordinates"]);
+            ContextMenu.Add(_options["show_mouse_geo_coordinates"]);
             ContextMenu.Add(_options["allow_positional_target"]);
             ContextMenu.Add("", null);
             ContextMenu.Add(_options["markers_manager"]);
@@ -2735,14 +2747,25 @@ namespace ClassicUO.Game.UI.Gumps
                 DrawGrid(batcher, srcRect, gX, gY, halfWidth, halfHeight, Zoom);
             }
 
-            if (_showCoordinates)
+            if (_showCoordinates || _showGeoCoordinates)
             {
                 Vector3 hueVector = new Vector3(0f, 1f, 1f);
+                string text = "";
+                if (_showCoordinates)
+                {
+                    text = $"{World.Player.X}, {World.Player.Y} ({World.Player.Z}) [{_zoomIndex}]";
+                }
+
+                if (_showGeoCoordinates)
+                {
+                    var geo = ConvertToGeo(World.Player.X, World.Player.Y);
+                    text = string.IsNullOrEmpty(text) ? geo : $"{text} | {geo}";
+                }
 
                 batcher.DrawString
                 (
                     Fonts.Bold,
-                    $"{World.Player.X}, {World.Player.Y} ({World.Player.Z}) [{_zoomIndex}]",
+                    text,
                     gX + 6,
                     gY + 6,
                     hueVector
@@ -2753,31 +2776,43 @@ namespace ClassicUO.Game.UI.Gumps
                 batcher.DrawString
                 (
                     Fonts.Bold,
-                    $"{World.Player.X}, {World.Player.Y} ({World.Player.Z}) [{_zoomIndex}]",
+                    text,
                     gX + 5,
                     gY + 5,
                     hueVector
                 );
             }
 
-            if (_showMouseCoordinates && _lastMousePosition != null)
+            if ((_showMouseCoordinates || _showMouseGeoCoordinates) && _lastMousePosition != null)
             {
 
                 int mouseWorldX;
                 int mouseWorldY;
                 CanvasToWorld(_lastMousePosition.Value.X, _lastMousePosition.Value.Y, out mouseWorldX, out mouseWorldY);
 
-                string mouseCoordinateString = $"{mouseWorldX} {mouseWorldY}";
-                Vector2 size = Fonts.Regular.MeasureString(mouseCoordinateString);
+                string text = "";
+                if (_showMouseCoordinates)
+                {
+                    text = $"{mouseWorldX}, {mouseWorldY}";
+                }
+
+                if (_showMouseGeoCoordinates)
+                {
+                    var geo = ConvertToGeo(mouseWorldX, mouseWorldY);
+                    text = string.IsNullOrEmpty(text) ? geo : $"{text} | {geo}";
+                }
+
+                Vector2 size = Fonts.Regular.MeasureString(text);
                 int mx = gX + 5;
                 int my = gY + Height - (int)Math.Ceiling(size.Y) - 15;
+
 
                 Vector3 hueVector = new Vector3(0f, 1f, 1f);
 
                 batcher.DrawString
                 (
                     Fonts.Bold,
-                    mouseCoordinateString,
+                    text,
                     mx + 1,
                     my + 1,
                     hueVector
@@ -2788,7 +2823,7 @@ namespace ClassicUO.Game.UI.Gumps
                 batcher.DrawString
                 (
                     Fonts.Bold,
-                    mouseCoordinateString,
+                    text,
                     mx,
                     my,
                     hueVector
@@ -3836,6 +3871,27 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 yAxis -= 4096;
             }
+        }
+
+        private static string ConvertToGeo(int x, int y)
+        {
+            // TODO:
+            // https://github.com/runuo/runuo/blob/master/Scripts/Items/Skill%20Items/Fishing/Misc/Sextant.cs#L32
+            // https://github.com/Secrets-of-Sosaria/World/blob/main/Data/Scripts/Items/Trades/Fishing/Misc/Sextant.cs#L309
+
+            // Example assumptions:
+            // - Map origin (0,0) = NW corner
+            // - Map size = 6144 x 4096 (typical UO Felucca scale)
+            // - Latitude: 90 (top) to -90 (bottom)
+            // - Longitude: -180 (left) to 180 (right)
+
+            const int mapWidth = 6144;
+            const int mapHeight = 4096;
+
+            double latitude = 90.0 - (180.0 * y / mapHeight);        // Top-down = decreasing latitude
+            double longitude = -180.0 + (360.0 * x / mapWidth);      // Left-right = increasing longitude
+
+            return $"{latitude:F6}°, {longitude:F6}°";
         }
     }
 

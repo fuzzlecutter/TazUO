@@ -1229,6 +1229,9 @@ Min. Skill: {1}</value>
   <data name="ShowYourCoordinates" xml:space="preserve">
     <value>Show your coordinates</value>
   </data>
+  <data name="ShowYourCoordinates" xml:space="preserve">
+    <value>Show your geo coordinates</value>
+  </data>
   <data name="SaveClose" xml:space="preserve">
     <value>Save &amp; Close</value>
   </data>
@@ -1572,6 +1575,9 @@ Client version: '{0}'</value>
   </data>
   <data name="ShowMouseCoordinates" xml:space="preserve">
     <value>Show mouse coordinates</value>
+  </data>
+  <data name="ShowMouseGeoCoordinates" xml:space="preserve">
+    <value>Show mouse geo coordinates</value>
   </data>
   <data name="AllowPositionalTargeting" xml:space="preserve">
     <value>Allow Positional Targeting</value>

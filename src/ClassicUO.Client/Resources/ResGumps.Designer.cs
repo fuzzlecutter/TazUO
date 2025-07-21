@@ -3639,6 +3639,15 @@ namespace ClassicUO.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Show mouse geo coordinates.
+        /// </summary>
+        public static string ShowMouseGeoCoordinates {
+            get {
+                return ResourceManager.GetString("ShowMouseGeoCoordinates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Show party members.
         /// </summary>
         public static string ShowPartyMembers {
@@ -3697,6 +3706,15 @@ namespace ClassicUO.Resources {
         public static string ShowYourCoordinates {
             get {
                 return ResourceManager.GetString("ShowYourCoordinates", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show your geo coordinates.
+        /// </summary>
+        public static string ShowYourGeoCoordinates {
+            get {
+                return ResourceManager.GetString("ShowYourGeoCoordinates", resourceCulture);
             }
         }
         
