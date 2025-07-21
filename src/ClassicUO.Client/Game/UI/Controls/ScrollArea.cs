@@ -72,7 +72,7 @@ namespace ClassicUO.Game.UI.Controls
             {
                 _scrollBar = new ScrollFlag
                 {
-                    X = Width - 19,
+                    X = Width - 9,
                     Height = h
                 };
 

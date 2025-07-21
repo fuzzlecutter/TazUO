@@ -42,6 +42,7 @@ using ClassicUO.Assets;
 using ClassicUO.Network;
 using ClassicUO.Renderer;
 using ClassicUO.Resources;
+using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 using SDL2;
 using System.Diagnostics;
@@ -59,6 +60,7 @@ namespace ClassicUO.Game.UI.Gumps
         private readonly GumpPic _gumpPic;
         private readonly HitBox _hitBox;
         private bool _isMinimized;
+        private bool _originalStyle;
         private readonly Button _newGroupButton;
         private readonly ExpandableScroll _scrollArea;
 
@@ -73,13 +75,16 @@ namespace ClassicUO.Game.UI.Gumps
             AcceptMouseInput = false;
             CanMove = true;
             CanCloseWithRightClick = true;
+            _originalStyle = Client.Version <= ClientVersion.CV_12535;
+            ushort topScroll = (ushort)(_originalStyle ? 0x820 : 0x1F40);
 
             Height = 200 + _diffY;
 
-            Add(_gumpPic = new GumpPic(160, 0, 0x82D, 0));
+            int topWidgetX = _originalStyle ? 138 : 160;
+            Add(_gumpPic = new GumpPic(topWidgetX, 0, 0x82D, 0));
             _gumpPic.MouseDoubleClick += _picBase_MouseDoubleClick;
 
-            _scrollArea = new ExpandableScroll(0, _diffY, Height, 0x1F40)
+            _scrollArea = new ExpandableScroll(0, _diffY, Height, topScroll)
             {
                 TitleGumpID = 0x0834,
                 AcceptMouseInput = true
@@ -111,17 +116,19 @@ namespace ClassicUO.Game.UI.Gumps
 
             _area.Add(_container);
 
-            Add
+            _skillsLabelSum = new Label
             (
-                _skillsLabelSum = new Label
-                (
-                    World.Player.Skills.Sum(s => s.Value).ToString("F1"),
-                    false,
-                    600,
-                    0,
-                    3
-                ) { X = _bottomComment.X + _bottomComment.Width + 5, Y = _bottomComment.Y - 5 }
-            );
+                World.Player.Skills.Sum(s => s.Value).ToString("F1"),
+                false,
+                600,
+                0,
+                3
+            ) { X = _bottomComment.X + _bottomComment.Width + 5, Y = _bottomComment.Y - 5 };
+
+            if (!_originalStyle)
+            {
+                Add(_skillsLabelSum);
+            }
 
             //new group
             int x = 60;
@@ -137,39 +144,40 @@ namespace ClassicUO.Game.UI.Gumps
                 }
             );
 
-            Add
+            _checkReal = new Checkbox
             (
-                _checkReal = new Checkbox
-                (
-                    0x938,
-                    0x939,
-                    ResGumps.ShowReal,
-                    1,
-                    0x0386,
-                    false
-                ) { X = _newGroupButton.X + _newGroupButton.Width + 30, Y = _newGroupButton.Y - 6 }
-            );
+                0x938,
+                0x939,
+                ResGumps.ShowReal,
+                1,
+                0x0386,
+                false
+            ) { X = _newGroupButton.X + _newGroupButton.Width + 30, Y = _newGroupButton.Y - 6 };
 
-            Add
+            _checkCaps = new Checkbox
             (
-                _checkCaps = new Checkbox
-                (
-                    0x938,
-                    0x939,
-                    ResGumps.ShowCaps,
-                    1,
-                    0x0386,
-                    false
-                ) { X = _newGroupButton.X + _newGroupButton.Width + 30, Y = _newGroupButton.Y + 7 }
-            );
+                0x938,
+                0x939,
+                ResGumps.ShowCaps,
+                1,
+                0x0386,
+                false
+            ) { X = _newGroupButton.X + _newGroupButton.Width + 30, Y = _newGroupButton.Y + 7 };
 
-            _checkReal.ValueChanged += UpdateSkillsValues;
-            _checkCaps.ValueChanged += UpdateSkillsValues;
+            if (!_originalStyle)
+            {
+                Add(_checkReal);
+                Add(_checkCaps);
 
+                _checkReal.ValueChanged += UpdateSkillsValues;
+                _checkCaps.ValueChanged += UpdateSkillsValues;
+            }
 
             LoadSkills();
 
-            Add(_resetGroups = new NiceButton(_scrollArea.X + 25, _scrollArea.Y + 7, 100, 18,
+            int resetGroupsX = _originalStyle ? _newGroupButton.X + _newGroupButton.Width + 30 : _scrollArea.X + 25;
+            int resetGroupsY = _originalStyle ? _newGroupButton.Y : _scrollArea.Y + 7;
+            Add(_resetGroups = new NiceButton(resetGroupsX, resetGroupsY, 100, 18,
                                               ButtonAction.Activate, ResGumps.ResetGroups,
                                               unicode: false,
                                               font: 6)
@@ -268,7 +276,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 SkillsGroupManager.Add(g);
 
-                SkillsGroupControl control = new SkillsGroupControl(g, 3, 3);
+                SkillsGroupControl control = new SkillsGroupControl(g, 3, 3, _originalStyle);
                 _skillsControl.Add(control);
                 _container.Add(control);
                 control.IsMinimized = !g.IsMaximized;
@@ -304,7 +312,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 foreach (SkillsGroup g in SkillsGroupManager.Groups)
                 {
-                    SkillsGroupControl control = new SkillsGroupControl(g, 3, 3);
+                    SkillsGroupControl control = new SkillsGroupControl(g, 3, 3, _originalStyle);
                     _skillsControl.Add(control);
                     _container.Add(control);
 
@@ -340,8 +348,15 @@ namespace ClassicUO.Game.UI.Gumps
             _area.Height = Height - (150 + _diffY);
             _newGroupButton.Y = Height - 52;
             _skillsLabelSum.Y = _bottomComment.Y + 2;
-            _checkReal.Y = _newGroupButton.Y - 6;
-            _checkCaps.Y = _newGroupButton.Y + 7;
+            if (_originalStyle)
+            {
+                _resetGroups.Y = _newGroupButton.Y - 2;
+            }
+            else
+            {
+                _checkReal.Y = _newGroupButton.Y - 6;
+                _checkCaps.Y = _newGroupButton.Y + 7;
+            }
         }
 
         public override void Update()
@@ -428,12 +443,13 @@ namespace ClassicUO.Game.UI.Gumps
             private readonly SkillsGroup _group;
             private readonly GumpPicTiled _gumpPic;
             private bool _isMinimized;
+            private bool _originalStyle;
 
             private readonly List<SkillItemControl> _skills = new List<SkillItemControl>();
             private byte _status;
             private readonly StbTextBox _textbox;
 
-            public SkillsGroupControl(SkillsGroup group, int x, int y)
+            public SkillsGroupControl(SkillsGroup group, int x, int y, bool originalStyle)
             {
                 CanMove = false;
                 AcceptMouseInput = true;
@@ -446,6 +462,7 @@ namespace ClassicUO.Game.UI.Gumps
                 Height = 20;
 
                 _group = group;
+                _originalStyle = originalStyle;
 
                 _button = new Button(1000, 0x0827, 0x0827, 0x0827)
                 {
@@ -579,7 +596,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             public void AddSkill(int index, int x, int y)
             {
-                SkillItemControl c = new SkillItemControl(index, x, y);
+                SkillItemControl c = new SkillItemControl(index, x, y, _originalStyle);
                 _skills.Add(c);
                 _box.Add(c);
                 _box.WantUpdateSize = true;
@@ -815,13 +832,15 @@ namespace ClassicUO.Game.UI.Gumps
             private readonly Button _buttonStatus;
             private Lock? _status;
             private readonly Label _value;
+            private bool _originalStyle;
 
 
-            public SkillItemControl(int index, int x, int y)
+            public SkillItemControl(int index, int x, int y, bool originalStyle)
             {
                 Index = index;
                 X = x;
                 Y = y;
+                _originalStyle = originalStyle;
 
                 if (index < 0 || index >= SkillsLoader.Instance.Skills.Count)
                 {
@@ -856,7 +875,10 @@ namespace ClassicUO.Game.UI.Gumps
                         ContainsByBounds = true
                     };
 
-                    Add(_buttonStatus);
+                    if (!_originalStyle)
+                    {
+                        Add(_buttonStatus);
+                    }
 
                     Label name;
                     Add(name = new Label(skill.Name, false, 0x0288, font: 9));
@@ -954,7 +976,7 @@ namespace ClassicUO.Game.UI.Gumps
                     }
 
                     _value.Text = $"{val:F1}";
-                    _value.X = 250 - _value.Width;
+                    _value.X = (_originalStyle ? 225 : 250) - _value.Width;
                 }
             }
 
