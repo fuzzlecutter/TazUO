@@ -806,6 +806,7 @@ namespace ClassicUO.Assets
         {
             if (font >= FontCount)
             {
+                Log.Warn($"ASCII font {font} does not exist to render '{str}'");
                 return null;
             }
 
@@ -1341,6 +1342,7 @@ namespace ClassicUO.Assets
 
             if (font >= 20 || _unicodeFontAddress[font] == null)
             {
+                Log.Warn($"Unicode font {font} does not exist to render '{str}'");
                 return null;
             }
 
