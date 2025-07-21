@@ -1,4 +1,5 @@
 using ClassicUO.Assets;
+using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace ClassicUO.Renderer.Gumps
@@ -18,7 +19,10 @@ namespace ClassicUO.Renderer.Gumps
         public ref readonly SpriteInfo GetGump(uint idx)
         {
             if (idx >= _spriteInfos.Length)
+            {
+                Log.Warn($"Gump graphic {idx} (0x{idx:X}) is out of range.");
                 return ref SpriteInfo.Empty;
+            }
 
             ref var spriteInfo = ref _spriteInfos[idx];
 
@@ -40,6 +44,10 @@ namespace ClassicUO.Renderer.Gumps
                     );
 
                     _picker.Set(idx, gumpInfo.Width, gumpInfo.Height, gumpInfo.Pixels);
+                }
+                else
+                {
+                    Log.Warn($"Gump graphic {idx} (0x{idx:X}) is empty.");
                 }
             }
 

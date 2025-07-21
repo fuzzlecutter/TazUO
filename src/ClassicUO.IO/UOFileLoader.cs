@@ -30,6 +30,7 @@
 
 #endregion
 
+using ClassicUO.Utility.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -63,6 +64,7 @@ namespace ClassicUO.IO
         {
             if (index < 0 || Entries == null || index >= Entries.Length)
             {
+                Log.Warn($"File index {index} (0x{index:X}) in {this} is invalid.");
                 return ref UOFileIndex.Invalid;
             }
 
@@ -70,6 +72,7 @@ namespace ClassicUO.IO
 
             if (entry.Offset < 0 || entry.Length <= 0 || entry.Offset == 0x0000_0000_FFFF_FFFF)
             {
+                Log.Warn($"Entry at file index {index} (0x{index:X}) in {this} is invalid.");
                 return ref UOFileIndex.Invalid;
             }
 
