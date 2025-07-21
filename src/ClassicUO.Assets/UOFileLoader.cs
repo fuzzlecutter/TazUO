@@ -2,6 +2,7 @@
 
 using ClassicUO.Assets;
 using ClassicUO.IO;
+using ClassicUO.Utility.Logging;
 using System;
 using System.Threading.Tasks;
 
