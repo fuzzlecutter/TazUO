@@ -33,6 +33,7 @@
 using ClassicUO.Game.Managers;
 using ClassicUO.Assets;
 using ClassicUO.Resources;
+using ClassicUO.Utility;
 
 namespace ClassicUO.Game.UI.Controls
 {
@@ -44,6 +45,9 @@ namespace ClassicUO.Game.UI.Controls
 
         public InfoBarBuilderControl(InfoBarItem item)
         {
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
             infoLabel = new StbTextBox(0xFF, 10, 80) { X = 5, Y = 0, Width = 130, Height = 26 };
             infoLabel.SetText(item.label);
 
@@ -84,7 +88,7 @@ namespace ClassicUO.Game.UI.Controls
                 ((DataBox) Parent)?.ReArrangeChildren();
             };
 
-            Add(new ResizePic(0x0BB8) { X = infoLabel.X - 5, Y = 0, Width = infoLabel.Width + 10, Height = infoLabel.Height });
+            Add(new ResizePic(inputBoxStyle) { X = infoLabel.X - 5, Y = 0, Width = infoLabel.Width + 10, Height = infoLabel.Height });
 
             Add(infoLabel);
             Add(varStat);

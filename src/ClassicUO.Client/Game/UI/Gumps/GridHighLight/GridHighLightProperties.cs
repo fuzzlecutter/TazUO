@@ -2,6 +2,7 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Renderer;
 using ClassicUO.Renderer.Lights;
+using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
     {
         private const int WIDTH = 350, HEIGHT = 500;
         private int lastYitem = 0;
+        private bool originalStyle;
         private ScrollArea mainScrollArea;
         GridHighlightData data;
         private readonly int keyLoc;
@@ -32,6 +34,9 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             CanMove = true;
             AcceptMouseInput = true;
             CanCloseWithRightClick = true;
+
+            originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
 
             Add(new AlphaBlendControl(0.85f) { Width = WIDTH, Height = HEIGHT });
 
@@ -65,7 +70,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             lastYitem += 20;
 
             InputField minPropertiesInput;
-            mainScrollArea.Add(minPropertiesInput = new InputField(0x0BB8, 0xFF, 0xFFFF, true, 40, 20) { X = 0, Y = lastYitem });
+            mainScrollArea.Add(minPropertiesInput = new InputField(inputBoxStyle, 0xFF, 0xFFFF, true, 40, 20) { X = 0, Y = lastYitem });
             minPropertiesInput.SetText(data.MinimumProperty.ToString());
             minPropertiesInput.TextChanged += (s, e) =>
             {
@@ -82,7 +87,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             mainScrollArea.Add(minPropertiesLabel = new Label("Min. property count", true, 0xffff) { X = minPropertiesInput.X + minPropertiesInput.Width, Y = lastYitem });
 
             InputField maxPropertiesInput;
-            mainScrollArea.Add(maxPropertiesInput = new InputField(0x0BB8, 0xFF, 0xFFFF, true, 40, 20) { X = 180, Y = lastYitem });
+            mainScrollArea.Add(maxPropertiesInput = new InputField(inputBoxStyle, 0xFF, 0xFFFF, true, 40, 20) { X = 180, Y = lastYitem });
             maxPropertiesInput.SetText(data.MaximumProperty.ToString());
             maxPropertiesInput.TextChanged += (s, e) =>
             {
@@ -288,7 +293,8 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
 
             Combobox propCombobox;
             InputField propInput;
-            propInput = new InputField(0x0BB8, 0xFF, 0xFFFF, true, 157, 25) { Y = y };
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+            propInput = new InputField(inputBoxStyle, 0xFF, 0xFFFF, true, 157, 25) { Y = y };
             string[] values = GridHighlightRules.FlattenAndDistinctParameters(propertySets);
             mainScrollArea.Add(propCombobox = new Combobox(0, lastYitem, 175, values, 0, 200, true) { });
             propCombobox.OnOptionSelected += (s, e) =>
@@ -335,7 +341,8 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
 
             Combobox propCombobox;
             InputField propInput;
-            propInput = new InputField(0x0BB8, 0xFF, 0xFFFF, true, 157, 25) { Y = y };
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+            propInput = new InputField(inputBoxStyle, 0xFF, 0xFFFF, true, 157, 25) { Y = y };
             string[] values = GridHighlightRules.FlattenAndDistinctParameters(propertySets);
             mainScrollArea.Add(propCombobox = new Combobox(0, lastYitem, 175, values, 0, 200, true) { });
             propCombobox.OnOptionSelected += (s, e) =>
@@ -354,7 +361,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             };
 
             InputField valInput;
-            mainScrollArea.Add(valInput = new InputField(0x0BB8, 0xFF, 0xFFFF, true, 60, 25) { X = 180, Y = y, NumbersOnly = true });
+            mainScrollArea.Add(valInput = new InputField(inputBoxStyle, 0xFF, 0xFFFF, true, 60, 25) { X = 180, Y = y, NumbersOnly = true });
             valInput.SetText(properties[index].MinValue.ToString());
             valInput.TextChanged += (s, e) =>
             {

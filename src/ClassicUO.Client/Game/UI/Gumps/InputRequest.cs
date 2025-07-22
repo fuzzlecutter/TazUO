@@ -1,5 +1,6 @@
 ﻿using ClassicUO.Assets;
 using ClassicUO.Game.UI.Controls;
+using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 using System;
 using static ClassicUO.Game.UI.Gumps.OptionsGump;
@@ -13,6 +14,9 @@ namespace ClassicUO.Game.UI.Gumps
             Width = 400;
             Height = 0;
 
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
             AlphaBlendControl bg;
             Add(bg = new AlphaBlendControl(0.75f));
 
@@ -24,7 +28,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             InputField input = new InputField
             (
-                0x0BB8,
+                inputBoxStyle,
                 0xFF,
                 0xFFF,
                 true,

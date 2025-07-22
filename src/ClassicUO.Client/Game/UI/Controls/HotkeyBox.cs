@@ -51,6 +51,8 @@ namespace ClassicUO.Game.UI.Controls
             AcceptMouseInput = true;
             AcceptKeyboardInput = true;
 
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
 
             Width = 210;
             Height = 25;
@@ -59,7 +61,7 @@ namespace ClassicUO.Game.UI.Controls
 
             Add
             (
-                pic = new ResizePic(0x0BB8)
+                pic = new ResizePic(inputBoxStyle)
                 {
                     Width = 150,
                     Height = Height,

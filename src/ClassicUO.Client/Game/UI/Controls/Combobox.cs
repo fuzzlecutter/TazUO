@@ -37,6 +37,7 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
 using ClassicUO.Renderer;
+using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.UI.Controls
@@ -71,9 +72,12 @@ namespace ClassicUO.Game.UI.Controls
             _items = items;
             _maxHeight = maxHeight;
 
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
             Add
             (
-                new ResizePic(0x0BB8)
+                new ResizePic(inputBoxStyle)
                 {
                     Width = width, Height = Height
                 }
@@ -197,10 +201,13 @@ namespace ClassicUO.Game.UI.Controls
                 LayerOrder = UILayer.Over;
                 ModalClickOutsideAreaClosesThisControl = true;
 
+                var originalStyle = Client.Version <= ClientVersion.CV_12535;
+                var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
                 _combobox = combobox;
 
                 ResizePic background;
-                Add(background = new ResizePic(0x0BB8));
+                Add(background = new ResizePic(inputBoxStyle));
                 background.AcceptMouseInput = false;
 
                 HoveredLabel[] labels = new HoveredLabel[items.Length];

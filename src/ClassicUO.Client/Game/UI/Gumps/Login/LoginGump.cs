@@ -67,6 +67,9 @@ namespace ClassicUO.Game.UI.Gumps.Login
             byte font;
             ushort hue;
 
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
             if (Client.Version < ClientVersion.CV_706400)
             {
                 _buttonNormal = 0x15A4;
@@ -325,7 +328,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
             // Account Text Input Background
             Add
             (
-                new ResizePic(0x0BB8)
+                new ResizePic(inputBoxStyle)
                 {
                     X = offsetX,
                     Y = offsetY,
@@ -337,7 +340,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
             // Password Text Input Background
             Add
             (
-                new ResizePic(0x0BB8)
+                new ResizePic(inputBoxStyle)
                 {
                     X = offsetX,
                     Y = offsetY + offtextY,

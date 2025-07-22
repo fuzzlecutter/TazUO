@@ -39,6 +39,7 @@ using ClassicUO.Input;
 using ClassicUO.Assets;
 using ClassicUO.Renderer;
 using ClassicUO.Resources;
+using ClassicUO.Utility;
 using SDL2;
 using Microsoft.Xna.Framework;
 
@@ -513,6 +514,9 @@ namespace ClassicUO.Game.UI.Controls
                     return;
                 }
 
+                var originalStyle = Client.Version <= ClientVersion.CV_12535;
+                var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
                 switch (obj.SubMenuType)
                 {
                     case 1:
@@ -553,7 +557,7 @@ namespace ClassicUO.Game.UI.Controls
 
                     case 2:
 
-                        ResizePic background = new ResizePic(0x0BB8)
+                        ResizePic background = new ResizePic(inputBoxStyle)
                         {
                             X = 16,
                             Y = Height,

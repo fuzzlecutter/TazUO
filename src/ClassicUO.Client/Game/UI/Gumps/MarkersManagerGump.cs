@@ -474,6 +474,9 @@ namespace ClassicUO.Game.UI.Gumps
                 AcceptMouseInput = true;
                 AcceptKeyboardInput = true;
 
+                var originalStyle = Client.Version <= ClientVersion.CV_12535;
+                var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
                 Add
                 (
                     new Label
@@ -492,7 +495,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 Add
                 (
-                    new ResizePic(0x0BB8)
+                    new ResizePic(inputBoxStyle)
                     {
                         X = x + 50,
                         Y = y,

@@ -377,10 +377,13 @@ namespace ClassicUO.Game.UI.Gumps.Login
                 _selectedFn = selectedFn;
                 _loginFn = loginFn;
 
+                var originalStyle = Client.Version <= ClientVersion.CV_12535;
+                var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
                 // Bg
                 Add
                 (
-                    new ResizePic(0x0BB8)
+                    new ResizePic(inputBoxStyle)
                     {
                         X = 0,
                         Y = 0,

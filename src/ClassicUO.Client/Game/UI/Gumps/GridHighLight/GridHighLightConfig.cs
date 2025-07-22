@@ -1,6 +1,7 @@
 using ClassicUO.Configuration;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Renderer.Lights;
+using ClassicUO.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,9 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             AcceptMouseInput = true;
             CanCloseWithRightClick = true;
 
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
             Add(new AlphaBlendControl(0.85f) { Width = Width, Height = HEIGHT });
 
             Label label;
@@ -47,7 +51,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                 ScrollArea propertiesScrollArea;
                 InputField propertiesPropInput;
                 Add(propertiesScrollArea = new ScrollArea(lastXitem, lastYitem + 20, 175, HEIGHT - lastYitem - 20, true) { ScrollbarBehaviour = ScrollbarBehaviour.ShowAlways });
-                propertiesScrollArea.Add(propertiesPropInput = new InputField(0x0BB8, 0xFF, 0xFFFF, true, 175 - 13, (HEIGHT - lastYitem - 20) * 10) { Y = 0 });
+                propertiesScrollArea.Add(propertiesPropInput = new InputField(inputBoxStyle, 0xFF, 0xFFFF, true, 175 - 13, (HEIGHT - lastYitem - 20) * 10) { Y = 0 });
                 string s = string.Join("\n", propSet);
                 propertiesPropInput.SetText(s);
                 CancellationTokenSource cts = new CancellationTokenSource();

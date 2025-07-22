@@ -52,6 +52,9 @@ namespace ClassicUO.Game.UI.Gumps
         {
             CanMove = true;
 
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
             _markers = markers;
             _markerIdx = markerIdx;
 
@@ -98,7 +101,7 @@ namespace ClassicUO.Game.UI.Gumps
             // X Field
             var fx = markersGumpBackground.X + 5;
             var fy = markersGumpBackground.Y + 25;
-            Add(new ResizePic(0x0BB8)
+            Add(new ResizePic(inputBoxStyle)
             {
                 X = fx + LABEL_OFFSET,
                 Y = fy,
@@ -125,7 +128,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             // Y Field
             fy += Y_OFFSET;
-            Add(new ResizePic(0x0BB8)
+            Add(new ResizePic(inputBoxStyle)
             {
                 X = fx + LABEL_OFFSET,
                 Y = fy,
@@ -152,7 +155,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             // Marker Name field
             fy += Y_OFFSET;
-            Add(new ResizePic(0x0BB8)
+            Add(new ResizePic(inputBoxStyle)
             {
                 X = fx + LABEL_OFFSET,
                 Y = fy,

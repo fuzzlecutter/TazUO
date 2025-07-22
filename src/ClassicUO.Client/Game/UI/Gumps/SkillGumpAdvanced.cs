@@ -333,6 +333,9 @@ namespace ClassicUO.Game.UI.Gumps
             _totalValue = 0;
             _databox.Clear();
 
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
             foreach (SkillListEntry entry in _skillListEntries)
             {
                 entry.Clear();
@@ -418,7 +421,7 @@ namespace ClassicUO.Game.UI.Gumps
                     }
                     a.Add
                     (
-                            new ResizePic(0x0BB8)
+                            new ResizePic(inputBoxStyle)
                             {
                                 X = 1,
                                 Y = 3,

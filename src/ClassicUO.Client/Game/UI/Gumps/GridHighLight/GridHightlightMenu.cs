@@ -2,6 +2,7 @@
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Renderer;
+using ClassicUO.Utility;
 using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 using System;
@@ -114,8 +115,11 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             y = 0;
             int spaceBetween = 7;
 
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
             InputField _name;
-            area.Add(_name = new InputField(0x0BB8, 0xFF, 0xFFFF, true, 180, 20)
+            area.Add(_name = new InputField(inputBoxStyle, 0xFF, 0xFFFF, true, 180, 20)
                 {
                     X = 0,
                     Y = y,
