@@ -2,6 +2,7 @@
 
 using System;
 using ClassicUO.Renderer;
+using ClassicUO.Utility;
 
 namespace ClassicUO.Game.UI.Controls
 {
@@ -36,9 +37,12 @@ namespace ClassicUO.Game.UI.Controls
             _Min = minvalue;
             _Max = maxvalue;
 
+            var originalStyle = Client.Game.UO.Version <= ClientVersion.CV_12535;
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
             Add
             (
-                new ResizePic(0x0BB8)
+                new ResizePic(inputBoxStyle)
                 {
                     Width = width,
                     Height = height + 4
