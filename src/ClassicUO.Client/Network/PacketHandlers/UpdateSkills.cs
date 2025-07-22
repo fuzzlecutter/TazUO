@@ -85,7 +85,7 @@ internal static class UpdateSkills
                     id--;
 
                 ushort realVal = p.ReadUInt16BE();
-                ushort baseVal = 0;
+                ushort? baseVal = null;
                 Lock? locked = null;
                 if (haveBaseAndLocked)
                 {
@@ -137,7 +137,7 @@ internal static class UpdateSkills
                                 );
                         }
 
-                        ushort lastBase = skill.BaseFixed;
+                        ushort? lastBase = skill.BaseFixed;
                         ushort lastValue = skill.ValueFixed;
                         ushort lastCap = skill.CapFixed;
 
@@ -146,9 +146,9 @@ internal static class UpdateSkills
                         skill.CapFixed = cap;
                         skill.Lock = locked;
 
-                        if (!isSingleUpdate && !skill.HasLoginBaseline)
+                        if (!isSingleUpdate && !skill.HasLoginBaseline && baseVal.HasValue)
                         {
-                            skill.BaseFixedAtLogin = baseVal;
+                            skill.BaseFixedAtLogin = baseVal.Value;
                             skill.HasLoginBaseline = true;
                         }
 
