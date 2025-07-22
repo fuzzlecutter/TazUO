@@ -611,9 +611,11 @@ namespace ClassicUO.Game.UI.Gumps
         private readonly Skill _skill;
         public SkillListEntry(World world, SkillGumpAdvanced gump, Skill skill)
         {
+            var originalStyle = Client.Game.UO.Version <= ClientVersion.CV_12535;
+            var fontIndex = (byte)(originalStyle ? 0xFF : 3);
             _gump = gump;
             Height = 20;
-            var skillName = new Label(skill.Name, true, 1153, font: 3) {AcceptMouseInput = skill.IsClickable, CanMove = true};
+            var skillName = new Label(skill.Name, true, 1153, font: fontIndex) {AcceptMouseInput = skill.IsClickable, CanMove = true};
             if(skill.IsClickable)
             {
                 skillName.MouseDoubleClick += skillDoubleClick;
@@ -638,9 +640,9 @@ namespace ClassicUO.Game.UI.Gumps
                 }
             }
 
-            var skillValueBase = new Label(skill.Base.ToString(), true, 1153, font: 3);
-            var skillValue = new Label(skill.Value.ToString(), true, 1153, font: 3);
-            var skillCap = new Label(skill.Cap.ToString(), true, 1153, font: 3);
+            var skillValueBase = new Label(skill.Base.ToString(), true, 1153, font: fontIndex);
+            var skillValue = new Label(skill.Value.ToString(), true, 1153, font: fontIndex);
+            var skillCap = new Label(skill.Cap.ToString(), true, 1153, font: fontIndex);
 
             _skill = skill;
             CanMove = true;
