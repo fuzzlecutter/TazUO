@@ -572,6 +572,12 @@ namespace ClassicUO.Network
                         World.Player.PhysicalResistance = (short)p.ReadUInt16BE();
                         World.Player.Weight = p.ReadUInt16BE();
 
+                        if (!ProfileManager.CurrentProfile.StandardSkillsGump &&
+                                UIManager.GetGump<SkillGumpAdvanced>() is SkillGumpAdvanced advanced)
+                        {
+                            advanced.ForceUpdate();
+                        }
+
                         if (
                             World.Player.Strength != 0
                             && ProfileManager.CurrentProfile != null
@@ -2102,7 +2108,7 @@ namespace ClassicUO.Network
                     }
 
                     ushort realVal = p.ReadUInt16BE();
-                    ushort baseVal = 0;
+                    ushort? baseVal = null;
                     Lock? locked = null;
                     if (haveBaseAndLocked)
                     {
@@ -2157,7 +2163,7 @@ namespace ClassicUO.Network
                                 }
                             }
 
-                            ushort lastBase = skill.BaseFixed;
+                            ushort? lastBase = skill.BaseFixed;
                             ushort lastValue = skill.ValueFixed;
                             ushort lastCap = skill.CapFixed;
 
