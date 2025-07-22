@@ -1409,6 +1409,11 @@ namespace ClassicUO.Game.Managers
 
                     break;
 
+                case MacroType.ToggleHouses:
+                    ProfileManager.CurrentProfile.ToggleHideHouses = !ProfileManager.CurrentProfile.ToggleHideHouses;
+
+                    break;
+
                 case MacroType.CloseGump:
 
                     UIManager.Gumps.Where(s => !(s is TopBarGump) && !(s is BuffGump) && !(s is ImprovedBuffGump) && !(s is WorldViewportGump)).ToList().ForEach(s => s.Dispose());
@@ -2677,6 +2682,7 @@ namespace ClassicUO.Game.Managers
         SpellBarRowUp,
         SpellBarRowDown,
         Dismount,
+        ToggleHouses,
     }
 
     public enum MacroSubType

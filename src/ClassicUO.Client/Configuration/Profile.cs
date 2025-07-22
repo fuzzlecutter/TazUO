@@ -631,6 +631,8 @@ namespace ClassicUO.Configuration
         public bool CounterGumpLocked { get; set; }
         public bool NearbyLootConcealsContainerOnOpen { get; set; } = true;
         public bool SpellBar_ShowHotkeys { get; set; } = true;
+        public byte HideHousesAtZLevel { get;  set; } = 0;
+        public bool ToggleHideHouses { get; set; } = false;
 
         private long lastSave;
         public void Save(string path, bool saveGumps = true)
