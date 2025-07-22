@@ -38,6 +38,7 @@ using ClassicUO.Game.UI.Controls;
 using ClassicUO.Input;
 using ClassicUO.Assets;
 using ClassicUO.Renderer;
+using ClassicUO.Utility;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -77,9 +78,12 @@ namespace ClassicUO.Game.UI.Gumps
             Width = 88;
             Height = 44;
 
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var floatingButton = (ushort)(originalStyle ? 0x0053 : 0x24B8);
+
             Add
             (
-                new ResizePic(0x24B8)
+                new ResizePic(floatingButton)
                 {
                     Width = Width,
                     Height = Height,
