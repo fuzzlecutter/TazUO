@@ -2059,7 +2059,7 @@ namespace ClassicUO.Game.Managers
                     break;
 
                 case MacroType.ToggleHudVisible:
-                    HideHudManager.ToggleHidden(ProfileManager.CurrentProfile.HideHudFlags);
+                    HideHudManager.ToggleHidden(ProfileManager.CurrentProfile.HideHudGumpFlags);
                     break;
             }
 
