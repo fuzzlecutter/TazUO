@@ -1410,7 +1410,7 @@ namespace ClassicUO.Game.Managers
                     break;
 
                 case MacroType.ToggleHouses:
-                    ProfileManager.CurrentProfile.ToggleHideHouses = !ProfileManager.CurrentProfile.ToggleHideHouses;
+                    ProfileManager.CurrentProfile.ForceHouseTransparency = !ProfileManager.CurrentProfile.ForceHouseTransparency;
 
                     break;
 
