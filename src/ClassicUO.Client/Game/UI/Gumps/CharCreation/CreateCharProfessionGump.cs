@@ -7,6 +7,7 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Input;
 using ClassicUO.Assets;
+using ClassicUO.Utility;
 
 namespace ClassicUO.Game.UI.Gumps.CharCreation
 {
@@ -142,8 +143,10 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
             _info = info;
 
             ClilocLoader localization = Client.Game.UO.FileManager.Clilocs;
+            var originalStyle = Client.Game.UO.Version <= ClientVersion.CV_12535;
+            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
 
-            var background = new ResizePic(3000)
+            var background = new ResizePic(inputBoxStyle)
             {
                 Width = 175,
                 Height = 34
