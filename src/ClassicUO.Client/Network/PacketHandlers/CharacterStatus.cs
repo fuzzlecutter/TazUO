@@ -3,6 +3,7 @@ using ClassicUO.Game;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
+using ClassicUO.Game.UI.Gumps;
 using ClassicUO.IO;
 
 namespace ClassicUO.Network.PacketHandlers;
@@ -64,6 +65,12 @@ internal static class CharacterStatus
                     world.Player.Gold = p.ReadUInt32BE();
                     world.Player.PhysicalResistance = (short)p.ReadUInt16BE();
                     world.Player.Weight = p.ReadUInt16BE();
+
+                    if (!ProfileManager.CurrentProfile.StandardSkillsGump &&
+                            UIManager.GetGump<SkillGumpAdvanced>() is SkillGumpAdvanced advanced)
+                    {
+                       advanced.ForceUpdate();
+                    }
 
                     if (
                         world.Player.Strength != 0
