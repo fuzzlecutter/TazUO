@@ -34,6 +34,7 @@ using System;
 using ClassicUO.Configuration;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Assets;
+using ClassicUO.Utility;
 using SDL2;
 
 namespace ClassicUO.Game.UI.Gumps.Login
@@ -64,6 +65,9 @@ namespace ClassicUO.Game.UI.Gumps.Login
             bool unicode = isAsianLang;
             byte font = (byte)(isAsianLang ? 1 : 2);
             ushort hue = (ushort)(isAsianLang ? 0xFFFF : 0x0386);
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var okayButton = (ushort)(originalStyle ? 0x00F7 : 0x0481);
+            var cancelButton = (ushort)(originalStyle ? 0x00F1 : 0x047E);
             
             _label = new Label
             (
@@ -93,7 +97,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
             {
                 Add
                 (
-                    new Button((int) LoginButtons.OK, 0x0481, 0x0483, 0x0482)
+                    new Button((int) LoginButtons.OK, (ushort)(okayButton + 2), (ushort)(okayButton + 1), okayButton)
                     {
                         X = 306, Y = 304, ButtonAction = ButtonAction.Activate
                     }
@@ -103,7 +107,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
             {
                 Add
                 (
-                    new Button((int) LoginButtons.Cancel, 0x047E, 0x0480, 0x047F)
+                    new Button((int) LoginButtons.Cancel, (ushort)(cancelButton + 2), cancelButton, (ushort)(cancelButton + 1))
                     {
                         X = 306,
                         Y = 304,
@@ -115,7 +119,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
             {
                 Add
                 (
-                    new Button((int) LoginButtons.OK, 0x0481, 0x0483, 0x0482)
+                    new Button((int) LoginButtons.OK, (ushort)(okayButton + 2), (ushort)(okayButton + 1), okayButton)
                     {
                         X = 264, Y = 304, ButtonAction = ButtonAction.Activate
                     }
@@ -123,7 +127,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
 
                 Add
                 (
-                    new Button((int) LoginButtons.Cancel, 0x047E, 0x0480, 0x047F)
+                    new Button((int) LoginButtons.Cancel, (ushort)(cancelButton + 2), cancelButton, (ushort)(cancelButton + 1))
                     {
                         X = 348, Y = 304, ButtonAction = ButtonAction.Activate
                     }

@@ -34,6 +34,7 @@ using System;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Renderer;
+using ClassicUO.Utility;
 using SDL2;
 
 namespace ClassicUO.Game.UI.Gumps
@@ -64,6 +65,9 @@ namespace ClassicUO.Game.UI.Gumps
             Width = w;
             Height = h;
             _action = action;
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var okayButton = (ushort)(originalStyle ? 0x00F7 : 0x0481);
+            var cancelButton = (ushort)(originalStyle ? 0x00F1 : 0x047E);
 
             Add
             (
@@ -110,7 +114,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             Add
             (
-                b = new Button(0, 0x0481, 0x0483, 0x0482)
+                b = new Button(0, (ushort)(okayButton + 2), (ushort)(okayButton + 1), okayButton)
                 {
                     Y = Height - 45,
                     ButtonAction = ButtonAction.Activate
@@ -126,7 +130,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 Add
                 (
-                    bCancel = new Button(1, 0x047E, 0x047F, 0x0480)
+                    bCancel = new Button(1, (ushort)(cancelButton + 2), cancelButton, (ushort)(cancelButton + 1))
                     {
                         Y = Height - 45,
                         ButtonAction = ButtonAction.Activate
@@ -195,6 +199,9 @@ namespace ClassicUO.Game.UI.Gumps
             Height = h;
             _action = action;
 
+            var originalStyle = Client.Version <= ClientVersion.CV_12535;
+            var okayButton = (ushort)(originalStyle ? 0x00F7 : 0x0481);
+
             Add
             (
                 new ResizePic(0x0A28)
@@ -261,7 +268,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             Add
             (
-                b = new Button(0, 0x0481, 0x0482, 0x0483)
+                b = new Button(0, (ushort)(okayButton + 2), (ushort)(okayButton + 1), okayButton)
                 {
                     Y = Height - 45,
                     ButtonAction = ButtonAction.Activate
