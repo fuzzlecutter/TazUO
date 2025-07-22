@@ -9,6 +9,7 @@ using ClassicUO.Game.UI.MyraWindows;
 using ClassicUO.Input;
 using ClassicUO.Assets;
 using ClassicUO.Common.Enums;
+using ClassicUO.Utility;
 using SDL3;
 using Microsoft.Xna.Framework;
 using ClassicUO.Renderer.Gumps;
@@ -497,6 +498,9 @@ namespace ClassicUO.Game.UI.Controls
                     return;
                 }
 
+                var originalStyle = Client.Game.UO.Version <= ClientVersion.CV_12535;
+                var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+
                 switch (obj.SubMenuType)
                 {
                     case 1:
@@ -537,7 +541,7 @@ namespace ClassicUO.Game.UI.Controls
 
                     case 2:
 
-                        var background = new ResizePic(0x0BB8)
+                        var background = new ResizePic(inputBoxStyle)
                         {
                             X = 16,
                             Y = Height,
