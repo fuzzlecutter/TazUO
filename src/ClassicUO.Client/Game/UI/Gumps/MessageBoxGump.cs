@@ -38,7 +38,7 @@ namespace ClassicUO.Game.UI.Gumps
             var originalStyle = Client.Game.UO.Version <= ClientVersion.CV_12535;
             var okayButton = (ushort)(originalStyle ? 0x00F7 : 0x0481);
             var cancelButton = (ushort)(originalStyle ? 0x00F1 : 0x047E);
-            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+            var inputBoxStyle = (ushort)(originalStyle ? 0x13ec : 0x0BB8);
 
             Add
             (
@@ -172,7 +172,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             var originalStyle = Client.Game.UO.Version <= ClientVersion.CV_12535;
             var okayButton = (ushort)(originalStyle ? 0x00F7 : 0x0481);
-            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+            var inputBoxStyle = (ushort)(originalStyle ? 0x13ec : 0x0BB8);
 
             Add
             (
