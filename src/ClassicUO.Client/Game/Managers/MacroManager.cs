@@ -2061,6 +2061,10 @@ namespace ClassicUO.Game.Managers
                 case MacroType.ToggleHudVisible:
                     HideHudManager.ToggleHidden(ProfileManager.CurrentProfile.HideHudGumpFlags);
                     break;
+
+                case MacroType.Resync:
+                    AsyncNetClient.Socket.Send_Resync();
+                    break;
             }
 
             return result;
@@ -2687,7 +2691,8 @@ namespace ClassicUO.Game.Managers
         SpellBarRowDown,
         Dismount,
         ToggleHouses,
-        ToggleHudVisible
+        ToggleHudVisible,
+        Resync
     }
 
     public enum MacroSubType
