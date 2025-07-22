@@ -334,7 +334,7 @@ namespace ClassicUO.Game.UI.Gumps
             _databox.Clear();
 
             var originalStyle = Client.Version <= ClientVersion.CV_12535;
-            var inputBoxStyle = (ushort)(originalStyle ? 0x0A3C : 0x0BB8);
+            var inputBoxStyle = (ushort)(originalStyle ? 0x13EC : 0x0BB8);
 
             foreach (SkillListEntry entry in _skillListEntries)
             {
