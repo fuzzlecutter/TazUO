@@ -684,7 +684,10 @@ namespace ClassicUO.Game.UI.Gumps
 
             GumpPic loc = new GumpPic(355, 4, (ushort)(skill.Lock == Lock.Up ? 0x983 : skill.Lock == Lock.Down ? 0x985 : 0x82C), 0);
 
-            Add(loc);
+            if (skill.Lock.HasValue)
+            {
+                Add(loc);
+            }
 
             loc.MouseUp += (sender, e) =>
             {
