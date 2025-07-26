@@ -645,9 +645,13 @@ namespace ClassicUO.Configuration
                 return;
 
             Log.Trace($"Saving path:\t\t{path}");
+            var filePath = Path.Combine(path, "profile.json");
+
+            // Create backup rotation before saving
+            CreateBackupRotation(filePath);
 
             // Save profile settings
-            ConfigurationResolver.Save(this, Path.Combine(path, "profile.json"), ProfileJsonContext.DefaultToUse);
+            ConfigurationResolver.Save(this, filePath, ProfileJsonContext.DefaultToUse);
 
             // Save opened gumps
             if (saveGumps)
@@ -660,6 +664,44 @@ namespace ClassicUO.Configuration
         public void SaveAsFile(string path, string filename)
         {
             ConfigurationResolver.Save(this, Path.Combine(path, filename), ProfileJsonContext.DefaultToUse);
+        }
+
+        private void CreateBackupRotation(string filePath)
+        {
+            if (!File.Exists(filePath))
+                return;
+
+            var backup3 = filePath + ".bak3";
+            var backup2 = filePath + ".bak2";
+            var backup1 = filePath + ".bak1";
+
+            try
+            {
+                // Remove oldest backup if it exists
+                if (File.Exists(backup3))
+                {
+                    File.Delete(backup3);
+                }
+
+                // Rotate backups: .bak2 -> .bak3, .bak1 -> .bak2
+                if (File.Exists(backup2))
+                {
+                    File.Move(backup2, backup3);
+                }
+
+                if (File.Exists(backup1))
+                {
+                    File.Move(backup1, backup2);
+                }
+
+                // Copy current file to .bak1
+                File.Copy(filePath, backup1);
+            }
+            catch (IOException e)
+            {
+                // Log backup rotation failure but don't prevent the save
+                Log.Error($"Failed to create backup rotation: {e}");
+            }
         }
 
         private void SaveGumps(string path)
