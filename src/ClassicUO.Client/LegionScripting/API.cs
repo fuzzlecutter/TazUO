@@ -928,7 +928,7 @@ namespace ClassicUO.LegionScripting
         ///   API.SysMsg("Wearing a helmet!")
         /// ```
         /// </summary>
-        /// <param name="layer">The layer to check, see https://github.com/bittiez/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Layers.cs</param>
+        /// <param name="layer">The layer to check, see https://github.com/PlayTazUO/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Layers.cs</param>
         /// <param name="serial">Optional, if not set it will check yourself, otherwise it will check the mobile requested</param>
         /// <returns>The item if it exists</returns>
         public Item FindLayer(string layer, uint serial = uint.MaxValue) => InvokeOnMainThread
@@ -1196,7 +1196,7 @@ namespace ClassicUO.LegionScripting
         public void CancelPathfinding() => InvokeOnMainThread(Pathfinder.StopAutoWalk);
 
         /// <summary>
-        /// Attempt to build a path to a location.  This will fail with large distances.  
+        /// Attempt to build a path to a location.  This will fail with large distances.
         /// Example:
         /// ```py
         /// API.RequestTarget()
@@ -2660,7 +2660,7 @@ namespace ClassicUO.LegionScripting
         #endregion
 
         /// <summary>
-        /// Get a skill from the player. See the Skill class for what properties are available: https://github.com/bittiez/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Skill.cs
+        /// Get a skill from the player. See the Skill class for what properties are available: https://github.com/PlayTazUO/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Skill.cs
         /// Example:
         /// ```py
         /// skill = API.GetSkill("Hiding")
