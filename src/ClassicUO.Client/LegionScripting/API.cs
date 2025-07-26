@@ -628,11 +628,11 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="serial">The unique serial identifier of the item to drop.</param>
         /// <param name="x">
-        /// The X coordinate of the ground drop location. Unused if dropping into container.
+        /// The X coordinate of the ground drop location, or the X position inside a container if a container is specified.
         /// If not specified, defaults to the player's current X position.
         /// </param>
         /// <param name="y">
-        /// The Y coordinate of the ground drop location. Unused if dropping into container.
+        /// The Y coordinate of the ground drop location, or the X position inside a container if a container is specified.
         /// If not specified, defaults to the player's current Y position.
         /// </param>
         /// <param name="z">
@@ -652,6 +652,25 @@ namespace ClassicUO.LegionScripting
             }
 
             GameActions.DropItem(serial, x, y, z, container);
+        });
+
+        /// <summary>
+        /// Retrieves data of the currently held item on the game cursor.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="ItemHold"/> instance representing the held item data.
+        /// </returns>
+        /// <remarks>
+        /// The held item does not exist in the world as a proper <see cref="Item"/> object, but its data is temporarily tracked
+        /// in an <see cref="ItemHold"/> instance. This allows inspection of its properties while it's being held or manipulated.
+        /// If an item is being held on the cursor, ItemHold.Enabled will be true and ItemHold.Dropped will be false.
+        /// </remarks>
+        public ItemHold GetHeldItemData() => MainThreadQueue.InvokeOnMainThread(() =>
+        {
+            if (Client.Game?.GameCursor?.ItemHold is not ItemHold hold)
+                return null;
+
+            return hold;
         });
 
         /// <summary>
