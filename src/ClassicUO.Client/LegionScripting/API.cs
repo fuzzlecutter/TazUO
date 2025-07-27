@@ -2150,9 +2150,12 @@ namespace ClassicUO.LegionScripting
                 ).OrderBy(m => m.Distance).FirstOrDefault();
 
                 if(mob != null)
+                {
                     Found = mob.Serial;
+                    return new PyMobile(mob);
+                }
 
-                return new PyMobile(mob);
+                return null;
             }
         );
 
@@ -2225,11 +2228,16 @@ namespace ClassicUO.LegionScripting
         public PyMobile FindMobile(uint serial) => MainThreadQueue.InvokeOnMainThread(() =>
         {
             Found = 0;
-            var mob = World.Mobiles.Get(serial);
-            if(mob != null)
-                Found = mob.Serial;
 
-            return new PyMobile(mob);
+            var mob = World.Mobiles.Get(serial);
+
+            if(mob != null)
+            {
+                Found = mob.Serial;
+                return new PyMobile(mob);
+            }
+
+            return null;
         });
 
         /// <summary>

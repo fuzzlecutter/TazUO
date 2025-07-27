@@ -6,6 +6,7 @@
 
 
 ## Properties
+- **Distance** (*int*)
 - **__class__** (*string*)
   -  The Python-visible class name of this object.
  Accessible in Python as <c>obj.__class__</c> .
@@ -27,6 +28,20 @@ _No enums found._
   
 
 ---> Return Type: *string*
+
+</details>
+
+***
+
+
+<details><summary><h3>SetHue(hue)</h3></summary>
+
+**Parameters**  
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| hue | ushort | No |  |
+
+---> Does not return anything
 
 </details>
 

@@ -64,6 +64,7 @@ class PyControl:
         pass
 
 class PyEntity:
+    Distance: int = None
     __class__: str = None
     Serial: int = None
 
@@ -73,6 +74,9 @@ class PyEntity:
          Used when printing or converting the object to a string in Python scripts.
         
         """
+        pass
+
+    def SetHue(hue: int) -> None:
         pass
 
 class PyGameObject:
@@ -106,6 +110,16 @@ class PyLand:
     __class__: str = None
 
 class PyMobile:
+    HitsDiff: int = None
+    ManaDiff: int = None
+    IsDead: bool = None
+    IsPoisoned: bool = None
+    HitsMax: int = None
+    Hits: int = None
+    StaminaMax: int = None
+    Stamina: int = None
+    ManaMax: int = None
+    Mana: int = None
     __class__: str = None
 
 class PyMulti:

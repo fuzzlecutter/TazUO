@@ -39,6 +39,8 @@ public class PyGameObject
     /// <param name="gameObject">The game object to wrap.</param>
     internal PyGameObject(GameObject gameObject)
     {
+        if (gameObject == null) return; //Prevent crashes for invalid objects.
+
         X = gameObject.X;
         Y = gameObject.Y;
         Z = gameObject.Z;

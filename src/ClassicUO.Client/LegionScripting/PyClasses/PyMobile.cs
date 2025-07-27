@@ -29,6 +29,8 @@ public class PyMobile : PyEntity
     /// <param name="mobile">The mobile to wrap.</param>
     internal PyMobile(Mobile mobile) : base(mobile)
     {
+        if (mobile == null) return; //Prevent crashes for invalid mobiles
+        
         this.mobile = mobile;
     }
 

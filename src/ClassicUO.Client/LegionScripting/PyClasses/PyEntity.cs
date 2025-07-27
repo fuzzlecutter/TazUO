@@ -23,6 +23,8 @@ public class PyEntity : PyGameObject
     /// <param name="entity">The entity to wrap.</param>
     internal PyEntity(Entity entity) : base(entity)
     {
+        if (entity == null) return; //Prevent crashes for invalid entities.
+
         Serial = entity.Serial;
         this.entity = entity;
     }
