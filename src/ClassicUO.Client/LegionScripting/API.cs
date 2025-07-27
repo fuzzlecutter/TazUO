@@ -194,7 +194,7 @@ namespace ClassicUO.LegionScripting
         /// <summary>
         /// The last target's position
         /// </summary>
-        public Vector3 LastTargetPos => InvokeOnMainThread(() => TargetManager.LastTargetInfo.Position);
+        public Vector3Int LastTargetPos => InvokeOnMainThread(() => TargetManager.LastTargetInfo.Position);
 
         /// <summary>
         /// The graphic of the last targeting object
@@ -1451,6 +1451,89 @@ namespace ClassicUO.LegionScripting
             InvokeOnMainThread(() => TargetManager.Reset());
 
             return 0;
+        }
+
+        /// <summary>
+        /// Prompts the player to target any object in the game world, including an <c>Item</c>, <c>Mobile</c>, <c>Land</c> tile, <c>Static</c>, or <c>Multi</c>.
+        /// Waits for the player to select a target within a given timeout period.
+        /// </summary>
+        /// <param name="timeout">
+        /// The maximum time, in seconds, to wait for a valid target selection. 
+        /// If the timeout expires without a selection, the method returns <c>null</c>.
+        /// </param>
+        /// <returns>
+        /// Returns a Python wrapper (<see cref="PyGameObject"/>) for the selected target:
+        /// <list type="bullet">
+        ///   <item><description><see cref="PyMobile"/> if a mobile (e.g. NPC, player) is targeted</description></item>
+        ///   <item><description><see cref="PyItem"/> if an item is targeted</description></item>
+        ///   <item><description><see cref="PyStatic"/> if a static tile (e.g. tree, building) is targeted</description></item>
+        ///   <item><description><see cref="PyMulti"/> if a multi tile (e.g. a player house, boat) is targeted</description></item>
+        ///   <item><description><see cref="PyLand"/> if a land tile (e.g. a base map tile at a coordinate) is targeted</description></item>
+        ///   <item><description><c>null</c> if no valid target was selected within the timeout</description></item>
+        /// </list>
+        /// </returns>
+        /// <example>
+        /// Example usage in Python:
+        /// <code>
+        /// target = API.RequestAnyTarget()
+        /// if target:
+        ///     API.SysMsg(f"Targeted GameObject: {target}")
+        /// else:
+        ///     API.SysMsg("No target selected.")
+        /// </code>
+        /// </example>
+        public PyGameObject RequestAnyTarget(double timeout = 5)
+        {
+            var expire = DateTime.Now.AddSeconds(timeout);
+            InvokeOnMainThread(() => TargetManager.SetTargeting(CursorTarget.Internal, CursorType.Target, TargetType.Neutral));
+
+            while (DateTime.Now < expire)
+            {
+                if (InvokeOnMainThread(() => TargetManager.IsTargeting))
+                {
+                    continue;
+                }
+
+                return InvokeOnMainThread<PyGameObject>(static () =>
+                {
+                    var info = TargetManager.LastTargetInfo;
+                    if (info.IsEntity)
+                    {
+                        if (SerialHelper.IsMobile(info.Serial))
+                        {
+                            var mobile = World.Mobiles.Get(info.Serial);
+                            return mobile is null ? null : new PyMobile(mobile);
+                        }
+                        else
+                        {
+                            var item = World.Items.Get(info.Serial);
+                            return item is null ? null : new PyItem(item);
+                        }
+                    }
+
+                    if (info.IsStatic)
+                    {
+                        return World.GetStaticOrMulti(info.Graphic, info.X, info.Y, info.Z) switch
+                        {
+                            Static @static => new PyStatic(@static),
+                            Multi multi => new PyMulti(multi),
+                            _ => null
+                        };
+                    }
+
+                    if (info.IsLand)
+                    {
+                        var land = World.Map.GetTile(info.X, info.Y) as Land;
+                        return land is null ? null : new PyLand(land);
+                    }
+
+                    return null;
+                });
+            }
+
+            InvokeOnMainThread(() => TargetManager.Reset());
+
+            return null;
         }
 
         /// <summary>
