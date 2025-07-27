@@ -8,6 +8,7 @@
 ## Properties
 - **HitsDiff** (*int*)
 - **ManaDiff** (*int*)
+- **StamDiff** (*int*)
 - **IsDead** (*bool*)
 - **IsPoisoned** (*bool*)
 - **HitsMax** (*int*)

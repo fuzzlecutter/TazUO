@@ -104,6 +104,8 @@ class PyGameObject:
         pass
 
 class PyItem:
+    Amount: int = None
+    IsCorpse: bool = None
     __class__: str = None
 
 class PyLand:
@@ -112,6 +114,7 @@ class PyLand:
 class PyMobile:
     HitsDiff: int = None
     ManaDiff: int = None
+    StamDiff: int = None
     IsDead: bool = None
     IsPoisoned: bool = None
     HitsMax: int = None
