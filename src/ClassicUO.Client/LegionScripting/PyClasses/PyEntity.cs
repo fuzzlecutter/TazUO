@@ -6,7 +6,7 @@ namespace ClassicUO.LegionScripting.PyClasses;
 /// Represents a Python-accessible entity in the game world, such as a mobile or item.
 /// Inherits basic spatial and visual data from <see cref="PyGameObject"/>.
 /// </summary>
-public abstract class PyEntity : PyGameObject
+public class PyEntity : PyGameObject
 {
     /// <summary>
     /// The unique serial identifier of the entity.

@@ -361,8 +361,8 @@ namespace ClassicUO.LegionScripting
         ///   API.SysMsg("Cleared left hand: " + leftHand.Name)
         /// ```
         /// </summary>
-        /// <returns>The item serial that was in your hand</returns>
-        public uint ClearLeftHand() => InvokeOnMainThread<uint>
+        /// <returns>The item that was in your hand</returns>
+        public PyItem ClearLeftHand() => InvokeOnMainThread
         (() =>
             {
                 Item i = World.Player.FindItemByLayer(Layer.OneHanded);
@@ -372,11 +372,11 @@ namespace ClassicUO.LegionScripting
                     var bp = World.Player.FindItemByLayer(Layer.Backpack);
                     MoveItemQueue.Instance.Enqueue(i, bp);
                     Found = i.Serial;
-                    return i;
+                    return new PyItem(i);
                 }
 
                 Found = 0;
-                return 0;
+                return null;
             }
         );
 
@@ -390,8 +390,8 @@ namespace ClassicUO.LegionScripting
         ///   API.SysMsg("Cleared right hand: " + rightHand.Name)
         ///  ```
         /// </summary>
-        /// <returns>The item serial that was in your hand</returns>
-        public uint ClearRightHand() => InvokeOnMainThread<uint>
+        /// <returns>The item that was in your hand</returns>
+        public PyItem ClearRightHand() => InvokeOnMainThread
         (() =>
             {
                 Item i = World.Player.FindItemByLayer(Layer.TwoHanded);
@@ -401,11 +401,11 @@ namespace ClassicUO.LegionScripting
                     var bp = World.Player.FindItemByLayer(Layer.Backpack);
                     MoveItemQueue.Instance.Enqueue(i, bp);
                     Found = i.Serial;
-                    return i;
+                    return new PyItem(i);
                 }
 
                 Found = 0;
-                return 0;
+                return null;
             }
         );
 
@@ -853,13 +853,13 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="serial">The serial</param>
         /// <returns>The item object</returns>
-        public Item FindItem(uint serial) => InvokeOnMainThread(() =>
+        public PyItem FindItem(uint serial) => InvokeOnMainThread(() =>
         {
             Item i = World.Items.Get(serial);
 
             Found = i != null ? i.Serial : 0;
 
-            return i;
+            return new PyItem(i);
         });
 
         /// <summary>
@@ -879,7 +879,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="hue">Hue of item</param>
         /// <param name="minamount">Only match if item stack is at least this much</param>
         /// <returns>Returns the first item found that matches</returns>
-        public Item FindType(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
+        public PyItem FindType(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
             InvokeOnMainThread
             (() =>
                 {
@@ -890,7 +890,7 @@ namespace ClassicUO.LegionScripting
                         if (i.Amount >= minamount && !ignoreList.Contains(i))
                         {
                             Found = i.Serial;
-                            return i;
+                            return new PyItem(i);
                         }
                     }
 
@@ -914,9 +914,21 @@ namespace ClassicUO.LegionScripting
         /// <param name="hue">Hue of item</param>
         /// <param name="minamount">Only match if item stack is at least this much</param>
         /// <returns></returns>
-        public Item[] FindTypeAll(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
+        public PyItem[] FindTypeAll(uint graphic, uint container = uint.MaxValue, ushort range = ushort.MaxValue, ushort hue = ushort.MaxValue, ushort minamount = 0) =>
             InvokeOnMainThread
-                (() => Utility.FindItems(graphic, uint.MaxValue, uint.MaxValue, container, hue, range).Where(i => !OnIgnoreList(i) && i.Amount >= minamount).ToArray());
+                (() =>
+                {
+                    var list = Utility.FindItems(graphic, uint.MaxValue, uint.MaxValue, container, hue, range)
+                        .Where(i => !OnIgnoreList(i) && i.Amount >= minamount).ToArray();
+
+                    List<PyItem> result = new();
+                    foreach (var item in list)
+                    {
+                        result.Add(new PyItem(item));
+                    }
+
+                    return result.ToArray();
+                });
 
         /// <summary>
         /// Attempt to find an item on a layer.
@@ -931,7 +943,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="layer">The layer to check, see https://github.com/PlayTazUO/TazUO/blob/main/src/ClassicUO.Client/Game/Data/Layers.cs</param>
         /// <param name="serial">Optional, if not set it will check yourself, otherwise it will check the mobile requested</param>
         /// <returns>The item if it exists</returns>
-        public Item FindLayer(string layer, uint serial = uint.MaxValue) => InvokeOnMainThread
+        public PyItem FindLayer(string layer, uint serial = uint.MaxValue) => InvokeOnMainThread
         (() =>
             {
                 Found = 0;
@@ -945,7 +957,7 @@ namespace ClassicUO.LegionScripting
                     if (item != null)
                         Found = item.Serial;
 
-                    return item;
+                    return new PyItem(item);
                 }
 
                 return null;
@@ -967,12 +979,20 @@ namespace ClassicUO.LegionScripting
         /// <param name="container"></param>
         /// <param name="recursive">Search sub containers also?</param>
         /// <returns>A list of items in the container</returns>
-        public Item[] ItemsInContainer(uint container, bool recursive = false) => InvokeOnMainThread(() =>
+        public PyItem[] ItemsInContainer(uint container, bool recursive = false) => InvokeOnMainThread(() =>
         {
             if (!recursive)
-                return Utility.FindItems(parentContainer: container).ToArray();
+            {
+                var list = Utility.FindItems(parentContainer: container).ToArray();
+                List<PyItem> result = new();
+                foreach (var item in list)
+                {
+                    result.Add(new PyItem(item));
+                }
+                return result.ToArray();
+            }
 
-            List<Item> results = new();
+            List<PyItem> results = new();
             Stack<uint> containers = new();
             containers.Push(container);
 
@@ -982,7 +1002,7 @@ namespace ClassicUO.LegionScripting
 
                 foreach (var item in Utility.FindItems(parentContainer: current))
                 {
-                    results.Add(item);
+                    results.Add(new PyItem(item));
                     containers.Push(item.Serial);
                 }
             }
@@ -1458,7 +1478,7 @@ namespace ClassicUO.LegionScripting
         /// Waits for the player to select a target within a given timeout period.
         /// </summary>
         /// <param name="timeout">
-        /// The maximum time, in seconds, to wait for a valid target selection. 
+        /// The maximum time, in seconds, to wait for a valid target selection.
         /// If the timeout expires without a selection, the method returns <c>null</c>.
         /// </param>
         /// <returns>
@@ -2121,7 +2141,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="scanType"></param>
         /// <param name="maxDistance"></param>
         /// <returns></returns>
-        public Entity NearestEntity(ScanType scanType, int maxDistance = 10) => InvokeOnMainThread
+        public PyEntity NearestEntity(ScanType scanType, int maxDistance = 10) => InvokeOnMainThread
         (() =>
             {
                 Found = 0;
@@ -2132,7 +2152,7 @@ namespace ClassicUO.LegionScripting
                 if (e != null && e.Distance <= maxDistance)
                 {
                     Found = e.Serial;
-                    return e;
+                    return new PyEntity(e);
                 }
 
                 return null;
@@ -2154,7 +2174,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="notoriety">List of notorieties</param>
         /// <param name="maxDistance"></param>
         /// <returns></returns>
-        public Mobile NearestMobile(IList<Notoriety> notoriety, int maxDistance = 10) => InvokeOnMainThread
+        public PyMobile NearestMobile(IList<Notoriety> notoriety, int maxDistance = 10) => InvokeOnMainThread
         (() =>
             {
                 Found = 0;
@@ -2169,7 +2189,7 @@ namespace ClassicUO.LegionScripting
                 if(mob != null)
                     Found = mob.Serial;
 
-                return mob;
+                return new PyMobile(mob);
             }
         );
 
@@ -2186,7 +2206,7 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="distance"></param>
         /// <returns></returns>
-        public Item NearestCorpse(int distance = 3) => InvokeOnMainThread(() =>
+        public PyItem NearestCorpse(int distance = 3) => InvokeOnMainThread(() =>
         {
             Found = 0;
             var c = Utility.FindNearestCorpsePython(distance, this);
@@ -2194,7 +2214,7 @@ namespace ClassicUO.LegionScripting
             if(c != null)
                 Found = c.Serial;
 
-            return c;
+            return new PyItem(c);
         });
 
         /// <summary>
@@ -2211,16 +2231,18 @@ namespace ClassicUO.LegionScripting
         /// <param name="notoriety">List of notorieties</param>
         /// <param name="maxDistance"></param>
         /// <returns></returns>
-        public Mobile[] NearestMobiles(IList<Notoriety> notoriety, int maxDistance = 10) => InvokeOnMainThread<Mobile[]>
+        public PyMobile[] NearestMobiles(IList<Notoriety> notoriety, int maxDistance = 10) => InvokeOnMainThread
         (() =>
             {
                 if (notoriety == null || notoriety.Count == 0)
                     return null;
 
-                return World.Mobiles.Values.Where
+                var list = World.Mobiles.Values.Where
                 (m => !m.IsDestroyed && !m.IsDead && m.Serial != World.Player.Serial && notoriety.Contains
                      ((Notoriety)(byte)m.NotorietyFlag) && m.Distance <= maxDistance && !OnIgnoreList(m)
                 ).OrderBy(m => m.Distance).ToArray();
+
+                return list.Select(m => new PyMobile(m)).ToArray();
             }
         );
 
@@ -2237,14 +2259,14 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="serial"></param>
         /// <returns>The mobile or null</returns>
-        public Mobile FindMobile(uint serial) => InvokeOnMainThread(() =>
+        public PyMobile FindMobile(uint serial) => InvokeOnMainThread(() =>
         {
             Found = 0;
             var mob = World.Mobiles.Get(serial);
             if(mob != null)
                 Found = mob.Serial;
 
-            return mob;
+            return new PyMobile(mob);
         });
 
         /// <summary>
@@ -2260,7 +2282,7 @@ namespace ClassicUO.LegionScripting
         /// ```
         /// </summary>
         /// <returns></returns>
-        public Mobile[] GetAllMobiles() => InvokeOnMainThread(() => { return World.Mobiles.Values.ToArray(); });
+        public PyMobile[] GetAllMobiles() => InvokeOnMainThread(() => { return World.Mobiles.Values.Select(m=>new PyMobile(m)).ToArray(); });
 
         /// <summary>
         /// Get the tile at a location.
@@ -2274,7 +2296,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns>A GameObject of that location.</returns>
-        public GameObject GetTile(int x, int y) => InvokeOnMainThread(() => { return World.Map.GetTile(x, y); });
+        public PyGameObject GetTile(int x, int y) => InvokeOnMainThread(() => { return new PyGameObject(World.Map.GetTile(x, y)); });
 
         #region Gumps
 

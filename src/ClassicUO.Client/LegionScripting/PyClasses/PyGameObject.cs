@@ -6,7 +6,7 @@ namespace ClassicUO.LegionScripting.PyClasses;
 /// Base class for all Python-accessible game world objects.
 /// Encapsulates common spatial and visual properties such as position and graphics.
 /// </summary>
-public abstract class PyGameObject
+public class PyGameObject
 {
     /// <summary>
     /// The X-coordinate of the object in the game world.
