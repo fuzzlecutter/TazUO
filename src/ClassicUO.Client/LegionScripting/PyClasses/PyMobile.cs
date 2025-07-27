@@ -12,6 +12,7 @@ public class PyMobile : PyEntity
 {
     public int HitsDiff => GetMobile()?.HitsDiff ?? 0;
     public int ManaDiff => GetMobile()?.ManaDiff ?? 0;
+    public int StamDiff => GetMobile()?.StamDiff ?? 0;
     public bool IsDead => GetMobile()?.IsDead ?? false;
     public bool IsPoisoned => GetMobile()?.IsPoisoned ?? false;
     public int HitsMax => GetMobile()?.HitsMax ?? 0;
@@ -30,7 +31,7 @@ public class PyMobile : PyEntity
     internal PyMobile(Mobile mobile) : base(mobile)
     {
         if (mobile == null) return; //Prevent crashes for invalid mobiles
-        
+
         this.mobile = mobile;
     }
 

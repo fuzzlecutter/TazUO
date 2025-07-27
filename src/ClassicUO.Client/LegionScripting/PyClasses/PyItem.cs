@@ -1,4 +1,6 @@
+using ClassicUO.Game;
 using ClassicUO.Game.GameObjects;
+using ClassicUO.Game.Managers;
 
 namespace ClassicUO.LegionScripting.PyClasses;
 
@@ -8,6 +10,9 @@ namespace ClassicUO.LegionScripting.PyClasses;
 /// </summary>
 public class PyItem : PyEntity
 {
+    public int Amount => GetItem()?.Amount ?? 0;
+    public bool IsCorpse => GetItem()?.IsCorpse ?? false;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="PyItem"/> class from an <see cref="Item"/>.
     /// </summary>
@@ -21,4 +26,15 @@ public class PyItem : PyEntity
     /// Accessible in Python as <c>obj.__class__</c>.
     /// </summary>
     public override string __class__ => "PyItem";
+
+    protected Item item;
+    protected Item GetItem()
+    {
+        if (item != null && item.Serial == Serial) return item;
+
+        return MainThreadQueue.InvokeOnMainThread(() =>
+        {
+            return item = World.Items.TryGetValue(Serial, out item) ? item : null;
+        });
+    }
 }
