@@ -31,7 +31,7 @@ public class PyGameObject
     /// <summary>
     /// The hue (color tint) applied to the object.
     /// </summary>
-    public readonly ushort Hue;
+    public ushort Hue;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PyGameObject"/> class from a <see cref="GameObject"/>.

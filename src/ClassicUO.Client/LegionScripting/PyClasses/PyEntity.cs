@@ -1,4 +1,6 @@
+using ClassicUO.Game;
 using ClassicUO.Game.GameObjects;
+using ClassicUO.Game.Managers;
 
 namespace ClassicUO.LegionScripting.PyClasses;
 
@@ -13,6 +15,8 @@ public class PyEntity : PyGameObject
     /// </summary>
     public readonly uint Serial;
 
+    public int Distance => GetEntity()?.Distance ?? 0;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="PyEntity"/> class from an <see cref="Entity"/>.
     /// </summary>
@@ -20,6 +24,7 @@ public class PyEntity : PyGameObject
     internal PyEntity(Entity entity) : base(entity)
     {
         Serial = entity.Serial;
+        this.entity = entity;
     }
 
     /// <summary>
@@ -46,4 +51,22 @@ public class PyEntity : PyGameObject
     /// Accessible in Python as <c>obj.__class__</c>.
     /// </summary>
     public override string __class__ => "PyEntity";
+
+    public void SetHue(ushort hue)
+    {
+        var e = GetEntity();
+        if(e != null)
+            e.Hue = Hue = hue;
+    }
+
+    protected Entity entity;
+    protected Entity GetEntity()
+    {
+        if (entity != null && entity.Serial == Serial) return entity;
+
+        return MainThreadQueue.InvokeOnMainThread(() =>
+        {
+            return entity = World.Get(Serial);
+        });
+    }
 }
