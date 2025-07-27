@@ -197,7 +197,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             if (parent != null)
                 foreach (var layerSlot in itemLayerSlots.Values)
-                    if (layerSlot.Item.Serial == parent.Serial)
+                    if (layerSlot.Item != null && layerSlot.Item.Serial == parent.Serial)
                     {
                         layerSlot.AddText(text, hue);
                         return;
