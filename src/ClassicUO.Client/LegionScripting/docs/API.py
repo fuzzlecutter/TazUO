@@ -65,6 +65,7 @@ class PyControl:
 
 class PyEntity:
     Distance: int = None
+    Name: str = None
     __class__: str = None
     Serial: int = None
 
