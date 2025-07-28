@@ -116,6 +116,7 @@ class PyItem:
     Amount: int = None
     IsCorpse: bool = None
     Opened: bool = None
+    Container: int = None
     __class__: str = None
 
 class PyLand:
