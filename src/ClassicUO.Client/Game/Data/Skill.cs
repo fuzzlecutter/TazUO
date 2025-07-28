@@ -152,7 +152,7 @@ namespace ClassicUO.Game.Data
             (   0f,  0.2f,  0.8f), // Inscription
             (   0f,  2.5f,    0f), // Lockpicking
             (   0f,    0f,  1.5f), // Magery
-            (   0f,    0f,    0f), // Resisting Spells
+            (   0f,    0f,  1.5f), // Resisting Spells
             (0.75f, 0.25f,    0f), // Tactics
             (   0f,  2.5f,    0f), // Snooping
             (   0f,    0f,    0f), // Musicianship
