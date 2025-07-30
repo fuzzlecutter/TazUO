@@ -81,6 +81,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordSocialSDK.Wrapper", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIToMarkdown", "src\APIToMarkdown\APIToMarkdown.csproj", "{4EB62843-F74C-4435-B485-1D572CA1EE93}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TazUO.LegacyPluginHost", "src\TazUO.LegacyPluginHost\TazUO.LegacyPluginHost.csproj", "{AD1508EF-8A2D-4264-B0F0-2BC0EE53C663}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -181,6 +183,14 @@ Global
 		{4EB62843-F74C-4435-B485-1D572CA1EE93}.Release|Any CPU.Build.0 = Release|x64
 		{4EB62843-F74C-4435-B485-1D572CA1EE93}.Release|x64.ActiveCfg = Release|x64
 		{4EB62843-F74C-4435-B485-1D572CA1EE93}.Release|x64.Build.0 = Release|x64
+		{AD1508EF-8A2D-4264-B0F0-2BC0EE53C663}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{AD1508EF-8A2D-4264-B0F0-2BC0EE53C663}.Debug|Any CPU.Build.0 = Debug|x64
+		{AD1508EF-8A2D-4264-B0F0-2BC0EE53C663}.Debug|x64.ActiveCfg = Debug|x64
+		{AD1508EF-8A2D-4264-B0F0-2BC0EE53C663}.Debug|x64.Build.0 = Debug|x64
+		{AD1508EF-8A2D-4264-B0F0-2BC0EE53C663}.Release|Any CPU.ActiveCfg = Release|x64
+		{AD1508EF-8A2D-4264-B0F0-2BC0EE53C663}.Release|Any CPU.Build.0 = Release|x64
+		{AD1508EF-8A2D-4264-B0F0-2BC0EE53C663}.Release|x64.ActiveCfg = Release|x64
+		{AD1508EF-8A2D-4264-B0F0-2BC0EE53C663}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -199,6 +209,7 @@ Global
 		{5ACA68DA-A282-434D-919F-B243A801D4C3} = {FA5D7AB8-3570-4E55-95B0-35BA6842FEE3}
 		{83A3839A-3A9A-42DB-8293-17EFAF482F32} = {FA5D7AB8-3570-4E55-95B0-35BA6842FEE3}
 		{4EB62843-F74C-4435-B485-1D572CA1EE93} = {36371756-8DDA-41A4-BB9A-B7651459ADC1}
+		{AD1508EF-8A2D-4264-B0F0-2BC0EE53C663} = {36371756-8DDA-41A4-BB9A-B7651459ADC1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0A99E91A-ADAB-45C3-8170-2656140F6EFA}
