@@ -144,6 +144,8 @@ namespace ClassicUO.Game.Scenes
 
             UISettings.Preload();
 
+            GridContainerSaveData.Instance.Load();
+
             Client.Game.Window.AllowUserResizing = true;
 
             Camera.Zoom = ProfileManager.CurrentProfile.DefaultScale;
@@ -371,6 +373,9 @@ namespace ClassicUO.Game.Scenes
             {
                 return;
             }
+
+            GridContainerSaveData.Instance.Save();
+            GridContainerSaveData.Reset();
 
             SpellBarManager.Unload();
             _moveItemQueue.Clear();
