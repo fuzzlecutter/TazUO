@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>LegacyPluginHost</AssemblyName>
+    <RootNamespace>TazUO</RootNamespace>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+    <TargetFramework>net472</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageProjectUrl>https://github.com/PlayTazUO/TazUO</PackageProjectUrl>
+  </PropertyGroup>
+
+</Project>
