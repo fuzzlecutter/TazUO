@@ -45,6 +45,7 @@
     <ProjectReference Include="..\ClassicUO.Assets\ClassicUO.Assets.csproj" />
     <ProjectReference Include="..\ClassicUO.Renderer\ClassicUO.Renderer.csproj" />
     <ProjectReference Include="..\ClassicUO.Utility\ClassicUO.Utility.csproj" />
+    <ProjectReference Include="..\TazUO.LegacyPluginHost\TazUO.LegacyPluginHost.csproj" />
   </ItemGroup>
 
   <ItemGroup>
