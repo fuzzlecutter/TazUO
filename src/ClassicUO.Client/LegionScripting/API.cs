@@ -2925,6 +2925,30 @@ namespace ClassicUO.LegionScripting
         public bool IsProcessingMoveQue() => MainThreadQueue.InvokeOnMainThread(() => !MoveItemQueue.Instance.IsEmpty);
 
         /// <summary>
+        /// Check if the use item queue is being processed. You can use this to prevent actions if the queue is being processed.
+        /// Example:
+        /// ```py
+        /// if API.IsProcessingUseItemQueue():
+        ///   API.Pause(0.5)
+        /// ```
+        /// </summary>
+        /// <returns></returns>
+        public bool IsProcessingUseItemQueue() => InvokeOnMainThread(() => !UseItemQueue.Instance.IsEmpty);
+
+        /// <summary>
+        /// Check if the global cooldown is currently active. This applies to actions like moving or using items,
+        /// and prevents new actions from executing until the cooldown has expired.
+        /// 
+        /// Example:
+        /// ```py
+        /// if API.IsGlobalCooldownActive():
+        ///     API.Pause(0.5)
+        /// ```
+        /// </summary>
+        /// <returns>True if the global cooldown is active; otherwise, false.</returns>
+        public bool IsGlobalCooldownActive() => InvokeOnMainThread(() => GlobalActionCooldown.IsOnCooldown);
+
+        /// <summary>
         /// Save a variable that persists between sessions and scripts.
         /// Example:
         /// ```py
