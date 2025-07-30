@@ -52,6 +52,258 @@ using SDL2;
 
 namespace ClassicUO.Network
 {
+    
+
+    
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Pipes;
+using System.Threading;
+using System.Threading.Tasks;
+
+public class PluginConnection : IDisposable
+{
+    private NamedPipeClientStream _pipeClient;
+    private StreamReader _reader;
+    private StreamWriter _writer;
+    private Process _hostProcess;
+    private string _name;
+    private bool _disposed;
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
+
+    public PluginConnection(string pluginPath)
+    {
+        string pipeName = $"LegacyPluginPipe_{Guid.NewGuid()}";
+        _name = Path.GetFileNameWithoutExtension(pluginPath);
+        _hostProcess = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "LegacyPluginHost.exe",
+                Arguments = $"\"{pluginPath}\" \"{pipeName}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                RedirectStandardInput = false,
+                CreateNoWindow = true
+            }
+        };
+
+        _hostProcess.OutputDataReceived += (sender, e) =>
+        {
+            Log.Info($"[PluginHost {_name}] {e.Data}");
+        };
+
+        _hostProcess.ErrorDataReceived += (sender, e) =>
+        {
+            Log.Warn($"[PluginHost {_name}] {e.Data}");
+        };
+
+        _pipeClient = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut);
+        _reader = new StreamReader(_pipeClient);
+        _writer = new StreamWriter(_pipeClient) { AutoFlush = true };
+
+        // There is a minor bug here (and in the plugin host's pipe streams too).
+        // These streams should have leaveOpen set to true to avoid closing the
+        // pipe multiple times when Dispose is called. The correct code is below,
+        // but for some reason that other constructor blocks. Maybe it is a net472
+        // bug? The consequence of closing the pipe multiple times is just a
+        // caught ObjectDisposedException and a warning in the log. Once migrated
+        // to net9, perhaps this can be addressed.
+        //int namedPipeDefaultBufferSize = 4096;
+        //plugin._reader = new StreamReader(plugin._pipeClient, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true);
+        //plugin._writer = new StreamWriter(plugin._pipeClient, Encoding.UTF8, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true) { AutoFlush = true };
+    }
+
+    public async Task<bool> ConnectAsync()
+    {
+        if (!_hostProcess.Start())
+        {
+            Log.Error($"[{_name}] Failed to start plugin host process.");
+            return false;
+        }
+
+        Log.Trace($"[{_name}] Connecting to plugin host...");
+        _hostProcess.BeginOutputReadLine();
+        _hostProcess.BeginErrorReadLine();
+
+        int timeoutMilliseconds = 5000;
+        var timeoutSource = new CancellationTokenSource();
+        timeoutSource.CancelAfter(timeoutMilliseconds);
+        try
+        {
+            await _pipeClient.ConnectAsync(timeoutSource.Token);
+        }
+        catch (Exception ex) when (ex is OperationCanceledException || ex is IOException)
+        {
+            Log.Error($"[{_name}] Failed to connect to plugin host. {ex.Message}");
+            KillHostProcess();
+            return false;
+        }
+
+        return true;
+    }
+
+    public string Send(string message)
+    {
+        try
+        {
+            _writer.WriteLine(message);
+            return _reader.ReadLine() ?? string.Empty;
+        }
+        catch (IOException ex)
+        {
+            Log.Warn($"[{_name}] Send failed: {ex.Message}");
+            return string.Empty;
+        }
+    }
+
+    public async Task ProcessMessagesAsync(CancellationToken token)
+    {
+        Log.Trace($"[{_name}] Starting message processing");
+        try
+        {
+            while (!token.IsCancellationRequested && _pipeClient.IsConnected)
+            {
+                string request = await _reader.ReadLineAsync();
+                if (request == null)
+                    break;
+
+                Log.Trace($"[{_name}] Received: {request}");
+
+                var response = await HandleRequestAsync(request);
+                await _writer.WriteLineAsync(response);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warn($"[{_name}] Error: {ex.Message}");
+        }
+
+        Log.Trace($"[{_name}] Stopping message processing");
+    }
+
+    private Task<string> HandleRequestAsync(string request)
+    {
+        if (request == "ClientVersion")
+        {
+            var r = Client.Version;
+            return Task.FromResult($"{r}");
+        }
+        else if (request == "GetPlayerPosition")
+        {
+            var p = World.Player;
+            return Task.FromResult($"x:{p.X},y:{p.Y},z:{p.Z}");
+        }
+
+        Log.Warn($"[{_name}] Unknown request: {request}");
+        return Task.FromResult("");
+    }
+
+    public void Dispose()
+    {
+        Log.Trace($"[{_name}] Disposing plugin host...");
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
+        _cancellationTokenSource.Cancel();
+
+        try
+        {
+            if (_pipeClient.IsConnected)
+            {
+                _writer.WriteLine("shutdown-request");
+                // TODO: Maybe just remove ack to simplify?
+                string ack = ReadLineWithTimeout(_reader, TimeSpan.FromSeconds(5));
+                if (ack != "shutdown-ack")
+                {
+                    Log.Warn($"[{_name}] Expected shutdown-ack, got: {ack}");
+                }
+                else
+                {
+                    Log.Trace($"[{_name}] Plugin host shutdown acknowledged.");
+                }
+            }
+        }
+        catch (IOException ex)
+        {
+            Log.Warn($"[{_name}] Failed to send exit command to plugin host. Pipe broken or closed: {ex.Message}");
+        }
+        catch (ObjectDisposedException ex)
+        {
+            Log.Warn($"[{_name}] Plugin host already disposed: {ex.Message}");
+        }
+
+        try
+        {
+            _reader.Dispose();
+        }
+        catch (ObjectDisposedException ex)
+        {
+            Log.Warn($"[{_name}] Reader already disposed: {ex.Message}");
+        }
+
+        try
+        {
+            _writer.Dispose();
+        }
+        catch (ObjectDisposedException ex)
+        {
+            Log.Warn($"[{_name}] Writer already disposed: {ex.Message}");
+        }
+
+        try
+        {
+            _pipeClient.Dispose();
+        }
+        catch (ObjectDisposedException ex)
+        {
+            Log.Warn($"[{_name}] Pipe client already disposed: {ex.Message}");
+        }
+
+        KillHostProcess();
+        _hostProcess.Dispose();
+    }
+
+    private string ReadLineWithTimeout(StreamReader reader, TimeSpan timeout)
+    {
+        var readLineTask = reader.ReadLineAsync();
+        if (readLineTask.Wait(timeout))
+        {
+            return readLineTask.Result;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    private void KillHostProcess()
+    {
+        if (_hostProcess.HasExited)
+        {
+            return;
+        }
+
+        _hostProcess.CancelOutputRead();
+        _hostProcess.CancelErrorRead();
+
+        Log.Trace($"[{_name}] Killing plugin host process...");
+        try
+        {
+            _hostProcess.Kill();
+        }
+        catch (InvalidOperationException ex)
+        {
+            Log.Warn($"[{_name}] Failed to kill plugin host process: {ex.Message}");
+        }
+    }
+}
+
+
     internal unsafe class Plugin
     {
         [MarshalAs(UnmanagedType.FunctionPtr)]
@@ -1365,7 +1617,7 @@ namespace ClassicUO.Network
             int cliloc,
             [MarshalAs(UnmanagedType.LPStr)] string args,
             bool capitalize,
-            [Out] [MarshalAs(UnmanagedType.LPStr)] out string buffer
+            [Out][MarshalAs(UnmanagedType.LPStr)] out string buffer
         );
 
         private struct PluginHeader

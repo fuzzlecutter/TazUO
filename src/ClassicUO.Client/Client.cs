@@ -44,6 +44,10 @@ using SDL2;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ClassicUO
 {
@@ -75,16 +79,48 @@ namespace ClassicUO
 
                 Log.Trace("Loading plugins...");
 
+                var plugins = new List<PluginConnection>();
+                var connectedPlugins = new ConcurrentBag<PluginConnection>();
+                var pluginConnections = new List<Task>();
+                var abortPlugins = new CancellationTokenSource();
                 foreach (string p in Settings.GlobalSettings.Plugins)
                 {
-                    Plugin.Create(p);
+                    var plugin = new PluginConnection(p);
+                    plugins.Add(plugin);
+                    var task = Task.Run(async () =>
+                    {
+                        bool isConnected = await plugin.ConnectAsync();
+                        if (isConnected)
+                        {
+                            connectedPlugins.Add(plugin);
+                        }
+                    });
+                    pluginConnections.Add(task);
                 }
 
-                Log.Trace("Done!");
+                // TODO: Wait throws I think?
+                Task.WhenAll(pluginConnections).Wait();
+                Log.Trace("Starting plugins...");
+                foreach (var plugin in connectedPlugins)
+                {
+                    var task = Task.Run(async () =>
+                    {
+                        await plugin.ProcessMessagesAsync(abortPlugins.Token);
+                    });
+                    Thread.Sleep(500);
+                    Console.WriteLine(plugin.Send("hello"));
+                }
+                Log.Trace("Plugins done!");
 
                 UoAssist.Start();
 
                 Game.Run();
+
+                abortPlugins.Cancel();
+                foreach (var plugin in plugins)
+                {
+                    plugin.Dispose();
+                }
             }
 
             Log.Trace("Exiting game...");
