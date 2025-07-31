@@ -222,36 +222,6 @@ public class PluginConnection : IDisposable
 
         try
         {
-            if (_writer is not null && _reader is not null && _pipeClient.IsConnected)
-            {
-                _writer.WriteLine("shutdown-request");
-                // TODO: Maybe just remove ack to simplify?
-                string ack = ReadLineWithTimeout(_reader, TimeSpan.FromSeconds(5));
-                if (ack != "shutdown-ack")
-                {
-                    Log.Warn($"[{_name}] Expected shutdown-ack, got: {ack}");
-                }
-                else
-                {
-                    Log.Trace($"[{_name}] Plugin host shutdown acknowledged.");
-                }
-            }
-        }
-        catch (IOException ex)
-        {
-            Log.Warn($"[{_name}] Failed to send exit command to plugin host. Pipe broken or closed: {ex.Message}");
-        }
-        catch (ObjectDisposedException ex)
-        {
-            Log.Warn($"[{_name}] Plugin host already disposed: {ex.Message}");
-        }
-        catch (InvalidOperationException ex)
-        {
-            Log.Warn($"[{_name}] Pipe still in use: {ex.Message}");
-        }
-
-        try
-        {
             _reader?.Dispose();
         }
         catch (ObjectDisposedException ex)
@@ -279,19 +249,6 @@ public class PluginConnection : IDisposable
 
         KillHostProcess();
         _hostProcess.Dispose();
-    }
-
-    private string ReadLineWithTimeout(StreamReader reader, TimeSpan timeout)
-    {
-        var readLineTask = reader.ReadLineAsync();
-        if (readLineTask.Wait(timeout))
-        {
-            return readLineTask.Result;
-        }
-        else
-        {
-            return null;
-        }
     }
 
     private void KillHostProcess()

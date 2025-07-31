@@ -46,17 +46,6 @@ internal class Program
             while ((line = reader.ReadLine()) != null)
             {
                 Console.WriteLine($"Received: {line}");
-                if (line == "shutdown-request")
-                {
-                    Console.WriteLine($"Shutdown request received. Sending ack...");
-                    writer.WriteLine("shutdown-ack");
-                    break;
-                }
-                else
-                {
-                    //writer.WriteLine($"Echo from plugin host: {line}");
-                }
-
             }
         }
         catch (IOException ex)
