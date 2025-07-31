@@ -33,21 +33,19 @@ internal class Program
             return;
         }
 
-        Console.WriteLine($"Client connected.");
         using var reader = new StreamReader(server);
         using var writer = new StreamWriter(server) { AutoFlush = true };
         //int namedPipeDefaultBufferSize = 4096;
         //using var reader = new StreamReader(server, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true);
         //using var writer = new StreamWriter(server, Encoding.UTF8, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true) { AutoFlush = true };
 
-        Console.WriteLine($"Plugin host ready. Listening for messages...");
+        Console.WriteLine($"Client connected. Plugin host ready. Waiting for messages...");
         try
         {
             string? line;
             while ((line = reader.ReadLine()) != null)
             {
                 Console.WriteLine($"Received: {line}");
-
                 if (line == "shutdown-request")
                 {
                     Console.WriteLine($"Shutdown request received. Sending ack...");
@@ -56,8 +54,7 @@ internal class Program
                 }
                 else
                 {
-                    Console.WriteLine($"Echo from plugin host: {line}");
-                    writer.WriteLine($"Echo from plugin host: {line}");
+                    //writer.WriteLine($"Echo from plugin host: {line}");
                 }
 
             }

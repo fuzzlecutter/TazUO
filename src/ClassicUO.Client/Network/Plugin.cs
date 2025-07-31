@@ -70,7 +70,6 @@ public class PluginConnection : IDisposable
     private Process _hostProcess;
     private string _name;
     private bool _disposed;
-    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     public PluginConnection(string pluginPath)
     {
@@ -172,12 +171,12 @@ public class PluginConnection : IDisposable
             return;
         }
 
-        Log.Trace($"[{_name}] Starting message processing");
+        Log.Trace($"[{_name}] Message processing started. Waiting for messages...");
         try
-        {        Log.Trace($"[{_name}] Sending message to server...");
-        await _writer.WriteLineAsync("hello");
+        {
             while (!token.IsCancellationRequested && _pipeClient.IsConnected)
             {
+                // Use Read/WriteLineAsync(token) when on .NET 7 or later to properly cancel
                 string request = await _reader.ReadLineAsync();
                 if (request == null)
                     break;
@@ -188,12 +187,12 @@ public class PluginConnection : IDisposable
                 await _writer.WriteLineAsync(response);
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is ObjectDisposedException || ex is InvalidOperationException || ex is IOException)
         {
             Log.Warn($"[{_name}] Error: {ex.Message}");
         }
 
-        Log.Trace($"[{_name}] Stopping message processing");
+        Log.Trace($"[{_name}] Message processing stopped.");
     }
 
     private Task<string> HandleRequestAsync(string request)
@@ -221,8 +220,6 @@ public class PluginConnection : IDisposable
 
         _disposed = true;
 
-        _cancellationTokenSource.Cancel();
-
         try
         {
             if (_writer is not null && _reader is not null && _pipeClient.IsConnected)
@@ -247,6 +244,10 @@ public class PluginConnection : IDisposable
         catch (ObjectDisposedException ex)
         {
             Log.Warn($"[{_name}] Plugin host already disposed: {ex.Message}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Log.Warn($"[{_name}] Pipe still in use: {ex.Message}");
         }
 
         try

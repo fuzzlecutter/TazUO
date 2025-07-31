@@ -82,6 +82,7 @@ namespace ClassicUO
                 var plugins = new List<PluginConnection>();
                 var connectedPlugins = new ConcurrentBag<PluginConnection>();
                 var pluginConnections = new List<Task>();
+                var pluginProcessingTasks = new List<Task>();
                 var abortPlugins = new CancellationTokenSource();
                 foreach (string p in Settings.GlobalSettings.Plugins)
                 {
@@ -99,16 +100,26 @@ namespace ClassicUO
                 }
 
                 // TODO: Wait throws I think?
-                Task.WhenAll(pluginConnections).Wait();
+                if (!Task.WhenAll(pluginConnections).Wait(timeout: TimeSpan.FromSeconds(5)))
+                {
+                    Log.Warn("Plugins did not connect in time.");
+                }
+
                 Log.Trace($"Starting {connectedPlugins.Count} plugins...");
                 foreach (var plugin in connectedPlugins)
                 {
                     var task = Task.Run(async () =>
                     {
-                        await plugin.ProcessMessagesAsync(abortPlugins.Token);
+                        try
+                        {
+                            await plugin.ProcessMessagesAsync(abortPlugins.Token);
+                        }
+                        finally
+                        {
+                            plugin.Dispose();
+                        }
                     });
-                    Thread.Sleep(500);
-                    plugin.SendAsync("hello");
+                    pluginProcessingTasks.Add(task);
                 }
                 Log.Trace("Plugins done!");
 
@@ -117,9 +128,10 @@ namespace ClassicUO
                 Game.Run();
 
                 abortPlugins.Cancel();
-                foreach (var plugin in plugins)
+                // TODO: Wait throws I think?
+                if (!Task.WhenAll(pluginProcessingTasks).Wait(timeout: TimeSpan.FromSeconds(1)))
                 {
-                    plugin.Dispose();
+                    Log.Warn("Plugins did not stop in time.");
                 }
             }
 
