@@ -77,7 +77,7 @@ namespace ClassicUO
                     Log.Trace("HIGH DPI - ENABLED");
                 }
 
-                Log.Trace("Loading plugins...");
+                Log.Trace($"Loading {Settings.GlobalSettings.Plugins.Length} plugins...");
 
                 var plugins = new List<PluginConnection>();
                 var connectedPlugins = new ConcurrentBag<PluginConnection>();
@@ -100,7 +100,7 @@ namespace ClassicUO
 
                 // TODO: Wait throws I think?
                 Task.WhenAll(pluginConnections).Wait();
-                Log.Trace("Starting plugins...");
+                Log.Trace($"Starting {connectedPlugins.Count} plugins...");
                 foreach (var plugin in connectedPlugins)
                 {
                     var task = Task.Run(async () =>

@@ -176,7 +176,8 @@ public class PluginConnection : IDisposable
 
         Log.Trace($"[{_name}] Starting message processing");
         try
-        {
+        {        Log.Trace($"[{_name}] Sending message to server...");
+        await _writer.WriteLineAsync("hello");
             while (!token.IsCancellationRequested && _pipeClient.IsConnected)
             {
                 string request = await _reader.ReadLineAsync();
