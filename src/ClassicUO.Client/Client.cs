@@ -77,65 +77,74 @@ namespace ClassicUO
                     Log.Trace("HIGH DPI - ENABLED");
                 }
 
-                Log.Trace($"Loading {Settings.GlobalSettings.Plugins.Length} plugins...");
-
-                var plugins = new List<PluginConnection>();
-                var connectedPlugins = new ConcurrentBag<PluginConnection>();
-                var pluginConnections = new List<Task>();
-                var pluginProcessingTasks = new List<Task>();
-                var abortPlugins = new CancellationTokenSource();
-                foreach (string p in Settings.GlobalSettings.Plugins)
-                {
-                    var plugin = new PluginConnection(p);
-                    plugins.Add(plugin);
-                    var task = Task.Run(async () =>
-                    {
-                        bool isConnected = await plugin.ConnectAsync();
-                        if (isConnected)
-                        {
-                            connectedPlugins.Add(plugin);
-                        }
-                    });
-                    pluginConnections.Add(task);
-                }
-
-                // TODO: Wait throws I think?
-                if (!Task.WhenAll(pluginConnections).Wait(timeout: TimeSpan.FromSeconds(5)))
-                {
-                    Log.Warn("Plugins did not connect in time.");
-                }
-
-                Log.Trace($"Starting {connectedPlugins.Count} plugins...");
-                foreach (var plugin in connectedPlugins)
-                {
-                    var task = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            await plugin.ProcessMessagesAsync(abortPlugins.Token);
-                        }
-                        finally
-                        {
-                            plugin.Dispose();
-                        }
-                    });
-                    pluginProcessingTasks.Add(task);
-                }
-                Log.Trace("Plugins done!");
-
+                StartPlugins(out var pluginTasks, out var pluginCancellation);
                 UoAssist.Start();
 
                 Game.Run();
-
-                abortPlugins.Cancel();
-                // TODO: Wait throws I think?
-                if (!Task.WhenAll(pluginProcessingTasks).Wait(timeout: TimeSpan.FromSeconds(1)))
-                {
-                    Log.Warn("Plugins did not stop in time.");
-                }
+                StopPlugins(pluginTasks, pluginCancellation);
             }
 
             Log.Trace("Exiting game...");
+        }
+
+        private static void StopPlugins(List<Task> pluginProcessingTasks, CancellationTokenSource pluginCancellation)
+        {
+            pluginCancellation.Cancel();
+            // TODO: Wait throws I think?
+            if (!Task.WhenAll(pluginProcessingTasks).Wait(timeout: TimeSpan.FromSeconds(1)))
+            {
+                Log.Warn("Plugins did not stop in time.");
+            }
+        }
+
+        private static void StartPlugins(out List<Task> pluginProcessingTasks, out CancellationTokenSource pluginCancellation)
+        {
+            Log.Trace($"Loading {Settings.GlobalSettings.Plugins.Length} plugins...");
+            var plugins = new List<PluginConnection>();
+            var connectedPlugins = new ConcurrentBag<PluginConnection>();
+            var pluginConnections = new List<Task>();
+            pluginProcessingTasks = new List<Task>();
+            pluginCancellation = new CancellationTokenSource();
+            var cancellationToken = pluginCancellation.Token;
+            foreach (string p in Settings.GlobalSettings.Plugins)
+            {
+                // TODO: check if file exists
+                var plugin = new PluginConnection(p);
+                plugins.Add(plugin);
+                var task = Task.Run(async () =>
+                {
+                    bool isConnected = await plugin.ConnectAsync();
+                    if (isConnected)
+                    {
+                        connectedPlugins.Add(plugin);
+                    }
+                });
+                pluginConnections.Add(task);
+            }
+
+            // TODO: Wait throws I think?
+            if (!Task.WhenAll(pluginConnections).Wait(timeout: TimeSpan.FromSeconds(5)))
+            {
+                Log.Warn("Plugins did not connect in time.");
+            }
+
+            Log.Trace($"Starting {connectedPlugins.Count} plugins...");
+            foreach (var plugin in connectedPlugins)
+            {
+                var task = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await plugin.ProcessMessagesAsync(cancellationToken);
+                    }
+                    finally
+                    {
+                        plugin.Dispose();
+                    }
+                });
+                pluginProcessingTasks.Add(task);
+            }
+            Log.Trace("Plugins done!");
         }
 
         public static void ShowErrorMessage(string msg)

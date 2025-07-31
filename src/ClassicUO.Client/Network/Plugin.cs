@@ -114,9 +114,8 @@ public class PluginConnection : IDisposable
         _hostProcess.BeginOutputReadLine();
         _hostProcess.BeginErrorReadLine();
 
-        int timeoutMilliseconds = 5000;
         var timeoutSource = new CancellationTokenSource();
-        timeoutSource.CancelAfter(timeoutMilliseconds);
+        timeoutSource.CancelAfter(TimeSpan.FromSeconds(5));
         try
         {
             await _pipeClient.ConnectAsync(timeoutSource.Token);

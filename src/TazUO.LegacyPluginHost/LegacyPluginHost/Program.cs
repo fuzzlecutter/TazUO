@@ -39,7 +39,8 @@ internal class Program
         //using var reader = new StreamReader(server, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true);
         //using var writer = new StreamWriter(server, Encoding.UTF8, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true) { AutoFlush = true };
 
-        Console.WriteLine($"Client connected. Plugin host ready. Waiting for messages...");
+        Console.WriteLine($"Client connected. Plugin host ready.");
+        /*
         try
         {
             string? line;
@@ -51,6 +52,12 @@ internal class Program
         catch (IOException ex)
         {
             Console.WriteLine($"Client disconnected or pipe error. This is generally normal during shutdown: {ex.Message}");
+        }
+        */
+
+        while (server.CanRead)
+        {
+            Thread.Sleep(100);
         }
 
         Console.WriteLine($"Plugin Host shutting down.");
