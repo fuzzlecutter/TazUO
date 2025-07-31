@@ -101,19 +101,6 @@ public class PluginConnection : IDisposable
         };
 
         _pipeClient = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut);
-        _reader = new StreamReader(_pipeClient);
-        _writer = new StreamWriter(_pipeClient);
-
-        // There is a minor bug here (and in the plugin host's pipe streams too).
-        // These streams should have leaveOpen set to true to avoid closing the
-        // pipe multiple times when Dispose is called. The correct code is below,
-        // but for some reason that other constructor blocks. Maybe it is a net472
-        // bug? The consequence of closing the pipe multiple times is just a
-        // caught ObjectDisposedException and a warning in the log. Once migrated
-        // to net9, perhaps this can be addressed.
-        //int namedPipeDefaultBufferSize = 4096;
-        //plugin._reader = new StreamReader(plugin._pipeClient, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true);
-        //plugin._writer = new StreamWriter(plugin._pipeClient, Encoding.UTF8, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true);
     }
 
     public async Task<bool> ConnectAsync()
@@ -134,20 +121,39 @@ public class PluginConnection : IDisposable
         try
         {
             await _pipeClient.ConnectAsync(timeoutSource.Token);
-            _writer.AutoFlush = true;
         }
         catch (Exception ex) when (ex is OperationCanceledException || ex is IOException)
         {
-            Log.Error($"[{_name}] Failed to connect to plugin host. {ex.Message}");
+            Log.Error($"[{_name}] Failed to connect to plugin host: {ex.Message}");
             KillHostProcess();
             return false;
         }
+
+        _reader = new StreamReader(_pipeClient);
+        _writer = new StreamWriter(_pipeClient) { AutoFlush = true };
+
+        // There is a minor bug here (and in the plugin host's pipe streams too).
+        // These streams should have leaveOpen set to true to avoid closing the
+        // pipe multiple times when Dispose is called. The correct code is below,
+        // but for some reason that other constructor blocks. Maybe it is a net472
+        // bug? The consequence of closing the pipe multiple times is just a
+        // caught ObjectDisposedException and a warning in the log. Once migrated
+        // to net9, perhaps this can be addressed.
+        //int namedPipeDefaultBufferSize = 4096;
+        //plugin._reader = new StreamReader(plugin._pipeClient, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true);
+        //plugin._writer = new StreamWriter(plugin._pipeClient, Encoding.UTF8, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true) { AutoFlush = true };
 
         return true;
     }
 
     public string Send(string message)
     {
+        if (_writer is null || _reader is null || !_pipeClient.IsConnected)
+        {
+            Log.Warn($"[{_name}] [Send] Pipe not connected or already disposed.");
+            return string.Empty;
+        }
+
         try
         {
             _writer.WriteLine(message);
@@ -162,6 +168,12 @@ public class PluginConnection : IDisposable
 
     public async Task ProcessMessagesAsync(CancellationToken token)
     {
+        if (_writer is null || _reader is null || !_pipeClient.IsConnected)
+        {
+            Log.Error($"[{_name}] [ProcessMessagesAsync] Pipe not connected or already disposed.");
+            return;
+        }
+
         Log.Trace($"[{_name}] Starting message processing");
         try
         {
@@ -214,7 +226,7 @@ public class PluginConnection : IDisposable
 
         try
         {
-            if (_pipeClient.IsConnected)
+            if (_writer is not null && _reader is not null && _pipeClient.IsConnected)
             {
                 _writer.WriteLine("shutdown-request");
                 // TODO: Maybe just remove ack to simplify?
@@ -240,7 +252,7 @@ public class PluginConnection : IDisposable
 
         try
         {
-            _reader.Dispose();
+            _reader?.Dispose();
         }
         catch (ObjectDisposedException ex)
         {
@@ -249,7 +261,7 @@ public class PluginConnection : IDisposable
 
         try
         {
-            _writer.Dispose();
+            _writer?.Dispose();
         }
         catch (ObjectDisposedException ex)
         {
