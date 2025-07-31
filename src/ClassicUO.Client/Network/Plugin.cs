@@ -102,7 +102,7 @@ public class PluginConnection : IDisposable
 
         _pipeClient = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut);
         _reader = new StreamReader(_pipeClient);
-        _writer = new StreamWriter(_pipeClient) { AutoFlush = true };
+        _writer = new StreamWriter(_pipeClient);
 
         // There is a minor bug here (and in the plugin host's pipe streams too).
         // These streams should have leaveOpen set to true to avoid closing the
@@ -113,7 +113,7 @@ public class PluginConnection : IDisposable
         // to net9, perhaps this can be addressed.
         //int namedPipeDefaultBufferSize = 4096;
         //plugin._reader = new StreamReader(plugin._pipeClient, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true);
-        //plugin._writer = new StreamWriter(plugin._pipeClient, Encoding.UTF8, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true) { AutoFlush = true };
+        //plugin._writer = new StreamWriter(plugin._pipeClient, Encoding.UTF8, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true);
     }
 
     public async Task<bool> ConnectAsync()
@@ -134,6 +134,7 @@ public class PluginConnection : IDisposable
         try
         {
             await _pipeClient.ConnectAsync(timeoutSource.Token);
+            _writer.AutoFlush = true;
         }
         catch (Exception ex) when (ex is OperationCanceledException || ex is IOException)
         {
