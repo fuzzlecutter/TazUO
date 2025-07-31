@@ -25,22 +25,15 @@ internal class Program
         }
 
         Console.WriteLine($"Starting plugin host with pipe name {pipeName}");
-
         using var server = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
         Console.WriteLine($"Waiting for client...");
-        DateTime timeout = DateTime.Now + TimeSpan.FromSeconds(10);
-        while (!server.IsConnected)
+        if (!server.WaitForConnectionAsync().Wait(timeout: TimeSpan.FromSeconds(10)))
         {
-            if (DateTime.Now > timeout)
-            {
-                Console.Error.WriteLine($"Connection timed out. Aborting.");
-                return;
-            }
-            Thread.Sleep(100);
+            Console.Error.WriteLine($"Connection timed out. Aborting.");
+            return;
         }
 
         Console.WriteLine($"Client connected.");
-
         using var reader = new StreamReader(server);
         using var writer = new StreamWriter(server) { AutoFlush = true };
         //int namedPipeDefaultBufferSize = 4096;

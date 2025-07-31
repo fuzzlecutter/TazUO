@@ -135,13 +135,13 @@ public class PluginConnection : IDisposable
         // There is a minor bug here (and in the plugin host's pipe streams too).
         // These streams should have leaveOpen set to true to avoid closing the
         // pipe multiple times when Dispose is called. The correct code is below,
-        // but for some reason that other constructor blocks. Maybe it is a net472
+        // but for some reason this constructor blocks. Maybe it is a net472
         // bug? The consequence of closing the pipe multiple times is just a
         // caught ObjectDisposedException and a warning in the log. Once migrated
         // to net9, perhaps this can be addressed.
         //int namedPipeDefaultBufferSize = 4096;
-        //plugin._reader = new StreamReader(plugin._pipeClient, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true);
-        //plugin._writer = new StreamWriter(plugin._pipeClient, Encoding.UTF8, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true) { AutoFlush = true };
+        //_reader = new StreamReader(_pipeClient, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true);
+        //_writer = new StreamWriter(_pipeClient, Encoding.UTF8, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true) { AutoFlush = true };
 
         return true;
     }
