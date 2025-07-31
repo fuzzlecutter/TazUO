@@ -40,6 +40,7 @@ internal class Program
         //using var reader = new StreamReader(server, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true);
         //using var writer = new StreamWriter(server, Encoding.UTF8, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true) { AutoFlush = true };
 
+        Console.WriteLine($"Plugin host ready. Listening for messages...");
         try
         {
             string? line;

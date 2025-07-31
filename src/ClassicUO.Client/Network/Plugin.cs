@@ -143,26 +143,24 @@ public class PluginConnection : IDisposable
         //_reader = new StreamReader(_pipeClient, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true);
         //_writer = new StreamWriter(_pipeClient, Encoding.UTF8, bufferSize: namedPipeDefaultBufferSize, leaveOpen: true) { AutoFlush = true };
 
+        Log.Trace($"[{_name}] Connected to plugin host.");
         return true;
     }
 
-    public string Send(string message)
+    public async Task SendAsync(string message)
     {
         if (_writer is null || _reader is null || !_pipeClient.IsConnected)
         {
             Log.Warn($"[{_name}] [Send] Pipe not connected or already disposed.");
-            return string.Empty;
         }
 
         try
         {
-            _writer.WriteLine(message);
-            return _reader.ReadLine() ?? string.Empty;
+            await _writer.WriteLineAsync(message);
         }
         catch (IOException ex)
         {
             Log.Warn($"[{_name}] Send failed: {ex.Message}");
-            return string.Empty;
         }
     }
 

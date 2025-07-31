@@ -108,7 +108,7 @@ namespace ClassicUO
                         await plugin.ProcessMessagesAsync(abortPlugins.Token);
                     });
                     Thread.Sleep(500);
-                    Console.WriteLine(plugin.Send("hello"));
+                    plugin.SendAsync("hello");
                 }
                 Log.Trace("Plugins done!");
 
