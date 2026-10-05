@@ -52,7 +52,12 @@ namespace ClassicUO.Network.Encryption
             uint key2 = (uint)((temp << 4) ^ (b * b) ^ (b * 0x0B000000) ^ (c * 0x380000) ^ 0x2C13A5FD);
             temp = (((((a << 9) | c) << 10) | b) * 8) ^ (c * c * 0x0c00);
             uint key3 = (uint)(temp ^ (b * b) ^ (b * 0x6800000) ^ (c * 0x1c0000) ^ 0x0A31D527F);
-            uint key1 = key2 - 1;
+            uint key1 = key2;
+
+            if (version >= (ClientVersion) (((1 & 0xFF) << 24) | ((26 & 0xFF) << 16) | ((0 & 0xFF) << 8) | (0 & 0xFF)))
+            {
+                key1 -= 1;
+            }
 
             switch (version)
             {
