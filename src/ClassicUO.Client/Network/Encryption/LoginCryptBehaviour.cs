@@ -80,7 +80,7 @@ namespace ClassicUO.Network.Encryption
                 uint table0 = _key[0];
                 uint table1 = _key[1];
 
-                _key[0] = ((table0 >> 1) | (table1 << 31)) ^ _k2;
+                _key[0] = ((table0 >> 1) | (table1 << 31)) ^ _k3;
                 _key[1] = ((table1 >> 1) | (table0 << 31)) ^ _k1;
             }
         }
