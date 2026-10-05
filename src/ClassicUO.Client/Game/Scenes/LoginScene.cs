@@ -564,9 +564,17 @@ namespace ClassicUO.Game.Scenes
             Log.Info("Connected!");
             CurrentLoginStep = LoginSteps.VerifyingAccount;
 
-            uint address = NetClient.Socket.LocalIP;
+            uint seed;
+            if (Client.Version <= ClientVersion.CV_12535)
+            {
+                seed = 0xac1e8001;
+            }
+            else
+            {
+                seed = NetClient.Socket.LocalIP;
+            }
 
-            EncryptionHelper.Initialize(true, address, (ENCRYPTION_TYPE)Settings.GlobalSettings.Encryption);
+            EncryptionHelper.Initialize(true, seed, (ENCRYPTION_TYPE)Settings.GlobalSettings.Encryption);
 
             if (Client.Version >= ClientVersion.CV_6040)
             {
@@ -578,11 +586,11 @@ namespace ClassicUO.Game.Scenes
                 byte extra = (byte)clientVersion;
 
 
-                NetClient.Socket.Send_Seed(address, major, minor, build, extra);
+                NetClient.Socket.Send_Seed(seed, major, minor, build, extra);
             }
             else
             {
-                NetClient.Socket.Send_Seed_Old(address);
+                NetClient.Socket.Send_Seed_Old(seed);
             }
 
             NetClient.Socket.Send_FirstLogin(Account, Password);
