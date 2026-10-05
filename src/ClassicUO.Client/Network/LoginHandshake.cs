@@ -389,9 +389,17 @@ namespace ClassicUO.Network
             Log.Info("Connected!");
             SetLoginStep(LoginSteps.VerifyingAccount);
 
-            uint address = AsyncNetClient.Socket.LocalIP;
+            uint seed;
+            if (Client.Game.UO.Version <= ClientVersion.CV_12535)
+            {
+                seed = 0xac1e8001;
+            }
+            else
+            {
+                seed = AsyncNetClient.Socket.LocalIP;
+            }
 
-            AsyncNetClient.Encryption?.Initialize(true, address);
+            AsyncNetClient.Encryption?.Initialize(true, seed);
 
             if (Client.Game.UO.Version >= ClientVersion.CV_6040)
             {
@@ -402,11 +410,11 @@ namespace ClassicUO.Network
                 byte build = (byte)(clientVersion >> 8);
                 byte extra = (byte)clientVersion;
 
-                AsyncNetClient.Socket.Send_Seed(address, major, minor, build, extra);
+                AsyncNetClient.Socket.Send_Seed(seed, major, minor, build, extra);
             }
             else
             {
-                AsyncNetClient.Socket.Send_Seed_Old(address);
+                AsyncNetClient.Socket.Send_Seed_Old(seed);
             }
 
             AsyncNetClient.Socket.Send_FirstLogin(Account, Password);
