@@ -580,26 +580,26 @@ namespace ClassicUO.LegionScripting
         /// <param name="y">Offset from your location</param>
         /// <param name="z">Offset from your location. Leave blank in most cases</param>
         /// <param name="OSI">True if you are playing OSI</param>
-        public void QueMoveItemOffset(uint serial, ushort amt = 0, int x = 0, int y = 0, int z = 0, bool OSI = false) => InvokeOnMainThread
+        public void QueMoveItemOffset(uint serial, ushort amt = 0, int x = 0, int y = 0, int z = int.MinValue, bool OSI = false) => InvokeOnMainThread
         (() =>
             {
-                World.Map.GetMapZ(World.Player.X + x, World.Player.Y + y, out sbyte gz, out sbyte gz2);
-
-                bool useCalculatedZ = false;
-
-                if (gz > z)
+                if (z == int.MinValue)
                 {
-                    z = gz;
-                    useCalculatedZ = true;
-                }
-                if(gz2 > z)
-                {
-                    z = gz2;
-                    useCalculatedZ = true;
-                }
+                    World.Map.GetMapZ(World.Player.X + x, World.Player.Y + y, out sbyte gz, out sbyte gz2);
 
-                if (!useCalculatedZ)
+                    if (gz2 > gz)
+                    {
+                        z = gz2;
+                    }
+                    else
+                    {
+                        z = gz;
+                    }
+                }
+                else
+                {
                     z = World.Player.Z + z;
+                }
 
                 Client.Game.GetScene<GameScene>()?.MoveItemQueue.Enqueue(serial, OSI ? uint.MaxValue : 0, amt, World.Player.X + x, World.Player.Y + y, z);
             }
@@ -621,26 +621,26 @@ namespace ClassicUO.LegionScripting
         /// <param name="y">Offset from your location</param>
         /// <param name="z">Offset from your location. Leave blank in most cases</param>
         /// <param name="OSI">True if you are playing OSI</param>
-        public void MoveItemOffset(uint serial, int amt = 0, int x = 0, int y = 0, int z = 0, bool OSI = false) => InvokeOnMainThread
+        public void MoveItemOffset(uint serial, int amt = 0, int x = 0, int y = 0, int z = int.MinValue, bool OSI = false) => InvokeOnMainThread
         (() =>
             {
-                World.Map.GetMapZ(World.Player.X + x, World.Player.Y + y, out sbyte gz, out sbyte gz2);
-
-                bool useCalculatedZ = false;
-
-                if (gz > z)
+                if (z == int.MinValue)
                 {
-                    z = gz;
-                    useCalculatedZ = true;
-                }
-                if(gz2 > z)
-                {
-                    z = gz2;
-                    useCalculatedZ = true;
-                }
+                    World.Map.GetMapZ(World.Player.X + x, World.Player.Y + y, out sbyte gz, out sbyte gz2);
 
-                if (!useCalculatedZ)
+                    if (gz2 > gz)
+                    {
+                        z = gz2;
+                    }
+                    else
+                    {
+                        z = gz;
+                    }
+                }
+                else
+                {
                     z = World.Player.Z + z;
+                }
 
                 GameActions.PickUp(serial, 0, 0, amt);
                 GameActions.DropItem(serial, World.Player.X + x, World.Player.Y + y, z, OSI ? uint.MaxValue : 0);
