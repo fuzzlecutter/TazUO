@@ -4,6 +4,7 @@ All notable changes to TazUO will be recorded here.
 ---
 
 ## 10/20/26
+* ***Fix:*** Always run unless hidden no longer forces ghosts to walk on servers that flag them as hidden
 * ***Fix:*** Elf and gargoyle ghosts keep their gender and race, and gargoyle ghosts no longer use the opposite gender's body animation
 * ***Fix:*** Fixed the tiledata static count being overestimated - the 20-character tile names were measured as a pointer, so the static table was oversized and graphics past the end of `tiledata.mul` passed validity checks as empty tiles
 * ***Fix:*** The trade window no longer caps the gold and platinum offers separately at each balance - the server converts between the two (1 platinum = 1,000,000,000 gold), so each field is now limited by your total wealth minus what the other field already offers
