@@ -4,6 +4,7 @@ All notable changes to TazUO will be recorded here.
 ---
 
 ## 10/20/26
+* ***Fix:*** Elf and gargoyle ghosts keep their gender and race, and gargoyle ghosts no longer use the opposite gender's body animation
 * ***Fix:*** Fixed the tiledata static count being overestimated - the 20-character tile names were measured as a pointer, so the static table was oversized and graphics past the end of `tiledata.mul` passed validity checks as empty tiles
 * ***Fix:*** The trade window no longer caps the gold and platinum offers separately at each balance - the server converts between the two (1 platinum = 1,000,000,000 gold), so each field is now limited by your total wealth minus what the other field already offers
 * ***Fix:*** Statics high on the map are no longer hidden or cut off - statics at the maximum height (Z 127) stay visible when there is nothing above the player, and tall statics whose top goes past Z 150 are drawn
