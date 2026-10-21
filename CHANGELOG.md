@@ -4,6 +4,7 @@ All notable changes to TazUO will be recorded here.
 ---
 
 ## 10/20/26
+* ***Fix:*** Flying monsters whose body has no fly animation keep using their walk and stand animations
 * ***Fix:*** Lights near the camera no longer disappear in crowded areas or with a large viewport - lights per frame were capped at 100 (the number of light graphics), and the off-screen light margin filled the cap before the closest lights were collected
 * ***Feature:*** Grid containers: closing a container carried by another mobile (a player vendor, a pack animal) also closes its inner containers, like the bank
 * ***Feature:*** Xml Gump health bars show a paralyzed state - new `hue_paralyzed` and `image_foreground_paralyzed` attributes (default hue 49)
