@@ -4,6 +4,7 @@ All notable changes to TazUO will be recorded here.
 ---
 
 ## 10/20/26
+* ***Fix:*** Weapons held by a sitting character are no longer squashed by the sitting animation - only the body is folded
 * ***Fix:*** The season packet no longer starts music track 0 or 1 when the season changes and nothing is playing - its second byte is a play-sound flag, not a music index
 * ***Fix:*** Music volume changes (including unchecking `Enable Music`) now apply to the track already playing when `Reproduce sounds in background` is enabled
 * ***Fix:*** Mobiles and corpses whose body has no second death animation (common on custom creatures and mounts) no longer turn invisible when they die running - they fall back to the first death animation
