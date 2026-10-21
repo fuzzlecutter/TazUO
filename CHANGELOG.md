@@ -4,6 +4,7 @@ All notable changes to TazUO will be recorded here.
 ---
 
 ## 10/20/26
+* ***Feature:*** Xml Gump health bars show a paralyzed state - new `hue_paralyzed` and `image_foreground_paralyzed` attributes (default hue 49)
 * ***Fix:*** Animals without a second attack animation now play their first attack when the server requests the second one, instead of showing nothing
 * ***Fix:*** Always run unless hidden no longer forces ghosts to walk on servers that flag them as hidden
 * ***Fix:*** Elf and gargoyle ghosts keep their gender and race, and gargoyle ghosts no longer use the opposite gender's body animation
