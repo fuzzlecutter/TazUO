@@ -4,6 +4,7 @@ All notable changes to TazUO will be recorded here.
 ---
 
 ## 10/20/26
+* ***Fix:*** Statics high on the map are no longer hidden or cut off - statics at the maximum height (Z 127) stay visible when there is nothing above the player, and tall statics whose top goes past Z 150 are drawn
 * ***Fix:*** Weapons held by a sitting character are no longer squashed by the sitting animation - only the body is folded
 * ***Fix:*** The season packet no longer starts music track 0 or 1 when the season changes and nothing is playing - its second byte is a play-sound flag, not a music index
 * ***Fix:*** Music volume changes (including unchecking `Enable Music`) now apply to the track already playing when `Reproduce sounds in background` is enabled
