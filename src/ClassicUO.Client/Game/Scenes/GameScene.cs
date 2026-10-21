@@ -72,9 +72,7 @@ namespace ClassicUO.Game.Scenes
 
         private Point3D _lastSelectedMultiPositionInHouseCustomization;
         private int _lightCount;
-        private readonly LightData[] _lights = new LightData[
-            LightsLoader.MAX_LIGHTS_DATA_INDEX_COUNT
-        ];
+        private readonly LightData[] _lights = new LightData[MAX_LIGHTS_PER_FRAME];
 
         // Drawn opaque tiles that can occlude a light, bucketed by isometric column (X - Y); rebuilt each frame, queried by AddLight.
         private readonly Dictionary<int, List<LightOccluder>> _lightOccluders =
@@ -89,6 +87,9 @@ namespace ClassicUO.Game.Scenes
         private uint _timeToPlaceMultiInHouseCustomization;
         private const int MAX_TEXTURE_SIZE = 8192;
 
+        // Light sources collected per frame. Lights are gathered back to front, so once full the ones nearest the camera
+        // are dropped: keep it well above what a crowded, zoomed-out view plus the off-screen light margin can hold.
+        private const int MAX_LIGHTS_PER_FRAME = 1024;
         // Highest top (Z + height) a tile object may reach and still be drawn: the map's max Z plus the tallest tile, so
         // tall statics standing near the top of the map aren't cut off.
         private const int MAX_RENDER_Z = sbyte.MaxValue + byte.MaxValue;
@@ -571,7 +572,7 @@ namespace ClassicUO.Game.Scenes
         public void AddLight(GameObject obj, GameObject lightObject, int x, int y)
         {
             if (
-                _lightCount >= LightsLoader.MAX_LIGHTS_DATA_INDEX_COUNT
+                _lightCount >= MAX_LIGHTS_PER_FRAME
                 || !UseLights && !UseAltLights
                 || obj == null
             )
