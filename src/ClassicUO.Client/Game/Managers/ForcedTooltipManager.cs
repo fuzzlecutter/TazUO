@@ -8,8 +8,8 @@ namespace ClassicUO.Game.Managers
         //This class is intended to help generate tooltips for servers before tooltips existed.
 
         private static readonly Dictionary<uint, long> _requestedSingleClick = new();
-        private const long DELAY = 500;
-        private const uint UPDATE_DELAY = 1500;
+        private const long CLICK_DEBOUNCE_DELAY = 1500;
+        private const uint UPDATE_DELAY = 750;
         public static void RequestName(World world, uint serial)
         {
             if (world.ClientFeatures.TooltipsEnabled) return;
@@ -20,7 +20,7 @@ namespace ClassicUO.Game.Managers
 
             if (world.OPL.TryGetRevision(serial, out uint revision) && revision > Time.Ticks) return;
 
-            _requestedSingleClick[serial] = Time.Ticks + DELAY;
+            _requestedSingleClick[serial] = Time.Ticks + CLICK_DEBOUNCE_DELAY;
             GameActions.SingleClick(world, serial);
         }
 
@@ -36,14 +36,20 @@ namespace ClassicUO.Game.Managers
                 return false;
             }
 
-            if ((world.OPL.TryGetRevision(parent.Serial, out uint rev) && rev >= Time.Ticks) && world.OPL.TryGetNameAndData(parent.Serial, out string name, out string data))
+            //bool is_probably_mobile = !string.IsNullOrEmpty(name);
+            //bool is_probably_mobile_name = is_mobile && !string.IsNullOrEmpty(text) && text.Contains(name);
+            bool text_received_within_update_delay = world.OPL.TryGetRevision(parent.Serial, out uint rev) && rev >= Time.Ticks;
+            bool has_existing_data = world.OPL.TryGetNameAndData(parent.Serial, out string name, out string data);
+
+            if (text_received_within_update_delay && has_existing_data)
             {
-                if (!string.IsNullOrEmpty(name) && name != text) //Item has a name, but it doesn't match what was sent. This could be another line of data.
+                if (!string.IsNullOrEmpty(name) && !name.Contains(text)) //Item has a name, but it doesn't match what was sent. This could be another line of data.
                 {
 
                     if ((!string.IsNullOrEmpty(data) && data.IndexOf(text) < 0) || string.IsNullOrEmpty(data)) //Annoying IndexOf returns 0 is string is string.Empty
                     {
-                        world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, name, data + "\n" + text, 0);
+                        string new_data = string.IsNullOrEmpty(data) ? text : data + "\n" + text;
+                        world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, name, new_data, 0);
                     }
                 }
                 else if (string.IsNullOrEmpty(name)) //Name is empty
@@ -51,8 +57,9 @@ namespace ClassicUO.Game.Managers
                     world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, text, string.Empty, 0);
                 }
             }
-            else
+            else if (!has_existing_data)
             {
+                // assume text is the name since this is initial data
                 world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, text, string.Empty, 0);
             }
             return true;
