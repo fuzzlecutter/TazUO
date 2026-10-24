@@ -48,8 +48,11 @@ namespace ClassicUO.Game.Managers
             }
         }
 
-        public bool Contains(uint serial)
+        public bool Contains(uint serial, bool forceUpdate = false)
         {
+            if (forceUpdate && ProfileManager.CurrentProfile != null && ProfileManager.CurrentProfile.ForceTooltipsOnOldClients)
+                ForcedTooltipManager.RequestName(_world, serial);
+
             if (_itemsProperties.TryGetValue(serial, out ItemProperty p))
                 return true; //p.Revision != 0;  <-- revision == 0 can contain the name.
 
@@ -59,7 +62,7 @@ namespace ClassicUO.Game.Managers
             SharedStore.AddMegaCliLocRequest(serial);
 
             // request data for old clients as well
-            if (ProfileManager.CurrentProfile != null && ProfileManager.CurrentProfile.ForceTooltipsOnOldClients)
+            if (!forceUpdate && ProfileManager.CurrentProfile != null && ProfileManager.CurrentProfile.ForceTooltipsOnOldClients)
                 ForcedTooltipManager.RequestName(_world, serial);
 
             return false;

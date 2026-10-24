@@ -548,7 +548,7 @@ namespace ClassicUO.Game
                         &&
                         // We need to check if OPL contains data.
                         // If not we can ignore tooltip.
-                        !_world.OPL.Contains(selectedItem)
+                        !_world.OPL.Contains(selectedItem, forceUpdate: true)
                     )
                     || (ItemHold.Enabled && !ItemHold.IsFixedPosition)
                 )
@@ -566,7 +566,7 @@ namespace ClassicUO.Game
                     if (
                         UIManager.IsMouseOverWorld
                         && SelectedObject.Object is Entity item
-                        && _world.OPL.Contains(item)
+                        && _world.OPL.Contains(item, forceUpdate: true)
                     )
                     {
                         if (_tooltip.IsEmpty || item != _tooltip.Serial)
@@ -584,7 +584,7 @@ namespace ClassicUO.Game
                         && UIManager.MouseOverControl.Tooltip is uint serial
                     )
                     {
-                        if (SerialHelper.IsValid(serial) && _world.OPL.Contains(serial))
+                        if (SerialHelper.IsValid(serial) && _world.OPL.Contains(serial, forceUpdate: true))
                         {
                             if (_tooltip.IsEmpty || serial != _tooltip.Serial)
                             {
