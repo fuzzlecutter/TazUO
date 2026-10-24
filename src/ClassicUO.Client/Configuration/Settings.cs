@@ -52,6 +52,11 @@ namespace ClassicUO.Configuration
          */
         [JsonPropertyName("ignore_relay_ip")] public bool IgnoreRelayIp { get; set; } = false;
 
+        /**
+         * Indicates whether the server is an OSI server.
+         */
+        [JsonPropertyName("is_osi_server")] public bool IsOSI { get; set; } = false;
+
         [JsonPropertyName("ultimaonlinedirectory")] public string UltimaOnlineDirectory { get; set; } = "";
 
         /// <summary>
