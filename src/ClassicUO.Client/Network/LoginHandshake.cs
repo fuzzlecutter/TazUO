@@ -33,7 +33,7 @@ namespace ClassicUO.Network
         // A reconnect that lands while the server is still starting up can complete the TCP
         // connect but never receive a reply, leaving us pinned in VerifyingAccount with no way
         // out. This watchdog forces a fallback so the reconnect loop can retry.
-        private const int HANDSHAKE_TIMEOUT_MS = 8000;
+        private const int HANDSHAKE_TIMEOUT_MS = 20000;
 
         private ushort _retries;
         private int _reconnectTryCounter = 1;
