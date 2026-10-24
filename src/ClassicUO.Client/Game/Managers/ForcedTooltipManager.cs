@@ -8,19 +8,21 @@ namespace ClassicUO.Game.Managers
         //This class is intended to help generate tooltips for servers before tooltips existed.
 
         private static readonly Dictionary<uint, long> _requestedSingleClick = new();
-        private const long DELAY = 500;
-        private const uint UPDATE_DELAY = 1500;
+        private const long CLICK_DEBOUNCE_DELAY = 1200;
+        private const uint UPDATE_DELAY = 350;
         public static void RequestName(World world, uint serial)
         {
-            if (world.ClientFeatures.TooltipsEnabled) return;
+            if (world.ClientFeatures.TooltipsEnabled)
+                return;
 
             if (_requestedSingleClick.TryGetValue(serial, out long timeRequested))
                 if (Time.Ticks < timeRequested)
                     return;
 
-            if (world.OPL.TryGetRevision(serial, out uint revision) && revision > Time.Ticks) return;
+            if (world.OPL.TryGetRevision(serial, out uint revision) && revision > Time.Ticks)
+                return;
 
-            _requestedSingleClick[serial] = Time.Ticks + DELAY;
+            _requestedSingleClick[serial] = Time.Ticks + CLICK_DEBOUNCE_DELAY;
             GameActions.SingleClick(world, serial);
         }
 
@@ -28,34 +30,40 @@ namespace ClassicUO.Game.Managers
         {
             if (parent == null || world.ClientFeatures.TooltipsEnabled) return false;
 
-            if (!_requestedSingleClick.ContainsKey(parent.Serial)) return false;
-
-            if (Time.Ticks > _requestedSingleClick[parent.Serial])
+            bool requested_click = false;
+            if (_requestedSingleClick.TryGetValue(parent.Serial, out long time_requested))
             {
                 _requestedSingleClick.Remove(parent.Serial);
-                return false;
+                requested_click = Time.Ticks <= time_requested;
             }
 
-            if ((world.OPL.TryGetRevision(parent.Serial, out uint rev) && rev >= Time.Ticks) && world.OPL.TryGetNameAndData(parent.Serial, out string name, out string data))
-            {
-                if (!string.IsNullOrEmpty(name) && name != text) //Item has a name, but it doesn't match what was sent. This could be another line of data.
-                {
+            bool text_received_within_update_delay = world.OPL.TryGetRevision(parent.Serial, out uint rev) && rev >= Time.Ticks;
+            bool have_opl = world.OPL.TryGetNameAndData(parent.Serial, out string name, out string data);
+            bool have_text = !string.IsNullOrWhiteSpace(text);
+            bool have_name = !string.IsNullOrWhiteSpace(name);
 
-                    if ((!string.IsNullOrEmpty(data) && data.IndexOf(text) < 0) || string.IsNullOrEmpty(data)) //Annoying IndexOf returns 0 is string is string.Empty
+            if (have_opl && have_text && text_received_within_update_delay)
+            {
+                if (have_name && !name.Contains(text)) //Item has a name, but it doesn't match what was sent. This could be another line of data.
+                {
+                    bool have_data = !string.IsNullOrWhiteSpace(data);
+                    if (!have_data || !data.Contains(text))
                     {
-                        world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, name, data + "\n" + text, 0);
+                        string new_data = have_data ? data + "\n" + text : text;
+                        world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, name, new_data, 0);
                     }
                 }
-                else if (string.IsNullOrEmpty(name)) //Name is empty
+                else if (!have_name)
                 {
                     world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, text, string.Empty, 0);
                 }
             }
-            else
+            else if (have_text && !have_opl)
             {
+                // assume text is the name since this is initial data received
                 world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, text, string.Empty, 0);
             }
-            return true;
+            return requested_click || text_received_within_update_delay;
         }
     }
 }
