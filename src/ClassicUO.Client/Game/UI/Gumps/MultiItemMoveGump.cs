@@ -350,11 +350,10 @@ namespace ClassicUO.Game.UI.Gumps
                         case ProcessType.Ground:
                             StaticTiles itemData = Client.Game.UO.FileManager.TileData.StaticData[moveItem.Graphic];
                             ObjectActionQueue.Instance.Enqueue(new MoveRequest(moveItem.Serial,
-                               0,
-                               moveItem.Amount,
-                               groundX,
-                               groundY,
-                               groundZ + (sbyte)(itemData.Height == 0xFF ? 0 : itemData.Height)).ToObjectActionQueueItem(), ActionPriority.MoveItem);
+                               amount: moveItem.Amount,
+                               x: groundX,
+                               y: groundY,
+                               z: groundZ + (sbyte)(itemData.Height == 0xFF ? 0 : itemData.Height)).ToObjectActionQueueItem(), ActionPriority.MoveItem);
                             enqueued = true;
                             break;
 

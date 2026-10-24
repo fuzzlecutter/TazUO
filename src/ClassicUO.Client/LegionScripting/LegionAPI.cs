@@ -1219,8 +1219,8 @@ namespace ClassicUO.LegionScripting
         /// <param name="x">Offset from your location</param>
         /// <param name="y">Offset from your location</param>
         /// <param name="z">Z offset from your location. Leave blank to auto-use the ground/static z at the destination tile</param>
-        /// <param name="OSI">True if you are playing OSI</param>
-        public void QueueMoveItemOffset(uint serial, ushort amt = 0, int x = 0, int y = 0, int z = int.MinValue, bool OSI = false) => OnMain
+        /// <param name="OSI">True if you are playing OSI. Leave blank to use value from settings.json</param>
+        public void QueueMoveItemOffset(uint serial, ushort amt = 0, int x = 0, int y = 0, int z = int.MinValue, bool? OSI = null) => OnMain
         (() =>
             {
                 if (World?.Map == null || World?.Player == null)
@@ -1236,7 +1236,8 @@ namespace ClassicUO.LegionScripting
                     z = World.Player.Z + z;
                 }
 
-                ObjectActionQueue.Instance.Enqueue(new MoveRequest(serial, OSI ? uint.MaxValue : 0, amt, World.Player.X + x, World.Player.Y + y, z).ToObjectActionQueueItem(), ActionPriority.MoveItem);
+                OSI ??= Settings.GlobalSettings.IsOSI;
+                ObjectActionQueue.Instance.Enqueue(new MoveRequest(serial, OSI.Value ? uint.MaxValue : 0, amt, World.Player.X + x, World.Player.Y + y, z).ToObjectActionQueueItem(), ActionPriority.MoveItem);
             }
         );
 
