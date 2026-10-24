@@ -29,7 +29,8 @@ internal static class SharedStore
 
     public static void SendMegaCliLocRequests(World world)
     {
-        if (world.ClientFeatures.TooltipsEnabled && _cliLocRequests.Count != 0)
+        bool tooltipsEnabled = world.ClientFeatures.TooltipsEnabled;
+        if (tooltipsEnabled && _cliLocRequests.Count != 0)
         {
             if (Client.Game.UO.Version >= Utility.ClientVersion.CV_5090)
             {
@@ -43,6 +44,10 @@ internal static class SharedStore
 
                 _cliLocRequests.Clear();
             }
+        }
+        else if (!tooltipsEnabled)
+        {
+            _cliLocRequests.Clear();
         }
 
         if (_customHouseRequests.Count > 0)
