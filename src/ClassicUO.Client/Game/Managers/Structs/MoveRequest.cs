@@ -22,16 +22,24 @@ public readonly struct MoveRequest
     /// <param name="y"></param>
     /// <param name="z"></param>
     /// <param name="layer"></param>
-    public MoveRequest(uint serial, uint destination, ushort amount = 0, int x = 0xFFFF, int y = 0xFFFF, int z = 0, Layer layer = Layer.Invalid, MoveType moveType = MoveType.Move)
+    public MoveRequest(uint serial, uint? destination = null, ushort amount = 0, int x = 0xFFFF, int y = 0xFFFF, int z = 0, Layer layer = Layer.Invalid, MoveType moveType = MoveType.Move)
     {
         _moveType = moveType;
         Serial = serial;
-        Destination = destination;
         Amount = amount;
         X = x;
         Y = y;
         Z = z;
         Layer = layer;
+
+        if (destination.HasValue)
+        {
+            Destination = destination.Value;
+        }
+        else
+        {
+            Destination = Settings.GlobalSettings.IsOSI ? uint.MaxValue : 0;
+        }
 
         if (Amount == 0)
         {
