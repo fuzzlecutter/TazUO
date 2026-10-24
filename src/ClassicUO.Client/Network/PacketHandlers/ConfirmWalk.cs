@@ -17,7 +17,11 @@ internal static class ConfirmWalk
         if (noto == 0 || noto >= 8)
             noto = 0x01;
 
-        world.Player.NotorietyFlag = (NotorietyFlag)noto;
+        if (!world.ClientFeatures.OldNotorietySystem)
+        {
+            world.Player.NotorietyFlag = (NotorietyFlag)noto;
+        }
+
         world.Player.Walker.ConfirmWalk(seq);
 
         // AddToTile is already handled in Mobile.ProcessSteps when the step visually completes

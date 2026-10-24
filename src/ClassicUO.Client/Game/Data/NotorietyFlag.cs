@@ -82,5 +82,18 @@ namespace ClassicUO.Game.Data
                 default: return null;
             }
         }
+
+        public static NotorietyFlag GetOldNotorietyFromHue(ushort hue) =>
+            // Uses notoriety hue table from t2a uodemo.exe at 0x0061DB10
+            hue switch
+            {
+                0x0059 => NotorietyFlag.Innocent,
+                0x003F => NotorietyFlag.Ally,
+                0x03B2 => NotorietyFlag.Gray,
+                // 0x03B2 => NotorietyFlag.Criminal, // Same value as Gray
+                0x0090 => NotorietyFlag.Enemy,
+                0x0022 => NotorietyFlag.Murderer,
+                _ => NotorietyFlag.Unknown,
+            };
     }
 }
