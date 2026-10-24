@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ClassicUO.Game.GameObjects;
 
 namespace ClassicUO.Game.Managers
@@ -8,54 +9,101 @@ namespace ClassicUO.Game.Managers
         //This class is intended to help generate tooltips for servers before tooltips existed.
 
         private static readonly Dictionary<uint, long> _requestedSingleClick = new();
-        private const long DELAY = 500;
-        private const uint UPDATE_DELAY = 1500;
+        private const long CLICK_DEBOUNCE_DELAY = 1200;
+        private const uint UPDATE_DELAY = 350;
         public static void RequestName(World world, uint serial)
         {
-            if (world.ClientFeatures.TooltipsEnabled) return;
+            if (world.ClientFeatures.TooltipsEnabled)
+                return;
 
             if (_requestedSingleClick.TryGetValue(serial, out long timeRequested))
                 if (Time.Ticks < timeRequested)
                     return;
 
-            if (world.OPL.TryGetRevision(serial, out uint revision) && revision > Time.Ticks) return;
+            if (world.OPL.TryGetRevision(serial, out uint revision) && revision > Time.Ticks)
+                return;
 
-            _requestedSingleClick[serial] = Time.Ticks + DELAY;
+            _requestedSingleClick[serial] = Time.Ticks + CLICK_DEBOUNCE_DELAY;
             GameActions.SingleClick(world, serial);
         }
 
-        public static bool IsObjectTextRequested(World world, Entity parent, string text, ushort hue)
+        public static bool IsObjectTextRequested(World world, Entity parent, string name_from_server, string text, ushort hue)
         {
             if (parent == null || world.ClientFeatures.TooltipsEnabled) return false;
 
-            if (!_requestedSingleClick.ContainsKey(parent.Serial)) return false;
-
-            if (Time.Ticks > _requestedSingleClick[parent.Serial])
+            bool requested_click = false;
+            if (_requestedSingleClick.TryGetValue(parent.Serial, out long time_requested))
             {
                 _requestedSingleClick.Remove(parent.Serial);
-                return false;
+                requested_click = Time.Ticks <= time_requested;
             }
 
-            if ((world.OPL.TryGetRevision(parent.Serial, out uint rev) && rev >= Time.Ticks) && world.OPL.TryGetNameAndData(parent.Serial, out string name, out string data))
-            {
-                if (!string.IsNullOrEmpty(name) && name != text) //Item has a name, but it doesn't match what was sent. This could be another line of data.
-                {
+            bool text_received_within_update_delay = world.OPL.TryGetRevision(parent.Serial, out uint rev) && rev >= Time.Ticks;
+            bool have_opl = world.OPL.TryGetNameAndData(parent.Serial, out string name, out string data);
+            bool have_text = !string.IsNullOrWhiteSpace(text);
+            bool have_name = !string.IsNullOrWhiteSpace(name);
+            bool have_name_from_server = !string.IsNullOrWhiteSpace(name_from_server);
 
-                    if ((!string.IsNullOrEmpty(data) && data.IndexOf(text) < 0) || string.IsNullOrEmpty(data)) //Annoying IndexOf returns 0 is string is string.Empty
+            bool text_is_probably_a_sentence =
+                have_text
+
+                && text[^1] is '.' or '?' or '!';
+
+            bool text_is_probably_ignorable =
+                have_text
+
+                && text_is_probably_a_sentence
+
+                // Treat player vendor prices as data e.g. "Cost:Not for sale."
+                && !text.StartsWith("Cost:")
+
+                // Treat house/ship decay messages as data.
+                && !text.Contains(" ship is ")
+                && !text.Contains(" house is ");
+
+            bool text_is_probably_name =
+                have_text
+
+                && !have_name
+
+                && !text_is_probably_a_sentence
+
+                // Items don't have the name set. Mobiles do e.g. name_from_server="Bob" text="Lord Bob (invulnerable)"
+                && (parent is not Mobile || have_name_from_server && text.Contains(name_from_server))
+
+                // Sometimes tags are sent before the actual name e.g. "(tame)" for pets.
+                && char.IsLetterOrDigit(text[0])
+
+                // Somtimes descriptions containing a colon are sent before the name e.g. "Cost: 500 gold".
+                && !text.Contains(':');
+
+            if (have_opl && have_text && text_received_within_update_delay)
+            {
+                // Item has a name, but it doesn't match what was sent. This could be another line of data.
+                if (have_name && !name.Contains(text) && !text_is_probably_ignorable)
+                {
+                    bool have_data = !string.IsNullOrWhiteSpace(data);
+                    if (!have_data || !data.Contains(text))
                     {
-                        world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, name, data + "\n" + text, 0);
+                        string new_data = have_data ? data + "\n" + text : text;
+                        world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, name, new_data, 0);
                     }
                 }
-                else if (string.IsNullOrEmpty(name)) //Name is empty
+                else if (!have_name && text_is_probably_name)
                 {
-                    world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, text, string.Empty, 0);
+                    world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, text, data, 0);
                 }
             }
-            else
+            else if (requested_click && have_text && !have_opl)
             {
-                world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, text, string.Empty, 0);
+                if (text_is_probably_name)
+                    // text is possibly the name since this is the initial data received after a requested click.
+                    world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, text, string.Empty, 0);
+                else if (!text_is_probably_ignorable)
+                    // If text doesn't seem to be a name, add it to data instead. Name will be set on next message, if no name is set.
+                    world.OPL.Add(parent.Serial, Time.Ticks + UPDATE_DELAY, string.Empty, text, 0);
             }
-            return true;
+            return requested_click || text_received_within_update_delay;
         }
     }
 }
