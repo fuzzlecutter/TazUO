@@ -27,7 +27,10 @@ internal static class UpdateCharacter
         var flags = (Flags)p.ReadUInt8();
         var notoriety = (NotorietyFlag)p.ReadUInt8();
 
-        mobile.NotorietyFlag = notoriety;
+        if (!world.ClientFeatures.OldNotorietySystem)
+        {
+            mobile.NotorietyFlag = notoriety;
+        }
 
         if (serial == world.Player)
         {
