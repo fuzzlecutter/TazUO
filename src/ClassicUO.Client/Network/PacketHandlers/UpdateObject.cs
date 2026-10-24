@@ -61,7 +61,10 @@ internal static class UpdateObject
 
         if (SerialHelper.IsMobile(serial) && obj is Mobile mob)
         {
-            mob.NotorietyFlag = notoriety;
+            if (!world.ClientFeatures.OldNotorietySystem)
+            {
+                mob.NotorietyFlag = notoriety;
+            }
 
             UIManager.GetGump<PaperDollGump>(serial)?.RequestUpdateContents();
             UIManager.GetGump<ModernPaperdoll>(serial)?.RequestUpdateContents();
