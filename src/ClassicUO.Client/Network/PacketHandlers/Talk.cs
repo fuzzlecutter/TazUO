@@ -7,6 +7,15 @@ namespace ClassicUO.Network.PacketHandlers;
 
 internal static class Talk
 {
+    private static readonly string[] Titles = {
+        "Lord ",
+        "Lady ",
+        "Seer ",
+        "Counselor ",
+        "Senior Counselor "
+        // GMs have a "GM " title, but their actual name includes the title, so that is handled by comparison to name.
+    };
+
     public static void Receive(World world, ref StackDataReader p)
     {
         uint serial = p.ReadUInt32BE();
@@ -57,6 +66,30 @@ internal static class Talk
 
             if (string.IsNullOrEmpty(entity.Name))
                 entity.Name = string.IsNullOrEmpty(name) ? text : name;
+
+            if (world.ClientFeatures.OldNotorietySystem && entity is Mobile mobile && !string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(text))
+            {
+                // Best guess that the received text is the mobile's name.
+                // Handles prefixes (e.g. "Lord ") and suffixes (e.g. " (frozen)").
+                string potential_name = text;
+                foreach (string title in Titles)
+                {
+                    if (potential_name.StartsWith(title))
+                    {
+                        potential_name = potential_name.Substring(title.Length);
+                        break;
+                    }
+                }
+
+                int suffixIndex = potential_name.LastIndexOf(" (");
+                if (suffixIndex > 0 && potential_name.EndsWith(")"))
+                    potential_name = potential_name.Substring(0, suffixIndex);
+
+                if (potential_name.Equals(name))
+                {
+                    mobile.NotorietyFlag = Notoriety.GetOldNotorietyFromHue(hue);
+                }
+            }
         }
 
         world.MessageManager.HandleMessage(entity, text, name, hue, type, (byte)font, text_type);

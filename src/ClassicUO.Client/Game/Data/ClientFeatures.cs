@@ -34,6 +34,7 @@ namespace ClassicUO.Game.Data
         public bool PopupEnabled { get; private set; }
         public bool PaperdollBooks { get; private set; }
         public uint MaxChars { get; private set; } = 5;
+        public bool OldNotorietySystem { get; private set; } = false;
 
         public void SetFlags(CharacterListFlags flags)
         {
@@ -57,6 +58,8 @@ namespace ClassicUO.Game.Data
             TooltipsEnabled = (flags & CharacterListFlags.CLF_PALADIN_NECROMANCER_TOOLTIPS) != 0 && Client.Game.UO.Version >= ClientVersion.CV_308Z;
 
             PaperdollBooks = (flags & CharacterListFlags.CLF_PALADIN_NECROMANCER_TOOLTIPS) != 0;
+
+            OldNotorietySystem = Client.Game.UO.Version <= ClientVersion.CV_12533;
         }
     }
 }
