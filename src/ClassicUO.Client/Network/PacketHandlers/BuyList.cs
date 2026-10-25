@@ -59,7 +59,7 @@ internal static class BuyList
 
             bool reverse = false;
 
-            if (container.Graphic == 0x2AF8) //hardcoded logic in original client that we must match
+            if (container.Graphic == 0x2AF8 && Client.Game.UO.Version >= Utility.ClientVersion.CV_12533) //hardcoded logic in original client that we must match
                 //sort the contents
                 first = container.SortContents<Item>((x, y) => x.X - y.X);
             else
