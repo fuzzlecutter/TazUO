@@ -270,6 +270,15 @@ namespace ClassicUO.Network
         {
             Log.Trace("Network calibration...");
 
+            if (version >= ClientVersion.CV_1260)
+            {
+                _packetsTable[0x93] = 0x0063;
+            }
+            else
+            {
+                _packetsTable[0x93] = 0x0062;
+            }
+
             if (version >= ClientVersion.CV_500A)
             {
                 _packetsTable[0x0B] = 0x07;
