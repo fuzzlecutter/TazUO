@@ -15,11 +15,14 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.Managers.Hotkeys;
 using ClassicUO.Game.Managers.Structs;
 using ClassicUO.Game.Scenes;
+using ClassicUO.Game.ScreenDecorations.Manager;
+using ClassicUO.Game.ScreenDecorations.Shake;
 using ClassicUO.Game.UI;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Game.UI.MyraWindows;
 using ClassicUO.LegionScripting.ApiClasses;
+using ClassicUO.LegionScripting.ApiClasses.VisualEffects;
 using ClassicUO.Network;
 using ClassicUO.Utility;
 using ClassicUO.Utility.Logging;
@@ -86,6 +89,7 @@ namespace ClassicUO.LegionScripting
             _cachedToken = CancellationToken.Token;
             Events = new EventSinkApi(this);
             Gumps = new ApiUiGump(this);
+            VisualEffects = new ApiVisualEffects(this);
         }
 
         #region MainThread Helpers
@@ -324,6 +328,14 @@ namespace ClassicUO.LegionScripting
             }
             _timedCallbacks.Clear();
 
+            // The leak guard for the visual effect API. An effect started with no duration, and any
+            // shake it fired, outlive the script by design - with the script gone there is nothing
+            // left that could take either down. Enqueued without the cancellation token, since by
+            // here the script is already cancelled and this still has to run.
+            MainThreadQueue.EnqueueAction(() => ScreenOverlayManager.Instance.StopScriptedByOwner(this));
+            ScreenShake.Viewport.CancelByOwner(this);
+            ScreenShake.Window.CancelByOwner(this);
+
             CancellationToken.Dispose();
         }
 
@@ -436,6 +448,12 @@ namespace ClassicUO.LegionScripting
         public static ApiUserProfile Profile = new();
 
         public ApiUiGump Gumps;
+
+        /// <summary>
+        /// Full-screen visual effects and screen shake. Both ship switched off and a script cannot
+        /// override that; see `ApiVisualEffects`.
+        /// </summary>
+        public ApiVisualEffects VisualEffects;
 
         /// <summary>
         /// Check if the script has been requested to stop.
