@@ -33,7 +33,7 @@ jobs:
        os: [ windows-latest ]
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
@@ -43,7 +43,7 @@ jobs:
         git submodule update --init --recursive
 
     - name: Setup .NET 10
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10
 
