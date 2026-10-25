@@ -1246,8 +1246,7 @@ namespace ClassicUO.LegionScripting
 
                 if (z == int.MinValue)
                 {
-                    World.Map.GetMapZ(World.Player.X + x, World.Player.Y + y, out sbyte gz, out sbyte gz2);
-                    z = gz2 > gz ? gz2 : gz;
+                    z = World.Map.FindNearestSurfaceZToZ(x, y, World.Player.Z) ?? World.Player.Z;
                 }
                 else
                 {
@@ -1283,8 +1282,7 @@ namespace ClassicUO.LegionScripting
 
                 if (z == int.MinValue)
                 {
-                    World.Map.GetMapZ(World.Player.X + x, World.Player.Y + y, out sbyte gz, out sbyte gz2);
-                    z = gz2 > gz ? gz2 : gz;
+                    z = World.Map.FindNearestSurfaceZToZ(x, y, World.Player.Z) ?? World.Player.Z;
                 }
                 else
                 {
