@@ -96,7 +96,7 @@ internal static class OpenContainer
                     //Log.Warn("buy item not found");
                     continue;
 
-                bool reverse = item.Graphic != 0x2AF8; //hardcoded logic in original client that we must match
+                bool reverse = item.Graphic != 0x2AF8 || Client.Game.UO.Version < Utility.ClientVersion.CV_12533; //hardcoded logic in original client that we must match
 
                 if (reverse)
                     while (first?.Next != null)
