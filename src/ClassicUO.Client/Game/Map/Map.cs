@@ -18,6 +18,7 @@ using ClassicUO.Utility.Logging;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Linq;
 
 namespace ClassicUO.Game.Map
 {
@@ -387,6 +388,99 @@ namespace ClassicUO.Game.Map
             return defaultZ;
         }
 
+        public int? FindNearestSurfaceZToZ(int x, int y, int referenceZ)
+        {
+            var candidates = new List<(int Bottom, int Top)>();
+
+            if (GetTile(x, y) is Land tile)
+            {
+                candidates.Add((tile.Z, tile.Z));
+            }
+
+            Chunk chunk = GetChunk(x, y, false);
+            if (chunk != null)
+            {
+                GameObject obj = chunk.GetHeadObject(x % 8, y % 8);
+                for (; obj != null; obj = obj.TNext)
+                {
+                    if (obj is Mobile)
+                    {
+                        continue;
+                    }
+
+                    ushort graphic = obj is Item it && it.IsMulti ? it.MultiGraphic : obj.Graphic;
+                    if (graphic >= Client.Game.UO.FileManager.TileData.StaticData.Length)
+                    {
+                        continue;
+                    }
+
+                    ref StaticTiles staticData = ref Client.Game.UO.FileManager.TileData.StaticData[graphic];
+                    if (!staticData.IsSurface || staticData.IsRoof)
+                    {
+                        continue;
+                    }
+
+                    int baseZ = obj.Z;
+                    int topZ = baseZ + (staticData.Height == 0xFF ? 0 : staticData.Height);
+                    if (topZ <= sbyte.MaxValue)
+                    {
+                        candidates.Add((baseZ, topZ));
+                    }
+                }
+            }
+
+            if (candidates.Count == 0)
+                return null;
+
+            candidates.Sort((a, b) => a.Bottom.CompareTo(b.Bottom));
+
+            var segments = new List<(int Bottom, int Top)>();
+
+            int start = candidates[0].Bottom;
+            int end = candidates[0].Top;
+
+            for (int i = 1; i < candidates.Count; i++)
+            {
+                (int Bottom, int Top) = candidates[i];
+
+                if (Bottom <= end)
+                {
+                    end = Math.Max(end, Top);
+                }
+                else
+                {
+                    segments.Add((start, end));
+                    start = Bottom;
+                    end = Top;
+                }
+            }
+
+            segments.Add((start, end));
+
+            // If the mobile is inside a segment, use its top.
+            foreach ((int Bottom, int Top) in segments)
+            {
+                if (Bottom <= referenceZ && referenceZ <= Top)
+                    return Top;
+            }
+
+            // If the mobile is below all segments, use the lowest.
+            if (referenceZ < segments[0].Bottom)
+                return segments[0].Top;
+
+            // If the mobile is above all segments, use the highest.
+            if (referenceZ > segments[segments.Count - 1].Top)
+                return segments[segments.Count - 1].Top;
+
+            // If the mobile is in a gap, use the segment with the closest
+            // bottom. Break ties in favor of the higher segment.
+            (int Bottom, int Top) bestSegment = segments
+                .OrderBy(s => Math.Abs(s.Bottom - referenceZ))
+                .ThenByDescending(s => s.Bottom)
+                .First();
+
+            return bestSegment.Top;
+        }
 
         public ref IndexMap GetIndex(int blockX, int blockY)
         {
