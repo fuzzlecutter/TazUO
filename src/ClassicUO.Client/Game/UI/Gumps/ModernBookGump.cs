@@ -128,27 +128,11 @@ namespace ClassicUO.Game.UI.Gumps
                 }
             };
 
-            _forwardGumpPic.MouseDoubleClick += (sender, e) =>
-            {
-                if (e.Button == MouseButtonType.Left)
-                {
-                    SetActivePage(MaxPage);
-                }
-            };
-
             _backwardGumpPic.MouseUp += (sender, e) =>
             {
                 if (e.Button == MouseButtonType.Left)
                 {
                     SetActivePage(ActivePage - 1);
-                }
-            };
-
-            _backwardGumpPic.MouseDoubleClick += (sender, e) =>
-            {
-                if (e.Button == MouseButtonType.Left)
-                {
-                    SetActivePage(1);
                 }
             };
 
