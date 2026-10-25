@@ -3254,7 +3254,10 @@ namespace ClassicUO.Network
 
             writer.WriteUInt32BE(serial);
             writer.WriteUInt8(0x00);
-            writer.WriteUInt8(0x01);
+            if (Client.Game.UO.Version >= ClientVersion.CV_1260)
+            {
+                writer.WriteUInt8(0x01);
+            }
             writer.WriteUInt16BE(0);
             writer.WriteUTF8(title, 60);
             writer.WriteUTF8(author, 30);

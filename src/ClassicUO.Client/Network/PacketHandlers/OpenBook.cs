@@ -15,7 +15,7 @@ internal static class OpenBook
 
         if (!oldpacket)
             editable = p.ReadBool();
-        else
+        else if (Client.Game.UO.Version >= ClassicUO.Utility.ClientVersion.CV_1260)
             p.Skip(1);
 
         ModernBookGump bgump = UIManager.GetGump<ModernBookGump>(serial);
