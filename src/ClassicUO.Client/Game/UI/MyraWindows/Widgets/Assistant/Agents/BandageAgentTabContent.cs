@@ -93,7 +93,7 @@ public static class BandageAgentTabContent
         {
             if (int.TryParse(delayBox.Text, out int delay))
             {
-                profile.BandageAgentDelay = Math.Clamp(delay, 50, 30000);
+                profile.BandageAgentDelay = Math.Clamp(delay, 50, 500000);
                 delayBox.Text = profile.BandageAgentDelay.ToString();
             }
         };
