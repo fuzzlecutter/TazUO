@@ -371,7 +371,7 @@ namespace ClassicUO.Game.UI.Gumps
                 case InfoBarVars.Weight:
                     percent = _gump.World.Player.Weight / (float)_gump.World.Player.WeightMax;
 
-                    if (percent >= 1)
+                    if (percent > 1)
                     {
                         return 0x0021;
                     }
