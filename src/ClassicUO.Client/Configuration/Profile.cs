@@ -868,6 +868,7 @@ namespace ClassicUO.Configuration
         [JsonConverter(typeof(Point2Converter))] public Point ScriptManagerWindowPosition { get; set; } = Point.Zero;
         [JsonConverter(typeof(Point2Converter))] public Point ScriptManagerWindowSize { get; set; } = Point.Zero;
         public bool CandleFlickerLights { get; set; } = true;
+        public bool LightningFlash { get; set; } = true;
         public string LastLoaded { get; set; }
         public bool TreeToStumpsWithinRadius { get; set; }
         public bool AutoSaveGumpPositions { get; set; }
