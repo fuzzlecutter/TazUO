@@ -218,6 +218,24 @@ public static class BandageAgentTabContent
         graphicRow.Widgets.Add(new MyraLabel(TazLang.Get("bandageagent_graphicid_label"), MyraLabel.TextStyle.P));
         graphicRow.Widgets.Add(graphicBox);
 
+        var graphicBox2 = new MyraInputBox
+        {
+            Text = profile.BandageAgentGraphic2 is ushort graphic2 ? $"0x{graphic2:X4}" : "",
+            Tooltip = TazLang.Get("bandageagent_graphicid_tooltip"),
+            Width = 80,
+        };
+        graphicBox2.TextChangedByUser += (_, _) =>
+        {
+            if (string.IsNullOrWhiteSpace(graphicBox2.Text))
+            {
+                profile.BandageAgentGraphic2 = null;
+            }
+            else if (StringHelper.TryParseInt(graphicBox2.Text, out int graphic) && graphic >= 0 && graphic <= ushort.MaxValue)
+                profile.BandageAgentGraphic2 = (ushort)graphic;
+        };
+        graphicRow.Widgets.Add(new MyraLabel(TazLang.Get("bandageagent_graphicid_label"), MyraLabel.TextStyle.P));
+        graphicRow.Widgets.Add(graphicBox2);
+
         // ===== Layout =====
         root.Widgets.Add(enableRow);
         root.Widgets.Add(selfCommandRow);

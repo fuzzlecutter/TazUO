@@ -224,6 +224,7 @@ namespace ClassicUO.Configuration
         public int BandageAgentDelay { get; set => SetProperty(ref field, value); } = 3000;
         public bool BandageAgentCheckForBuff { get; set => SetProperty(ref field, value); } = false;
         public ushort BandageAgentGraphic { get; set => SetProperty(ref field, value); } = 0x0E21;
+        public ushort? BandageAgentGraphic2 { get; set => SetProperty(ref field, value); } = null;
         public bool BandageAgentUseNewPacket { get; set => SetProperty(ref field, value); } = true;
         public bool BandageAgentCheckHidden { get; set => SetProperty(ref field, value); } = true;
         public bool BandageAgentCheckPoisoned { get; set => SetProperty(ref field, value); } = true;
