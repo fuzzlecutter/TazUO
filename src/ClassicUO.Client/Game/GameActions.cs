@@ -1182,6 +1182,11 @@ internal static class GameActions
 
         Item bandage = world.Player?.FindItemByGraphic(graphic) ?? world.Player?.FindBandage(graphic);
 
+        if (bandage == null && profile?.BandageAgentGraphic2 is ushort alternate_graphic)
+        {
+            bandage = world.Player?.FindItemByGraphic(alternate_graphic) ?? world.Player?.FindBandage(alternate_graphic);
+        }
+
         if (bandage == null)
             return false;
 
