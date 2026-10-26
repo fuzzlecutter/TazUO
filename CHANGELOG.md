@@ -4,6 +4,7 @@ All notable changes to TazUO will be recorded here.
 ---
 
 ## 10/25/26
+* ***Fix:*** A denied step (e.g. walking into a mobile) no longer clears the weather - the server doesn't resend it, so rain or snow vanished until the weather changed
 * ***Feature:*** Lightning lights up the night with a double flash, without changing the server or custom light level - can be turned off in Video > Lighting (`Lightning flash`)
 * ***Legion:*** `API.RequestTarget` and `API.RequestAnyTarget` can now target a world map location - the selected coordinates are available through `API.LastTargetPos` (the returned serial is 0 for a location)
 * ***Feature:*** Added VFX/Shake support to LegionAPI - [P.R 1179](https://github.com/PlayTazUO/TazUO/pull/1179) ([yuval-po](https://github.com/yuval-po))
