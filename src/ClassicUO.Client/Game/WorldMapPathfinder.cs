@@ -386,8 +386,7 @@ namespace ClassicUO.Game
 
                     int turnPenalty = d == current.Direction ? 0 : 1;
                     int zDelta = Math.Abs(nz - current.Z);
-                    int directionCost = (d & 1) == 0 ? 1 : 2;
-                    int stepCost = directionCost + turnPenalty + zDelta;
+                    int stepCost = 1 + turnPenalty + zDelta;
                     int tentativeG = current.G + stepCost;
                     long nKey = PackKey(nx, ny);
 
