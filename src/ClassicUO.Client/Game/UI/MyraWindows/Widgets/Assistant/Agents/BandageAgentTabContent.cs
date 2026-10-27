@@ -180,11 +180,17 @@ public static class BandageAgentTabContent
         targetTypeCombo.ListView.Widgets.Add(new Label { Text = TazLang.Get("bandageagent_targettype_neutral", "Neutral") });
         targetTypeCombo.ListView.Widgets.Add(new Label { Text = TazLang.Get("bandageagent_targettype_harmful", "Harmful") });
         targetTypeCombo.ListView.Widgets.Add(new Label { Text = TazLang.Get("bandageagent_targettype_beneficial", "Beneficial") });
-        targetTypeCombo.ListView.SelectedIndex = (int)Math.Min((int)profile.BandageAgentTargetType, (int)TargetType.Beneficial);
+        targetTypeCombo.ListView.Widgets.Add(new Label { Text = TazLang.Get("bandageagent_targettype_any", "Any") });
+        targetTypeCombo.ListView.SelectedIndex = profile.BandageAgentTargetType.HasValue ? (int)Math.Min((int)profile.BandageAgentTargetType, (int)TargetType.Beneficial) : 3;
         targetTypeCombo.ListView.SelectedIndexChanged += (_, _) =>
         {
             if (targetTypeCombo.ListView.SelectedIndex.HasValue)
-                profile.BandageAgentTargetType = (TargetType)targetTypeCombo.ListView.SelectedIndex.Value;
+            {
+                if (targetTypeCombo.ListView.SelectedIndex.Value == 3)
+                    profile.BandageAgentTargetType = null;
+                else
+                    profile.BandageAgentTargetType = (TargetType)targetTypeCombo.ListView.SelectedIndex.Value;
+            }
         };
         var targetTypeRow = new HorizontalStackPanel { Spacing = MyraStyle.STANDARD_SPACING };
         targetTypeRow.Widgets.Add(new MyraLabel(

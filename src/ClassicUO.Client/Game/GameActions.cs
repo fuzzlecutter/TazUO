@@ -1194,7 +1194,9 @@ internal static class GameActions
             Socket.Send_TargetSelectedObject(bandage.Serial, target);
         else
         {
-            TargetManager.SetAutoTarget(target, profile?.BandageAgentTargetType ?? TargetType.Beneficial);
+            TargetType? targetType = profile?.BandageAgentTargetType;
+            bool anyTargetType = targetType == null;
+            TargetManager.SetAutoTarget(target, targetType ?? TargetType.Beneficial, anyTargetType);
             DoubleClick(world, bandage.Serial);
         }
 
