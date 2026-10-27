@@ -314,15 +314,12 @@ namespace ClassicUO.Game
             public byte Direction;
         }
 
-        // Octile distance × 1.25 heuristic weight.
-        // D_cardinal=10, D_diagonal=14. Formula: 10*(dx+dy) + (14-20)*min(dx,dy)
-        // = 10*max + 4*min, which is the standard octile formula.
+        // Chebyshev distance metric, weighted 1.25x
         private static int Heuristic(int x1, int y1, int x2, int y2)
         {
             int dx = Math.Abs(x1 - x2);
             int dy = Math.Abs(y1 - y2);
-            int octile = 10 * (dx + dy) + (14 - 20) * Math.Min(dx, dy);
-            return octile * HEURISTIC_WEIGHT_NUM / HEURISTIC_WEIGHT_DEN;
+            return Math.Max(dx, dy) * HEURISTIC_WEIGHT_NUM / HEURISTIC_WEIGHT_DEN;
         }
 
         private static List<PathPoint> FindPath(int mapIndex, int startX, int startY, sbyte startZ,
@@ -387,7 +384,10 @@ namespace ClassicUO.Game
                             continue;
                     }
 
-                    int stepCost = (d & 1) == 0 ? 10 : 14;
+                    int turnPenalty = d == current.Direction ? 0 : 1;
+                    int zDelta = Math.Abs(nz - current.Z);
+                    int directionCost = (d & 1) == 0 ? 1 : 2;
+                    int stepCost = directionCost + turnPenalty + zDelta;
                     int tentativeG = current.G + stepCost;
                     long nKey = PackKey(nx, ny);
 
