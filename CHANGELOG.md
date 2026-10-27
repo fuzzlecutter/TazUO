@@ -3,6 +3,9 @@ All notable changes to TazUO will be recorded here.
 
 ---
 
+## 10/26/26
+* ***Fix:*** Fixed the nameplate options gump not reopening after it was closed with right-click while `Stay active` was on - holding the nameplate hotkey now brings it back
+
 ## 10/25/26
 * ***Fix:*** A denied step (e.g. walking into a mobile) no longer clears the weather - the server doesn't resend it, so rain or snow vanished until the weather changed
 * ***Feature:*** Lightning lights up the night with a double flash, without changing the server or custom light level - can be turned off in Video > Lighting (`Lightning flash`)
