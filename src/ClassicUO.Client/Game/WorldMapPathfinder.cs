@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ClassicUO.Assets;
 using ClassicUO.Configuration;
+using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Utility.Logging;
 
@@ -36,6 +37,11 @@ namespace ClassicUO.Game
         // low enough that A* still backtracks out of dead-end rooms.
         private const int HEURISTIC_WEIGHT_NUM = 5;
         private const int HEURISTIC_WEIGHT_DEN = 4;
+
+        /// <summary>
+        // Elevation rule: only statics within ~6 Z of land count (ignores overhead arches, upper floors).
+        /// </summary>
+        private const int GROUND_LEVEL_THRESHOLD = 6;
 
         /// <summary>
         /// Incremented on every FindPathAsync call so an in-flight search can detect that
@@ -115,11 +121,34 @@ namespace ClassicUO.Game
                 return null;
 
             var list = new List<HouseMultiSnapshot>(256);
+            var objectsByLocation = new Dictionary<(int X, int Y), List<GameObject>>();
 
             foreach (var house in houseManager.Houses)
             {
                 foreach (var multi in house.Components)
                 {
+                    bool isImpassable = multi.ItemData.IsImpassable;
+
+                    // If any items at the multi's location are impassable, consider the multi impassable
+                    if (!isImpassable)
+                    {
+                        var location = (multi.X, multi.Y);
+                        if (!objectsByLocation.TryGetValue(location, out var objects))
+                        {
+                            objects = Pathfinder.GetAllObjectsAt(multi.X, multi.Y);
+                            objectsByLocation[location] = objects;
+                        }
+
+                        foreach (var obj in objects)
+                        {
+                            if (obj is Item item && item.Z >= multi.Z && item.Z <= multi.Z + GROUND_LEVEL_THRESHOLD && item.ItemData.IsImpassable)
+                            {
+                                isImpassable = true;
+                                break;
+                            }
+                        }
+                    }
+
                     list.Add(new HouseMultiSnapshot
                     {
                         X = multi.X,
@@ -128,7 +157,7 @@ namespace ClassicUO.Game
                         Graphic = multi.Graphic,
                         State = (int)multi.State,
                         IsHousePreview = multi.IsHousePreview,
-                        IsImpassable = multi.ItemData.IsImpassable,
+                        IsImpassable = isImpassable,
                         IsWall = multi.ItemData.IsWall,
                         IsDestroyed = multi.IsDestroyed,
                     });
@@ -523,8 +552,6 @@ namespace ClassicUO.Game
                 //   hardBlocked = walls/trees/rocks/impassable furniture at ground level
                 //   hasSurface  = floor/bridge static you CAN stand on (lets you cross water)
                 // Final: (!hardBlocked) && (land_walkable || hasSurface)
-                // Elevation rule: only statics within ~6 Z of land count (ignores overhead arches, upper floors).
-                const int GROUND_LEVEL_THRESHOLD = 6;
 
                 if (im.StaticCount > 0)
                 {
