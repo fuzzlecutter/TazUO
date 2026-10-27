@@ -235,7 +235,7 @@ namespace ClassicUO.Configuration
         public bool BandageAgentBandagePets { get; set => SetProperty(ref field, value); } = false;
         public bool BandageAgentUseDexFormula { get; set => SetProperty(ref field, value); } = false;
         public bool BandageAgentDisableSelfHeal { get; set => SetProperty(ref field, value); } = false;
-        public TargetType BandageAgentTargetType { get; set => SetProperty(ref field, value); } = TargetType.Beneficial;
+        public TargetType? BandageAgentTargetType { get; set => SetProperty(ref field, value); } = TargetType.Beneficial;
         public bool BandageAgentUseSelfCommand { get; set => SetProperty(ref field, value); } = false;
         public string BandageAgentSelfCommand { get; set => SetProperty(ref field, value); } = ".bandage";
         public bool BandageAgentSelfCommandExpectTarget { get; set => SetProperty(ref field, value); } = false;
