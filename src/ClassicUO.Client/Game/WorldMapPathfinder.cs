@@ -99,6 +99,8 @@ namespace ClassicUO.Game
             public ushort Graphic;
             public int State;
             public bool IsHousePreview;
+            public bool IsImpassable;
+            public bool IsWall;
             public bool IsDestroyed;
         }
 
@@ -126,6 +128,8 @@ namespace ClassicUO.Game
                         Graphic = multi.Graphic,
                         State = (int)multi.State,
                         IsHousePreview = multi.IsHousePreview,
+                        IsImpassable = multi.ItemData.IsImpassable,
+                        IsWall = multi.ItemData.IsWall,
                         IsDestroyed = multi.IsDestroyed,
                     });
                 }
@@ -235,6 +239,7 @@ namespace ClassicUO.Game
             {
                 if (m.IsDestroyed) continue;
                 if (m.IsHousePreview) continue;
+                if (!m.IsImpassable && !m.IsWall) continue;
                 if ((m.State & CHMOF_IGNORE_IN_RENDER) != 0) continue;
 
                 ushort graphic = m.Graphic;
