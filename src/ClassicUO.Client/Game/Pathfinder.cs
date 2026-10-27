@@ -914,9 +914,7 @@ namespace ClassicUO.Game
 
                     if (diagonal >= 0)
                     {
-                        int cost = (diagonal == 0) ? 1 : 2;
-
-                        if (AddNodeToList((int)direction, x, y, z, node, cost))
+                        if (AddNodeToList((int)direction, x, y, z, node, 1))
                         {
                             found = true;
                         }
