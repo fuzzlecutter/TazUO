@@ -4274,7 +4274,7 @@ public class WorldMapGump : ResizableGump
     }
 
     private List<WorldMapPathfinder.HouseMultiSnapshot> BuildHouseMultiSnapshot()
-        => WorldMapPathfinder.CaptureHouseMultis(_world?.HouseManager);
+        => WorldMapPathfinder.CaptureHouseMultis(_world);
 
     public override void OnMouseOver(int x, int y)
     {
