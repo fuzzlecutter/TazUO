@@ -70,7 +70,7 @@ namespace ClassicUO.Game
         /// Captured on the main thread before the worker starts, then read-only for the
         /// duration of the search. Protected by _running: only one search can own this field.
         /// </summary>
-        private static HashSet<long> _houseBlocks;
+        private static Dictionary<long, int> _houseBlocks;
 
         // Direction layout matching ClassicUO.Game.Data.Direction:
         // 0=N, 1=NE, 2=E, 3=SE, 4=S, 5=SW, 6=W, 7=NW
@@ -108,6 +108,7 @@ namespace ClassicUO.Game
             public bool IsHousePreview;
             public bool IsImpassable;
             public bool IsWall;
+            public bool IsDoor;
             public bool IsDestroyed;
         }
 
@@ -138,6 +139,7 @@ namespace ClassicUO.Game
                 foreach (var multi in house.Components)
                 {
                     bool isImpassable = multi.ItemData.IsImpassable;
+                    bool isDoor = false;
                     var multiZ = multi.Z;
 
                     // If any items at the multi's location are impassable, consider the multi impassable
@@ -163,8 +165,13 @@ namespace ClassicUO.Game
                             if (itemZ < multiZ || itemZ > multiZ + GROUND_LEVEL_THRESHOLD)
                                 continue;
 
-                            if (shouldOpenDoors && itemData.IsDoor && (shouldCloseDoors || !DoorData.IsOpenDoor(item.Graphic)))
-                                continue;
+                            if (itemData.IsDoor)
+                            {
+                                isDoor = true;
+
+                                if (shouldOpenDoors && (shouldCloseDoors || !DoorData.IsOpenDoor(item.Graphic)))
+                                    continue;
+                            }
 
                             isImpassable = true;
                             break;
@@ -181,6 +188,7 @@ namespace ClassicUO.Game
                         IsHousePreview = multi.IsHousePreview,
                         IsImpassable = isImpassable,
                         IsWall = multi.ItemData.IsWall,
+                        IsDoor = isDoor,
                         IsDestroyed = multi.IsDestroyed,
                     });
                 }
@@ -235,7 +243,7 @@ namespace ClassicUO.Game
                     int targetY = destY;
                     bool canSearch = true;
 
-                    if (!TryGetWalkable(mapIndex, destX, destY, startZ, chunkCache, out _))
+                    if (!TryGetWalkable(mapIndex, destX, destY, startZ, chunkCache, out _, out _))
                     {
                         if (!SnapToNearestWalkable(mapIndex, destX, destY, startZ, snapRadius, chunkCache,
                                                     out targetX, out targetY))
@@ -271,12 +279,12 @@ namespace ClassicUO.Game
         /// for tiles that are part of player-house ground-level footprints.
         /// Runs entirely on the worker thread.
         /// </summary>
-        private static HashSet<long> BuildHouseBlockSet(int mapIndex, List<HouseMultiSnapshot> multis)
+        private static Dictionary<long, int> BuildHouseBlockSet(int mapIndex, List<HouseMultiSnapshot> multis)
         {
             if (multis == null || multis.Count == 0)
                 return null;
 
-            var set = new HashSet<long>(multis.Count);
+            var set = new Dictionary<long, int>(multis.Count);
             var tileData = Client.Game.UO.FileManager.TileData;
             var maps = Client.Game.UO.FileManager.Maps;
 
@@ -290,7 +298,7 @@ namespace ClassicUO.Game
             {
                 if (m.IsDestroyed) continue;
                 if (m.IsHousePreview) continue;
-                if (!m.IsImpassable && !m.IsWall) continue;
+                if (!m.IsImpassable && !m.IsWall && !m.IsDoor) continue;
                 if ((m.State & CHMOF_IGNORE_IN_RENDER) != 0) continue;
 
                 ushort graphic = m.Graphic;
@@ -313,7 +321,18 @@ namespace ClassicUO.Game
 
                 if (m.Z > landZ + GROUND_LEVEL_BAND) continue;
 
-                set.Add(PackKey(m.X, m.Y));
+                // Extra cost for doors to discourage pathing through a door the player just opened
+                int extraCost = m.IsDoor && !m.IsImpassable && !m.IsWall ? 10 : int.MaxValue;
+
+                var key = PackKey(m.X, m.Y);
+                if (set.TryGetValue(key, out var existingCost))
+                {
+                    set[key] = Math.Max(existingCost, extraCost);
+                }
+                else
+                {
+                    set[key] = extraCost;
+                }
             }
 
             return set.Count == 0 ? null : set;
@@ -330,22 +349,22 @@ namespace ClassicUO.Game
             {
                 for (int dx = -r; dx <= r; dx++)
                 {
-                    if (TryGetWalkable(mapIndex, cx + dx, cy - r, fromZ, cache, out _))
+                    if (TryGetWalkable(mapIndex, cx + dx, cy - r, fromZ, cache, out _, out _))
                     {
                         outX = cx + dx; outY = cy - r; return true;
                     }
-                    if (TryGetWalkable(mapIndex, cx + dx, cy + r, fromZ, cache, out _))
+                    if (TryGetWalkable(mapIndex, cx + dx, cy + r, fromZ, cache, out _, out _))
                     {
                         outX = cx + dx; outY = cy + r; return true;
                     }
                 }
                 for (int dy = -r + 1; dy <= r - 1; dy++)
                 {
-                    if (TryGetWalkable(mapIndex, cx - r, cy + dy, fromZ, cache, out _))
+                    if (TryGetWalkable(mapIndex, cx - r, cy + dy, fromZ, cache, out _, out _))
                     {
                         outX = cx - r; outY = cy + dy; return true;
                     }
-                    if (TryGetWalkable(mapIndex, cx + r, cy + dy, fromZ, cache, out _))
+                    if (TryGetWalkable(mapIndex, cx + r, cy + dy, fromZ, cache, out _, out _))
                     {
                         outX = cx + r; outY = cy + dy; return true;
                     }
@@ -429,20 +448,23 @@ namespace ClassicUO.Game
 
                     if (nx < 0 || ny < 0) continue;
 
-                    if (!TryGetWalkable(mapIndex, nx, ny, current.Z, chunkCache, out sbyte nz))
+                    if (!TryGetWalkable(mapIndex, nx, ny, current.Z, chunkCache, out sbyte nz, out int extraCost))
+                        continue;
+
+                    if (extraCost == int.MaxValue)
                         continue;
 
                     // Diagonal corner-cutting: both flanking cardinal tiles must be walkable.
                     if ((d & 1) == 1)
                     {
-                        if (!TryGetWalkable(mapIndex, current.X + DX[d], current.Y, current.Z, chunkCache, out _) ||
-                            !TryGetWalkable(mapIndex, current.X, current.Y + DY[d], current.Z, chunkCache, out _))
+                        if (!TryGetWalkable(mapIndex, current.X + DX[d], current.Y, current.Z, chunkCache, out _, out _) ||
+                            !TryGetWalkable(mapIndex, current.X, current.Y + DY[d], current.Z, chunkCache, out _, out _))
                             continue;
                     }
 
                     int turnPenalty = d == current.Direction ? 0 : 1;
                     int zDelta = Math.Abs(nz - current.Z);
-                    int stepCost = 1 + turnPenalty + zDelta;
+                    int stepCost = 1 + turnPenalty + zDelta + extraCost;
                     int tentativeG = current.G + stepCost;
                     long nKey = PackKey(nx, ny);
 
@@ -502,21 +524,23 @@ namespace ClassicUO.Game
         }
 
         private static bool TryGetWalkable(int mapIndex, int x, int y, sbyte fromZ,
-                                           Dictionary<long, ChunkWalkData> cache, out sbyte surfaceZ)
+                                           Dictionary<long, ChunkWalkData> cache, out sbyte surfaceZ, out int extraCost)
         {
             long key = PackKey(x, y);
 
             if (_dynamicBlocks.ContainsKey(key))
             {
                 surfaceZ = 0;
+                extraCost = int.MaxValue;
                 return false;
             }
 
             var houseBlocks = _houseBlocks;
-            if (houseBlocks != null && houseBlocks.Contains(key))
+            if (houseBlocks != null && houseBlocks.TryGetValue(key, out var cost))
             {
+                extraCost = cost;
                 surfaceZ = 0;
-                return false;
+                return cost != int.MaxValue;
             }
 
             int cx = x >> 3;
@@ -531,13 +555,16 @@ namespace ClassicUO.Game
 
             if (data == null || data.Invalid)
             {
+                extraCost = int.MaxValue;
                 surfaceZ = 0;
                 return false;
             }
 
             int idx = ChunkCellIndex(x, y);
             surfaceZ = data.SurfaceZ[idx];
-            return data.Walkable[idx];
+            bool walkable = data.Walkable[idx];
+            extraCost = walkable ? 0 : int.MaxValue;
+            return walkable;
         }
 
         private static ChunkWalkData LoadChunk(int mapIndex, int cx, int cy)

@@ -61,10 +61,12 @@ namespace ClassicUO.Game
         // profile so it can't change mid-search.
         private int _multiBufferPenalty;
 
+        private int _doorBufferPenalty = 10;
+
         // Per-search memoization of "does this tile hold a blocking multi component?" so the
         // buffer check doesn't re-walk a tile's object list once per neighbouring node. Cleared
         // by CleanupPathfinding at the start of every search.
-        private static readonly Dictionary<(int x, int y), bool> _blockingMultiCache = new();
+        private static readonly Dictionary<(int x, int y), (bool cachedMulti, bool cachedDoor)> _blockingMultiCache = new();
 
         public Point StartPoint => _startPoint;
         public Point EndPoint => _endPoint;
@@ -757,16 +759,21 @@ namespace ClassicUO.Game
         /// other impassable piece). Floors/roofs are walkable surfaces and don't count, and
         /// house-preview pieces are ignored. Memoized per search via <see cref="_blockingMultiCache"/>.
         /// </summary>
-        private bool TileHasBlockingMulti(int x, int y)
+        private bool FindTileMovementPenalties(int x, int y, out bool blockingMulti, out bool door)
         {
             (int x, int y) key = (x, y);
 
-            if (_blockingMultiCache.TryGetValue(key, out bool cached))
+            if (_blockingMultiCache.TryGetValue(key, out var cached))
             {
-                return cached;
+                var (cachedMulti, cachedDoor) = cached;
+                blockingMulti = cachedMulti;
+                door = cachedDoor;
+                return true;
             }
 
-            bool result = false;
+            blockingMulti = false;
+            door = false;
+
             GameObject tile = _world.Map.GetTile(x, y, false);
 
             if (tile != null)
@@ -782,31 +789,51 @@ namespace ClassicUO.Game
                 {
                     if (obj is Multi m && !m.IsHousePreview && (m.ItemData.IsImpassable || m.ItemData.IsWall))
                     {
-                        result = true;
-                        break;
+                        blockingMulti = true;
                     }
+
+                    if (obj is Item i && i.ItemData.IsDoor)
+                    {
+                        door = true;
+                    }
+
+                    if (blockingMulti && door)
+                        break;
                 }
             }
 
-            _blockingMultiCache[key] = result;
-            return result;
+            _blockingMultiCache[key] = (blockingMulti, door);
+            return blockingMulti || door;
         }
 
         /// <summary>
         /// True when any of the eight tiles surrounding (x, y) holds a blocking multi, i.e. the
         /// tile sits within a 1-tile buffer around a house. Used to add a soft avoidance cost.
         /// </summary>
-        private bool IsWithinMultiBuffer(int x, int y)
+        private int ExtraMovementPenalties(int x, int y)
         {
+            int total = 0;
+            bool foundBlockingMulti = false;
+            bool foundDoor = false;
             for (int i = 0; i < 8; i++)
             {
-                if (TileHasBlockingMulti(x + _offsetX[i], y + _offsetY[i]))
+                if (FindTileMovementPenalties(x + _offsetX[i], y + _offsetY[i], out var blockingMulti, out var door))
                 {
-                    return true;
+                    foundBlockingMulti |= blockingMulti;
+                    foundDoor |= door;
                 }
+
+                if (foundBlockingMulti && foundDoor)
+                    break;
             }
 
-            return false;
+            if (foundBlockingMulti)
+                total += _multiBufferPenalty;
+
+            if (foundDoor)
+                total += _doorBufferPenalty;
+
+            return total;
         }
 
         private static int GetTurnPenalty(PathNode parent, int direction) =>
@@ -841,10 +868,7 @@ namespace ClassicUO.Game
             // Soft 1-tile buffer around houses: nudge the search away from tiles that border an
             // impassable multi so paths don't scrape along house walls. It's a cost, not a block,
             // so tight town streets and destinations right next to a house stay reachable.
-            if (_multiBufferPenalty > 0 && IsWithinMultiBuffer(x, y))
-            {
-                newDistFromStart += _multiBufferPenalty;
-            }
+            newDistFromStart += ExtraMovementPenalties(x, y);
 
             var updatedNode = PathNode.Get();
 
