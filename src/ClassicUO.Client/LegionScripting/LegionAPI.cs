@@ -2578,7 +2578,7 @@ namespace ClassicUO.LegionScripting
                         result = path;
                         completed.Set();
                     },
-                    WorldMapPathfinder.CaptureHouseMultis(World.HouseManager)
+                    WorldMapPathfinder.CaptureHouseMultis(World)
                 );
 
                 return true;
