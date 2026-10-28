@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ClassicUO.Assets;
 using ClassicUO.Configuration;
+using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Utility.Logging;
@@ -115,19 +116,29 @@ namespace ClassicUO.Game
         /// list of plain structs. Must be called on the main thread, where live World data is
         /// safe to iterate; the result can then be passed to <see cref="FindPathAsync"/>.
         /// </summary>
-        public static List<HouseMultiSnapshot> CaptureHouseMultis(HouseManager houseManager)
+        public static List<HouseMultiSnapshot> CaptureHouseMultis(World world)
         {
+            HouseManager houseManager = world?.HouseManager;
             if (houseManager == null)
                 return null;
 
             var list = new List<HouseMultiSnapshot>(256);
             var objectsByLocation = new Dictionary<(int X, int Y), List<GameObject>>();
+            var profile = ProfileManager.CurrentProfile;
+            bool autoUseDoorsWhilePathfinding = profile.AutoOpenDoors && profile.SmoothDoors;
+            bool autoUseDoorsWhileHidden = profile.AutoOpenDoorsIfHidden;
+            bool autoCloseDoors = ProfileManager.GlobalSettings.AutoCloseDoors;
+            bool playerIsHidden = world?.Player?.IsHidden ?? false;
+
+            bool shouldOpenDoors = autoUseDoorsWhilePathfinding && (!playerIsHidden || autoUseDoorsWhileHidden);
+            bool shouldCloseDoors = shouldOpenDoors && autoCloseDoors;
 
             foreach (var house in houseManager.Houses)
             {
                 foreach (var multi in house.Components)
                 {
                     bool isImpassable = multi.ItemData.IsImpassable;
+                    var multiZ = multi.Z;
 
                     // If any items at the multi's location are impassable, consider the multi impassable
                     if (!isImpassable)
@@ -141,11 +152,22 @@ namespace ClassicUO.Game
 
                         foreach (var obj in objects)
                         {
-                            if (obj is Item item && item.Z >= multi.Z && item.Z <= multi.Z + GROUND_LEVEL_THRESHOLD && item.ItemData.IsImpassable)
-                            {
-                                isImpassable = true;
-                                break;
-                            }
+                            if (obj is not Item item)
+                                continue;
+
+                            var itemData = item.ItemData;
+                            if (!itemData.IsImpassable)
+                                continue;
+
+                            var itemZ = item.Z;
+                            if (itemZ < multiZ || itemZ > multiZ + GROUND_LEVEL_THRESHOLD)
+                                continue;
+
+                            if (shouldOpenDoors && itemData.IsDoor && (shouldCloseDoors || !DoorData.IsOpenDoor(item.Graphic)))
+                                continue;
+
+                            isImpassable = true;
+                            break;
                         }
                     }
 
@@ -153,7 +175,7 @@ namespace ClassicUO.Game
                     {
                         X = multi.X,
                         Y = multi.Y,
-                        Z = multi.Z,
+                        Z = multiZ,
                         Graphic = multi.Graphic,
                         State = (int)multi.State,
                         IsHousePreview = multi.IsHousePreview,
