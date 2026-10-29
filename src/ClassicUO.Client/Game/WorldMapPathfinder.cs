@@ -465,7 +465,7 @@ namespace ClassicUO.Game
                     for (int nd = 1; nd < 8; nd+=2)
                     {
                         // Nearby extra costs are added when moving into a tile. This is just for minimizing navigating doors diagonally.
-                        if (TryGetWalkable(mapIndex, nx + DX[nd], ny + DX[nd], current.Z, chunkCache, out _, out int extraDiagonalCost) && extraDiagonalCost != int.MaxValue)
+                        if (TryGetWalkable(mapIndex, nx + DX[nd], ny + DY[nd], current.Z, chunkCache, out _, out int extraDiagonalCost) && extraDiagonalCost != int.MaxValue)
                             extraCost = (int)Math.Min((long)extraCost + extraDiagonalCost, int.MaxValue);
                     }
 
