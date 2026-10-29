@@ -457,9 +457,11 @@ namespace ClassicUO.Game
                     // Diagonal corner-cutting: both flanking cardinal tiles must be walkable.
                     if ((d & 1) == 1)
                     {
-                        if (!TryGetWalkable(mapIndex, current.X + DX[d], current.Y, current.Z, chunkCache, out _, out _) ||
-                            !TryGetWalkable(mapIndex, current.X, current.Y + DY[d], current.Z, chunkCache, out _, out _))
+                        if (!TryGetWalkable(mapIndex, current.X + DX[d], current.Y, current.Z, chunkCache, out _, out int cardinalCost1) ||
+                            !TryGetWalkable(mapIndex, current.X, current.Y + DY[d], current.Z, chunkCache, out _, out int cardinalCost2))
                             continue;
+
+                        extraCost = (int)Math.Min((long)extraCost + cardinalCost1 + cardinalCost2, int.MaxValue);
                     }
 
                     int turnPenalty = d == current.Direction ? 0 : 1;
