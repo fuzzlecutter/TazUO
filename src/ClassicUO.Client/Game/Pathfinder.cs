@@ -810,7 +810,7 @@ namespace ClassicUO.Game
         /// True when any of the eight tiles surrounding (x, y) holds a blocking multi, i.e. the
         /// tile sits within a 1-tile buffer around a house. Used to add a soft avoidance cost.
         /// </summary>
-        private int ExtraMovementPenalties(int x, int y)
+        private int ExtraMovementPenalties(int x, int y, int direction)
         {
             int total = 0;
             bool foundBlockingMulti = false;
@@ -831,6 +831,9 @@ namespace ClassicUO.Game
                 total += _multiBufferPenalty;
 
             if (foundDoor)
+                total += _doorBufferPenalty;
+
+            if (foundDoor && direction % 2 == 1)
                 total += _doorBufferPenalty;
 
             return total;
@@ -868,7 +871,7 @@ namespace ClassicUO.Game
             // Soft 1-tile buffer around houses: nudge the search away from tiles that border an
             // impassable multi so paths don't scrape along house walls. It's a cost, not a block,
             // so tight town streets and destinations right next to a house stay reachable.
-            newDistFromStart += ExtraMovementPenalties(x, y);
+            newDistFromStart += ExtraMovementPenalties(x, y, direction);
 
             var updatedNode = PathNode.Get();
 
