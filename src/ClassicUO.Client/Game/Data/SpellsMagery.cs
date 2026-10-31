@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using ClassicUO;
 using ClassicUO.Assets;
 using ClassicUO.Game.Managers;
 using ClassicUO.Utility;
@@ -89,7 +90,9 @@ namespace ClassicUO.Game.Data
                         "In Por Ylem",
                         TargetType.Harmful,
                         3002015,
-                        Reagents.SulfurousAsh
+                        Client.Game.UO.Version >= ClientVersion.CV_200
+                            ? new[] { Reagents.SulfurousAsh }
+                            : new[] { Reagents.BlackPearl, Reagents.Nightshade }
                     )
                 },
                 {
@@ -274,7 +277,9 @@ namespace ClassicUO.Game.Data
                         "Vas Flam",
                         TargetType.Harmful,
                         3002028,
-                        Reagents.BlackPearl
+                        Client.Game.UO.Version >= ClientVersion.CV_200
+                            ? new[] { Reagents.BlackPearl }
+                            : new[] { Reagents.BlackPearl, Reagents.SulfurousAsh }
                     )
                 },
                 {
@@ -448,8 +453,9 @@ namespace ClassicUO.Game.Data
                         "Por Ort Grav",
                         TargetType.Harmful,
                         3002040,
-                        Reagents.MandrakeRoot,
-                        Reagents.SulfurousAsh
+                        Client.Game.UO.Version >= ClientVersion.CV_200
+                            ? new[] { Reagents.MandrakeRoot, Reagents.SulfurousAsh }
+                            : new[] { Reagents.BlackPearl, Reagents.MandrakeRoot, Reagents.SulfurousAsh }
                     )
                 },
                 {
@@ -645,8 +651,9 @@ namespace ClassicUO.Game.Data
                         "Vas Ort Flam",
                         TargetType.Harmful,
                         3002053,
-                        Reagents.Bloodmoss,
-                        Reagents.MandrakeRoot
+                        Client.Game.UO.Version >= ClientVersion.CV_200
+                            ? new[] { Reagents.Bloodmoss, Reagents.MandrakeRoot }
+                            : new[] { Reagents.BlackPearl, Reagents.MandrakeRoot, Reagents.SulfurousAsh }
                     )
                 },
                 {
