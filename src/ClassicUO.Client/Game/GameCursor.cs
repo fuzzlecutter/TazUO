@@ -566,9 +566,9 @@ namespace ClassicUO.Game
                     if (
                         UIManager.IsMouseOverWorld
                         && SelectedObject.Object is Entity item
-                        && _world.OPL.Contains(item)
                     )
                     {
+                        _world.OPL.Contains(item);
                         if (_tooltip.IsEmpty || item != _tooltip.Serial)
                         {
                             _tooltip.SetGameObject(item);
@@ -584,8 +584,9 @@ namespace ClassicUO.Game
                         && UIManager.MouseOverControl.Tooltip is uint serial
                     )
                     {
-                        if (SerialHelper.IsValid(serial) && _world.OPL.Contains(serial))
+                        if (SerialHelper.IsValid(serial))
                         {
+                            _world.OPL.Contains(serial);
                             if (_tooltip.IsEmpty || serial != _tooltip.Serial)
                             {
                                 _tooltip.SetGameObject(serial);
