@@ -9,7 +9,11 @@ internal static class DeathScreen
 {
     public static void Receive(World world, ref StackDataReader p)
     {
-        // todo
+        // TODO: Prior to client version 1.26.4b, on death, the player was given a grey
+        // prompt to continue as a ghost or to insta-res with stat penalties.
+        // 1.26.4b and later removed this entirely.
+        // action=0: show death dialog prompt
+        // action=1: dismiss an existing death dialog prompt (e.g. during GM resurrect)
         byte action = p.ReadUInt8();
 
         if (action != 1)
@@ -39,6 +43,14 @@ internal static class DeathScreen
             };
 
             EventSink.InvokeOnPlayerDeath(world.Player, world.Player.Serial);
+
+            if (action == 0 && Client.Game.UO.Version < ClassicUO.Utility.ClientVersion.CV_1264B)
+            {
+                // TODO: Add a local grey prompt UI to select choice.
+                // choice: 1 = insta-resurrect with stat penalties, 2 = stay as ghost
+                byte choice = 2;
+                AsyncNetClient.Socket.Send_DeathScreen(choice);
+            }
         }
     }
 }
