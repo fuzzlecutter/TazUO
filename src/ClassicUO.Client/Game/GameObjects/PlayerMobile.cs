@@ -373,9 +373,6 @@ namespace ClassicUO.Game.GameObjects
             // Use the optimized corpse collection instead of iterating all items
             Item[] corpses = World.GetCorpseSnapshot();
 
-            if (corpses.Length == 0)
-                AutoOpenedCorpses.Clear();
-
             foreach (Item item in corpses)
             {
                 if (!item.IsDestroyed && item.Distance <= ProfileManager.CurrentProfile.AutoOpenCorpseRange)
