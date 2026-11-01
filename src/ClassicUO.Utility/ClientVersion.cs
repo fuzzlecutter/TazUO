@@ -13,6 +13,7 @@ namespace ClassicUO.Utility
         CV_12533 = (1 << 24) | (25 << 16) | (33 << 8) | 0,
         CV_12535 = (1 << 24) | (25 << 16) | (35 << 8) | 0,         // US T2A upgrade disk. Game encryption made same as login encryption
         CV_1260 = (1 << 24) | (26 << 16) | (0 << 8) | 0,
+        CV_1264B = (1 << 24) | (26 << 16) | (4 << 8) | ('b' & 0xFF), // Removed insta-resurrect diaglog on death
         CV_200 = (2 << 24) | (0 << 16) | (0 << 8) | 0,             // T2A Introduction. Adds screen dimensions packet
         CV_200X = (2 << 24) | (0 << 16) | (0 << 8) | ('x' & 0xFF), // T2A Introduction. Adds screen dimensions packet
         CV_204C = (2 << 24) | (0 << 16) | (4 << 8) | ('c' & 0xFF), // Adds *.def files
