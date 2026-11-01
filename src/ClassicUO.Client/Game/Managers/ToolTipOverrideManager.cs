@@ -351,7 +351,7 @@ namespace ClassicUO.Game.Managers
             if (showRuleName)
                 AppendGridHighlightLegend(sb, matchingGridHighlights);
 
-            return sb.ToString();
+            return sb.ToString().Trim();
         }
 
         /// <summary>Adds the names and colors of every matching rule to a tooltip.</summary>
