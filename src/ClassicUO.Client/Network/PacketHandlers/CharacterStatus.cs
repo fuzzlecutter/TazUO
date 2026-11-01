@@ -23,7 +23,7 @@ internal static class CharacterStatus
 
         string oldName = entity.Name;
         ushort oldHits = entity.Hits;
-        entity.Name = p.ReadASCII(30);
+        string newName = p.ReadASCII(30); // This is the decorated name e.g. "Lord Bob"
         entity.Hits = p.ReadUInt16BE();
         entity.HitsMax = p.ReadUInt16BE();
 
@@ -47,10 +47,10 @@ internal static class CharacterStatus
                 if (mobile == world.Player)
                 {
                     if (
-                        !string.IsNullOrEmpty(world.Player.Name) && oldName != world.Player.Name
+                        !string.IsNullOrEmpty(newName) && oldName != newName
                     )
                     {
-                        Client.Game.SetWindowTitle(world.Player.Name);
+                        Client.Game.SetWindowTitle(newName);
                         if (ProfileManager.CurrentProfile?.EnableTitleBarStats == true)
                             TitleBarStatsManager.ForceUpdate();
                     }
