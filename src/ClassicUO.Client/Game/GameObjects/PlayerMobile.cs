@@ -383,7 +383,10 @@ namespace ClassicUO.Game.GameObjects
                     // Check if this is the player's own corpse
                     bool isOwnCorpse = !string.IsNullOrEmpty(item.Name) &&
                                        !string.IsNullOrEmpty(Name) &&
-                                       item.Name.Equals($"the remains of {Name}", System.StringComparison.OrdinalIgnoreCase);
+                                       (
+                                        item.Name.Equals($"the remains of {Name}", System.StringComparison.OrdinalIgnoreCase)
+                                        || item.Name.Equals($"a corpse of {Name}", System.StringComparison.OrdinalIgnoreCase)
+                                       );
 
                     // Open if it's own corpse and AutoOpenOwnCorpse is enabled, or if AutoOpenCorpses is enabled
                     bool shouldOpen = (isOwnCorpse && ProfileManager.CurrentProfile.AutoOpenOwnCorpse) ||
