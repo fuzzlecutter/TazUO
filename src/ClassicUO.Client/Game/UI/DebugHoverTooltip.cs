@@ -176,6 +176,7 @@ namespace ClassicUO.Game.UI
                 case Mobile mobile:
                     sb.Append($"Mobile  0x{mobile.Serial:X8}\n");
                     AppendName(sb, mobile.Serial);
+                    sb.Append($"Entity.Name: {mobile.Name}\n");
                     sb.Append($"Graphic: 0x{mobile.Graphic:X4}  Anim: 0x{mobile.GetGraphicForAnimation():X4}\n");
                     sb.Append($"Notoriety: {mobile.NotorietyFlag}  Flags: {mobile.Flags}\n");
                     sb.Append($"HP: {mobile.Hits}/{mobile.HitsMax}  Mana: {mobile.Mana}/{mobile.ManaMax}  Stam: {mobile.Stamina}/{mobile.StaminaMax}\n");
@@ -188,6 +189,7 @@ namespace ClassicUO.Game.UI
                 case Item item:
                     sb.Append($"Item  0x{item.Serial:X8}\n");
                     AppendName(sb, item.Serial);
+                    sb.Append($"Entity.Name: {item.Name}\n");
                     sb.Append($"Graphic: 0x{item.Graphic:X4}  Hue: 0x{item.Hue:X4}  Amount: {item.Amount}\n");
                     sb.Append($"Layer: {item.Layer}  Container: 0x{item.Container:X8}\n");
                     sb.Append($"Flags: {item.Flags}  HP: {item.Hits}/{item.HitsMax}\n");
