@@ -4473,7 +4473,7 @@ namespace ClassicUO.Network
             writer.Dispose();
         }
 
-        public static void Send_DeathScreen(this AsyncNetClient socket)
+        public static void Send_DeathScreen(this AsyncNetClient socket, byte choice)
         {
             const byte ID = 0x2C;
 
@@ -4488,7 +4488,9 @@ namespace ClassicUO.Network
                 writer.WriteZero(2);
             }
 
-            writer.WriteUInt8(0x02); // Ghost
+            // choice=1: insta-resurrect with stat penalties
+            // choice=2: stay as ghost
+            writer.WriteUInt8(choice);
 
             if (length < 0)
             {
