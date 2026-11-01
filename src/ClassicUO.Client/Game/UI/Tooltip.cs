@@ -302,8 +302,22 @@ namespace ClassicUO.Game.UI
             string result = null;
             htmltext = string.Empty;
 
-            if (SerialHelper.IsValid(serial) && _world.OPL.TryGetNameAndData(serial, out string name, out string data))
+            if (!SerialHelper.IsValid(serial))
+                return null;
+
+            if (!_world.OPL.TryGetNameAndData(serial, out string name, out string data))
             {
+                var mob = _world.Mobiles.Get(serial);
+                if (mob != null)
+                    return string.IsNullOrEmpty(mob.Name) ? null : mob.Name;
+
+                var item = _world.Items.Get(serial);
+                if (item != null)
+                    return string.IsNullOrEmpty(item.Name) ? null : item.Name;
+
+                return null;
+            }
+
                 var sbHTML = new ValueStringBuilder();
                 var sb = new ValueStringBuilder();
 
@@ -347,7 +361,7 @@ namespace ClassicUO.Game.UI
 
                 sb.Dispose();
                 sbHTML.Dispose();
-            }
+
             return string.IsNullOrEmpty(result) ? null : result;
         }
 
