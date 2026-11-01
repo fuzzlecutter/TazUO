@@ -88,7 +88,14 @@ namespace ClassicUO.Game.UI
 
             if (string.IsNullOrEmpty(Text))
             {
-                return false;
+                string fallback = FallbackProperties(Serial);
+                if (string.IsNullOrEmpty(fallback))
+                {
+                    return false;
+                }
+
+                Text = fallback;
+                _textHTML = fallback;
             }
 
             if (_lastHoverTime > Time.Ticks)
@@ -263,6 +270,13 @@ namespace ClassicUO.Game.UI
 
                     _lastHoverTime = (uint)(Time.Ticks + (ProfileManager.CurrentProfile != null ? ProfileManager.CurrentProfile.TooltipDelayBeforeDisplay : 250));
                 }
+
+                if (string.IsNullOrEmpty(Text))
+                {
+                    string fallback = FallbackProperties(serial);
+                    Text = fallback;
+                    _textHTML = fallback;
+                }
             }
         }
 
@@ -293,6 +307,24 @@ namespace ClassicUO.Game.UI
             return flipped >= 0
                 ? flipped
                 : Math.Clamp(forward, 0, Math.Max(0, screenSize - size));
+        }
+
+        private string FallbackProperties(uint serial)
+        {
+            var mob = _world.Mobiles.Get(serial);
+            if (mob != null)
+            {
+                if (!string.IsNullOrEmpty(mob.Name))
+                    return mob.Name;
+
+                return mob.IsHidden ? "Hidden" : "Unknown";
+            }
+
+            var item = _world.Items.Get(serial);
+            if (item != null)
+                return string.IsNullOrEmpty(item.Name) ? null : item.Name;
+
+            return null;
         }
 
         private string ReadProperties(uint serial, out string htmltext)
