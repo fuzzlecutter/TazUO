@@ -368,17 +368,28 @@ namespace ClassicUO.Game.GameObjects
             // Early return if both auto-open settings are disabled
             if (!ProfileManager.CurrentProfile.AutoOpenCorpses && !ProfileManager.CurrentProfile.AutoOpenOwnCorpse) return;
 
+            if (IsDead) return;
+
             // Use the optimized corpse collection instead of iterating all items
             Item[] corpses = World.GetCorpseSnapshot();
 
+            if (corpses.Length == 0)
+                AutoOpenedCorpses.Clear();
+
             foreach (Item item in corpses)
             {
-                if (!item.IsDestroyed && item.Distance <= ProfileManager.CurrentProfile.AutoOpenCorpseRange && !AutoOpenedCorpses.Contains(item.Serial))
+                if (!item.IsDestroyed && item.Distance <= ProfileManager.CurrentProfile.AutoOpenCorpseRange)
                 {
-                    // Don't reopen corpses the player has already opened when the per-server option is on.
-                    if (ProfileManager.ServerSettings is { DoNotReopenCorpses: true }
-                        && CorpseManager.IsCorpseOpened(item.Serial))
-                        continue;
+                    if (CorpseManager.IsCorpseOpened(item.Serial))
+                    {
+                        // Don't reopen very recently opened corpses.
+                        if (AutoOpenedCorpses.Contains(item.Serial))
+                            continue;
+
+                        // Don't reopen corpses the player has already opened when the per-server option is on.
+                        if (ProfileManager.ServerSettings is { DoNotReopenCorpses: true })
+                            continue;
+                    }
 
                     // Check if this is the player's own corpse
                     bool isOwnCorpse = !string.IsNullOrEmpty(item.Name) &&
