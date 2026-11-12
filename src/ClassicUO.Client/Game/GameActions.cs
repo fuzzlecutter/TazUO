@@ -884,7 +884,8 @@ internal static class GameActions
         int amount = -1,
         Point? offset = null,
         bool isGump = false,
-        bool skipQueue = false
+        bool skipQueue = false,
+        bool queueMove = false
     )
     {
         if (world.Player.IsDead || Client.Game.UO.GameCursor.ItemHold.Enabled)
@@ -932,7 +933,7 @@ internal static class GameActions
         Client.Game.UO.GameCursor.ItemHold.Set(item, (ushort)amount, offset);
         Client.Game.UO.GameCursor.ItemHold.IsGumpTexture = isGump;
 
-        if (!ProfileManager.CurrentProfile.QueueManualItemMoves || skipQueue)
+        if (!queueMove || skipQueue)
         {
             Socket.Send_PickUpRequest(item, (ushort)amount);
 
@@ -956,7 +957,7 @@ internal static class GameActions
         return true;
     }
 
-    internal static void DropItem(uint serial, int x, int y, int z, uint container, bool force = false)
+    internal static void DropItem(uint serial, int x, int y, int z, uint container, bool force = false, bool queueMove = false)
     {
         if (force || (Client.Game.UO.GameCursor.ItemHold.Enabled && !Client.Game.UO.GameCursor.ItemHold.IsFixedPosition && (Client.Game.UO.GameCursor.ItemHold.Serial != container || Client.Game.UO.GameCursor.ItemHold.ItemData.IsStackable)))
         {
@@ -974,7 +975,7 @@ internal static class GameActions
                 Client.Game.UO.GameCursor.ItemHold.Dropped = true;
             }
 
-            if (ProfileManager.CurrentProfile.QueueManualItemMoves && !force)
+            if (queueMove && !force)
             {
                 Client.Game.UO.GameCursor.ItemHold.Clear();
                 ObjectActionQueue.Instance.Enqueue(new MoveRequest(serial, container, (ushort)amount, x, y, z).ToObjectActionQueueItem(), ActionPriority.ManualMoveItem);
@@ -1503,7 +1504,7 @@ internal static class GameActions
             bag = backpack.Serial;
         }
 
-        PickUp(world, serial, 0, 0, amount);
+        PickUp(world, serial, 0, 0, amount, queueMove: true);
 
         if (stack)
             DropItem
@@ -1512,7 +1513,8 @@ internal static class GameActions
                 0xFFFF,
                 0xFFFF,
                 0,
-                bag
+                bag,
+                queueMove: true
             );
         else
             DropItem
@@ -1521,7 +1523,8 @@ internal static class GameActions
                 0,
                 0,
                 0,
-                bag
+                bag,
+                queueMove: true
             );
     }
 
