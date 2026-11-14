@@ -177,7 +177,13 @@ namespace ClassicUO.Game.UI.Gumps
                 return true;
             }
 
-            if (!string.IsNullOrEmpty(entity.Name) && entity is not PlayerMobile)
+            if (entity is PlayerMobile)
+            {
+                ApplyNameLayout(entity, string.Empty);
+                return true;
+            }
+
+            if (!string.IsNullOrEmpty(entity.Name))
             {
                 if (_text == null)
                     return false;
@@ -205,7 +211,7 @@ namespace ClassicUO.Game.UI.Gumps
             }
             else
             {
-                nameWidth = Math.Max(MIN_NAMEPLATE_WIDTH, _text.Width) + NAMEPLATE_HORIZONTAL_PADDING;
+                nameWidth = entity is PlayerMobile ? 80 : Math.Max(MIN_NAMEPLATE_WIDTH, _text.Width) + NAMEPLATE_HORIZONTAL_PADDING;
             }
 
             int healthBarWidth = GetHealthBarWidth(profile, nameWidth, entity);
@@ -1007,9 +1013,10 @@ namespace ClassicUO.Game.UI.Gumps
 
             int textY = y;
 
+            Mobile m = null;
             if (ProfileManager.CurrentProfile.NamePlateHealthBar && _isMobile)
             {
-                Mobile m = World.Mobiles.Get(LocalSerial);
+                m = World.Mobiles.Get(LocalSerial);
 
                 if (m != null)
                 {
@@ -1067,7 +1074,11 @@ namespace ClassicUO.Game.UI.Gumps
             int textX = (int)(nameBounds.X + 2 + _textDrawOffset.X);
             int textDrawY = (int)(textY + 2 + _textDrawOffset.Y);
 
-            bool result = _text.Draw(batcher, textX, textDrawY, textColor);
+            bool result = true;
+            if (m is not PlayerMobile)
+            {
+                result = _text.Draw(batcher, textX, textDrawY, textColor);
+            }
             DrawWordOfDeathIcon(batcher, textMobile, nameBounds, textDrawY);
             return result;
         }
