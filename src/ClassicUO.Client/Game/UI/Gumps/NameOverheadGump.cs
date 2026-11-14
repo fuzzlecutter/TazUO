@@ -177,7 +177,7 @@ namespace ClassicUO.Game.UI.Gumps
                 return true;
             }
 
-            if (!string.IsNullOrEmpty(entity.Name))
+            if (!string.IsNullOrEmpty(entity.Name) && entity is not PlayerMobile)
             {
                 if (_text == null)
                     return false;
@@ -898,6 +898,12 @@ namespace ClassicUO.Game.UI.Gumps
                         return false;
                     }
 
+                }
+
+                if (m is PlayerMobile && _hpPercent >= 0.9 && GetResourcePercent(m.Mana, m.ManaMax) >= 0.9 && GetResourcePercent(m.Stamina, m.StaminaMax) >= 0.9))
+                {
+                    IsVisible = false;
+                    return false;
                 }
 
                 if (_positionLocked)
