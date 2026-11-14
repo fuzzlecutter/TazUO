@@ -182,6 +182,12 @@ namespace ClassicUO.Game.UI.Gumps
                 return true;
             }
 
+            if (entity is PlayerMobile)
+            {
+                ApplyNameLayout(entity, string.Empty);
+                return true;
+            }
+
             if (!string.IsNullOrEmpty(entity.Name))
             {
                 if (_text == null)
@@ -210,7 +216,7 @@ namespace ClassicUO.Game.UI.Gumps
             }
             else
             {
-                nameWidth = Math.Max(MIN_NAMEPLATE_WIDTH, _text.Width) + NAMEPLATE_HORIZONTAL_PADDING;
+                nameWidth = entity is PlayerMobile ? 80 : Math.Max(MIN_NAMEPLATE_WIDTH, _text.Width) + NAMEPLATE_HORIZONTAL_PADDING;
             }
 
             int healthBarWidth = GetHealthBarWidth(profile, nameWidth, entity);
@@ -870,9 +876,10 @@ namespace ClassicUO.Game.UI.Gumps
             IsVisible = true;
             Entity nameplateEntity = null;
 
+            Mobile m = null;
             if (SerialHelper.IsMobile(LocalSerial))
             {
-                Mobile m = World.Mobiles.Get(LocalSerial);
+                m = World.Mobiles.Get(LocalSerial);
 
                 if (m == null)
                 {
@@ -920,6 +927,12 @@ namespace ClassicUO.Game.UI.Gumps
                         return false;
                     }
 
+                }
+
+                if (m is PlayerMobile && _hpPercent >= 0.9 && GetResourcePercent(m.Mana, m.ManaMax) >= 0.9 && GetResourcePercent(m.Stamina, m.StaminaMax) >= 0.9)
+                {
+                    IsVisible = false;
+                    return false;
                 }
 
                 Point pos;
@@ -1017,7 +1030,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             if (ProfileManager.CurrentProfile.NamePlateHealthBar && _isMobile)
             {
-                Mobile m = World.Mobiles.Get(LocalSerial);
+                m = World.Mobiles.Get(LocalSerial);
 
                 if (m != null)
                 {
@@ -1075,7 +1088,11 @@ namespace ClassicUO.Game.UI.Gumps
             int textX = (int)(nameBounds.X + 2 + _textDrawOffset.X);
             int textDrawY = (int)(textY + 2 + _textDrawOffset.Y);
 
-            bool result = _text.Draw(batcher, textX, textDrawY, textColor);
+            bool result = true;
+            if (m is not PlayerMobile)
+            {
+                result = _text.Draw(batcher, textX, textDrawY, textColor);
+            }
             DrawWordOfDeathIcon(batcher, textMobile, nameBounds, textDrawY);
             return result;
         }
