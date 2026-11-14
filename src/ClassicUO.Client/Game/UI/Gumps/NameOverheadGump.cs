@@ -900,7 +900,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 }
 
-                if (m is PlayerMobile && _hpPercent >= 0.9 && GetResourcePercent(m.Mana, m.ManaMax) >= 0.9 && GetResourcePercent(m.Stamina, m.StaminaMax) >= 0.9))
+                if (m is PlayerMobile && _hpPercent >= 0.9 && GetResourcePercent(m.Mana, m.ManaMax) >= 0.9 && GetResourcePercent(m.Stamina, m.StaminaMax) >= 0.9)
                 {
                     IsVisible = false;
                     return false;
