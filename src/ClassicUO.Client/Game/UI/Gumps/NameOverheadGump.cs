@@ -854,9 +854,10 @@ namespace ClassicUO.Game.UI.Gumps
             IsVisible = true;
             Entity nameplateEntity = null;
 
+            Mobile m = null;
             if (SerialHelper.IsMobile(LocalSerial))
             {
-                Mobile m = World.Mobiles.Get(LocalSerial);
+                m = World.Mobiles.Get(LocalSerial);
 
                 if (m == null)
                 {
@@ -1013,7 +1014,6 @@ namespace ClassicUO.Game.UI.Gumps
 
             int textY = y;
 
-            Mobile m = null;
             if (ProfileManager.CurrentProfile.NamePlateHealthBar && _isMobile)
             {
                 m = World.Mobiles.Get(LocalSerial);
