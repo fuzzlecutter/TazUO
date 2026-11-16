@@ -352,7 +352,7 @@ public class GridContainerEntry
     /// <summary>Per-container override to suppress grid-highlight rules in this container.</summary>
     [JsonPropertyName("hd")] public bool HighlightsDisabled { get; set; }
 
-    [JsonPropertyName("vs")] public bool VisuallyStackNonStackables { get; set; }
+    [JsonPropertyName("vs")] public bool VisuallyStackNonStackables { get; set; } = ProfileManager.CurrentProfile?.GridContainersDefaultToStackingNonStackables ?? false;
 
     [JsonPropertyName("sm")] public int SortMode { get; set; }
 
