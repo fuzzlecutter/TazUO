@@ -8,6 +8,7 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
 using ClassicUO.Renderer;
+using ClassicUO.Renderer.Arts;
 using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -364,12 +365,12 @@ public class GridItem : Control
         }
         else
         {
-            Rectangle containerBounds = _world.ContainerManager.Get(_container.Graphic).Bounds;
+            Rectangle containerBounds = _world.ContainerManager.Get(_gridContainer.OriginalContainerItemGraphic).Bounds;
             // Band layout computes slot positions itself, so don't persist a manual slot position
             // (it would be ignored while bands are active and resurface once they're disabled).
             if (!_gridContainer.SlotManager.BandsActive())
                 _gridContainer.SlotManager.AddItemSlot(Client.Game.UO.GameCursor.ItemHold.Serial, _slot);
-            (int X, int Y) pos = GetBoxPosition(_slot, Client.Game.UO.GameCursor.ItemHold.Graphic, containerBounds.Width, containerBounds.Height);
+            (int X, int Y) pos = GetBoxPosition(_slot, Client.Game.UO.GameCursor.ItemHold.Graphic, containerBounds);
             GameActions.DropItem(Client.Game.UO.GameCursor.ItemHold.Serial, pos.X, pos.Y, 0, _container.Serial);
         }
 
@@ -446,7 +447,7 @@ public class GridItem : Control
         }
     }
 
-    private (int X, int Y) GetBoxPosition(int boxIndex, uint itemGraphic, int width, int height)
+    private (int X, int Y) GetBoxPosition(int boxIndex, uint itemGraphic, Rectangle bounds)
     {
         if (_gridContainer.StackNonStackableItems)
             foreach (GridItem gridSlot in _gridContainer.SlotManager.GridSlots.Values)
@@ -457,18 +458,68 @@ public class GridItem : Control
                 }
             }
 
-        int gridSize = (int)Math.Ceiling(Math.Sqrt(_gridContainer.SlotManager.GridSlots.Count));
+        const int baseCapacity = 125;
+        const int commonSpriteWidth = 44;
+        const int commonSpriteHeight = 34;
 
-        int row = boxIndex / gridSize;
-        int col = boxIndex % gridSize;
+        if (boxIndex < 0)
+            return (bounds.X, bounds.Y);
 
-        float cellWidth = width / gridSize;
-        float cellHeight = height / gridSize;
+        if (bounds.Width <= 0 || bounds.Height <= 0)
+            return (bounds.X, bounds.Y);
 
-        float x = col * cellWidth + cellWidth / 2;
-        float y = row * cellHeight + cellHeight / 2;
+        // Note: The container bounds don't use Rectangle in the standard way.
+        // They use Width/Height as the maximum coordinate values (right/bottom),
+        // not as conventional distances relative to X/Y. Available space is
+        // therefore (Width - X) × (Height - Y), rather than Width × Height.
+        double availableWidth = bounds.Width - bounds.X - commonSpriteWidth;
+        double availableHeight = bounds.Height - bounds.Y - commonSpriteHeight;
 
-        return ((int)x, (int)y);
+        if (availableWidth <= 0 || availableHeight <= 0)
+            return (bounds.X, bounds.Y);
+
+        int columns = Math.Max(2, (int)Math.Round(Math.Sqrt(baseCapacity * availableWidth / availableHeight)));
+        int rows = Math.Max(2, (int)Math.Ceiling((double)baseCapacity / columns));
+
+        double cellWidth = availableWidth / (columns - 1);
+        double cellHeight = availableHeight / (rows - 1);
+
+        double positionX;
+        double positionY;
+
+        if (boxIndex < baseCapacity)
+        {
+            int row = boxIndex / columns;
+            int col = boxIndex % columns;
+
+            positionX = bounds.X + col * cellWidth;
+            positionY = bounds.Y + row * cellHeight;
+        }
+        else
+        {
+            boxIndex -= baseCapacity;
+
+            int extraColumns = Math.Max(1, columns - 1);
+            int extraRows = Math.Max(1, rows - 1);
+
+            int row = boxIndex / extraColumns % extraRows;
+            int col = boxIndex % extraColumns;
+
+            positionX = bounds.X + (col + 0.5) * cellWidth;
+            positionY = bounds.Y + (row + 0.5) * cellHeight;
+        }
+
+        ref readonly SpriteInfo art = ref Client.Game.UO.Arts.GetArt(itemGraphic);
+        int itemWidth = art.UV.Width;
+        int itemHeight = art.UV.Height;
+
+        int maxX = Math.Max(bounds.X, bounds.Width - itemWidth);
+        int maxY = Math.Max(bounds.Y, bounds.Height - itemHeight);
+
+        int resultX = Math.Clamp((int)Math.Round(positionX), bounds.X, maxX);
+        int resultY = Math.Clamp((int)Math.Round(positionY), bounds.Y, maxY);
+
+        return (resultX, resultY);
     }
 
     protected override void OnMouseExit(int x, int y)
