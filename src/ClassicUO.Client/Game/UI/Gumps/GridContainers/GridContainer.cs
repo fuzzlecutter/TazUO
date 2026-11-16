@@ -89,7 +89,6 @@ public partial class GridContainer : ResizableGump
         private GridSortMode _sortMode = GridSortMode.GraphicAndHue;
 
         private readonly bool _skipSave;
-        private readonly ushort _originalContainerItemGraphic;
 
         private GridScrollArea _scrollArea;
         private bool _isMinimized;
@@ -127,6 +126,7 @@ public partial class GridContainer : ResizableGump
         #endregion
 
         #region public vars
+        public readonly ushort OriginalContainerItemGraphic;
         public GridContainerEntry GridContainerEntry => _gridContainerEntry;
         public readonly bool IsPlayerBackpack;
         public bool StackNonStackableItems;
@@ -304,7 +304,7 @@ public partial class GridContainer : ResizableGump
             }
 
             AnchorType = ProfileManager.CurrentProfile.EnableGridContainerAnchor ? ANCHOR_TYPE.NONE : ANCHOR_TYPE.DISABLED;
-            _originalContainerItemGraphic = originalContainerGraphic;
+            OriginalContainerItemGraphic = originalContainerGraphic;
 
             CanMove = true;
             AcceptMouseInput = true;
@@ -1035,7 +1035,7 @@ public partial class GridContainer : ResizableGump
                 writer.WriteAttributeString("parent", item.Container.ToString());
             }
 
-            writer.WriteAttributeString("ogContainer", _originalContainerItemGraphic.ToString());
+            writer.WriteAttributeString("ogContainer", OriginalContainerItemGraphic.ToString());
         }
         public override void Restore(XmlElement xml)
         {
@@ -1062,7 +1062,7 @@ public partial class GridContainer : ResizableGump
         {
             UIManager.GetGump<ContainerGump>(serial)?.Dispose();
 
-            ushort graphic = _originalContainerItemGraphic;
+            ushort graphic = OriginalContainerItemGraphic;
 
             if (Client.Game.UO.Version >= Utility.ClientVersion.CV_706000 &&
                 ProfileManager.CurrentProfile?.UseLargeContainerGumps == true)
