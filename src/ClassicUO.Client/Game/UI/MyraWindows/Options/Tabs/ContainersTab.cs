@@ -208,6 +208,11 @@ public static class ContainersTab
                 new Accessor<bool>(() => profile.GridContainersDefaultToOldStyleView),
                 search: new SearchMetadata(TazLang.Get("mog_tazuo_gridcontainersdefaulttooldstyleview"), Keywords: [TazLang.Get("mog_kw_old"), TazLang.Get("mog_kw_style"), TazLang.Get("mog_kw_view")])
             ),
+            Option.Checkbox(
+                TazLang.Get("mog_tazuo_gridcontainersdefaulttostackingnonstackables"),
+                new Accessor<bool>(() => profile.GridContainersDefaultToStackingNonStackables),
+                search: new SearchMetadata(TazLang.Get("mog_tazuo_gridcontainersdefaulttostackingnonstackables"), Keywords: [TazLang.Get("mog_kw_old"), TazLang.Get("mog_kw_view")])
+            ),
             Option.ComboBox(
                 TazLang.Get("gridcontainer_defaultview", "Default container view"),
                 new Accessor<int>(
