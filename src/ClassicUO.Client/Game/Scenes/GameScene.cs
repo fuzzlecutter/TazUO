@@ -888,13 +888,16 @@ namespace ClassicUO.Game.Scenes
             if (useObjectHandles != _useObjectHandles)
             {
                 _useObjectHandles = useObjectHandles;
-                if (_useObjectHandles)
+                if (!NameOverHeadManager.IsDismissed)
                 {
-                    _world.NameOverHeadManager.Open();
-                }
-                else
-                {
-                    _world.NameOverHeadManager.Close();
+                    if (_useObjectHandles)
+                    {
+                        _world.NameOverHeadManager.Open();
+                    }
+                    else
+                    {
+                        _world.NameOverHeadManager.Close();
+                    }
                 }
             }
             else if (_useObjectHandles && NameOverHeadManager.IsHotkeyHeld)

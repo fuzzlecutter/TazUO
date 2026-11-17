@@ -267,5 +267,11 @@ namespace ClassicUO.Game.UI.Gumps
 
             base.OnDragEnd(x, y);
         }
+
+        public override void CloseWithRightClick()
+        {
+            NameOverHeadManager.IsDismissed = true;
+            base.CloseWithRightClick();
+        }
     }
 }
