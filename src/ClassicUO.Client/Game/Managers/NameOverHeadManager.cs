@@ -173,6 +173,8 @@ namespace ClassicUO.Game.Managers
         /// <summary>True while a nameplate hotkey is held, regardless of the Stay active toggle.</summary>
         public static bool IsHotkeyHeld => HotKeys.IsPressed(HotKeyRegistrar.ShowNameplatesId);
 
+        public static bool IsDismissed { get; set; }
+
         private static List<NameOverheadOption> Options { get; set; } = new List<NameOverheadOption>();
 
         public bool IsAllowed(Entity serial)
@@ -300,6 +302,7 @@ namespace ClassicUO.Game.Managers
 
             _gump.IsEnabled = true;
             _gump.IsVisible = true;
+            IsDismissed = false;
         }
 
         public void Close()
@@ -321,6 +324,9 @@ namespace ClassicUO.Game.Managers
         {
             if (IsPermaToggled == toggled)
                 return;
+
+            if (toggled)
+                IsDismissed = false;
 
             IsPermaToggled = toggled;
             _gump?.UpdateCheckboxes();
@@ -368,6 +374,8 @@ namespace ClassicUO.Game.Managers
 
             if (root != null)
             {
+                IsDismissed = bool.TryParse(root.GetAttribute(nameof(IsDismissed)), out bool value) && value;
+
                 foreach (XmlElement xml in root.GetElementsByTagName("nameoverheadoption"))
                 {
                     var option = new NameOverheadOption(xml.GetAttribute("name"));
@@ -403,6 +411,8 @@ namespace ClassicUO.Game.Managers
                 {
                     xml.WriteStartDocument(true);
                     xml.WriteStartElement("nameoverhead");
+
+                    xml.WriteAttributeString(nameof(IsDismissed), IsDismissed.ToString());
 
                     foreach (NameOverheadOption option in list)
                     {
