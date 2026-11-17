@@ -171,7 +171,7 @@ namespace ClassicUO.Game.Managers
         public static bool IsShowing => IsPermaToggled || IsTemporarilyShowing || HotKeys.IsPressed(HotKeyRegistrar.ShowNameplatesId);
 
         /// <summary>True while a nameplate hotkey is held, regardless of the Stay active toggle.</summary>
-        public static bool IsHotkeyHeld => IsTemporarilyShowing || HotKeys.IsPressed(HotKeyRegistrar.ShowNameplatesId);
+        public static bool IsHotkeyHeld => HotKeys.IsPressed(HotKeyRegistrar.ShowNameplatesId);
 
         private static List<NameOverheadOption> Options { get; set; } = new List<NameOverheadOption>();
 
