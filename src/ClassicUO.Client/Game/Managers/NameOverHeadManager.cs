@@ -71,6 +71,8 @@ namespace ClassicUO.Game.Managers
     public sealed class NameOverHeadManager
     {
         private NameOverHeadHandlerGump _gump;
+        private static int _gumpX = 100;
+        private static int _gumpY = 100;
         private static SDL.SDL_Keycode _lastKeySym = SDL.SDL_Keycode.SDLK_UNKNOWN;
         private static SDL.SDL_Keymod _lastKeyMod = SDL.SDL_Keymod.SDL_KMOD_NONE;
         private static bool _keyHotkeyPressed;
@@ -296,7 +298,7 @@ namespace ClassicUO.Game.Managers
         {
             if (_gump == null || _gump.IsDisposed)
             {
-                _gump = new NameOverHeadHandlerGump(_world);
+                _gump = new NameOverHeadHandlerGump(_world, _gumpX, _gumpY);
                 UIManager.Add(_gump);
             }
 
@@ -309,7 +311,7 @@ namespace ClassicUO.Game.Managers
         {
             if (_gump == null)
             { //Required in case nameplates are active when closing and reopening the client
-                _gump = new NameOverHeadHandlerGump(_world);
+                _gump = new NameOverHeadHandlerGump(_world, _gumpX, _gumpY);
                 UIManager.Add(_gump);
             }
 
@@ -376,6 +378,9 @@ namespace ClassicUO.Game.Managers
             {
                 IsDismissed = bool.TryParse(root.GetAttribute(nameof(IsDismissed)), out bool value) && value;
 
+                _gumpX = int.TryParse(root.GetAttribute(nameof(_gumpX)), out int xValue) ? xValue : 100;
+                _gumpY = int.TryParse(root.GetAttribute(nameof(_gumpY)), out int yValue) ? yValue : 100;
+
                 foreach (XmlElement xml in root.GetElementsByTagName("nameoverheadoption"))
                 {
                     var option = new NameOverheadOption(xml.GetAttribute("name"));
@@ -391,6 +396,10 @@ namespace ClassicUO.Game.Managers
                 CreateDefaultEntries();
                 Save();
             }
+
+            string lastActiveOptionName = LastActiveNameOverheadOption.Replace("\\u0026", "&");
+            if (Options.FirstOrDefault(o => o.Name == lastActiveOptionName) is NameOverheadOption activeOption)
+                Client.Game.UO.World.NameOverHeadManager.SetActiveOption(activeOption);
         }
 
         public static void Save()
@@ -413,6 +422,11 @@ namespace ClassicUO.Game.Managers
                     xml.WriteStartElement("nameoverhead");
 
                     xml.WriteAttributeString(nameof(IsDismissed), IsDismissed.ToString());
+
+                    _gumpX = NameOverHeadHandlerGump.LastPosition.HasValue ? NameOverHeadHandlerGump.LastPosition.Value.X : _gumpX;
+                    _gumpY = NameOverHeadHandlerGump.LastPosition.HasValue ? NameOverHeadHandlerGump.LastPosition.Value.Y : _gumpY;
+                    xml.WriteAttributeString(nameof(_gumpX), _gumpX.ToString());
+                    xml.WriteAttributeString(nameof(_gumpY), _gumpY.ToString());
 
                     foreach (NameOverheadOption option in list)
                     {

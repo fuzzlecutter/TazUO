@@ -22,7 +22,7 @@ namespace ClassicUO.Game.UI.Gumps
         private StbTextBox negativeSearchBox;
         private int _topContentWidth;
 
-        public NameOverHeadHandlerGump(World world) : base(world, 0, 0)
+        public NameOverHeadHandlerGump(World world, int x = 100, int y = 100) : base(world, 0, 0)
         {
             CanMove = true;
             AcceptMouseInput = true;
@@ -30,16 +30,13 @@ namespace ClassicUO.Game.UI.Gumps
             // the checkbox below is initialized the same way before its ValueChanged handler is attached.
             CanCloseWithRightClick = NameOverHeadManager.IsPermaToggled;
 
-            if (LastPosition == null)
+            if (!LastPosition.HasValue)
             {
-                X = 100;
-                Y = 100;
+                LastPosition = new Point(x, y);
             }
-            else
-            {
-                X = LastPosition.Value.X;
-                Y = LastPosition.Value.Y;
-            }
+
+            X = LastPosition.Value.X;
+            Y = LastPosition.Value.Y;
 
             WantUpdateSize = false;
 
