@@ -63,7 +63,10 @@ namespace ClassicUO.Game.Managers
         // Mobiles cont.
         Warmode = 1 << 22,
 
-        AllItems = Containers | Gold | Stackable | LockedDown | Moveable | Immoveable | Other,
+        // Items cont.
+        NotLockedDown = 1 << 30,
+
+        AllItems = Containers | Gold | Stackable | LockedDown | NotLockedDown | Moveable | Immoveable | Other,
         AllMobiles = Humanoid | Monster | OwnFollowers | Self,
         MobilesAndCorpses = AllMobiles | MonsterCorpses | HumanoidCorpses,
     }
@@ -266,6 +269,9 @@ namespace ClassicUO.Game.Managers
                 return true;
 
             if (item.IsLocked && ActiveOverheadOptions.HasFlag(NameOverheadOptions.LockedDown))
+                return true;
+
+            if (!item.IsLocked && ActiveOverheadOptions.HasFlag(NameOverheadOptions.NotLockedDown))
                 return true;
 
             if (item.IsMovable && ActiveOverheadOptions.HasFlag(NameOverheadOptions.Moveable))

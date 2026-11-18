@@ -110,13 +110,14 @@ namespace ClassicUO.Game.UI.Controls
             AddCheckbox(TazLang.Get("nameoverhead_containers", "Containers"), NameOverheadOptions.Containers, 0, y);
             AddCheckbox(TazLang.Get("nameoverhead_gold", "Gold"), NameOverheadOptions.Gold, 150, y);
             y += 22;
-            AddCheckbox(TazLang.Get("nameoverhead_stackable", "Stackable"), NameOverheadOptions.Stackable, 0, y);
-            AddCheckbox(TazLang.Get("nameoverhead_lockeddown", "Locked down"), NameOverheadOptions.LockedDown, 150, y);
+            AddCheckbox(TazLang.Get("nameoverhead_lockeddown", "Locked down"), NameOverheadOptions.LockedDown, 0, y);
+            AddCheckbox(TazLang.Get("nameoverhead_lockeddown", "Not Locked down"), NameOverheadOptions.NotLockedDown, 150, y);
             y += 22;
             AddCheckbox(TazLang.Get("nameoverhead_moveable", "Moveable"), NameOverheadOptions.Moveable, 0, y);
             AddCheckbox(TazLang.Get("nameoverhead_immoveable", "Immoveable"), NameOverheadOptions.Immoveable, 150, y);
             y += 22;
-            AddCheckbox(TazLang.Get("nameoverhead_otheritems", "Other items"), NameOverheadOptions.Other, 0, y);
+            AddCheckbox(TazLang.Get("nameoverhead_stackable", "Stackable"), NameOverheadOptions.Stackable, 0, y);
+            AddCheckbox(TazLang.Get("nameoverhead_otheritems", "Other items"), NameOverheadOptions.Other, 150, y);
             y += 28;
 
             AddLabel(TazLang.Get("nameoverhead_corpses", "Corpses"), 75, y, true);
