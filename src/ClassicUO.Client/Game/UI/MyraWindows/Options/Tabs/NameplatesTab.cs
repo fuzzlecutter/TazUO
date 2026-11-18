@@ -241,6 +241,11 @@ public static class NameplatesTab
                 NameOverheadOptions.LockedDown
             ),
             OptionsFactory.CreatePropBoundBitFlagCheckBox(
+                TazLang.Get("mog_nameplates_optionstab_notlockeddown"),
+                new Accessor<NameOverheadOptions>(() => profile.NameOverheadOptionFlags),
+                NameOverheadOptions.NotLockedDown
+            ),
+            OptionsFactory.CreatePropBoundBitFlagCheckBox(
                 TazLang.Get("mog_nameplates_optionstab_immovable"),
                 new Accessor<NameOverheadOptions>(() => profile.NameOverheadOptionFlags),
                 NameOverheadOptions.Immoveable
