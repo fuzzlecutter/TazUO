@@ -363,7 +363,7 @@ public class GridItem : Control
         {
             GameActions.DropItem(Client.Game.UO.GameCursor.ItemHold.Serial, _item.X, _item.Y, 0, _item.Serial);
         }
-        else
+        else if (_profile.GridContainerOrganizesOriginalContainer)
         {
             Rectangle containerBounds = _world.ContainerManager.Get(_gridContainer.OriginalContainerItemGraphic).Bounds;
             // Band layout computes slot positions itself, so don't persist a manual slot position
@@ -372,6 +372,10 @@ public class GridItem : Control
                 _gridContainer.SlotManager.AddItemSlot(Client.Game.UO.GameCursor.ItemHold.Serial, _slot);
             (int X, int Y) pos = GetBoxPosition(_slot, Client.Game.UO.GameCursor.ItemHold.Graphic, containerBounds);
             GameActions.DropItem(Client.Game.UO.GameCursor.ItemHold.Serial, pos.X, pos.Y, 0, _container.Serial);
+        }
+        else
+        {
+            GameActions.DropItem(Client.Game.UO.GameCursor.ItemHold.Serial, 0xFFFF, 0xFFFF, 0, _container.Serial);
         }
 
         Mouse.CancelDoubleClick = true;

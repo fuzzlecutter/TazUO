@@ -523,6 +523,7 @@ namespace ClassicUO.Configuration
         public CorpseContainerStyle CorpseContainerStyle { get; set => SetProperty(ref field, value); }
 
         public bool GridContainersDefaultToOldStyleView { get; set => SetProperty(ref field, value); } = false;
+        public bool GridContainerOrganizesOriginalContainer { get; set => SetProperty(ref field, value); } = true;
         public bool GridContainersDefaultToStackingNonStackables { get; set => SetProperty(ref field, value); } = false;
         public int GridContainerViewMode { get; set => SetProperty(ref field, value); } = 0; // 0 = Grid, 1 = List
         public int GridContainerSearchMode { get; set => SetProperty(ref field, value); } = 0;
@@ -915,7 +916,6 @@ namespace ClassicUO.Configuration
         public HealthBarQuickAction QuickHealAction { get; set; } = HealthBarQuickAction.Heal;
         public HealthBarQuickAction QuickCureAction { get; set; } = HealthBarQuickAction.Cure;
         [JsonConverter(typeof(Point2Converter))] public Point CoprseContainerPosition { get; set => SetProperty(ref field, value); } = new Point(100, 100);
-
 
         private long lastSave;
 
