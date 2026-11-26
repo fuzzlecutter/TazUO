@@ -167,6 +167,11 @@ public static class MiscTab
                 new Accessor<bool>(() => profile.UseSmoothBoatMovement),
                 TazLang.Get("mog_general_clientversionlimitedtooltip"),
                 new SearchMetadata(TazLang.Get("mog_general_smoothboat"), Keywords: [TazLang.Get("mog_kw_boat"), TazLang.Get("mog_kw_smooth")])
+            ),
+            Option.Checkbox(
+                TazLang.Get("mog_scripting_showscripterrorsinwindow"),
+                new Accessor<bool>(() => profile.ShowScriptErrorsInWindow),
+                search: new SearchMetadata(TazLang.Get("mog_scripting_showscripterrorsinwindow"))
             )
         ).WithSearch(new SearchMetadata(TazLang.Get("mog_misctab_label"),
             Keywords: [TazLang.Get("mog_kw_misc"), TazLang.Get("mog_kw_miscellaneous"), TazLang.Get("mog_kw_other")], Tags: [TazLang.Get("mog_kw_misc")]));

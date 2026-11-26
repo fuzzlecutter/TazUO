@@ -255,6 +255,7 @@ namespace ClassicUO.Configuration
         // the central hotkey system (hotkeys.json); this per-profile list records which scripts to
         // re-register on load. Entries whose script no longer exists are pruned on load.
         public List<string> ScriptHotkeys { get; set => SetProperty(ref field, value); } = new List<string>();
+        public bool ShowScriptErrorsInWindow { get; set => SetProperty(ref field, value); } = true;
 
         public bool EnableDeathScreen { get; set => SetProperty(ref field, value); } = true;
         public bool ScreenshotOnDeath { get; set => SetProperty(ref field, value); } = true;

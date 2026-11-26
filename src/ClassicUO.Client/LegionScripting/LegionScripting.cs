@@ -672,7 +672,7 @@ namespace ClassicUO.LegionScripting
                     first = false;
                 }
 
-                if (errorLocations.Count > 0)
+                if (errorLocations.Count > 0 && ProfileManager.CurrentProfile.ShowScriptErrorsInWindow)
                     MainThreadQueue.EnqueueAction(() => { new ScriptErrorWindow(new ScriptErrorDetails(e.Message, errorLocations, script)); });
                 else
                     MainThreadQueue.EnqueueAction(() => GameActions.Print(_world, formattedEx, Constants.HUE_ERROR));
@@ -738,7 +738,7 @@ namespace ClassicUO.LegionScripting
                 Log.Warn($"{script.FileName}({lineNumber}): {diagnostic.GetMessage()}");
             }
 
-            if (errorLocations.Count > 0)
+            if (errorLocations.Count > 0 && ProfileManager.CurrentProfile.ShowScriptErrorsInWindow)
             {
                 string errorMsg = string.Join("\n", e.Diagnostics
                     .Where(d => d.Severity == DiagnosticSeverity.Error)
@@ -793,7 +793,7 @@ namespace ClassicUO.LegionScripting
                 ));
             }
 
-            if (errorLocations.Count > 0)
+            if (errorLocations.Count > 0 && ProfileManager.CurrentProfile.ShowScriptErrorsInWindow)
             {
                 MainThreadQueue.EnqueueAction(() => { new ScriptErrorWindow(new ScriptErrorDetails(actualException.Message, errorLocations, script)); });
             }
