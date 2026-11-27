@@ -595,6 +595,12 @@ namespace ClassicUO.LegionScripting
             }
             catch (ThreadInterruptedException) { }
             catch (ThreadAbortException) { }
+            catch (AggregateException ae)
+            {
+                // Since scripts use RunAsync, unwrap any unexpected exceptions, rather
+                // than displaying generic AggregateException message
+                ShowCSharpRuntimeError(script, ae.Flatten().InnerException ?? ae);
+            }
             catch (Exception e)
             {
                 ShowCSharpRuntimeError(script, e);
@@ -797,9 +803,15 @@ namespace ClassicUO.LegionScripting
             }
         }
 
-        public static void StopScript(ScriptFile script, bool force = false)
+        public static void StopScript(ScriptFile script, bool force = false, DateTime? graceStart = null)
         {
-            if (script == null) return;
+            if (script == null || script.ScriptThread == null) return;
+
+            if (!script.ScriptThread.IsAlive)
+            {
+                DetachScript(script, null, warn: false);
+                return;
+            }
 
             LegionAPI api = script.ScopedApi;
 
@@ -808,42 +820,34 @@ namespace ClassicUO.LegionScripting
             // API.ProcessCallbacks, so we can't force it - we wait for it to complete or for a
             // maximum of 5 seconds, whichever comes first. Skipped when force is requested
             // (e.g. during client shutdown).
-            if (!force && script.ScriptThread is { IsAlive: true } && api is { StopRequested: false } && api.HasPendingStopCallback)
+            if (!force && graceStart == null && api is { IsStopPending: false } && api.HasPendingStopCallback)
             {
                 if (api.BeginStopCallback())
-                    WaitForStopCallbackThenStop(script);
+                    WaitForStopCallbackThenStop(script, DateTime.UtcNow);
 
                 return;
             }
 
-            RunningScripts.Remove(script);
+            // Prevent duplicate stop requests while a script is in the process of stopping.
+            if (!force && graceStart == null && api is { IsStopPending: true })
+                return;
 
-            if (script.ScriptThread is { IsAlive: true })
-            {
-                if (api != null)
-                {
-                    api.StopRequested = true;
-                    api.CancellationToken.Cancel();
-                }
+            api?.StopRequested = true;
+            api?.PauseCancellationToken.Cancel();
 
-                if (script.PythonEngine != null)
-                    script.PythonEngine.Runtime.Shutdown();
+            // Throws ThreadInterruptedException on the running thread, if/when possible.
+            script.ScriptThread.Interrupt();
 
-                script.ScriptThread.Interrupt();
-
-                // Interrupt only lands while the script is blocked (Pause, OnMain, ...); a script
-                // stuck in a pure CPU loop never blocks and can't be interrupted. Give it a bounded
-                // grace period to exit on its own - without blocking the main thread - then detach it
-                // so the manager state stays consistent. The abandoned thread is inert (API disposed,
-                // main-thread calls no-op on the canceled token) and dies with the process. Skipped
-                // on force (client shutdown).
-                if (!force)
-                    ScheduleDetachCheck(script);
-            }
-            else if (script.ScriptThread != null)
-            {
-                DetachScript(script, null, warn: false);
-            }
+            // Interrupt only lands while the script is blocked (Pause, OnMain, ...); a script
+            // stuck in a pure CPU loop never blocks and can't be interrupted. Give it a bounded
+            // grace period to exit on its own - without blocking the main thread - then detach it
+            // so the manager state stays consistent. The abandoned thread is inert (API disposed,
+            // main-thread calls no-op on the canceled token) and dies with the process. Skipped
+            // on force (client shutdown).
+            if (!force)
+                ScheduleDetachCheck(script);
+            else
+                DetachScript(script, script.ScriptThread, warn: false);
         }
 
         /// <summary>
@@ -888,6 +892,13 @@ namespace ClassicUO.LegionScripting
         /// <param name="warn">Whether to tell the user the script kept running in the background</param>
         private static void DetachScript(ScriptFile script, Thread zombieThread, bool warn)
         {
+            if (script.ScriptThread == null)
+                return;
+
+            script.ScopedApi?.CancellationToken.Cancel();
+            script.PythonEngine?.Runtime.Shutdown();
+            RunningScripts.Remove(script);
+
             if (zombieThread != null)
             {
                 PyThreads.Remove(zombieThread.ManagedThreadId);
@@ -913,17 +924,15 @@ namespace ClassicUO.LegionScripting
         /// Waits (without blocking the main thread) for a script's OnStop callback to finish,
         /// or for a maximum of 5 seconds, then performs the actual stop.
         /// </summary>
-        private static void WaitForStopCallbackThenStop(ScriptFile script)
+        private static void WaitForStopCallbackThenStop(ScriptFile script, DateTime graceStart)
         {
             LegionAPI api = script.ScopedApi;
-            DateTime start = DateTime.UtcNow;
-
             var timer = new System.Timers.Timer(100) { AutoReset = true };
 
             timer.Elapsed += (_, _) =>
             {
                 bool completed = api == null || api.OnStopCompleted;
-                bool timedOut = (DateTime.UtcNow - start).TotalSeconds >= 5;
+                bool timedOut = (DateTime.UtcNow - graceStart).TotalSeconds >= 5;
 
                 if (!completed && !timedOut)
                     return;
@@ -941,7 +950,7 @@ namespace ClassicUO.LegionScripting
                     if (script.ScopedApi != null)
                         script.ScopedApi.StopRequested = true;
 
-                    StopScript(script);
+                    StopScript(script, graceStart: graceStart);
                 });
             };
 

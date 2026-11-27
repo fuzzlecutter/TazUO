@@ -67,6 +67,7 @@ namespace ClassicUO.LegionScripting
 
         private volatile bool _disposed;
         private readonly CancellationToken _cachedToken;
+        private readonly CancellationToken _pauseToken;
 
         #endregion
 
@@ -87,6 +88,8 @@ namespace ClassicUO.LegionScripting
             _scriptFile = script;
             CallbackChannel = callbackChannel;
             _cachedToken = CancellationToken.Token;
+            PauseCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(_cachedToken);
+            _pauseToken = PauseCancellationToken.Token;
             Events = new EventSinkApi(this);
             Gumps = new ApiUiGump(this);
             VisualEffects = new ApiVisualEffects(this);
@@ -139,22 +142,20 @@ namespace ClassicUO.LegionScripting
                 }
                 catch (OperationCanceledException)
                 {
-                    // Expected when the callback stops the script
+                    // Expected cancellation signal when a script must stop e.g. API.Pause usage in a stopping script.
+                    throw;
                 }
                 catch (ThreadInterruptedException)
                 {
-                    // Expected when the script is being stopped
+                    // Expected interrupt signal from StopScript(). Must unwind immediately.
+                    throw;
                 }
                 catch (Exception ex)
                 {
                     Log.Warn($"Script callback error: {ex}");
-                    // This may be spammy use needs to know if something's wrong.
-                    // Ideally, this should bubble up to terminate the script.
-                    GameActions.Print(
-                        World,
-                        $"Script callback failed: {ex.Message}",
-                        Constants.HUE_WARN
-                    );
+                    // User needs to know if something's wrong. This should bubble up to terminate the script.
+                    // Rethrowing allows ExecutePythonScript to catch, display error, run cleanup, etc.
+                    throw;
                 }
             };
 
@@ -201,6 +202,14 @@ namespace ClassicUO.LegionScripting
         internal bool OnStopCompleted => _onStopCompleted;
 
         /// <summary>
+        /// Returns true if a stop has already been requested or an OnStop callback is scheduled to run.
+        /// This encapsulates the two ways a pending stop is initially indicated. If no OnStop is
+        /// registered, StopRequested immediately is set. If an OnStop is registered, it must first
+        /// be scheduled before StopRequested is set.
+        /// </summary>
+        internal bool IsStopPending => StopRequested || _onStopScheduled;
+
+        /// <summary>
         /// Schedules the registered OnStop callback so it will run on the next call to
         /// ProcessCallbacks. This is idempotent: it only schedules once and
         /// returns true only on the first call so callers can start a single wait/timeout.
@@ -226,20 +235,26 @@ namespace ClassicUO.LegionScripting
         private Action WrapStopCallback(object callback) =>
             () =>
             {
+                StopRequested = true;
+
                 try
                 {
                     CallbackChannel.Invoke(callback);
                 }
                 catch (OperationCanceledException)
                 {
-                    // Expected when the callback stops the script
+                    // Expected cancellation signal when a script must stop e.g. API.Pause usage in a stopping script.
+                    throw;
                 }
                 catch (ThreadInterruptedException)
                 {
-                    // Expected when the script is being stopped
+                    // Expected interrupt signal from StopScript(). Must unwind immediately.
+                    throw;
                 }
                 catch (Exception ex)
                 {
+                    // Log user errors inside OnStop so teardown still completes cleanly without error
+                    // popups caused by an invalid python environment during script teardown.
                     Log.Warn($"OnStop callback error: {ex}");
                 }
                 finally
@@ -336,6 +351,8 @@ namespace ClassicUO.LegionScripting
             ScreenShake.Viewport.CancelByOwner(this);
             ScreenShake.Window.CancelByOwner(this);
 
+            CancellationToken.Cancel();
+            PauseCancellationToken.Dispose();
             CancellationToken.Dispose();
         }
 
@@ -472,6 +489,7 @@ namespace ClassicUO.LegionScripting
         public volatile bool StopRequested;
 
         public CancellationTokenSource CancellationToken = new();
+        public CancellationTokenSource PauseCancellationToken;
 
         #endregion
 
@@ -4125,10 +4143,13 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         public void Pause(double seconds)
         {
-            Task.Delay(TimeSpan.FromSeconds(seconds), cancellationToken: _cachedToken).Wait(cancellationToken: _cachedToken);
+            if (StopRequested || _pauseToken.IsCancellationRequested)
+                throw new OperationCanceledException("Stop requested", _pauseToken);
 
-            if (StopRequested)
-                throw new ThreadInterruptedException();
+            bool wasCanceled = _pauseToken.WaitHandle.WaitOne(TimeSpan.FromSeconds(seconds));
+
+            if (StopRequested || wasCanceled)
+                throw new OperationCanceledException("Stop requested", _pauseToken);
         }
 
         /// <summary>
